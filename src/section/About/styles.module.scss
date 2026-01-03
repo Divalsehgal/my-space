@@ -1,0 +1,142 @@
+@use "../../styles/_tokens.generated.scss" as *;
+
+.about {
+  background: $colors-surface;
+  color: $colors-text;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+    align-items: center;
+  }
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+    flex: 0.4;
+  }
+
+  &__image-wrapper {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid $colors-primary;
+    box-shadow: $shadows-sm;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    width: 100%;
+    margin-top: $spacing-lg;
+
+    // Buttons full width on mobile
+    a,
+    button {
+      width: 100%;
+    }
+  }
+
+  &__profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__facts {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  &__right {
+    max-width: 800px;
+  }
+
+  &__heading {
+    font-family: $typography-fonts-headline;
+    font-size: $typography-sizes-h3;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__paragraph {
+    font-size: $typography-sizes-body;
+    //line-height: $line-height-relaxed;
+    color: $colors-text;
+    margin-bottom: $spacing-md;
+  }
+
+  &__actions {
+    display: flex;
+
+    gap: $spacing-sm;
+    width: 100%;
+  }
+
+  &__cta {
+    width: 100%;
+  }
+
+  /* --- modifiers example --- */
+  &--compact {
+    padding: $spacing-lg 0;
+  }
+
+  @media (min-width: $breakpoints-md) {
+    &__container {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: $spacing-xl;
+    }
+    &__content {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: $spacing-xl;
+    }
+
+    &__right {
+      text-align: left;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+    }
+
+    &__actions {
+      flex-direction: row;
+      gap: $spacing-md;
+
+      a,
+      button {
+        width: auto;
+      }
+    }
+    &__text {
+      display: block;
+    }
+    &__image-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

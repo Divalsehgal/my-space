@@ -1,0 +1,72 @@
+@use "../../styles/_tokens.generated.scss" as *;
+
+.carousel {
+  width: 100%;
+  align-self: center;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  &__viewport {
+    overflow: hidden;
+    border-radius: $radii-md;
+  }
+
+  &__track {
+    display: flex;
+    transition: transform $transitions-base;
+    will-change: transform;
+  }
+
+  &__slide {
+    min-width: 100%;
+    box-sizing: border-box;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: $spacing-sm;
+    gap: $spacing-md;
+  }
+
+  &__control-button {
+    border-radius: $radii-full;
+    border: 1px solid $colors-primary !important;
+    background: $colors-bg;
+
+    svg {
+      color: $colors-primary;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+    }
+  }
+
+  &__dots {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex: 1;
+    justify-content: center;
+  }
+
+  &__dot {
+    width: $spacing-sm;
+    height: $spacing-sm;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: $colors-border;
+    cursor: pointer;
+
+    &--active {
+      width: $spacing-md;
+      border-radius: $radii-full;
+      background: $colors-primary;
+    }
+  }
+}

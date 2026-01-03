@@ -1,0 +1,139 @@
+{
+  "hero": {
+    "title": "Hi, I’m Dival Sehgal",
+    "subtitle": "Frontend Engineer — I build fast, scalable interfaces with Next.js, React, TypeScript and custom design systems.",
+    "primaryCtaLabel": "Projects",
+    "primaryCtaHref": "#projects",
+    "secondaryCtaLabel": "Contact",
+    "secondaryCtaHref": "#contact"
+  },
+  "about": {
+    "title": "About Me",
+    "paragraphs": [
+      "I’m a frontend engineer who loves building clean, performant UIs with React, Next.js, and TypeScript.",
+      "I enjoy creating scalable design systems, working on large-scale architectures, and building tools that improve developer workflows."
+    ],
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Bangalore, India"
+      },
+      {
+        "label": "Role",
+        "value": "Frontend Engineer"
+      }
+    ],
+    "resumeUrl": "./pdf"
+  },
+
+  "experience": [
+    {
+      "company": "Ingenio",
+      "role": "Senior Frontend Engineer",
+      "period": "2022 — 2024",
+      "location": "Bangalore, India",
+      "description": [
+        {
+          "id": "nextjs-polling",
+          "text": "Built and optimized large-scale Next.js applications with highly efficient polling systems for real-time updates."
+        },
+        {
+          "id": "design-systems",
+          "text": "Created scalable design systems and reusable UI component libraries following atomic design patterns."
+        }
+      ],
+      "techStack": ["Next.js", "React", "TypeScript", "MUI"],
+      "images": [
+        "https://images.unsplash.com/photo-1587620962725-abab7fe55159",
+        "https://images.unsplash.com/photo-1558655146-d09347e92766",
+        "https://images.unsplash.com/photo-1518770660439-4636190af475"
+      ]
+    },
+
+    {
+      "company": "Previous Co",
+      "role": "Frontend Engineer",
+      "period": "2019 — 2022",
+      "location": "Remote",
+      "description": [
+        {
+          "id": "frontend-architecture",
+          "text": "Developed modular frontend architectures improving maintainability across multiple teams."
+        },
+        {
+          "id": "api-integration",
+          "text": "Integrated complex backend services with efficient API handling and caching strategies."
+        }
+      ],
+      "techStack": ["React", "Node.js", "JavaScript", "PostgreSQL"],
+      "images": [
+        "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
+        "https://images.unsplash.com/photo-1551033406-611cf9a28f67",
+        "https://images.unsplash.com/photo-1521737604893-d14cc237f11d"
+      ]
+    },
+
+    {
+      "company": "Freelance & Consulting",
+      "role": "Frontend / Full-Stack Developer",
+      "period": "2018 — 2019",
+      "location": "Delhi, India",
+      "description": [
+        {
+          "id": "client-platforms",
+          "text": "Delivered custom dashboards, marketing sites, and small-scale SaaS MVPs for multiple clients."
+        },
+        {
+          "id": "performance-boost",
+          "text": "Improved site performance scores to 90+ Lighthouse across all client projects."
+        }
+      ],
+      "techStack": ["React", "Next.js", "Express", "MongoDB"],
+      "images": [
+        "https://images.unsplash.com/photo-1555255707-c07966088b7b",
+        "https://images.unsplash.com/photo-1508830524289-0adcbe822b40",
+        "https://images.unsplash.com/photo-1556740749-887f6717d7e4"
+      ]
+    },
+
+    {
+      "company": "Startup Labs",
+      "role": "Frontend Intern → Junior Developer",
+      "period": "2016 — 2018",
+      "location": "Gurgaon, India",
+      "description": [
+        {
+          "id": "ui-dev",
+          "text": "Built UI components and pages for early-stage B2B dashboards and SaaS tools."
+        },
+        {
+          "id": "team-growth",
+          "text": "Collaborated directly with founders and engineers on rapid iteration cycles."
+        }
+      ],
+      "techStack": ["HTML", "CSS", "JavaScript", "jQuery"],
+      "images": [
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?fit=crop&w=900&q=60",
+        "https://images.unsplash.com/photo-1527689368864-3a821dbccc34"
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "Next.js Portfolio",
+      "description": "My personal portfolio + blog built with a custom SCSS design system, token generator, and MUI integration.",
+      "techStack": ["Next.js", "TypeScript", "SCSS", "MUI"],
+      "repo": "https://github.com/Divalsehgal/nextjs-portfolio",
+      "link": "https://divalsehgal.vercel.app"
+    },
+    {
+      "name": "Next.js Portfoliofds",
+      "description": "My personal portfolio + blog built with a custom SCSS design system, token generator, and MUI integration.",
+      "techStack": ["Next.js", "TypeScript", "SCSS", "MUI"],
+      "repo": "https://github.com/Divalsehgal/nextjs-portfolio",
+      "link": "https://divalsehgal.vercel.app"
+    }
+  ]
+}

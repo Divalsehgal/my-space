@@ -1,0 +1,52 @@
+@use "./_fonts.generated" as *;
+@use "./_tokens.generated" as *;
+
+/* --- basic reset --- */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; // body doesn't scroll; main.page-scroll does
+}
+
+/* --- navbar height is fixed --- */
+:root {
+  --nav-height: 64px;
+}
+
+/* --- fixed header with navbar --- */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  z-index: 1200;
+}
+
+/* --- main scroll container under the header --- */
+
+/* --- reusable section class for ALL sections --- */
+.section {
+  scroll-snap-align: start;
+
+  /* same padding for all sections */
+  padding: $spacing-lg ;
+
+  /* each section fills the visible area (minus navbar) */
+  min-height: calc(100vh - var(--nav-height));
+
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* optional inner container for max-width layout */
+.section__inner {
+  width: 100%;
+  max-width: $meta-maxWidthContainer; // from your tokens
+  margin-inline: auto;
+}
