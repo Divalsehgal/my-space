@@ -1,0 +1,26 @@
+{
+  "name": "@dival-sehgal/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design tokens for colors, spacing, typography, layout, and motion",
+  "author": "Dival Sehgal",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "style-dictionary build",
+    "watch": "style-dictionary build --watch"
+  },
+  "exports": {
+    "./variables.css": "./build/css/_variables.css",
+    "./variables.scss": "./build/scss/_variables.scss",
+    "./variables.js": {
+      "types": "./build/ts/variables.d.ts",
+      "import": "./build/ts/variables.js",
+      "default": "./build/ts/variables.js"
+    }
+  },
+  "devDependencies": {
+    "style-dictionary": "^4.3.3"
+  }
+}

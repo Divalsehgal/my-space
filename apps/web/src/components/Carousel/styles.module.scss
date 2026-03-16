@@ -1,0 +1,128 @@
+// Main Container
+.carousel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: $t-spacing-6;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    z-index: 20;
+    margin-bottom: $t-spacing-2;
+  }
+
+  &__progress {
+    width: 50%;
+
+    @media (min-width: $t-breakpoint-desktop) {
+      width: 40%;
+      max-width: 400px;
+    }
+  }
+
+  &__progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: $t-spacing-2;
+  }
+
+  &__progress-label {
+    color: $t-colors-primary-default;
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  &__progress-track {
+    width: 100%;
+    height: 2px;
+    background-color: rgba($t-colors-text-primary, 0.1);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  &__progress-indicator {
+    height: 100%;
+    background-color: $t-colors-primary-default;
+    transition: width 0.3s ease;
+  }
+
+  &__nav {
+    display: flex;
+    gap: $t-spacing-4;
+    align-items: center;
+
+    @media (max-width: $t-breakpoint-desktop) {
+      justify-content: flex-end;
+    }
+  }
+
+  &__nav-btn {
+    @include glass-button-nav;
+    border: 1px solid rgba($t-colors-primary-default, 0.3) !important; // Override if needed but mixin covers it
+
+    &:hover {
+      &.carousel__nav-btn--prev .carousel__nav-icon {
+        transform: translateX(-3px);
+      }
+
+      &.carousel__nav-btn--next .carousel__nav-icon {
+        transform: translateX(3px);
+      }
+    }
+  }
+
+  &__nav-icon {
+    font-size: 24px !important;
+    transition: transform 0.3s ease, color 0.3s ease !important;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    touch-action: pan-y;
+  }
+
+  &__item-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+  }
+
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: $t-spacing-2;
+    margin-top: $t-spacing-8;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba($t-colors-primary-default, 0.2);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &--active {
+      background-color: $t-colors-primary-default;
+      width: 24px;
+      border-radius: 9999px; // Pill shape
+    }
+
+    &:hover:not(&--active) {
+      background-color: rgba($t-colors-primary-default, 0.4);
+    }
+  }
+}

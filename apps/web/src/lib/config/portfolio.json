@@ -1,0 +1,173 @@
+{
+  "hero": {
+    "title": "Hi, I’m Dival Sehgal",
+    "subtitle": "Frontend Engineer — I build fast, scalable interfaces with Next.js, React, TypeScript and custom design systems.",
+    "primaryCtaLabel": "Projects",
+    "primaryCtaHref": "#projects",
+    "secondaryCtaLabel": "Contact",
+    "secondaryCtaHref": "#contact",
+    "badge": "Open to new opportunities",
+    "resumeLabel": "View Resume",
+    "resumeUrl": "/resume.pdf"
+  },
+  "about": {
+    "title": "About Me",
+    "paragraphs": [
+      "I'm a frontend engineer who loves building clean, performant UIs with React, Next.js, and TypeScript.",
+      "I enjoy creating scalable design systems, working on large-scale architectures, and building tools that improve developer workflows.",
+      "With a strong focus on performance and accessibility,"
+    ],
+    "facts": [
+    ],
+    "resumeUrl": "/resume.pdf"
+  },
+  "skills": [
+    "HTML", "CSS", "JavaScript", "ReactJS", "NextJS", "Golang", "Docker", "Jest", "Typescript", "MongoDB", "Playwright", "Sass", "RTK Query", "Styled Components", "Redux Toolkit", "Node.js"
+  ],
+  "experience": [
+    {
+      "id": "exp-ingenio",
+      "company": "Ingenio",
+      "role": "Senior Frontend Engineer",
+      "period": "05/2024 - Present",
+      "location": "Bengaluru, IN",
+      "description": [
+        {
+          "id": "ingenio-1",
+          "text": "Migrated the Advisor Dashboard into a data-driven insights platform with charts and analytics metrics, improving engagement by 25%."
+        },
+        {
+          "id": "ingenio-2",
+          "text": "Revamped Advisor Onboarding from Ember.js to Next.js, integrating Tipalti and Jumio for tax verification."
+        },
+        {
+          "id": "ingenio-3",
+          "text": "Built a Node.js microservice connected to BI pipelines to serve real-time analytics for the Advisor Dashboard."
+        },
+        {
+          "id": "ingenio-4",
+          "text": "Migrated key pages and integrated Zendesk Chatbot, increasing customer support efficiency by 30%."
+        }
+      ],
+      "techStack": ["NextJS", "Node Js", "ReactJs", "Sass", "RTK Query"]
+    },
+    {
+      "id": "exp-landmark",
+      "company": "Landmark Group",
+      "role": "Software Engineer 2",
+      "period": "10/2021 - 05/2024",
+      "location": "Bengaluru, IN",
+      "description": [
+        {
+          "id": "landmark-1",
+          "text": "Managed the Shukran Delivery Project for maxfashion and homecentre, resulting in a 25% increase in on-time deliveries."
+        },
+        {
+          "id": "landmark-2",
+          "text": "Enhanced Flash Sales and Recommendations features, leading to a 30% boost in user engagement."
+        },
+        {
+          "id": "landmark-3",
+          "text": "Revamped area location and product listing filters, improving accessibility and discoverability by 20%."
+        },
+        {
+          "id": "landmark-4",
+          "text": "Optimized performance using Lighthouse reports, reducing load times and decreasing bounce rate by 20%."
+        }
+      ],
+      "techStack": ["NextJs", "ReactJs", "Node js", "Styled Components", "Redux Toolkit"]
+    },
+    {
+      "id": "exp-nineleaps",
+      "company": "Nineleaps",
+      "role": "Member of Technical Staff 3",
+      "period": "02/2020 - 10/2021",
+      "location": "Bengaluru, IN",
+      "description": [
+        {
+          "id": "nineleaps-1",
+          "text": "Developed KYC Dashboard for Stanza Living to manage booking requests across multiple platforms."
+        },
+        {
+          "id": "nineleaps-2",
+          "text": "Built an Ad Campaign Dashboard with analytics and automation, improving campaign efficiency."
+        },
+        {
+          "id": "nineleaps-3",
+          "text": "Implemented role-based routing and an atomic component structure for Narayan Edtech’s platform."
+        }
+      ],
+      "techStack": ["React Js", "Styled Components", "Redux Thunk/Saga"]
+    },
+    {
+      "id": "exp-nineleaps-intern",
+      "company": "Nineleaps",
+      "role": "Intern",
+      "period": "08/2019 - 02/2020",
+      "location": "Bengaluru, IN",
+      "description": [
+        {
+          "id": "nineleaps-intern-1",
+          "text": "Developed an internal Shuttle Service App with an Admin Dashboard for managing cab bookings and seat allocation."
+        }
+      ],
+      "techStack": ["React Js", "Sass", "Redux"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Excel Clone",
+      "description": "Features a familiar spreadsheet interface, supporting cell editing, formulas, and formatting.",
+      "techStack": ["React", "JavaScript", "CSS"],
+      "link": "https://dival-excel.vercel.app",
+      "image": "https://images.unsplash.com/photo-1587620962725-abab7fe55159"
+    },
+    {
+      "name": "RPC Game",
+      "description": "Socket-powered Rock Paper Scissors game, hosting two players at a time while others await their turn.",
+      "techStack": ["React", "Socket.io", "Node.js"],
+      "link": "https://dival-rpc.vercel.app",
+      "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+    },
+    {
+      "name": "Booking Clone",
+      "description": "A full stack hotel booking application with searching and management features.",
+      "techStack": ["React", "Node.js", "MongoDB", "Express"],
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945"
+    },
+    {
+      "name": "YT Bookmarker",
+      "description": "Chrome extension for saving and managing YouTube video timestamps.",
+      "techStack": ["JavaScript", "Chrome API", "CSS"],
+      "repo": "https://github.com/Divalsehgal/yt-bookmarker",
+      "image": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7"
+    }
+  ],
+  "metadata": {
+    "title": "Dival Sehgal | Frontend Engineer",
+    "description": "Portfolio of Dival Sehgal, a Senior Frontend Engineer specializing in Next.js, React, and high-performance UI architecture.",
+    "keywords": ["Frontend Engineer", "Next.js", "React", "TypeScript", "Bangalore"]
+  },
+  "socials": [
+    {
+      "label": "Github",
+      "href": "https://github.com/Divalsehgal",
+      "icon": "github"
+    },
+    {
+      "label": "Linkedin",
+      "href": "https://linkedin.com/in/divalsehgal",
+      "icon": "linkedin"
+    },
+    {
+      "label": "Instagram",
+      "href": "https://instagram.com/divalsehgal",
+      "icon": "instagram"
+    }
+  ],
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Have a project in mind or just want to chat? Feel free to reach out!",
+    "email": "sehgaldival@gmail.com"
+  }
+}

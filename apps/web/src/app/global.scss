@@ -1,0 +1,114 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+}
+
+html {
+  scroll-padding-top: $t-spacing-16; 
+}
+
+.snap-proximity {
+  scroll-snap-type: y proximity !important;
+}
+
+// Use this class on the <html> or <body> tag for premium landing pages
+.snap-mandatory,
+[data-snap="mandatory"] {
+  scroll-snap-type: y mandatory !important;
+  scroll-behavior: auto; // Recommended for mandatory snapping to avoid floaty feel
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- reusable section class for ALL sections --- */
+.section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  background-color: $t-colors-background-primary;
+  min-height: calc(100vh - $t-spacing-16);
+  padding: $t-spacing-4 0; // Vertical padding only
+  flex-direction: column;
+  gap: $t-spacing-6;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  padding-top: $t-spacing-8; // Add top padding to clear the header visually
+  padding-bottom: $t-spacing-8;
+  width: 100%;
+
+  &__bg-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    background-image: radial-gradient($t-colors-primary-default 2px, transparent 2px);
+    background-size: 32px 32px;
+    background-position: center;
+    z-index: 1;
+  }
+
+  @media (max-width: $t-breakpoint-tablet) {
+    align-items: flex-start;
+    padding-top: $t-spacing-4; // Ensure content clears the header (64px + spacing)
+    padding-bottom: $t-spacing-4;
+  }
+
+  &--top {
+    justify-content: flex-start;
+  }
+}
+
+/* optional inner container for max-width layout */
+.section__inner {
+  width: 100%;
+  max-width: $t-global-fluid-width; // from your tokens
+  margin-inline: auto;
+}
+
+/* --- Global Scrollbar Styling --- */
+::-webkit-scrollbar {
+  width: $t-spacing-3;
+  background-color: $t-colors-background-primary;
+}
+
+::-webkit-scrollbar-track {
+  background: $t-colors-background-primary;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba($t-colors-primary-default, 0.4);
+  border-radius: $t-spacing-1;
+  border: 4px solid $t-colors-background-primary;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba($t-colors-primary-default, 0.8);
+  }
+}
+
+// Firefox support
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba($t-colors-primary-default, 0.4) $t-colors-background-primary;
+}
+
+/* --- Global Heading Text Shadows --- */
+h1, h2 {
+  text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
+}
+
+.page-scroll {
+  box-sizing: border-box;
+
+  // Add some padding bottom to ensure last section doesn't overlap footer
+  // or that there is enough space to scroll to footer if needed
+}

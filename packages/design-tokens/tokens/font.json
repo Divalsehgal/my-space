@@ -1,0 +1,116 @@
+{
+  "font": {
+    "family": {
+      "type": "font-family",
+      "heading": {
+        "value": "var(--font-body)"
+      },
+      "body": {
+        "value": "var(--font-body)"
+      }
+    },
+    "weight": {
+      "type": "font-weight",
+      "thin": {
+        "value": "100"
+      },
+      "regular": {
+        "value": "400"
+      },
+      "medium": {
+        "value": "500"
+      },
+      "bold": {
+        "value": "700"
+      },
+      "semibold": {
+        "value": "600"
+      },
+      "black": {
+        "value": "900"
+      }
+    },
+    "size": {
+      "type": "font-size",
+      "xxs": {
+        "value": "12px"
+      },
+      "xs": {
+        "value": "14px"
+      },
+      "sm": {
+        "value": "16px"
+      },
+      "md": {
+        "value": "20px"
+      },
+      "lg": {
+        "value": "24px"
+      },
+      "xl": {
+        "value": "32px"
+      },
+      "xxl": {
+        "value": "40px"
+      },
+      "2xl": {
+        "value": "40px"
+      },
+      "base": {
+        "value": "16px"
+      },
+      "3xl": {
+        "value": "48px"
+      },
+      "4xl": {
+        "value": "60px"
+      },
+      "5xl": {
+        "value": "72px"
+      },
+      "6xl": {
+        "value": "96px"
+      },
+      "7xl": {
+        "value": "128px"
+      }
+    },
+    "line-height": {
+      "type": "line-height",
+      "tight": {
+        "value": "1.2"
+      },
+      "normal": {
+        "value": "1.4"
+      },
+      "relaxed": {
+        "value": "1.6"
+      }
+    },
+    "letter-spacing": {
+      "type": "letter-spacing",
+      "tight": {
+        "2": {
+          "value": "-0.04em"
+        },
+        "1": {
+          "value": "-0.02em"
+        }
+      },
+      "normal": {
+        "value": "0em"
+      },
+      "wide": {
+        "1": {
+          "value": "0.02em"
+        },
+        "2": {
+          "value": "0.04em"
+        },
+        "3": {
+          "value": "0.08em"
+        }
+      }
+    }
+  }
+}

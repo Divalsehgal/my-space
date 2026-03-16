@@ -1,0 +1,79 @@
+
+.container {
+    max-width: $t-global-fluid-width;
+    margin: 0 auto;
+    padding: $t-spacing-20 $t-spacing-6;
+    min-height: 100vh;
+}
+
+.title {
+    font-size: $t-font-size-6xl;
+    font-weight: $t-font-weight-bold;
+    margin-bottom: $t-spacing-12;
+    color: $t-colors-text-primary;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: $t-spacing-8;
+}
+
+.card {
+    text-decoration: none;
+    background: rgba($t-colors-background-secondary, 0.5);
+    border: 1px solid rgba($t-colors-primary-default, 0.1);
+    border-radius: $t-spacing-4;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: rgba($t-colors-primary-default, 0.3);
+        box-shadow: 0 10px 30px -10px rgba($t-colors-primary-default, 0.2);
+    }
+}
+
+.cardContent {
+    padding: $t-spacing-6;
+}
+
+.postTitle {
+    font-size: $t-font-size-2xl;
+    font-weight: $t-font-weight-semibold;
+    margin-bottom: $t-spacing-2;
+    color: $t-colors-text-primary;
+}
+
+.date {
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-secondary;
+    margin-bottom: $t-spacing-4;
+}
+
+.description {
+    font-size: $t-font-size-base;
+    color: $t-colors-text-secondary;
+    margin-bottom: $t-spacing-6;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+}
+
+.tag {
+    font-size: $t-font-size-xs;
+    padding: $t-spacing-1 $t-spacing-3;
+    background: rgba($t-colors-primary-default, 0.1);
+    color: $t-colors-primary-default;
+    border-radius: $t-spacing-full;
+    font-weight: $t-font-weight-medium;
+}

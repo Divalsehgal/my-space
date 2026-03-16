@@ -1,0 +1,165 @@
+{
+  "colors": {
+    "type": "color",
+    "primary": {
+      "default": {
+        "value": "{foundation-colors.orange.500.value}"
+      },
+      "hover": {
+        "value": "{foundation-colors.orange.600.value}"
+      },
+      "active": {
+        "value": "{foundation-colors.orange.700.value}"
+      },
+      "focus": {
+        "value": "{foundation-colors.orange.500.value}"
+      },
+      "disabled": {
+        "value": "{foundation-colors.orange.300.value}"
+      },
+      "light": {
+        "value": "{foundation-colors.orange.100.value}"
+      },
+      "dark": {
+        "value": "{foundation-colors.orange.800.value}"
+      }
+    },
+    "background": {
+      "primary": {
+        "value": "{foundation-colors.neutral.900.value}"
+      },
+      "secondary": {
+        "value": "{foundation-colors.neutral.800.value}"
+      }
+    },
+    "text": {
+      "primary": {
+        "value": "{foundation-colors.neutral.100.value}"
+      },
+      "secondary": {
+        "value": "{foundation-colors.neutral.200.value}"
+      },
+      "tertiary": {
+        "value": "{foundation-colors.neutral.300.value}"
+      },
+      "disabled": {
+        "value": "{foundation-colors.neutral.500.value}"
+      }
+    },
+    "border": {
+      "default": {
+        "value": "{foundation-colors.neutral.700.value}"
+      },
+      "strong": {
+        "value": "{foundation-colors.neutral.600.value}"
+      }
+    },
+    "link": {
+      "default": {
+        "value": "{foundation-colors.orange.500.value}"
+      },
+      "hover": {
+        "value": "{foundation-colors.orange.400.value}"
+      },
+      "active": {
+        "value": "{foundation-colors.orange.600.value}"
+      },
+      "visited": {
+        "value": "{foundation-colors.orange.700.value}"
+      },
+      "focus": {
+        "value": "{foundation-colors.orange.500.value}"
+      }
+    },
+    "button": {
+      "primary": {
+        "background": {
+          "value": "{foundation-colors.orange.500.value}"
+        },
+        "background-hover": {
+          "value": "{foundation-colors.orange.600.value}"
+        },
+        "background-active": {
+          "value": "{foundation-colors.orange.700.value}"
+        },
+        "background-disabled": {
+          "value": "{foundation-colors.orange.300.value}"
+        },
+        "text": {
+          "value": "{foundation-colors.neutral.900.value}"
+        },
+        "border": {
+          "value": "{foundation-colors.orange.500.value}"
+        }
+      },
+      "secondary": {
+        "background": {
+          "value": "transparent"
+        },
+        "background-hover": {
+          "value": "{foundation-colors.neutral.800.value}"
+        },
+        "background-active": {
+          "value": "{foundation-colors.neutral.700.value}"
+        },
+        "text": {
+          "value": "{foundation-colors.neutral.100.value}"
+        },
+        "border": {
+          "value": "{foundation-colors.neutral.700.value}"
+        },
+        "border-hover": {
+          "value": "{foundation-colors.neutral.600.value}"
+        }
+      }
+    },
+    "input": {
+      "background": {
+        "value": "{foundation-colors.neutral.900.value}"
+      },
+      "background-hover": {
+        "value": "{foundation-colors.neutral.800.value}"
+      },
+      "background-focus": {
+        "value": "{foundation-colors.neutral.900.value}"
+      },
+      "background-disabled": {
+        "value": "{foundation-colors.neutral.800.value}"
+      },
+      "text": {
+        "value": "{foundation-colors.neutral.100.value}"
+      },
+      "placeholder": {
+        "value": "{foundation-colors.neutral.500.value}"
+      },
+      "border": {
+        "value": "{foundation-colors.neutral.200.value}"
+      }
+    },
+    "icon": {
+      "primary": {
+        "value": "{foundation-colors.neutral.100.value}"
+      },
+      "secondary": {
+        "value": "{foundation-colors.neutral.300.value}"
+      },
+      "tertiary": {
+        "value": "{foundation-colors.neutral.400.value}"
+      },
+      "disabled": {
+        "value": "{foundation-colors.neutral.600.value}"
+      },
+      "accent": {
+        "value": "{foundation-colors.orange.500.value}"
+      }
+    },
+    "shadow": {
+      "primary": {
+        "value": "rgba(250, 129, 18, 0.2)"
+      },
+      "default": {
+        "value": "rgba(0, 0, 0, 0.3)"
+      }
+    }
+  }
+}

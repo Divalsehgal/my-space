@@ -1,0 +1,25 @@
+{
+  "breakpoint": {
+    "type": "dimension",
+
+    "mobile": {
+      "value": "360px",
+      "comment": "Small mobile devices and compact handsets"
+    },
+
+    "tablet": {
+      "value": "768px",
+      "comment": "Tablets and small landscape devices"
+    },
+
+    "desktop": {
+      "value": "1024px",
+      "comment": "Standard desktop and laptop screens"
+    },
+
+    "desktopLg": {
+      "value": "1440px",
+      "comment": "Large desktop and wide screens"
+    }
+  }
+}

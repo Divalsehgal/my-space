@@ -41,7 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 # token generation
-src/styles/dist/
 
-# local debug scripts
-apps/web/notion_debug.js
+src/styles/dist/

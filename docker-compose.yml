@@ -1,0 +1,42 @@
+services:
+  # Development Environment
+  dev:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_ENV=development
+    restart: always
+
+  # Staging Environment (Built for production-like testing)
+  staging:
+    build:
+      context: .
+      target: runner
+      args:
+        - NEXT_PUBLIC_ENV=staging
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  # Production-like local test
+  production:
+    build:
+      context: .
+      target: runner
+      args:
+        - NEXT_PUBLIC_ENV=production
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+    restart: always

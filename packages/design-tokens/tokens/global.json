@@ -1,0 +1,21 @@
+{
+  "global": {
+    "type": "dimension",
+
+    "fluid-width": {
+      "value": "1760px"
+    },
+
+    "container-inline-padding": {
+      "mobile": {
+        "value": "16px"
+      },
+      "tablet": {
+        "value": "24px"
+      },
+      "desktop": {
+        "value": "48px"
+      }
+    }
+  }
+}

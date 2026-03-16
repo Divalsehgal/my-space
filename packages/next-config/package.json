@@ -1,0 +1,13 @@
+{
+  "name": "@dival-sehgal/next-config",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Dival Sehgal",
+  "license": "MIT",
+  "dependencies": {
+    "next": "16.0.1"
+  },
+  "exports": {
+    ".": "./next.config.ts"
+  }
+}

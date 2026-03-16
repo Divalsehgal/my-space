@@ -1,0 +1,22 @@
+{
+    "name": "@dival-sehgal/fonts",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Fonts for the portfolio",
+    "author": "Dival Sehgal",
+    "license": "MIT",
+    "main": "index.js",
+    "dependencies": {
+        "next": "^16.0.1"
+    },
+    "exports": {
+        "./next": {
+            "types": "./next/index.d.ts",
+            "default": "./next/index.js"
+        },
+        "./assets": "./assets"
+    },
+    "files": [
+        "*"
+    ]
+}
