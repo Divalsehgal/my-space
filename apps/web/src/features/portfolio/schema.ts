@@ -48,15 +48,15 @@ export const PortfolioConfigSchema = z.object({
     secondaryCtaHref: z.string().optional(),
     resumeUrl: z.string().optional(),
     resumeLabel: z.string().optional(),
-    badge: z.string().optional(),
+    badge: z.object({
+      label: z.string(),
+      enabled: z.boolean(),
+    }).optional(),
   }),
   about: z.object({
     title: z.string(),
     paragraphs: z.array(z.string()),
-    facts: z.array(z.object({
-      label: z.string(),
-      value: z.string(),
-    })),
+    facts: z.array(z.string()),
     resumeUrl: z.string().optional(),
   }),
   experience: z.array(ExperienceConfigSchema),

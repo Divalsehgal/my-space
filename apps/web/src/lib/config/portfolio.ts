@@ -76,34 +76,23 @@ export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 const CONFIG_URL =
     "https://raw.githubusercontent.com/Divalsehgal/portfolio-config/main/config.json";
 
-import localConfig from "./portfolio.json";
-
 export const getPortfolioConfig = async () => {
-    // Favor local configuration for immediate updates as requested
     try {
-        const validatedConfig = PortfolioConfigSchema.parse(localConfig);
-        return { config: validatedConfig };
-    } catch (localError) {
-        console.warn("Local config validation failed, falling back to GitHub:", localError);
-        
-        try {
-            const res = await fetchWithRetry(() =>
-                fetch(CONFIG_URL, {
-                    next: { revalidate: 60 },
-                })
-            );
+        const res = await fetchWithRetry(() =>
+            fetch(CONFIG_URL, {
+                next: { revalidate: 60 * 60 }, // Revalidate every hour
+            })
+        );
 
-            if (!res.ok) {
-                throw new Error("Failed to fetch GitHub JSON");
-            }
-
-            const json = await res.json();
-            const validatedConfig = PortfolioConfigSchema.parse(json);
-            return { config: validatedConfig };
-        } catch (githubError) {
-            console.error("Both local and GitHub config failed:", githubError);
-            // Return local config anyway as last resort if it's mostly valid
-            return { config: localConfig as PortfolioConfig };
+        if (!res.ok) {
+            throw new Error("Failed to fetch GitHub JSON");
         }
+
+        const json = await res.json();
+        const validatedConfig = PortfolioConfigSchema.parse(json);
+        return { config: validatedConfig };
+    } catch (githubError) {
+        console.error("Failed to fetch config from GitHub:", githubError);
+        throw githubError;
     }
 };

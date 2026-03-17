@@ -10,6 +10,7 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { Typography, IconButton, Stack, Grid } from "@mui/material";
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
+import { trackEvent } from "@/utils/analytics";
 
 const ICON_MAP: Record<string, any> = {
   github: GitHubIcon,
@@ -63,14 +64,11 @@ export default function About({ data, socials }: AboutProps) {
 
             {/* Facts Section */}
             <Grid container spacing={4}>
-              {facts.map((fact: any, index: number) => (
+              {facts.map((fact: string, index: number) => (
                 <Grid size={{ xs: 6, sm: "auto" }} sx={{ flexGrow: 1 }} key={index}>
                   <Stack>
-                    <Typography variant="caption" className={styles["about__fact-label"]}>
-                      {fact.label}
-                    </Typography>
                     <Typography variant="body2" className={styles["about__fact-value"]}>
-                      {fact.value}
+                      {fact}
                     </Typography>
                   </Stack>
                 </Grid>
@@ -92,6 +90,9 @@ export default function About({ data, socials }: AboutProps) {
                           href={social.href}
                           target="_blank" // Ensure target="_blank" is present for external links
                           size="medium"
+                          onClick={() => {
+                            trackEvent("click", "Social", social.label);
+                          }}
                         >
                           {Icon ? <Icon fontSize="small" /> : (
                             <Typography variant="caption" sx={{ fontWeight: 'bold' }}>

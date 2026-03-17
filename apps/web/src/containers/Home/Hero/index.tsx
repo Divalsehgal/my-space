@@ -14,6 +14,7 @@ import StarsCanvas from "@/components/StarsCanvas";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Box } from "@mui/system";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { trackEvent } from "@/utils/analytics";
 
 type HeroProps = {
   readonly data: PortfolioConfig["hero"];
@@ -25,7 +26,7 @@ export default function Hero({ data }: HeroProps) {
 
   const title = data?.title || "Dival Sehgal";
   const subtitle = data?.subtitle || "Full-Stack Engineer";
-  const badge = data?.badge || "Available for new opportunities";
+  const badge = data?.badge;
 
   const buttons: {
     label: string;
@@ -62,9 +63,11 @@ export default function Hero({ data }: HeroProps) {
         <ParticlesBackground />
       </Box>
       <div className={styles["hero__container"]}>
-        <div className={styles["hero__badge"]}>
-          {badge}
-        </div>
+        {badge?.enabled && (
+          <div className={styles["hero__badge"]}>
+            {badge.label}
+          </div>
+        )}
         <h1 className={`${styles["hero__heading"]} MuiTypography-root MuiTypography-h1`}>
           {title}
         </h1>
@@ -81,6 +84,9 @@ export default function Hero({ data }: HeroProps) {
                 size={button.size}
                 href={button.href}
                 startIcon={button.startIcon}
+                onClick={() => {
+                  trackEvent("click", "Hero", button.label);
+                }}
               >
                 {button.label}
               </Button>

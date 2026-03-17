@@ -26,11 +26,11 @@ export default async function HomePage() {
     <div className="page-scroll">
       <ScrollSnapControl />
       <JsonLd data={jsonLd} />
-      <Hero data={config.hero} />
-      <About data={config.about} socials={config.socials} />
-      <Experience items={config.experience} />
-      <Project items={config.projects} />
-      <Contact data={config.contact} action={submitContact} />
+      <Hero data={config?.hero} />
+      <About data={config?.about} socials={config?.socials} />
+      <Experience items={config?.experience} />
+      <Project items={config?.projects} />
+      <Contact data={config?.contact} action={submitContact} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Button } from "@mui/material";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { type ProjectConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";
+import { trackEvent } from "@/utils/analytics";
 
 type Props = {
   readonly project: ProjectConfig;
@@ -31,6 +32,9 @@ export default function ProjectCard({ project }: Readonly<Props>) {
       endIcon={<ArrowOutwardIcon />}
       href={project.link || project.repo}
       disabled={!project.link && !project.repo}
+      onClick={() => {
+        trackEvent("click", "Project", project.name);
+      }}
     >
       View Project Details
     </Button>

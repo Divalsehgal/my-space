@@ -14,6 +14,7 @@ import { useToast } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
 import { type PortfolioConfig } from "@/features/portfolio";
+import { trackEvent } from "@/utils/analytics";
 
 type ContactProps = Readonly<{
   data: PortfolioConfig["contact"];
@@ -36,8 +37,11 @@ export default function Contact({ data, action }: ContactProps) {
       showToast(state.message, state.status === "success" ? "success" : "error");
       
       if (state.status === "success") {
+        trackEvent("submit_success", "Contact", "Form");
         const form = document.getElementById("contact-form") as HTMLFormElement;
         form?.reset();
+      } else if (state.status === "error") {
+        trackEvent("submit_error", "Contact", state.message);
       }
     }
   }, [state, showToast]);
@@ -102,6 +106,9 @@ export default function Contact({ data, action }: ContactProps) {
               size="large"
               fullWidth
               disabled={isPending}
+              onClick={() => {
+                trackEvent("click", "Contact", "Submit Button");
+              }}
             >
               {isPending ? "Sending..." : "Send Message"}
             </Button>

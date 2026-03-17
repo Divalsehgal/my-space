@@ -1,7 +1,7 @@
 .contact {
   &__row {
     display: flex;
-    gap: $t-spacing-8;
+    gap: $t-spacing-4;
 
     @media (max-width: $t-breakpoint-tablet) {
       flex-direction: column;
@@ -19,7 +19,7 @@
   &__form {
     display: flex;
     flex-direction: column;
-    gap: $t-spacing-8;
+    gap: $t-spacing-4;
   }
 
   &__actions {
