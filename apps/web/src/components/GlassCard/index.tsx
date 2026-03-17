@@ -7,7 +7,7 @@ import styles from "./styles.module.scss";
 type Props = {
     readonly visual?: ReactNode;
     readonly title: ReactNode;
-    readonly description: string;
+    readonly description: string | Array<{ id?: string, text: string }>;
     readonly tags?: readonly string[];
     readonly action?: ReactNode;
     readonly className?: string;
@@ -31,9 +31,17 @@ export default function GlassCard({
             <div className={styles["glass-card__content"]}>
                 <div>
                     <h2 className={styles["glass-card__title"]}>{title}</h2>
-                    <Typography className={styles["glass-card__description"]}>
-                        {description}
-                    </Typography>
+                    <div className={styles["glass-card__description"]}>
+                        {typeof description === "string" ? (
+                            <Typography>{description}</Typography>
+                        ) : (
+                            <ul>
+                                {description.map((item) => (
+                                    <li key={item.id || item.text}>{item.text}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
 
                 {tags && tags.length > 0 && (

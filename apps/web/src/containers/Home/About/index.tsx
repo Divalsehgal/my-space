@@ -42,7 +42,7 @@ export default function About({ data, socials }: AboutProps) {
             <div className={styles["about__avatar-frame"]} />
             <div
               className={styles["about__avatar-image"]}
-              style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJmeckzsDL3wMRB8YTN32jfd0w3j6h7AddNGgHDt3yqHwOtrDR15eHfvxNGRlwUd_lCx4IWKNTUIo9wIuN83ymRdqKRr-4PX9EGEBTb-kcXgkux64YBbVaU2zPfrdUpq_bfCU6c-9YPS-aQzc0YDTlHtmlIfjoWRj55GdzF6S0RyZYC2R8YW2NyFTHNcGzooAZvBBXbzWVMIazGKtxhnNUrbZ7IpOdloiVCzLMsoin3JVRS2cra541WRq6VY0j7WYN1yTo2FFssNwU")` }}
+              style={{ backgroundImage: `url(./me.avif)` }}
             >
               <div className={styles["about__avatar-overlay"]} />
             </div>

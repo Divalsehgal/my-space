@@ -11,7 +11,7 @@ export default function ExperienceCard({ experience }: Readonly<Props>) {
   return (
     <GlassCard
       title={`${experience.role} @ ${experience.company}`}
-      description={experience.description[0]?.text}
+      description={experience.description}
       tags={experience.techStack}
     />
   );

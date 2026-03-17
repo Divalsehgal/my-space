@@ -26,7 +26,7 @@ export const PortfolioConfigSchema = z.object({
   metadata: z.object({
     title: z.string(),
     description: z.string(),
-    keywords: z.array(z.string()).optional(),
+    keywords: z.array(z.string()).optional().default([]),
     verification: z.object({
       google: z.string().optional(),
     }).optional(),
@@ -55,12 +55,13 @@ export const PortfolioConfigSchema = z.object({
   }),
   about: z.object({
     title: z.string(),
-    paragraphs: z.array(z.string()),
-    facts: z.array(z.string()),
+    paragraphs: z.array(z.string()).optional().default([]),
+    facts: z.array(z.string()).optional().default([]),
     resumeUrl: z.string().optional(),
+    imgSrc: z.string().optional(),
   }),
-  experience: z.array(ExperienceConfigSchema),
-  projects: z.array(ProjectConfigSchema),
+  experience: z.array(ExperienceConfigSchema).optional().default([]),
+  projects: z.array(ProjectConfigSchema).optional().default([]),
   contact: z.object({
     title: z.string(),
     subtitle: z.string(),

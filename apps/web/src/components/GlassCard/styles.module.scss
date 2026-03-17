@@ -72,6 +72,16 @@
         font-size: $t-font-size-sm;
         line-height: $t-font-line-height-relaxed;
 
+        ul {
+            list-style-type: disc;
+            padding-left: $t-spacing-5;
+            margin-top: $t-spacing-2;
+
+            li {
+                margin-bottom: $t-spacing-1;
+            }
+        }
+
         @media (min-width: $t-breakpoint-tablet) {
             font-size: $t-font-size-base;
         }
