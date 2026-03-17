@@ -2,7 +2,7 @@
 
 import { Button } from "@mui/material";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { ProjectConfig } from "@/lib/config/portfolio";
+import { type ProjectConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";
 
 type Props = {

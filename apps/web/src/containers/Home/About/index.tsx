@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PortfolioConfig } from "@/lib/config/portfolio";
+import { type PortfolioConfig } from "@/features/portfolio";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import GitHubIcon from '@mui/icons-material/GitHub';

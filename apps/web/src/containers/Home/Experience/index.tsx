@@ -2,7 +2,7 @@
 
 import Carousel from "@/components/Carousel";
 import ExperienceCard from "@/components/ExperienceCard";
-import { ExperienceConfig } from "@/lib/config/portfolio";
+import { type ExperienceConfig } from "@/features/portfolio";
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
 

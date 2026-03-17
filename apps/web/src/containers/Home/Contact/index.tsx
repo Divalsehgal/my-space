@@ -13,7 +13,7 @@ import { type ContactFormState } from "@/types/contact";
 import { useToast } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
-import { PortfolioConfig } from "@/lib/config/portfolio";
+import { type PortfolioConfig } from "@/features/portfolio";
 
 type ContactProps = Readonly<{
   data: PortfolioConfig["contact"];
@@ -34,6 +34,11 @@ export default function Contact({ data, action }: ContactProps) {
   useEffect(() => {
     if (state.status !== "idle" && state.message) {
       showToast(state.message, state.status === "success" ? "success" : "error");
+      
+      if (state.status === "success") {
+        const form = document.getElementById("contact-form") as HTMLFormElement;
+        form?.reset();
+      }
     }
   }, [state, showToast]);
 
@@ -47,6 +52,7 @@ export default function Contact({ data, action }: ContactProps) {
       <div className={styles["contact__container"]}>
         <Box
           component="form"
+          id="contact-form"
           action={formAction}
           className={styles["contact__form"]}
         >

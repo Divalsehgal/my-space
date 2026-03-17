@@ -48,12 +48,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             authors: ["Dival Sehgal"],
             tags: post.tags,
             images: [
-              {
-                url: post.cover || "/og-image.png",
-                width: 1200,
-                height: 630,
-                alt: post.title,
-              },
+                {
+                    url: post.cover || "/og-image.png",
+                    width: 1200,
+                    height: 630,
+                    alt: post.title,
+                },
             ],
         },
         twitter: {
@@ -87,7 +87,7 @@ export default async function BlogPost({ params }: Props) {
         "author": [{
             "@type": "Person",
             "name": "Dival Sehgal",
-            "url": "https://divalsehgal.com",
+            "url": "https://divalsehgal.vercel.app",
         }]
     };
 

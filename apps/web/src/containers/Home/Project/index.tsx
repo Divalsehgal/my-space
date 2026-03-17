@@ -3,7 +3,7 @@
 import Carousel from "@/components/Carousel";
 import ProjectCard from "@/components/ProjectCard";
 import styles from "./styles.module.scss";
-import { ProjectConfig } from "@/lib/config/portfolio";
+import { type ProjectConfig } from "@/features/portfolio";
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
 

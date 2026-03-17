@@ -7,9 +7,9 @@ import { StackHans } from "@dival-sehgal/fonts/next";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
-import { getPortfolioConfig } from "@/lib/config/portfolio";
+import { portfolioService } from "@/features/portfolio";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://divalsehgal.vercel.app");
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -17,10 +17,11 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { config } = await getPortfolioConfig();
-  const title = config.metadata?.title || "Dival Sehgal | Portfolio";
-  const description = config.metadata?.description || "Personal portfolio of Dival Sehgal, a Full Stack Developer specializing in AI and modern web technologies.";
-  const keywords = config.metadata?.keywords || ["Full Stack Developer", "AI Engineer", "Next.js", "React", "TypeScript"];
+  const { config } = await portfolioService.getConfig();
+  const title = config.metadata?.title || "Dival Sehgal | Senior Frontend Engineer";
+  const tagline = config.hero?.subtitle || "Frontend Engineer specializing in Next.js and high-performance UI architecture.";
+  const description = config.metadata?.description || `Portfolio of Dival Sehgal. ${tagline}`;
+  const keywords = config.metadata?.keywords || ["Dival Sehgal", "Frontend Engineer", "Next.js", "React", "TypeScript", "Bangalore"];
 
   return {
     metadataBase: new URL(BASE_URL),
@@ -78,6 +79,9 @@ export async function generateMetadata(): Promise<Metadata> {
     formatDetection: {
       telephone: false,
     },
+    verification: {
+      google: config.metadata?.verification?.google,
+    },
   };
 }
 
@@ -86,7 +90,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { config } = await getPortfolioConfig();
+  const { config } = await portfolioService.getConfig();
 
   return (
     <html lang="en" data-theme="light">

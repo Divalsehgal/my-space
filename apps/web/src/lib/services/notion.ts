@@ -49,31 +49,22 @@ export const createContactSubmission = async (submission: ContactSubmission): Pr
 };
 
 // Cache for Data Source IDs
-let cachedDataSourceId: string | null = null;
+let cachedDataSourceIds: Record<string, string> = {};
 
 /**
  * Resolves the Data Source ID from a Database ID.
  * In Notion v5.7.0, a "database" is a container that holds one or more "data sources".
  */
 const resolveDataSourceId = async (dbId: string): Promise<string> => {
-    if (cachedDataSourceId) return cachedDataSourceId;
+    if (cachedDataSourceIds[dbId]) return cachedDataSourceIds[dbId];
 
     try {
-        // Try to retrieve the object to see what it is
         const db = await notionClient.databases.retrieve({ database_id: dbId }) as any;
         
-        // If it has data_sources, use the first one
-        if (db.data_sources && db.data_sources.length > 0) {
-            cachedDataSourceId = db.data_sources[0].id;
-            return cachedDataSourceId!;
-        }
-        
-        // If it doesn't have data_sources, it might already be a data_source_id
-        // or a legacy database that the new SDK treats as a data source.
-        return dbId;
+        const dataSourceId = db.data_sources?.[0]?.id || dbId;
+        cachedDataSourceIds[dbId] = dataSourceId;
+        return dataSourceId;
     } catch (error) {
-        // If retrieve fails, it might be because dbId is already a Data Source ID
-        // and databases.retrieve doesn't find it.
         return dbId;
     }
 }
@@ -135,8 +126,8 @@ export const getNotionPosts = async (): Promise<NotionBlogPost[]> => {
                 date: props["Publish Date"]?.type === 'date'
                     ? props["Publish Date"].date?.start || null
                     : null,
-                description: props.Description?.type === 'rich_text'
-                    ? props.Description.rich_text[0]?.plain_text || null
+                description: props.Description?.type === 'rich_text' && props.Description.rich_text[0]
+                    ? props.Description.rich_text[0].plain_text || null
                     : null,
                 cover: page.cover?.type === 'external'
                     ? page.cover.external.url
@@ -145,8 +136,8 @@ export const getNotionPosts = async (): Promise<NotionBlogPost[]> => {
                         : null,
             };
         });
-    } catch (error) {
-        console.error("Error fetching Notion posts:", error);
+    } catch (error: any) {
+        console.error("Error fetching Notion posts:", error.message || error);
         return [];
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ExperienceConfig } from "@/lib/config/portfolio";
+import { type ExperienceConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";
 
 type Props = {
