@@ -88,7 +88,9 @@ export default function About({ data, socials }: AboutProps) {
                           key={index}
                           className={styles["about__social-btn"]}
                           href={social.href}
-                          target="_blank" // Ensure target="_blank" is present for external links
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={social.label}
                           size="medium"
                           onClick={() => {
                             trackEvent("click", "Social", social.label);

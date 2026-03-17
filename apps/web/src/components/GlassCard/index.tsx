@@ -30,7 +30,7 @@ export default function GlassCard({
 
             <div className={styles["glass-card__content"]}>
                 <div>
-                    <h2 className={styles["glass-card__title"]}>{title}</h2>
+                    <h3 className={styles["glass-card__title"]}>{title}</h3>
                     <div className={styles["glass-card__description"]}>
                         {typeof description === "string" ? (
                             <Typography>{description}</Typography>

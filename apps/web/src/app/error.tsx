@@ -25,7 +25,7 @@ export default function Error({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "70vh",
+          minHeight: "75vh",
           textAlign: "center",
           gap: 4,
         }}
@@ -33,40 +33,58 @@ export default function Error({
         <Paper
           elevation={0}
           sx={{
-            p: 6,
-            borderRadius: 4,
-            bgcolor: "rgba(255, 0, 0, 0.03)",
-            border: "1px solid rgba(255, 0, 0, 0.1)",
+            p: { xs: 4, md: 8 },
+            borderRadius: 6,
+            bgcolor: "rgba(255, 99, 71, 0.02)",
+            border: "1px solid rgba(255, 99, 71, 0.1)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 2,
+            gap: 3,
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
           }}
         >
-          <ErrorOutlineIcon sx={{ fontSize: 64, color: "error.main", mb: 2 }} />
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: "24px",
+              bgcolor: "rgba(255, 99, 71, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 1,
+            }}
+          >
+            <ErrorOutlineIcon sx={{ fontSize: 48, color: "error.main" }} />
+          </Box>
           
-          <Typography variant="h3" color="error.main" gutterBottom>
-            Something went wrong!
-          </Typography>
-          
-          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 500 }}>
-            We encountered an unexpected error while rendering this page. 
-            This could be due to a temporary issue or a malformed configuration.
-          </Typography>
+          <Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, letterSpacing: "-0.01em" }}>
+              Something went wrong
+            </Typography>
+            
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 450, mx: "auto", mb: 2 }}>
+              We encountered an unexpected error. This might be a temporary glitch. 
+              If the problem persists, please try clearing your cache or contact support.
+            </Typography>
+          </Box>
 
           {process.env.NODE_ENV === "development" && (
             <Box
               sx={{
-                mt: 2,
                 p: 2,
-                bgcolor: "rgba(0,0,0,0.05)",
-                borderRadius: 1,
+                bgcolor: "rgba(0,0,0,0.4)",
+                borderRadius: 2,
                 textAlign: "left",
                 width: "100%",
+                maxWidth: "600px",
                 overflowX: "auto",
+                border: "1px solid rgba(255,255,255,0.05)",
               }}
             >
-              <Typography variant="caption" component="pre" sx={{ fontFamily: "monospace" }}>
+              <Typography variant="caption" component="pre" sx={{ fontFamily: "monospace", color: "#ffa726", fontSize: "0.75rem" }}>
                 {error.stack || error.message}
               </Typography>
             </Box>
@@ -79,14 +97,21 @@ export default function Error({
             onClick={() => reset()}
             startIcon={<RefreshIcon />}
             sx={{
-              mt: 2,
               borderRadius: "50px",
-              px: 4,
-              py: 1.5,
+              px: 6,
+              py: 2,
               textTransform: "none",
+              fontWeight: 600,
+              fontSize: "1rem",
+              boxShadow: "0 8px 16px rgba(250, 129, 18, 0.2)",
+              "&:hover": {
+                boxShadow: "0 12px 24px rgba(250, 129, 18, 0.3)",
+                transform: "translateY(-2px)",
+              },
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
-            Try again
+            Attempt Recovery
           </Button>
         </Paper>
       </Box>

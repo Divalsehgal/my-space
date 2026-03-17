@@ -75,6 +75,11 @@ export async function generateMetadata(): Promise<Metadata> {
       google: "wfB-Js_bQOmrLPlJupTds42zuCnMd-mQJO2Ebs_z558",
     },
     manifest: "/manifest.json",
+    icons: {
+      icon: "/icon.png",
+      shortcut: "/icon.png",
+      apple: "/icon.png",
+    },
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
