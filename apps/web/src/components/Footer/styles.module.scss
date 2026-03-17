@@ -101,15 +101,19 @@
 
     &__social-icon {
         color: $t-colors-text-secondary;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
             color: $t-colors-primary-default;
-            transform: translateY(-2px);
+            transform: translateY(-4px) scale(1.1);
         }
 
         svg {
-            font-size: $t-spacing-6;
+            font-size: $t-spacing-8; // Increased from $t-spacing-6
+            
+            @media (max-width: $t-breakpoint-tablet) {
+                font-size: $t-spacing-7;
+            }
         }
     }
 

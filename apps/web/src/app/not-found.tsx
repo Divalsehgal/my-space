@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Box, Typography, Button, Container } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-import styles from "./page.module.scss";
 
 export default function NotFound() {
   return (
@@ -63,11 +62,11 @@ export default function NotFound() {
                 lineHeight: 1.6
             }}
           >
-            The page you're searching for seems to have vanished into the digital void. 
-            Let's get you back on track.
+            The page you&apos;re searching for seems to have vanished into the digital void. 
+            Let&apos;s get you back on track.
           </Typography>
   
-          <Button
+            <Button
             component={Link}
             href="/"
             variant="contained"
@@ -88,7 +87,7 @@ export default function NotFound() {
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
-            Return to Dashboard
+            Return to Home
           </Button>
         </Box>
       </Box>

@@ -12,7 +12,7 @@ import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { trackEvent } from "@/utils/analytics";
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, React.ElementType> = {
   github: GitHubIcon,
   linkedin: LinkedInIcon,
   instagram: InstagramIcon,
@@ -81,7 +81,7 @@ export default function About({ data, socials }: AboutProps) {
                     Socials
                   </Typography>
                   <div className={styles["about__social-links-integrated"]}>
-                    {socialItems.map((social: any, index: number) => {
+                    {socialItems.map((social: PortfolioConfig["socials"][number], index: number) => {
                       const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
                       return (
                         <IconButton
@@ -91,12 +91,12 @@ export default function About({ data, socials }: AboutProps) {
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={social.label}
-                          size="medium"
+                          size="large"
                           onClick={() => {
                             trackEvent("click", "Social", social.label);
                           }}
                         >
-                          {Icon ? <Icon fontSize="small" /> : (
+                          {Icon ? <Icon fontSize="large" /> : (
                             <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
                               {social.label.substring(0, 2).toUpperCase()}
                             </Typography>

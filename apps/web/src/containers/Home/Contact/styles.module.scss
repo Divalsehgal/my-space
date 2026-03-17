@@ -25,4 +25,35 @@
   &__actions {
     margin-bottom: $t-spacing-8;
   }
+
+  &__title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: $t-spacing-4;
+    flex-wrap: wrap;
+  }
+
+  &__social-links {
+    display: flex;
+    gap: $t-spacing-3;
+    align-items: center;
+    margin-left: $t-spacing-2;
+  }
+
+  &__social-link {
+    color: $t-colors-text-secondary;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: $t-colors-primary-default;
+      transform: translateY(-4px) scale(1.1);
+    }
+
+    svg {
+      font-size: $t-spacing-7;
+    }
+  }
 }

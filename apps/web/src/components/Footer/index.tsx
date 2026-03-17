@@ -89,12 +89,8 @@ export default function Footer({ brand }: FooterProps) {
 
                 <div className={styles["footer__bottom"]}>
                     <Typography className={styles["footer__copyright"]}>
-                        © {currentYear} {brand || "Dival Sehgal"}. All rights reserved.
+                        © {currentYear} {brand || "Dival Sehgal"}. Built with precision and passion.
                     </Typography>
-                    <div className={styles["footer__bottom-links"]}>
-                        <Link href="/privacy" className={styles["footer__bottom-link"]}>Privacy Policy</Link>
-                        <Link href="/terms" className={styles["footer__bottom-link"]}>Terms of Service</Link>
-                    </div>
                 </div>
             </FluidContainer>
         </footer>

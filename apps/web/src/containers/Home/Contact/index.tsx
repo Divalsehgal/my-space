@@ -1,14 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import {
-  Container,
-  Typography,
   TextField,
   Button,
   Box,
 } from "@mui/material";
 import styles from "./styles.module.scss";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import { type ContactFormState } from "@/types/contact";
 import { useToast } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
@@ -24,6 +26,13 @@ type ContactProps = Readonly<{
 const initialState: ContactFormState = {
   status: "idle",
 };
+
+const socialLinks = [
+  { icon: <InstagramIcon />, href: "https://instagram.com", label: "Instagram" },
+  { icon: <FacebookIcon />, href: "https://facebook.com", label: "Facebook" },
+  { icon: <LinkedInIcon />, href: "https://linkedin.com", label: "LinkedIn" },
+  { icon: <GitHubIcon />, href: "https://github.com", label: "GitHub" },
+];
 
 export default function Contact({ data, action }: ContactProps) {
   const { showToast } = useToast();
@@ -49,7 +58,25 @@ export default function Contact({ data, action }: ContactProps) {
   return (
     <FluidContainer as="section" id="contact" className={`${styles.contact} section contact-section`}>
       <SectionHeader
-        title={data?.title || "Get in Touch"}
+        title={
+          <div className={styles["contact__title-wrapper"]}>
+            {data?.title || "Get in Touch"}
+            <div className={styles["contact__social-links"]}>
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles["contact__social-link"]}
+                  aria-label={social.label}
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+        }
         subtitle={data?.subtitle || "Feel free to reach out for collaborations or just a friendly hello!"}
         align="left"
       />

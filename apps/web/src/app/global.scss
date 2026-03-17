@@ -18,6 +18,16 @@ html {
 [data-snap="mandatory"] {
   scroll-snap-type: y mandatory !important;
   scroll-behavior: auto; // Recommended for mandatory snapping to avoid floaty feel
+
+  @media (max-width: $t-breakpoint-tablet) {
+    scroll-snap-type: none !important;
+  }
+}
+
+@media (max-width: $t-breakpoint-tablet) {
+  .snap-proximity {
+    scroll-snap-type: none !important;
+  }
 }
 
 html,

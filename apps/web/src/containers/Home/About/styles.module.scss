@@ -132,9 +132,13 @@
   }
 
   &__social-btn {
+    transition: all 0.3s ease !important;
+    color: $t-colors-text-secondary !important;
 
     &:hover {
       background-color: rgba($t-colors-primary-default, 0.1) !important;
+      color: $t-colors-primary-default !important;
+      transform: translateY(-2px);
     }
   }
 }
