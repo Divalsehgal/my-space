@@ -7,12 +7,12 @@ import FluidContainer from "@/components/FluidContainer";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import { Typography, IconButton, Stack, Grid } from "@mui/material";
+import { Typography, IconButton, Stack, Grid, SvgIconProps } from "@mui/material";
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { trackEvent } from "@/utils/analytics";
 
-const ICON_MAP: Record<string, React.ElementType> = {
+const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
   github: GitHubIcon,
   linkedin: LinkedInIcon,
   instagram: InstagramIcon,
