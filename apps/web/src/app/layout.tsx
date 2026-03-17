@@ -81,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
       telephone: false,
     },
     verification: {
-      google: config.metadata?.verification?.google,
+      google: "Z_82HQE70Ex3QC5TynGlr6dWZFLcNMK9rgioy0KD6Fk",
     },
   };
 }
@@ -94,12 +94,13 @@ export default async function RootLayout({
   const { config } = await portfolioService.getConfig();
 
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const adsId = process.env.NEXT_PUBLIC_ADS_ID;
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID; // Keeping GTM support for future if needed
 
   return (
     <html lang="en" data-theme="light">
       <body className={StackHans.variable}>
-        {gtmId && (
+        {gtmId && gtmId.startsWith("GTM-") && (
           <noscript>
             <iframe
               src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
@@ -110,10 +111,10 @@ export default async function RootLayout({
           </noscript>
         )}
         <Providers>
-          {gaId && (
+          {(gaId || adsId) && (
             <>
               <Script
-                src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+                src={`https://www.googletagmanager.com/gtag/js?id=${gaId || adsId}`}
                 strategy="afterInteractive"
               />
               <Script id="google-analytics" strategy="afterInteractive">
@@ -121,14 +122,13 @@ export default async function RootLayout({
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
-                  gtag('config', '${gaId}', {
-                    page_path: window.location.pathname,
-                  });
+                  ${gaId ? `gtag('config', '${gaId}', { page_path: window.location.pathname });` : ""}
+                  ${adsId ? `gtag('config', 'AW-${adsId.includes("-") ? adsId.split("-")[1] : adsId}');` : ""}
                 `}
               </Script>
             </>
           )}
-          {gtmId && (
+          {gtmId && gtmId.startsWith("GTM-") && (
             <Script id="google-tag-manager" strategy="afterInteractive">
               {`
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
