@@ -10,7 +10,7 @@ import Script from "next/script";
 
 import { portfolioService } from "@/features/portfolio";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://divalsehgal.vercel.app");
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
 
 export const viewport: Viewport = {
   width: "device-width",

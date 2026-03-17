@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getNotionPosts } from "@/lib/services/notion";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://divalsehgal.vercel.app");
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
 
   // Dynamic routes (Blogs)
   const posts = await getNotionPosts();
