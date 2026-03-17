@@ -71,6 +71,9 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: BASE_URL,
     },
+    verification: {
+      google: "wfB-Js_bQOmrLPlJupTds42zuCnMd-mQJO2Ebs_z558",
+    },
     manifest: "/manifest.json",
     appleWebApp: {
       capable: true,
@@ -79,9 +82,6 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     formatDetection: {
       telephone: false,
-    },
-    verification: {
-      google: "Z_82HQE70Ex3QC5TynGlr6dWZFLcNMK9rgioy0KD6Fk",
     },
   };
 }
@@ -99,17 +99,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" data-theme="light">
-      <body className={StackHans.variable}>
-        {gtmId && gtmId.startsWith("GTM-") && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
+      <head>
         {(gaId || adsId) && (
           <>
             <Script
@@ -137,6 +127,18 @@ export default async function RootLayout({
               })(window,document,'script','dataLayer','${gtmId}');
             `}
           </Script>
+        )}
+      </head>
+      <body className={StackHans.variable}>
+        {gtmId && gtmId.startsWith("GTM-") && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
         )}
         <Providers>
           <Navbar brand={config?.navbar?.brand || "Portfolio"} />
