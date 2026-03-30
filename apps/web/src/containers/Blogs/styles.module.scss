@@ -1,4 +1,3 @@
-
 .blogs {
   min-height: 100vh;
   padding: $t-spacing-20 0;
@@ -12,7 +11,9 @@
 
   &__title {
     @include heading-xl;
-
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    overflow: hidden;
     margin-bottom: $t-spacing-4;
     color: $t-colors-text-primary;
   }
