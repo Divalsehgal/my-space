@@ -94,7 +94,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
 
 
                 {/* Search and All Posts */}
-                <div>
+                <>
                     <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                         <h2 className={styles["blogs__title"]} style={{ fontSize: '2rem', marginBottom: 0 }}>All Posts</h2>
                         <input
@@ -115,35 +115,32 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                     </div>
 
                     <div className={styles["blogs__grid"]}>
-                        {isPending ? (
-                            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem' }}>
-                                <h3 className={styles["blogs__title"]}>Searching for posts...</h3>
-                            </div>
-                        ) : filteredPosts.length > 0 ? (
-                            filteredPosts.map((post) => (
-                                <Link key={post.id} href={`/blogs/${post.slug}`} className={styles["blogs__card"]}>
-                                    {post.cover && (
-                                        <div className={styles["blogs__card-image"]} style={{ backgroundImage: `url(${post.cover})` }} />
-                                    )}
-                                    <div className={styles["blogs__card-content"]}>
-                                        {post.date && (
-                                            <p className={styles["blogs__card-date"]}>
-                                                {new Date(post.date).toLocaleDateString("en-US")}
-                                            </p>
+                        {
+                            filteredPosts.length > 0 ? (
+                                filteredPosts.map((post) => (
+                                    <Link key={post.id} href={`/blogs/${post.slug}`} className={styles["blogs__card"]}>
+                                        {post.cover && (
+                                            <div className={styles["blogs__card-image"]} style={{ backgroundImage: `url(${post.cover})` }} />
                                         )}
-                                        <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
-                                        {post.description && <p className={styles["blogs__card-excerpt"]}>{post.description}</p>}
-                                        <div className={styles["blogs__card-link"]}>
-                                            Read More <span>→</span>
+                                        <div className={styles["blogs__card-content"]}>
+                                            {post.date && (
+                                                <p className={styles["blogs__card-date"]}>
+                                                    {new Date(post.date).toLocaleDateString("en-US")}
+                                                </p>
+                                            )}
+                                            <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
+                                            {post.description && <p className={styles["blogs__card-excerpt"]}>{post.description}</p>}
+                                            <div className={styles["blogs__card-link"]}>
+                                                Read More <span>→</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
-                            ))
-                        ) : (
-                            <p style={{ gridColumn: '1/-1', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>No posts found matching your search.</p>
-                        )}
+                                    </Link>
+                                ))
+                            ) : (
+                                <p style={{ gridColumn: '1/-1', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>No posts found matching your search.</p>
+                            )}
                     </div>
-                </div>
+                </>
             </FluidContainer>
         </>
     );
