@@ -1,18 +1,19 @@
+
 .fluid-container {
     width: 100%;
     max-width: $t-global-fluid-width;
-    padding-left:  calc(1.5 * $t-global-container-inline-padding-mobile);
-    padding-right: calc(1.5 * $t-global-container-inline-padding-mobile);
-    margin: 0 auto;
     height: 100%;
+    margin: 0 auto;
+    padding-right: calc(1.5 * $t-global-container-inline-padding-mobile);
+    padding-left:  calc(1.5 * $t-global-container-inline-padding-mobile);
 
     @media (min-width: $t-breakpoint-tablet) {
-        padding-left: calc(3 * $t-global-container-inline-padding-desktop);
         padding-right: calc(3 * $t-global-container-inline-padding-desktop);
+        padding-left: calc(3 * $t-global-container-inline-padding-desktop);
     }
 
     @media (min-width: $t-breakpoint-desktop) {
-        padding-left: calc(3 * $t-global-container-inline-padding-desktop);
         padding-right: calc(3 * $t-global-container-inline-padding-desktop);
+        padding-left: calc(3 * $t-global-container-inline-padding-desktop);
     }
 }

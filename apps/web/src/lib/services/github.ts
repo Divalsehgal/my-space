@@ -32,6 +32,7 @@ class GitHubService {
         Accept: "application/vnd.github.v3+json",
         ...options.headers,
       },
+      signal: options.signal,
     });
 
     if (!response.ok) {
@@ -42,8 +43,8 @@ class GitHubService {
     return response.json();
   }
 
-  async getFile(path: string, branch = "main"): Promise<GitHubFileResponse> {
-    return this.fetchGitHub(`/contents/${path}?ref=${branch}`);
+  async getFile(path: string, branch = "main", signal?: AbortSignal): Promise<GitHubFileResponse> {
+    return this.fetchGitHub(`/contents/${path}?ref=${branch}`, { signal });
   }
 
   async updateFile(
@@ -51,7 +52,8 @@ class GitHubService {
     content: string,
     message: string,
     sha: string,
-    branch = "main"
+    branch = "main",
+    signal?: AbortSignal
   ): Promise<CommitResult> {
     const body = {
       message,
@@ -63,12 +65,13 @@ class GitHubService {
     return this.fetchGitHub(`/contents/${path}`, {
       method: "PUT",
       body: JSON.stringify(body),
+      signal,
     });
   }
 
-  async createBranch(newBranch: string, sourceBranch = "main"): Promise<any> {
+  async createBranch(newBranch: string, sourceBranch = "main", signal?: AbortSignal): Promise<unknown> {
     // Get source branch SHA
-    const ref = await this.fetchGitHub(`/git/refs/heads/${sourceBranch}`);
+    const ref = await this.fetchGitHub(`/git/refs/heads/${sourceBranch}`, { signal });
     const sha = ref.object.sha;
 
     // Create new ref
@@ -78,10 +81,11 @@ class GitHubService {
         ref: `refs/heads/${newBranch}`,
         sha,
       }),
+      signal,
     });
   }
 
-  async createPullRequest(title: string, head: string, base = "main", body = ""): Promise<any> {
+  async createPullRequest(title: string, head: string, base = "main", body = "", signal?: AbortSignal): Promise<unknown> {
     return this.fetchGitHub("/pulls", {
       method: "POST",
       body: JSON.stringify({
@@ -90,6 +94,7 @@ class GitHubService {
         base,
         body,
       }),
+      signal,
     });
   }
 }

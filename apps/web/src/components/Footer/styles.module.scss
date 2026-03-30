@@ -1,159 +1,167 @@
+
 .footer {
-    background-color: $t-colors-background-primary;
-    border-top: 1px solid rgba($t-colors-border-default, 0.3);
-    padding: $t-spacing-12 0 $t-spacing-6;
-    margin-top: auto;
-    // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
+  margin-top: auto;
+  padding: $t-spacing-12 0 $t-spacing-6;
+  border-top: 1px solid rgba($t-colors-border-default, 0.3);
+  background-color: $t-colors-background-primary;
 
-    &__container {
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-12;
+  // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-12;
+  }
+
+  &__top {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-8;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-4;
+    max-width: 400px;
+  }
+
+  &__brand-link {
+    display: flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    width: fit-content;
+
+    color: inherit;
+    text-decoration: none;
+
+    &:hover .footer__brand-icon {
+      transform: rotate(12deg);
+    }
+  }
+
+  &__brand-icon {
+    font-size: $t-spacing-8 !important;
+    color: $t-colors-primary-default;
+    transition: transform 0.3s ease;
+  }
+
+  &__brand-text {
+    font-size: $t-font-size-md !important;
+    font-weight: $t-font-weight-bold !important;
+    color: $t-colors-text-primary;
+    letter-spacing: -0.025em;
+  }
+
+  &__description {
+    font-size: $t-font-size-sm;
+    line-height: $t-font-line-height-relaxed;
+    color: $t-colors-text-secondary;
+  }
+
+  &__section-title {
+    margin-bottom: $t-spacing-4 !important;
+
+    font-size: $t-font-size-sm !important;
+    font-weight: $t-font-weight-bold !important;
+    color: $t-colors-text-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__links-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $t-spacing-2 $t-spacing-8;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__link {
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-secondary;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $t-colors-primary-default;
+    }
+  }
+
+  &__social-links {
+    display: flex;
+    gap: $t-spacing-4;
+  }
+
+  &__social-icon {
+    color: $t-colors-text-secondary;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-4px) scale(1.1);
+      color: $t-colors-primary-default;
     }
 
-    &__top {
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-8;
+    svg {
+      font-size: $t-spacing-8; // Increased from $t-spacing-6
 
-        @media (min-width: $t-breakpoint-tablet) {
-            flex-direction: row;
-            justify-content: space-between;
-        }
+      @media (max-width: $t-breakpoint-tablet) {
+        font-size: $t-spacing-7;
+      }
     }
+  }
 
-    &__brand {
-        max-width: 400px;
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-4;
+  // For mandatory snap regions (like landing pages), restore snapping
+  :global(.snap-mandatory) & {
+    scroll-snap-align: start;
+  }
+
+  &__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-4;
+    align-items: center;
+
+    padding-top: $t-spacing-6;
+    border-top: 1px solid rgba($t-colors-border-default, 0.1);
+
+    @media (min-width: $t-breakpoint-tablet) {
+      flex-direction: row;
+      justify-content: space-between;
     }
+  }
 
-    &__brand-link {
-        display: flex;
-        align-items: center;
-        gap: $t-spacing-2;
-        text-decoration: none;
-        color: inherit;
-        width: fit-content;
+  &__copyright {
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-tertiary;
+  }
 
-        &:hover .footer__brand-icon {
-            transform: rotate(12deg);
-        }
+  &__bottom-links {
+    display: flex;
+    gap: $t-spacing-6;
+  }
+
+  &__bottom-link {
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-tertiary;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $t-colors-primary-default;
     }
-
-    &__brand-icon {
-        color: $t-colors-primary-default;
-        font-size: $t-spacing-8 !important;
-        transition: transform 0.3s ease;
-    }
-
-    &__brand-text {
-        color: $t-colors-text-primary;
-        font-weight: $t-font-weight-bold !important;
-        letter-spacing: -0.025em;
-        font-size: $t-font-size-md !important;
-    }
-
-    &__description {
-        color: $t-colors-text-secondary;
-        font-size: $t-font-size-sm;
-        line-height: $t-font-line-height-relaxed;
-    }
-
-    &__section-title {
-        color: $t-colors-text-primary;
-        font-weight: $t-font-weight-bold !important;
-        font-size: $t-font-size-sm !important;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: $t-spacing-4 !important;
-    }
-
-    &__links-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: $t-spacing-2 $t-spacing-8;
-
-        @media (min-width: $t-breakpoint-tablet) {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    &__link {
-        color: $t-colors-text-secondary;
-        font-size: $t-font-size-sm;
-        text-decoration: none;
-        transition: color 0.2s ease;
-
-        &:hover {
-            color: $t-colors-primary-default;
-        }
-    }
-
-    &__social-links {
-        display: flex;
-        gap: $t-spacing-4;
-    }
-
-    &__social-icon {
-        color: $t-colors-text-secondary;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &:hover {
-            color: $t-colors-primary-default;
-            transform: translateY(-4px) scale(1.1);
-        }
-
-        svg {
-            font-size: $t-spacing-8; // Increased from $t-spacing-6
-            
-            @media (max-width: $t-breakpoint-tablet) {
-                font-size: $t-spacing-7;
-            }
-        }
-    }
-
-    // For mandatory snap regions (like landing pages), restore snapping
-    :global(.snap-mandatory) & {
-        scroll-snap-align: start;
-    }
-
-    &__bottom {
-        border-top: 1px solid rgba($t-colors-border-default, 0.1);
-        padding-top: $t-spacing-6;
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-4;
-        align-items: center;
-
-        @media (min-width: $t-breakpoint-tablet) {
-            flex-direction: row;
-            justify-content: space-between;
-        }
-    }
-
-    &__copyright {
-        color: $t-colors-text-tertiary;
-        font-size: $t-font-size-xxs;
-    }
-
-    &__bottom-links {
-        display: flex;
-        gap: $t-spacing-6;
-    }
-
-    &__bottom-link {
-        color: $t-colors-text-tertiary;
-        font-size: $t-font-size-xxs;
-        text-decoration: none;
-        transition: color 0.2s ease;
-
-        &:hover {
-            color: $t-colors-primary-default;
-        }
-    }
+  }
 }

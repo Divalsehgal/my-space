@@ -1,7 +1,7 @@
 import { getNotionPosts } from "@/lib/services/notion";
 import BlogPageContent from "@/containers/Blogs";
 import FluidContainer from "@/components/FluidContainer";
-import Link from "next/link";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import styles from "./styles.module.scss";
 import type { Metadata } from "next";
 
@@ -12,12 +12,16 @@ export const metadata: Metadata = {
 
 export default async function Blogs() {
     const posts = await getNotionPosts();
+    
+    const breadcrumbItems = [
+        { label: "Blogs", href: "/blogs" },
+    ];
 
     if (!posts || posts.length === 0) {
         return (
             <main className="page-scroll">
-                <FluidContainer className={styles.container}>
-                    <h1 className={styles.title}>Blog</h1>
+                <FluidContainer className={styles["blogs-container"]}>
+                    <h1 className={styles["blogs-title"]}>Blog</h1>
                     <p>No posts found. Make sure your Notion database is connected and has published posts.</p>
                 </FluidContainer>
             </main>
@@ -27,6 +31,7 @@ export default async function Blogs() {
 
     return (
         <main className="page-scroll">
+            <Breadcrumbs items={breadcrumbItems} />
             <BlogPageContent posts={posts} />
         </main>
 

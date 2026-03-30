@@ -5,7 +5,7 @@ import { IconButton, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import TerminalIcon from "@mui/icons-material/Terminal";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
@@ -25,6 +25,7 @@ type NavbarProps = {
 
 export default function Navbar({ brand }: NavbarProps) {
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const isDesktop = useMediaQuery(`(min-width: ${TBreakpointTablet})`);
   const navRef = useRef<HTMLElement>(null);
   const progressBarRef = useRef<SVGPathElement>(null);
@@ -122,14 +123,26 @@ export default function Navbar({ brand }: NavbarProps) {
       {open && (
         <div
           className={styles["navbar__overlay"]}
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            startTransition(() => {
+              setOpen(false);
+            });
+          }}
           aria-hidden="true"
         />
       )}
       <nav className={styles.navbar} ref={navRef}>
         <FluidContainer className={styles["navbar__container"]}>
           {/* Brand */}
-          <Link href="/" className={styles["navbar__brand"]} onClick={() => setOpen(false)}>
+          <Link 
+            href="/" 
+            className={styles["navbar__brand"]} 
+            onClick={() => {
+              startTransition(() => {
+                setOpen(false);
+              });
+            }}
+          >
             <TerminalIcon className={styles["navbar__brand-icon"]} />
             <Typography variant="h3" className={styles["navbar__brand-text"]}>
               {brand || "Dival Sehgal"}
@@ -148,7 +161,11 @@ export default function Navbar({ brand }: NavbarProps) {
           {/* Mobile Menu Button */}
           <IconButton
             className={styles["navbar__menu-btn"]}
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => {
+              startTransition(() => {
+                setOpen((prev) => !prev);
+              });
+            }}
             edge="end"
             aria-label={open ? "Close menu" : "Open menu"}
             size="large"
@@ -164,7 +181,11 @@ export default function Navbar({ brand }: NavbarProps) {
                 key={l.label}
                 href={l.href}
                 className={`${styles["navbar__nav-link"]} ${styles["navbar__nav-link--mobile"]}`}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  startTransition(() => {
+                    setOpen(false);
+                  });
+                }}
               >
                 {l.label}
               </Link>

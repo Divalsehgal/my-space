@@ -1,56 +1,70 @@
+
 .hero {
+  scroll-snap-align: start;
+
   position: relative;
+
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background-color: $t-colors-background-primary;
+
   min-height: calc(100vh - $t-spacing-16);
-  scroll-snap-align: start;
   margin-top: $t-spacing-16;
 
+  background-color: var(--t-colors-bg-primary);
+
   &__bg-pattern {
-    position: absolute;
-    inset: 0;
-    opacity: 0.25;
     pointer-events: none;
+
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+
+    opacity: 0.25;
+
     // Small dot cubic pattern
     background-image: radial-gradient($t-colors-primary-default 1.5px, transparent 1.5px);
-    background-size: 32px 32px;
     background-position: center;
-    z-index: 1;
+    background-size: 32px 32px;
   }
 
   &__container {
     position: relative;
     z-index: $t-layer-level-positive-2;
-    width: 100%;
-    max-width: $t-global-fluid-width;
-    text-align: center;
+
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    width: 100%;
+    max-width: $t-global-fluid-width;
+
+    text-align: center;
   }
 
   &__badge {
-    margin-bottom: $t-spacing-8;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9999px;
-    background-color: rgba($t-colors-primary-default, 0.1);
+
+    margin-bottom: $t-spacing-8;
     padding: $t-spacing-2 $t-spacing-4;
+    border: 1px solid rgba($t-colors-primary-default, 0.2);
+    border-radius: 9999px;
+
     font-size: $t-font-size-sm;
     font-weight: $t-font-weight-medium;
     color: $t-colors-primary-default;
-    border: 1px solid rgba($t-colors-primary-default, 0.2);
+
+    background-color: rgba($t-colors-primary-default, 0.1);
   }
 
   &__heading {
     // Mobile First Sizing
     margin-bottom: $t-spacing-6 !important;
-    text-transform: uppercase;
     font-size: 3.75rem !important; // approx 60px
+    text-transform: uppercase;
 
     @media (min-width: $t-breakpoint-tablet) {
       font-size: 6rem !important; // 96px for desktop
@@ -58,10 +72,10 @@
   }
 
   &__subheading {
-    color: $t-colors-primary-default !important;
-    opacity: 0.9;
     margin-bottom: $t-spacing-12 !important;
     font-size: 1.5rem !important; // 24px
+    color: $t-colors-primary-default !important;
+    opacity: 0.9;
 
     @media (min-width: $t-breakpoint-tablet) {
       font-size: 1.875rem !important; // 30px
@@ -70,11 +84,11 @@
 
   &__actions {
     display: flex;
-    flex-direction: column; // Column by default (Mobile)
+    flex-flow: column wrap; // Column by default (Mobile)
     gap: $t-spacing-5;
-    width: 100%;
-    flex-wrap: wrap;
     justify-content: center;
+
+    width: 100%;
     max-width: 28rem;
 
     @media (min-width: $t-breakpoint-mobile) {
@@ -83,26 +97,29 @@
   }
 
   &__scroll-indicator {
+    cursor: pointer;
+
     position: absolute;
+    z-index: $t-layer-level-positive-2;
     bottom: $t-spacing-10;
     left: 50%;
     transform: translateX(-50%);
-    animation: bounce 2s infinite ease-in-out;
+
     color: $t-colors-primary-default;
+
     opacity: 0.7;
-    cursor: pointer;
+
     transition: all 0.3s ease;
-    z-index: $t-layer-level-positive-2;
+    animation: hero-bounce 2s infinite ease-in-out;
 
     &:hover {
-      opacity: 1;
       transform: translateX(-50%) scale(1.1);
+      opacity: 1;
     }
   }
 }
 
-@keyframes bounce {
-
+@keyframes hero-bounce {
   0%,
   20%,
   50%,

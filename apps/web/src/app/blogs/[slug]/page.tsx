@@ -1,9 +1,9 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-
 import { getNotionPosts, getNotionPostContent } from "@/lib/services/notion";
 import { Metadata } from "next";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import styles from "./styles.module.scss";
 import { notFound } from "next/navigation";
+import FluidContainer from "@/components/FluidContainer";
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -91,14 +91,20 @@ export default async function BlogPost({ params }: Props) {
         }]
     };
 
+    const breadcrumbItems = [
+        { label: "Blogs", href: "/blogs" },
+        { label: post.title, href: `/blogs/${slug}` },
+    ];
+
     return (
         <main className="page-scroll">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            <Breadcrumbs items={breadcrumbItems} />
             <article className={styles["blog-post"]}>
-                <div className={styles.container}>
+                <FluidContainer maxWidth="800px">
                     <header className={styles["blog-post__header"]}>
                         <h1 className={styles["blog-post__title"]}>{post.title}</h1>
                         <div className={styles["blog-post__meta"]}>
@@ -155,15 +161,39 @@ export default async function BlogPost({ params }: Props) {
 
                             return result;
 
+                            function renderRichText(richText: any[]) {
+                                if (!richText) return null;
+                                return richText.map((t: any, i: number) => {
+                                    const { annotations, text, href } = t;
+                                    if (!text) return null;
+
+                                    let content: React.ReactNode = text.content;
+
+                                    if (annotations.bold) content = <strong key={i}>{content}</strong>;
+                                    if (annotations.italic) content = <em key={i}>{content}</em>;
+                                    if (annotations.strikethrough) content = <s key={i}>{content}</s>;
+                                    if (annotations.underline) content = <u key={i}>{content}</u>;
+                                    if (annotations.code) content = <code key={i} className={styles["blog-post__inline-code"]}>{content}</code>;
+
+                                    if (href) {
+                                        return (
+                                            <a key={i} href={href} target="_blank" rel="noopener noreferrer">
+                                                {content}
+                                            </a>
+                                        );
+                                    }
+
+                                    return <span key={i}>{content}</span>;
+                                });
+                            }
+
                             function renderList(list: { type: string; items: any[] }) {
                                 const Tag = list.type as "ul" | "ol";
                                 return (
-                                    <Tag key={list.items[0].id} className={styles[list.type]}>
+                                    <Tag key={list.items[0].id}>
                                         {list.items.map((item) => (
                                             <li key={item.id}>
-                                                {item[item.type]?.rich_text
-                                                    ?.map((t: any) => t.plain_text)
-                                                    .join("")}
+                                                {renderRichText(item[item.type]?.rich_text)}
                                             </li>
                                         ))}
                                     </Tag>
@@ -175,42 +205,34 @@ export default async function BlogPost({ params }: Props) {
                                     case "paragraph":
                                         return (
                                             <p key={block.id}>
-                                                {block.paragraph?.rich_text
-                                                    ?.map((t: any) => t.plain_text)
-                                                    .join("")}
+                                                {renderRichText(block.paragraph?.rich_text)}
                                             </p>
                                         );
 
                                     case "heading_1":
                                         return (
                                             <h1 key={block.id}>
-                                                {block.heading_1?.rich_text
-                                                    ?.map((t: any) => t.plain_text)
-                                                    .join("")}
+                                                {renderRichText(block.heading_1?.rich_text)}
                                             </h1>
                                         );
 
                                     case "heading_2":
                                         return (
                                             <h2 key={block.id}>
-                                                {block.heading_2?.rich_text
-                                                    ?.map((t: any) => t.plain_text)
-                                                    .join("")}
+                                                {renderRichText(block.heading_2?.rich_text)}
                                             </h2>
                                         );
 
                                     case "heading_3":
                                         return (
                                             <h3 key={block.id}>
-                                                {block.heading_3?.rich_text
-                                                    ?.map((t: any) => t.plain_text)
-                                                    .join("")}
+                                                {renderRichText(block.heading_3?.rich_text)}
                                             </h3>
                                         );
 
                                     case "code":
                                         return (
-                                            <pre key={block.id} className={styles.code}>
+                                            <pre key={block.id} className={styles["blog-post__code"]}>
                                                 <code>
                                                     {block.code?.rich_text
                                                         ?.map((t: any) => t.plain_text)
@@ -225,7 +247,7 @@ export default async function BlogPost({ params }: Props) {
                             }
                         })()}
                     </section>
-                </div>
+                </FluidContainer>
             </article>
         </main>
 

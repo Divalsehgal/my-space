@@ -7,13 +7,10 @@ import FluidContainer from "@/components/FluidContainer";
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import DescriptionIcon from '@mui/icons-material/Description';
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-
 import BackgroundPattern from "@/components/BackgroundPattern";
-import StarsCanvas from "@/components/StarsCanvas";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Box } from "@mui/system";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useScroll, useTransform } from "framer-motion";
 import { trackEvent } from "@/utils/analytics";
 
 type HeroProps = {

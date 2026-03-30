@@ -37,7 +37,7 @@ export default function About({ data, socials }: AboutProps) {
     >
       <BackgroundPattern />
       <div className={styles["about__container"]}>
-        <div className={styles["about__column-left"]}>
+        <div className={`${styles["about__column"]} ${styles["about__column--left"]}`}>
           <div className={styles["about__avatar-group"]}>
             <div className={styles["about__avatar-frame"]} />
             <div
@@ -50,7 +50,7 @@ export default function About({ data, socials }: AboutProps) {
         </div>
 
         {/* Right Column: Content */}
-        <div className={styles["about__column-right"]}>
+        <div className={`${styles["about__column"]} ${styles["about__column--right"]}`}>
           <Stack spacing={2}>
             <SectionHeader title={title || "About Me"} align="left" />
 
@@ -80,7 +80,7 @@ export default function About({ data, socials }: AboutProps) {
                   <Typography variant="caption" className={styles["about__fact-label"]}>
                     Socials
                   </Typography>
-                  <div className={styles["about__social-links-integrated"]}>
+                  <div className={styles["about__social-links"]}>
                     {socialItems.map((social: PortfolioConfig["socials"][number], index: number) => {
                       const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
                       return (

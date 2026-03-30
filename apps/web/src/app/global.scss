@@ -1,7 +1,7 @@
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   font-family: var(--font-body);
 }
 
@@ -16,8 +16,8 @@ html {
 // Use this class on the <html> or <body> tag for premium landing pages
 .snap-mandatory,
 [data-snap="mandatory"] {
-  scroll-snap-type: y mandatory !important;
   scroll-behavior: auto; // Recommended for mandatory snapping to avoid floaty feel
+  scroll-snap-type: y mandatory !important;
 
   @media (max-width: $t-breakpoint-tablet) {
     scroll-snap-type: none !important;
@@ -39,41 +39,47 @@ body {
 
 /* --- reusable section class for ALL sections --- */
 .section {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  overflow: visible;
-  background-color: $t-colors-background-primary;
-  min-height: calc(100vh - $t-spacing-16);
-  padding: $t-spacing-4 0; // Vertical padding only
-  flex-direction: column;
-  gap: $t-spacing-6;
   scroll-snap-align: start;
   scroll-snap-stop: normal;
+
+  position: relative;
+
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-6;
+  align-items: center;
+  justify-content: flex-start;
+
+  width: 100%;
+  min-height: calc(100vh - $t-spacing-16);
+  padding: $t-spacing-4 0; // Vertical padding only
   padding-top: $t-spacing-8; // Add top padding to clear the header visually
   padding-bottom: $t-spacing-8;
-  width: 100%;
+
+  background-color: $t-colors-background-primary;
 
   &__bg-pattern {
-    position: absolute;
-    inset: 0;
-    opacity: 0.25;
     pointer-events: none;
-    background-image: radial-gradient($t-colors-primary-default 2px, transparent 2px);
-    background-size: 32px 32px;
-    background-position: center;
+
+    position: absolute;
     z-index: 1;
+    inset: 0;
+
+    opacity: 0.25;
+    background-image: radial-gradient($t-colors-primary-default 2px, transparent 2px);
+    background-position: center;
+    background-size: 32px 32px;
+  }
+
+  &--top {
+    justify-content: flex-start;
   }
 
   @media (max-width: $t-breakpoint-tablet) {
     align-items: flex-start;
     padding-top: $t-spacing-4; // Ensure content clears the header (64px + spacing)
     padding-bottom: $t-spacing-4;
-  }
-
-  &--top {
-    justify-content: flex-start;
   }
 }
 
@@ -95,9 +101,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba($t-colors-primary-default, 0.4);
-  border-radius: $t-spacing-1;
   border: 4px solid $t-colors-background-primary;
+  border-radius: $t-spacing-1;
+  background-color: rgba($t-colors-primary-default, 0.4);
   transition: background-color 0.2s;
 
   &:hover {
@@ -107,13 +113,17 @@ body {
 
 // Firefox support
 * {
-  scrollbar-width: thin;
   scrollbar-color: rgba($t-colors-primary-default, 0.4) $t-colors-background-primary;
+  scrollbar-width: thin;
 }
 
 /* --- Global Heading Text Shadows --- */
 h1, h2 {
   text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
+}
+
+a{
+  text-decoration: none;
 }
 
 .page-scroll {

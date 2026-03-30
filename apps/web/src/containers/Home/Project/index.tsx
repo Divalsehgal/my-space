@@ -13,7 +13,7 @@ type Props = {
 
 export default function Project({ items }: Readonly<Props>) {
   return (
-    <FluidContainer as="section" id="projects" className="section">
+    <FluidContainer as="section" id="projects" className={`section ${styles.project}`}>
       <SectionHeader title="Projects" align="left" />
       <Carousel
         items={items || []}

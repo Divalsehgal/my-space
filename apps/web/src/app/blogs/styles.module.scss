@@ -1,32 +1,36 @@
 
-.container {
+.blogs-container {
     max-width: $t-global-fluid-width;
+    min-height: 100vh;
     margin: 0 auto;
     padding: $t-spacing-20 $t-spacing-6;
-    min-height: 100vh;
 }
 
-.title {
+.blogs-title {
+    margin-bottom: $t-spacing-12;
     font-size: $t-font-size-6xl;
     font-weight: $t-font-weight-bold;
-    margin-bottom: $t-spacing-12;
     color: $t-colors-text-primary;
 }
 
-.grid {
+.blogs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: $t-spacing-8;
 }
 
-.card {
-    text-decoration: none;
-    background: rgba($t-colors-background-secondary, 0.5);
+.blogs-card {
+    overflow: hidden;
+
     border: 1px solid rgba($t-colors-primary-default, 0.1);
     border-radius: $t-spacing-4;
-    overflow: hidden;
-    transition: all 0.3s ease;
+
+    text-decoration: none;
+
+    background: rgba($t-colors-background-secondary, 0.5);
     backdrop-filter: blur(10px);
+
+    transition: all 0.3s ease;
 
     &:hover {
         transform: translateY(-4px);
@@ -35,45 +39,49 @@
     }
 }
 
-.cardContent {
+.blogs-card-content {
     padding: $t-spacing-6;
 }
 
-.postTitle {
+.blogs-post-title {
+    margin-bottom: $t-spacing-2;
     font-size: $t-font-size-2xl;
     font-weight: $t-font-weight-semibold;
-    margin-bottom: $t-spacing-2;
     color: $t-colors-text-primary;
 }
 
-.date {
+.blogs-post-date {
+    margin-bottom: $t-spacing-4;
     font-size: $t-font-size-sm;
     color: $t-colors-text-secondary;
-    margin-bottom: $t-spacing-4;
 }
 
-.description {
-    font-size: $t-font-size-base;
-    color: $t-colors-text-secondary;
-    margin-bottom: $t-spacing-6;
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+.blogs-post-description {
     overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    margin-bottom: $t-spacing-6;
+
+    font-size: $t-font-size-base;
+    line-height: 1.6;
+    color: $t-colors-text-secondary;
 }
 
-.tags {
+.blogs-tags {
     display: flex;
     flex-wrap: wrap;
     gap: $t-spacing-2;
 }
 
-.tag {
-    font-size: $t-font-size-xs;
+.blogs-tag {
     padding: $t-spacing-1 $t-spacing-3;
-    background: rgba($t-colors-primary-default, 0.1);
-    color: $t-colors-primary-default;
     border-radius: $t-spacing-full;
+
+    font-size: $t-font-size-xs;
     font-weight: $t-font-weight-medium;
+    color: $t-colors-primary-default;
+
+    background: rgba($t-colors-primary-default, 0.1);
 }

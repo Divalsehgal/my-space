@@ -1,232 +1,108 @@
+
 .blogs {
-    scroll-snap-align: start;
-    &__container {
-        padding-top: $t-spacing-20;
-        padding-bottom: $t-spacing-24;
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-8;
+  min-height: 100vh;
+  padding: $t-spacing-20 0;
+  background-color: var(--t-colors-bg-secondary);
+
+
+  &__header {
+    margin-bottom: $t-spacing-8;
+    text-align: center;
+  }
+
+  &__title {
+    @include heading-xl;
+
+    margin-bottom: $t-spacing-4;
+    color: $t-colors-text-primary;
+  }
+
+  &__description {
+    @include body-lg;
+
+    max-width: 600px;
+    margin: 0 auto;
+    color: $t-colors-text-secondary;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: $t-spacing-8;
+    margin-top: $t-spacing-12;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    &__header {
-        text-align: center;
-        margin-bottom: $t-spacing-8;
+    @media (min-width: $t-breakpoint-desktop) {
+      grid-template-columns: repeat(3, 1fr);
     }
+  }
 
-    &__main-title {
-        font-size: $t-font-size-6xl;
-        font-weight: $t-font-weight-black;
-        color: $t-colors-text-primary;
-        margin-bottom: $t-spacing-4;
-        letter-spacing: $t-font-letter-spacing-tight-2;
+  &__card {
+    @include card-glass;
+
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-$t-spacing-2);
     }
+  }
 
-    &__subtitle {
-        font-size: $t-font-size-md;
-        color: $t-colors-text-secondary;
-        max-width: 600px;
-        margin: 0 auto;
+  &__card-image {
+    width: 100%;
+    height: 200px;
+    border-bottom: 1px solid rgba($t-colors-border-default, 0.1);
+
+    background-position: center;
+    background-size: cover;
+  }
+
+  &__card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: $t-spacing-6;
+  }
+
+  &__card-date {
+    @include label-sm;
+
+    margin-bottom: $t-spacing-2;
+    color: $t-colors-text-tertiary;
+  }
+
+  &__card-title {
+    @include heading-md;
+
+    margin-bottom: $t-spacing-3;
+    color: $t-colors-text-primary;
+  }
+
+  &__card-excerpt {
+    @include body-md;
+
+    flex-grow: 1;
+    margin-bottom: $t-spacing-6;
+    color: $t-colors-text-secondary;
+  }
+
+  &__card-link {
+    @include text-link;
+
+    display: inline-flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-link-default;
+
+    &:hover {
+      color: $t-colors-link-hover;
     }
-
-    &__section {
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-8;
-    }
-
-
-    &__section-title {
-        font-size: $t-font-size-2xl;
-        font-weight: $t-font-weight-bold;
-        color: $t-colors-text-primary;
-        white-space: nowrap;
-    }
-
-
-
-    &__search-section {
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-6;
-        padding-bottom: $t-spacing-8;
-        border-bottom: 1px solid rgba($t-colors-text-primary, 0.08);
-
-        @media (min-width: $t-breakpoint-tablet) {
-            flex-direction: row;
-            align-items: flex-end;
-            justify-content: space-between;
-        }
-    }
-
-    &__filters-container {
-        display: flex;
-        flex-direction: column;
-        gap: $t-spacing-4;
-        width: 100%;
-
-        @media (min-width: $t-breakpoint-tablet) {
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-end;
-            gap: $t-spacing-4;
-            flex-grow: 1;
-        }
-    }
-
-    &__search-input {
-        width: 100%;
-        padding: $t-spacing-3 $t-spacing-6;
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        color: $t-colors-text-primary;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: $t-font-size-md;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
-        @media (min-width: $t-breakpoint-tablet) {
-            max-width: 320px;
-        }
-
-        &::placeholder {
-            color: rgba($t-colors-text-secondary, 0.5);
-        }
-
-        &:focus {
-            outline: none;
-            border-color: rgba($t-colors-primary-default, 0.5);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 4px rgba($t-colors-primary-default, 0.1), 
-                        0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transform: translateY(-1px);
-        }
-    }
-
-    &__grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: $t-spacing-6;
-    }
-
-    &__card {
-        display: flex;
-        flex-direction: column;
-        background-color: $t-colors-background-secondary;
-        border: 1px solid $t-colors-border-default;
-        border-radius: $t-dimensions-2;
-        overflow: hidden;
-        text-decoration: none;
-        color: inherit;
-        transition: transform 0.2s, box-shadow 0.2s;
-
-        &:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px $t-colors-shadow-default;
-        }
-    }
-
-    &__card-image {
-        position: relative;
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        border-radius: 0 !important; // Explicitly remove border radius from images
-    }
-
-    &__post-image {
-        object-fit: cover;
-        border-radius: 0 !important; // Explicitly remove border radius from images
-    }
-
-    &__card-content {
-        padding: $t-spacing-5;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-
-    &__post-title {
-        font-size: $t-font-size-lg;
-        margin-bottom: $t-spacing-2;
-        font-weight: $t-font-weight-semibold;
-        color: $t-colors-text-primary;
-    }
-
-    &__post-date {
-        font-size: $t-font-size-sm;
-        color: $t-colors-text-secondary;
-        margin-bottom: $t-spacing-3;
-    }
-
-    &__post-description {
-        font-size: $t-font-size-base;
-        color: $t-colors-text-tertiary;
-        margin-bottom: $t-spacing-4;
-        flex: 1;
-    }
-
-    &__tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: $t-spacing-2;
-        margin-top: auto;
-    }
-
-    &__tag {
-        font-size: $t-font-size-xxs;
-        background-color: rgba($t-colors-primary-default, 0.1);
-        border: 1px solid rgba($t-colors-primary-default, 0.2);
-        padding: $t-spacing-1 $t-spacing-2;
-        border-radius: 9999px; // Pill shape
-        color: $t-colors-primary-default;
-    }
-
-    &__carousel-item {
-        width: 100%;
-        height: 400px;
-        background-color: $t-colors-background-secondary;
-        border-radius: $t-dimensions-3;
-        display: flex;
-        border: 1px solid $t-colors-border-default;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: $t-spacing-8;
-        text-decoration: none;
-        color: inherit;
-
-
-        h2 {
-            font-size: $t-font-size-2xl; // Slightly smaller for mobile if needed, but let's stick to ellipsis first
-            margin-bottom: $t-spacing-4;
-            color: $t-colors-text-primary;
-
-            @media (max-width: $t-breakpoint-tablet) {
-                font-size: $t-font-size-xl;
-                @include line-clamp(2);
-                width: 100%;
-            }
-
-            @media (min-width: $t-breakpoint-desktop) {
-                font-size: $t-font-size-3xl;
-            }
-        }
-
-        p {
-            max-width: 600px;
-            margin: 0 auto;
-            color: $t-colors-text-secondary;
-            font-size: $t-font-size-md;
-
-            @media (max-width: $t-breakpoint-tablet) {
-                font-size: $t-font-size-sm;
-                @include line-clamp(3);
-            }
-        }
-    }
-
-
-
+  }
 }

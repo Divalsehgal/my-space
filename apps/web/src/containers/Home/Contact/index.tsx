@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, use } from "react";
+import { useFormStatus } from "react-dom";
 import {
   TextField,
   Button,
@@ -12,7 +13,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { type ContactFormState } from "@/types/contact";
-import { useToast } from "@/context/ToastContext";
+import { ToastContext } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
 import { type PortfolioConfig } from "@/features/portfolio";
@@ -34,15 +35,36 @@ const socialLinks = [
   { icon: <GitHubIcon />, href: "https://github.com", label: "GitHub" },
 ];
 
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      variant="contained"
+      size="large"
+      fullWidth
+      disabled={pending}
+      onClick={() => {
+        trackEvent("click", "Contact", "Submit Button");
+      }}
+    >
+      {pending ? "Sending..." : "Send Message"}
+    </Button>
+  );
+}
+
 export default function Contact({ data, action }: ContactProps) {
-  const { showToast } = useToast();
+  const toastContext = use(ToastContext);
+  const showToast = toastContext?.showToast;
+
   const [state, formAction, isPending] = useActionState(
     action,
     initialState
   );
 
   useEffect(() => {
-    if (state.status !== "idle" && state.message) {
+    if (state.status !== "idle" && state.message && showToast) {
       showToast(state.message, state.status === "success" ? "success" : "error");
       
       if (state.status === "success") {
@@ -56,7 +78,7 @@ export default function Contact({ data, action }: ContactProps) {
   }, [state, showToast]);
 
   return (
-    <FluidContainer as="section" id="contact" className={`${styles.contact} section contact-section`}>
+    <FluidContainer as="section" id="contact" className={`${styles.contact} section`}>
       <SectionHeader
         title={
           <div className={styles["contact__title-wrapper"]}>
@@ -127,18 +149,7 @@ export default function Contact({ data, action }: ContactProps) {
           />
 
           <div className={styles["contact__actions"]}>
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={isPending}
-              onClick={() => {
-                trackEvent("click", "Contact", "Submit Button");
-              }}
-            >
-              {isPending ? "Sending..." : "Send Message"}
-            </Button>
+            <SubmitButton />
           </div>
         </Box>
       </div>

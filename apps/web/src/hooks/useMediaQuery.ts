@@ -18,15 +18,22 @@ export function useMediaQuery(query: string): boolean {
     const [matches, setMatches] = useState<boolean>(getMatch);
 
     useEnhancedEffect(() => {
+        let active = true;
         const mediaQueryList = window.matchMedia(query);
 
-        const listener = () => setMatches(mediaQueryList.matches);
+        const listener = () => {
+            if (!active) return;
+            setMatches(mediaQueryList.matches);
+        };
 
-        // Call immediately to sync state
-        listener();
-
+        // Modern browsers support addEventListener
         mediaQueryList.addEventListener("change", listener);
-        return () => mediaQueryList.removeEventListener("change", listener);
+        setMatches(mediaQueryList.matches);
+
+        return () => {
+            active = false;
+            mediaQueryList.removeEventListener("change", listener);
+        };
     }, [query]);
 
     return matches;

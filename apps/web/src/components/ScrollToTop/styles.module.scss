@@ -1,33 +1,37 @@
 .scrollToTop {
   position: fixed;
-  bottom: $t-spacing-8;
-  right: $t-spacing-8;
   z-index: $t-layer-level-positive-8;
+  right: $t-spacing-8;
+  bottom: $t-spacing-8;
+
   animation: fade-in 0.3s ease-out;
 }
 
 .button {
+  border: 1px solid rgba($t-colors-border-default, 0.3) !important;
+
+  color: $t-colors-primary-default !important;
+
   background-color: rgba($t-colors-background-primary, 0.7) !important;
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba($t-colors-border-default, 0.3) !important;
-  color: $t-colors-primary-default !important;
+
   transition: all 0.2s ease-in-out !important;
 
   &:hover {
-    background-color: $t-colors-primary-default !important;
     transform: translateY(-4px);
     border-color: transparent !important;
+    background-color: $t-colors-primary-default !important;
   }
 }
 
 @keyframes fade-in {
   from {
-    opacity: 0;
     transform: scale(0.8);
+    opacity: 0;
   }
+
   to {
-    opacity: 1;
     transform: scale(1);
+    opacity: 1;
   }
 }

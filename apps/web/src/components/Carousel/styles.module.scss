@@ -1,17 +1,20 @@
 // Main Container
 .carousel {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
   gap: $t-spacing-6;
 
+  width: 100%;
+  height: 100%;
+
   &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    width: 100%;
     z-index: 20;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    width: 100%;
     margin-bottom: $t-spacing-2;
   }
 
@@ -26,25 +29,27 @@
 
   &__progress-header {
     display: flex;
-    justify-content: space-between;
     align-items: flex-end;
+    justify-content: space-between;
     margin-bottom: $t-spacing-2;
   }
 
   &__progress-label {
-    color: $t-colors-primary-default;
     font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
-    letter-spacing: 0.1em;
+    color: $t-colors-primary-default;
     text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
   &__progress-track {
+    overflow: hidden;
+
     width: 100%;
     height: 2px;
-    background-color: rgba($t-colors-text-primary, 0.1);
     border-radius: 9999px;
-    overflow: hidden;
+
+    background-color: rgba($t-colors-text-primary, 0.1);
   }
 
   &__progress-indicator {
@@ -65,6 +70,7 @@
 
   &__nav-btn {
     @include glass-button-nav;
+
     border: 1px solid rgba($t-colors-primary-default, 0.3) !important; // Override if needed but mixin covers it
 
     &:hover {
@@ -84,41 +90,46 @@
   }
 
   &__content {
+    touch-action: pan-y;
+
+    position: relative;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    position: relative;
-    touch-action: pan-y;
   }
 
   &__item-wrapper {
-    width: 100%;
     display: flex;
     flex-direction: column;
+    width: 100%;
     margin: 0 auto;
   }
 
   &__dots {
     display: flex;
-    justify-content: center;
     gap: $t-spacing-2;
+    justify-content: center;
     margin-top: $t-spacing-8;
   }
 
   &__dot {
+    cursor: pointer;
+
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    background-color: rgba($t-colors-primary-default, 0.2);
-    border: none;
     padding: 0;
-    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+
+    background-color: rgba($t-colors-primary-default, 0.2);
+
     transition: all 0.3s ease;
 
     &--active {
-      background-color: $t-colors-primary-default;
       width: 24px;
       border-radius: 9999px; // Pill shape
+      background-color: $t-colors-primary-default;
     }
 
     &:hover:not(&--active) {

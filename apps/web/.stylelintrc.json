@@ -1,0 +1,39 @@
+{
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-config-clean-order"
+  ],
+  "plugins": [
+    "stylelint-selector-bem-pattern",
+    "stylelint-declaration-strict-value"
+  ],
+  "rules": {
+    "plugin/selector-bem-pattern": {
+      "componentName": "[a-z0-9-]+",
+      "componentSelectors": {
+        "initial": "^\\.{componentName}(?:__[a-z0-9-]+)?(?:--[a-z0-9-]+)?$"
+      },
+      "ignoreSelectors": [
+        "^\\.section$",
+        "^\\.active$",
+        "^\\.fluid-container$",
+        "^\\.container$"
+      ]
+    },
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ],
+    "scale-unlimited/declaration-strict-value": [
+      ["/color/", "background-color", "border-color"],
+      {
+        "ignoreValues": ["transparent", "inherit", "currentColor", "initial", "none", "unset"]
+      }
+    ],
+    "selector-class-pattern": null,
+    "scss/at-mixin-pattern": "^[a-z][a-zA-Z0-9-]*$",
+    "scss/dollar-variable-pattern": "^[a-z][a-zA-Z0-9-]*$"
+  }
+}

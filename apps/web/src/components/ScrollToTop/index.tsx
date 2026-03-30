@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IconButton } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import styles from "./styles.module.scss";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -18,13 +19,18 @@ export default function ScrollToTop() {
     };
 
     window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+
+    return () => {
+      window.removeEventListener("scroll", toggleVisibility);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, []);
 
   const scrollToTop = () => {
-    // Disable scroll snap temporarily to allow smooth scrolling
     const html = document.documentElement;
-    const originalScrollSnap = html.style.scrollSnapType;
+    // Disable scroll snap for smooth jumping to top
     html.style.scrollSnapType = "none";
 
     window.scrollTo({
@@ -33,10 +39,13 @@ export default function ScrollToTop() {
     });
 
     // Re-enable scroll snap after a delay (approximate time for smooth scroll)
-    // Alternatively, listen for scroll end event if supported
-    setTimeout(() => {
-      html.style.scrollSnapType = originalScrollSnap;
-    }, 1000);
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      html.style.scrollSnapType = "y mandatory";
+      scrollTimeoutRef.current = null;
+    }, 800);
   };
 
   if (!isVisible) return null;

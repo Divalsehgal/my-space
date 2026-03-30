@@ -1,33 +1,39 @@
+
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: $t-spacing-16; // 64px
   z-index: $t-layer-level-positive-9;
-  text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
-  // Glass effect
-  background-color: rgba($t-colors-background-primary, 0.6);
-  backdrop-filter: blur(60px);
+  top: 0;
+  right: 0;
+  left: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  height: $t-spacing-16; // 64px
+
+  text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
+
+  // Glass effect
+  background-color: rgba($t-colors-background-primary, 0.6);
+  backdrop-filter: blur(60px);
+
   &__container {
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 100%;
   }
 
   &__brand {
-    display: flex;
-    align-items: center;
-    gap: $t-spacing-2;
     cursor: pointer;
-    text-decoration: none;
+
+    display: flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
     color: inherit;
+    text-decoration: none;
 
     &:hover .navbar__brand-icon {
       transform: rotate(12deg);
@@ -35,25 +41,25 @@
   }
 
   &__brand-icon {
-    color: $t-colors-primary-default;
     font-size: $t-spacing-8 !important; // 32px
+    color: $t-colors-primary-default;
     transition: transform 0.3s ease;
   }
 
   &__brand-text {
-    color: $t-colors-text-primary;
-    font-weight: $t-font-weight-bold !important;
-    letter-spacing: -0.025em;
     font-size: $t-font-size-md !important; // 20px
+    font-weight: $t-font-weight-bold !important;
+    color: $t-colors-text-primary;
+    letter-spacing: -0.025em;
   }
 
   &__nav-desktop {
     display: none;
 
-    @media ( min-width: 850px) {
+    @media ( width >= 850px) {
       display: flex;
-      align-items: center;
       gap: $t-spacing-5;
+      align-items: center;
     }
   }
 
@@ -62,6 +68,7 @@
     font-weight: $t-font-weight-medium;
     color: $t-colors-text-secondary;
     text-decoration: none;
+
     transition: color 0.15s ease;
 
     &:hover {
@@ -77,64 +84,68 @@
   }
 
   &__menu-btn {
-    color: $t-colors-text-primary !important;
-    display: flex !important;
     z-index: $t-layer-level-positive-9;
+    display: flex !important;
+    color: $t-colors-text-primary !important;
 
-    @media (min-width: 850px) {
+    @media (width >= 850px) {
       display: none !important;
     }
   }
 
   &__overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba($t-colors-background-primary, 0.4);
-    backdrop-filter: blur($t-spacing-16);
-    -webkit-backdrop-filter: blur(4px);
     z-index: $t-layer-level-positive-8;
+    inset: 0;
+
+    background-color: rgba($t-colors-background-primary, 0.4);
+    backdrop-filter: blur(4px);
+    backdrop-filter: blur($t-spacing-16);
+
     animation: navbar-fade-in 0.2s ease-out;
   }
 
   &__mobile-menu {
     position: absolute;
+    z-index: $t-layer-level-positive-9;
     top: $t-spacing-16; // 64px
-    left: 0;
     right: 0;
-    background-color: $t-colors-background-primary;
-    border-bottom: 1px solid $t-colors-border-default;
-    padding: $t-spacing-4;
+    left: 0;
+
     display: flex;
     flex-direction: column;
     gap: $t-spacing-4;
-    animation: navbar-slide-down 0.2s ease-out;
+
+    padding: $t-spacing-4;
+    border-bottom: 1px solid $t-colors-border-default;
+
+    background-color: $t-colors-background-primary;
     box-shadow: $t-colors-shadow-default;
-    z-index: $t-layer-level-positive-9;
+
+    animation: navbar-slide-down 0.2s ease-out;
   }
 
   &__curve-container {
+    pointer-events: none;
+
     position: absolute;
     top: 100%;
     left: 0;
+
     width: 100%;
     height: 40px;
-    pointer-events: none;
     margin-top: -1px; // Ensure no gap
   }
 
   &__curve-svg {
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
   }
 
   &__curve-bg {
-    fill: rgba($t-colors-background-primary, 0.6);
     backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    fill: rgba($t-colors-background-primary, 0.6);
   }
 
   &__curve-track {
@@ -146,11 +157,11 @@
   &__curve-progress {
     fill: none;
     stroke: rgba($t-colors-primary-default,0.2);
-    
-    stroke-width: 3;
-    stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: calc(1 - var(--scroll-scale, 0));
+    stroke-linecap: round;
+    stroke-width: 3;
+
     transition: stroke-dashoffset 0.1s ease-out;
   }
 }
@@ -167,12 +178,12 @@
 
 @keyframes navbar-slide-down {
   from {
-    opacity: 0;
     transform: translateY(-10px);
+    opacity: 0;
   }
 
   to {
-    opacity: 1;
     transform: translateY(0);
+    opacity: 1;
   }
 }

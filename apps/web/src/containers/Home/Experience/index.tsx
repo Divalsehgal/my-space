@@ -1,6 +1,7 @@
 "use client";
 
 import Carousel from "@/components/Carousel";
+import styles from "./styles.module.scss";
 import ExperienceCard from "@/components/ExperienceCard";
 import { type ExperienceConfig } from "@/features/portfolio";
 import FluidContainer from "@/components/FluidContainer";
@@ -12,7 +13,7 @@ type Props = {
 
 export default function ExperienceSection({ items }: Readonly<Props>) {
   return (
-    <FluidContainer as="section" id="experience" className="section">
+    <FluidContainer as="section" id="experience" className={`section ${styles.experience}`}>
 
       <SectionHeader title="Experience" align="left" />
       <Carousel

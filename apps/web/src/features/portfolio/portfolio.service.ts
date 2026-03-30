@@ -15,15 +15,20 @@ export class PortfolioService {
         return PortfolioService.instance;
     }
 
-    public async getConfig(): Promise<{ config: PortfolioConfig }> {
+    public async getConfig(signal?: AbortSignal): Promise<{ config: PortfolioConfig }> {
         try {
-            const res = await fetchWithRetry(() =>
-                fetch(CONFIG_URL, {
+            const res = await fetchWithRetry((sig) =>
+                fetch(`${CONFIG_URL}?t=${new Date().getTime()}`, {
                     next: { 
                         revalidate: 60,
                         tags: ["portfolio"] 
                     },
-                })
+                    signal: sig,
+                }),
+                0,
+                3,
+                1000,
+                signal
             );
 
             if (!res.ok) {

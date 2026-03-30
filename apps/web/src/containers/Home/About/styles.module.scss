@@ -1,30 +1,41 @@
+
 .about {
-  width: 100%;
   overflow: hidden; // Clip BackgroundPattern's 120% parallax height — stops bleed into Experience section
+  width: 100%;
 
   &__container {
+    position: relative;
+    z-index: $t-layer-level-positive-1;
+
     display: flex;
     flex-direction: column;
     gap: $t-spacing-12;
     align-items: center;
     justify-content: center;
+
     min-height: 100%;
     margin-top: $t-spacing-8;
 
-    position: relative;
-    z-index: $t-layer-level-positive-1;
-
     @media (min-width: $t-breakpoint-desktop) {
       flex-direction: row;
-      align-items: center;
       gap: $t-spacing-16;
+      align-items: center;
     }
   }
 
-  &__column-left {
+  &__column {
     width: 100%;
-    display: flex;
-    justify-content: center;
+
+    &--left {
+      display: flex;
+      justify-content: center;
+    }
+
+    &--right {
+      display: flex;
+      flex-direction: column;
+      gap: $t-spacing-8;
+    }
 
     @media (min-width: $t-breakpoint-desktop) {
       width: 50%;
@@ -43,25 +54,29 @@
   &__avatar-frame {
     position: absolute;
     inset: 0;
+    transform: translate($t-spacing-4, $t-spacing-4);
+
     border: 2px solid $t-colors-primary-default;
     border-radius: $t-spacing-3;
-    transform: translate($t-spacing-4, $t-spacing-4);
+
     transition: transform 0.3s ease;
   }
 
   &__avatar-image {
     position: relative;
+    z-index: $t-layer-level-positive-1;
+
+    overflow: hidden;
+
     width: 150px;
     height: 150px;
     border-radius: $t-spacing-3;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    box-shadow: $t-colors-shadow-default;
-    z-index: $t-layer-level-positive-1;
-    overflow: hidden;
-    background-color: $t-colors-background-primary;
 
+    background-color: var(--t-colors-bg-primary);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    box-shadow: $t-colors-shadow-default;
 
     @media (min-width: $t-breakpoint-desktop) {
       width: 300px;
@@ -75,56 +90,43 @@
     background: linear-gradient(to top, rgba($t-colors-background-primary, 0.4), transparent);
   }
 
-  &__column-right {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: $t-spacing-8;
-
-    @media (min-width: $t-breakpoint-desktop) {
-      width: 50%;
-    }
-  }
-
   &__label {
-    color: $t-colors-primary-default;
-    letter-spacing: 0.15em !important;
-    text-transform: uppercase;
     font-weight: $t-font-weight-bold !important;
+    color: $t-colors-primary-default;
+    text-transform: uppercase;
+    letter-spacing: 0.15em !important;
   }
 
   &__description {
-    color: $t-colors-text-secondary;
-    margin-bottom: $t-spacing-2;
     display: block; // Ensure full text is visible
+    margin-bottom: $t-spacing-2;
+    color: $t-colors-text-secondary;
 
     @media (min-width: $t-breakpoint-tablet) {
       display: block; // Reset to normal on tablet/desktop
-      -webkit-line-clamp: unset;
-      line-clamp: unset;
-      overflow: visible;
     }
   }
 
   &__fact-label {
+    font-weight: $t-font-weight-medium !important;
     color: rgba($t-colors-text-secondary, 0.7);
     text-transform: uppercase;
     letter-spacing: 0.05em !important;
-    font-weight: $t-font-weight-medium !important;
   }
 
   &__fact-value {
-    color: $t-colors-text-primary;
     font-weight: $t-font-weight-bold !important;
+    color: $t-colors-text-primary;
   }
 
   &__social-links {
     display: flex;
-    align-items: center;
-    margin-top: $t-spacing-0;
     gap: $t-spacing-4;
-    padding-top: $t-spacing-4;
+    align-items: center;
     justify-content: center;
+
+    margin-top: $t-spacing-0;
+    padding-top: $t-spacing-4;
 
     @media (min-width: $t-breakpoint-desktop) {
       justify-content: flex-start;
@@ -132,13 +134,13 @@
   }
 
   &__social-btn {
-    transition: all 0.3s ease !important;
     color: $t-colors-text-secondary !important;
+    transition: all 0.3s ease !important;
 
     &:hover {
-      background-color: rgba($t-colors-primary-default, 0.1) !important;
-      color: $t-colors-primary-default !important;
       transform: translateY(-2px);
+      color: $t-colors-primary-default !important;
+      background-color: rgba($t-colors-primary-default, 0.1) !important;
     }
   }
 }
