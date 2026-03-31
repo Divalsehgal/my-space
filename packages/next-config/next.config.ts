@@ -1,12 +1,32 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-    basePath: "",
+    reactCompiler: true,
     output: 'standalone',
+    productionBrowserSourceMaps: true,
     experimental: {
         externalDir: true,
+    },
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "api.dicebear.com"
+            },
+            {
+                protocol: "https",
+                hostname: "images.unsplash.com"
+            },
+            {
+                protocol: "https",
+                hostname: "res.cloudinary.com"
+            },
+            {
+                protocol: "https",
+                hostname: "images.pexels.com"
+            }
+        ]
     }
 };
-
 
 export default nextConfig;

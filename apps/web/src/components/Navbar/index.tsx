@@ -5,7 +5,7 @@ import { IconButton, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import TerminalIcon from "@mui/icons-material/Terminal";
-import { useState, useEffect, useRef, useTransition } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
@@ -25,7 +25,6 @@ type NavbarProps = {
 
 export default function Navbar({ brand }: NavbarProps) {
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const isDesktop = useMediaQuery(`(min-width: ${TBreakpointTablet})`);
   const navRef = useRef<HTMLElement>(null);
   const progressBarRef = useRef<SVGPathElement>(null);
@@ -124,9 +123,7 @@ export default function Navbar({ brand }: NavbarProps) {
         <div
           className={styles["navbar__overlay"]}
           onClick={() => {
-            startTransition(() => {
-              setOpen(false);
-            });
+            setOpen(false);
           }}
           aria-hidden="true"
         />
@@ -138,9 +135,7 @@ export default function Navbar({ brand }: NavbarProps) {
             href="/" 
             className={styles["navbar__brand"]} 
             onClick={() => {
-              startTransition(() => {
-                setOpen(false);
-              });
+              setOpen(false);
             }}
           >
             <TerminalIcon className={styles["navbar__brand-icon"]} />
@@ -162,9 +157,7 @@ export default function Navbar({ brand }: NavbarProps) {
           <IconButton
             className={styles["navbar__menu-btn"]}
             onClick={() => {
-              startTransition(() => {
-                setOpen((prev) => !prev);
-              });
+              setOpen((prev) => !prev);
             }}
             edge="end"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -182,9 +175,7 @@ export default function Navbar({ brand }: NavbarProps) {
                 href={l.href}
                 className={`${styles["navbar__nav-link"]} ${styles["navbar__nav-link--mobile"]}`}
                 onClick={() => {
-                  startTransition(() => {
-                    setOpen(false);
-                  });
+                  setOpen(false);
                 }}
               >
                 {l.label}
