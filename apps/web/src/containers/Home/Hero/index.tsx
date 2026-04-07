@@ -29,6 +29,8 @@ export default function Hero() {
     color: NonNullable<React.ComponentProps<typeof Button>["color"]>;
     size: NonNullable<React.ComponentProps<typeof Button>["size"]>;
     startIcon?: React.ReactNode;
+    target?: string;
+    rel?: string;
   }[] = [{
     label: data?.primaryCtaLabel || "View Projects",
     href: data?.primaryCtaHref || "#projects",
@@ -48,6 +50,8 @@ export default function Hero() {
     color: "secondary",
     size: "large",
     startIcon: <DescriptionIcon />,
+    target: "_blank",
+    rel: "noopener noreferrer",
   }]
 
   return (
@@ -78,6 +82,8 @@ export default function Hero() {
                 size={button.size}
                 href={button.href}
                 startIcon={button.startIcon}
+                target={button.target}
+                rel={button.rel}
                 onClick={() => {
                   trackEvent("click", "Hero", button.label);
                 }}
