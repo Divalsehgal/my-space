@@ -3,11 +3,7 @@ import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import HomeIcon from "@mui/icons-material/Home";
-
-export interface BreadcrumbItem {
-  label: string;
-  href: string;
-}
+import type { BreadcrumbItem } from "@/types";
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];

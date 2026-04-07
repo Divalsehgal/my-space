@@ -3,21 +3,19 @@
 import Carousel from "@/components/Carousel";
 import styles from "./styles.module.scss";
 import ExperienceCard from "@/components/ExperienceCard";
-import { type ExperienceConfig } from "@/features/portfolio";
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
+import { usePortfolioContext } from "@/context/PortfolioContext";
 
-type Props = {
-  readonly items: ExperienceConfig[];
-};
+export default function ExperienceSection() {
+  const config = usePortfolioContext();
+  const items = config?.experience || [];
 
-export default function ExperienceSection({ items }: Readonly<Props>) {
   return (
     <FluidContainer as="section" id="experience" className={`section ${styles.experience}`}>
-
       <SectionHeader title="Experience" align="left" />
       <Carousel
-        items={items || []}
+        items={items}
         progressLabelPrefix="Role"
         renderItem={(item) => <ExperienceCard experience={item} />}
       />

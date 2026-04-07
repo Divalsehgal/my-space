@@ -16,11 +16,10 @@ import { type ContactFormState } from "@/types/contact";
 import { ToastContext } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
-import { type PortfolioConfig } from "@/features/portfolio";
 import { trackEvent } from "@/utils/analytics";
+import { usePortfolioContext } from "@/context/PortfolioContext";
 
 type ContactProps = Readonly<{
-  data: PortfolioConfig["contact"];
   action: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
 }>;
 
@@ -54,7 +53,10 @@ function SubmitButton() {
   );
 }
 
-export default function Contact({ data, action }: ContactProps) {
+export default function Contact({ action }: ContactProps) {
+  const config = usePortfolioContext();
+  const data = config?.contact;
+
   const toastContext = use(ToastContext);
   const showToast = toastContext?.showToast;
 
@@ -66,7 +68,7 @@ export default function Contact({ data, action }: ContactProps) {
   useEffect(() => {
     if (state.status !== "idle" && state.message && showToast) {
       showToast(state.message, state.status === "success" ? "success" : "error");
-      
+
       if (state.status === "success") {
         trackEvent("submit_success", "Contact", "Form");
         const form = document.getElementById("contact-form") as HTMLFormElement;

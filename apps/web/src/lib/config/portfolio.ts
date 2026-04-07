@@ -2,13 +2,13 @@ import { z } from "zod";
 import { fetchWithRetry } from "@/utils/fetchWithRetry";
 
 export const ExperienceConfigSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   company: z.string(),
   role: z.string(),
   period: z.string(),
   location: z.string().optional(),
   description: z.array(z.object({
-    id: z.string(),
+    id: z.string().optional(),
     text: z.string(),
   })),
   techStack: z.array(z.string()).optional(),
@@ -49,15 +49,15 @@ export const PortfolioConfigSchema = z.object({
     secondaryCtaHref: z.string().optional(),
     resumeUrl: z.string().optional(),
     resumeLabel: z.string().optional(),
-    badge: z.string().optional(),
+    badge: z.object({
+      label: z.string(),
+      enabled: z.boolean(),
+    }).optional(),
   }),
   about: z.object({
     title: z.string(),
     paragraphs: z.array(z.string()),
-    facts: z.array(z.object({
-      label: z.string(),
-      value: z.string(),
-    })),
+    facts: z.array(z.string()),
     resumeUrl: z.string().optional(),
   }),
   experience: z.array(ExperienceConfigSchema),

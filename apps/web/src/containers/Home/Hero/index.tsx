@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { type PortfolioConfig } from "@/features/portfolio";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
@@ -12,12 +11,10 @@ import ParticlesBackground from "@/components/ParticlesBackground";
 import { Box } from "@mui/system";
 import { useScroll, useTransform } from "framer-motion";
 import { trackEvent } from "@/utils/analytics";
+import { usePortfolioContext } from "@/context/PortfolioContext";
 
-type HeroProps = {
-  readonly data: PortfolioConfig["hero"];
-};
-
-export default function Hero({ data }: HeroProps) {
+export default function Hero() {
+  const data = usePortfolioContext()?.hero;
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, -50]);
 

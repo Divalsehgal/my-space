@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import createCache from "@emotion/cache";
 import { useServerInsertedHTML } from "next/navigation";
 import { CacheProvider } from "@emotion/react";
@@ -51,7 +51,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   });
 
   // Unregister service workers in development to prevent stale caching issues
-  React.useEffect(() => {
+  useEffect(() => {
     if (process.env.NODE_ENV === "development" && "serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { type PortfolioConfig } from "@/features/portfolio";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -11,6 +10,7 @@ import { Typography, IconButton, Stack, Grid, SvgIconProps } from "@mui/material
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { trackEvent } from "@/utils/analytics";
+import { usePortfolioContext } from "@/context/PortfolioContext";
 
 const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
   github: GitHubIcon,
@@ -18,12 +18,11 @@ const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
   instagram: InstagramIcon,
 };
 
-type AboutProps = Readonly<{
-  data: PortfolioConfig["about"];
-  socials: PortfolioConfig["socials"];
-}>;
+export default function About() {
+  const config = usePortfolioContext();
+  const data = config?.about;
+  const socials = config?.socials;
 
-export default function About({ data, socials }: AboutProps) {
   const title = data?.title || "About Me";
   const paragraphs = data?.paragraphs || [];
   const facts = data?.facts || [];
@@ -81,7 +80,7 @@ export default function About({ data, socials }: AboutProps) {
                     Socials
                   </Typography>
                   <div className={styles["about__social-links"]}>
-                    {socialItems.map((social: PortfolioConfig["socials"][number], index: number) => {
+                    {socialItems.map((social, index: number) => {
                       const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
                       return (
                         <IconButton

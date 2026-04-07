@@ -1,22 +1,11 @@
 import { fetchWithRetry } from "@/utils/fetchWithRetry";
 import { Client } from "@notionhq/client";
 import type { PageObjectResponse, BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { NotionBlogPost, ContactSubmission } from "@/types";
 
-export type NotionBlogPost = {
-    id: string;
-    title: string;
-    slug: string;
-    tags: string[];
-    date: string | null;
-    description: string | null;
-    cover: string | null;
-}
-
-export type ContactSubmission = {
-    name: string;
-    email: string;
-    message: string;
-};
+// Types are defined in @/types/blog.ts and @/types/contact.ts
+// Re-export for backwards compatibility if needed by other files in this directory
+export type { NotionBlogPost, ContactSubmission };
 
 // Notion setup
 const notionClient = new Client({ auth: process.env.NOTION_API_KEY });

@@ -1,16 +1,11 @@
 
+import type { GitHubFileResponse, CommitResult } from "@/types";
+
+// Types are defined in @/types/github.ts
+// Re-export for backwards compatibility
+export type { GitHubFileResponse, CommitResult };
+
 const GITHUB_API_BASE = "https://api.github.com";
-
-export type GitHubFileResponse = {
-  sha: string;
-  content: string; // Base64 encoded
-  encoding: string;
-};
-
-export type CommitResult = {
-  sha: string;
-  url: string;
-};
 
 class GitHubService {
   private token: string;

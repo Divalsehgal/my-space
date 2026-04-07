@@ -19,9 +19,9 @@ export class PortfolioService {
         try {
             const res = await fetchWithRetry((sig) =>
                 fetch(`${CONFIG_URL}?t=${new Date().getTime()}`, {
-                    next: { 
+                    next: {
                         revalidate: 60,
-                        tags: ["portfolio"] 
+                        tags: ["portfolio"]
                     },
                     signal: sig,
                 }),
