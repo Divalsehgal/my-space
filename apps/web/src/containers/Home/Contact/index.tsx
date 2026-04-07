@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, use } from "react";
+import { useActionState, useEffect, use, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   TextField,
@@ -8,10 +8,11 @@ import {
   Box,
 } from "@mui/material";
 import styles from "./styles.module.scss";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { SvgIconProps } from "@mui/material";
+import React from "react";
 import { type ContactFormState } from "@/types/contact";
 import { ToastContext } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
@@ -19,20 +20,16 @@ import FluidContainer from "@/components/FluidContainer";
 import { trackEvent } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
+const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
+  github: GitHubIcon,
+  linkedin: LinkedInIcon,
+  instagram: InstagramIcon,
+};
+
 type ContactProps = Readonly<{
   action: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
 }>;
 
-const initialState: ContactFormState = {
-  status: "idle",
-};
-
-const socialLinks = [
-  { icon: <InstagramIcon />, href: "https://instagram.com", label: "Instagram" },
-  { icon: <FacebookIcon />, href: "https://facebook.com", label: "Facebook" },
-  { icon: <LinkedInIcon />, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: <GitHubIcon />, href: "https://github.com", label: "GitHub" },
-];
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -56,13 +53,15 @@ function SubmitButton() {
 export default function Contact({ action }: ContactProps) {
   const config = usePortfolioContext();
   const data = config?.contact;
+  const socialItems = config?.socials || [];
+  const [messageLength, setMessageLength] = useState(0);
 
   const toastContext = use(ToastContext);
   const showToast = toastContext?.showToast;
 
   const [state, formAction, isPending] = useActionState(
     action,
-    initialState
+    { status: "idle" }
   );
 
   useEffect(() => {
@@ -73,6 +72,7 @@ export default function Contact({ action }: ContactProps) {
         trackEvent("submit_success", "Contact", "Form");
         const form = document.getElementById("contact-form") as HTMLFormElement;
         form?.reset();
+        setMessageLength(0);
       } else if (state.status === "error") {
         trackEvent("submit_error", "Contact", state.message);
       }
@@ -86,18 +86,21 @@ export default function Contact({ action }: ContactProps) {
           <div className={styles["contact__title-wrapper"]}>
             {data?.title || "Get in Touch"}
             <div className={styles["contact__social-links"]}>
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles["contact__social-link"]}
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
-              ))}
+              {socialItems.map((social) => {
+                const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles["contact__social-link"]}
+                    aria-label={social.label}
+                  >
+                    {Icon ? <Icon /> : social.label.substring(0, 2).toUpperCase()}
+                  </a>
+                );
+              })}
             </div>
           </div>
         }
@@ -145,9 +148,10 @@ export default function Contact({ action }: ContactProps) {
             minRows={5}
             disabled={isPending}
             error={Boolean(state.errors?.message)}
-            helperText={state.errors?.message?.[0] ?? "Max 1000 characters"}
+            helperText={state.errors?.message?.[0] ?? `${messageLength} / 1000`}
             slotProps={{ htmlInput: { maxLength: 1000 } }}
             className={styles["contact__field"]}
+            onChange={(e) => setMessageLength(e.target.value.length)}
           />
 
           <div className={styles["contact__actions"]}>
