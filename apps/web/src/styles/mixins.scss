@@ -252,18 +252,23 @@
     justify-content: center;
 }
 
-// Ellipsis & Line Clamp
-@mixin ellipsis {
+// Ellipsis (Single & Multi-line)
+@mixin ellipsis($lines: 1) {
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    word-break: break-word;
+
+    @if $lines == 1 {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    } @else {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: $lines;
+        white-space: normal;
+    }
 }
 
+// Deprecated: use ellipsis($lines) instead
 @mixin line-clamp($lines: 2) {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: $lines;
-
-    text-overflow: ellipsis;
+    @include ellipsis($lines);
 }

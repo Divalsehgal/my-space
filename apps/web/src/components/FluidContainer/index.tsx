@@ -16,7 +16,7 @@ export default function FluidContainer({
 }: Props) {
     const Tag: any = as || "div";
     return (
-        <Tag className={`${styles["fluid-container"]} ${className}`} {...props}>
+        <Tag data-testid="fluid-container" className={`${styles["fluid-container"]} ${className}`} {...props}>
             {children}
         </Tag>
     );

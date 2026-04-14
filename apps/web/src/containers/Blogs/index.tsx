@@ -64,9 +64,6 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
         </Link>
     );
 
-    const breadcrumbItems = [
-        { label: "Blogs", href: "/blogs" },
-    ];
 
     return (
         <>

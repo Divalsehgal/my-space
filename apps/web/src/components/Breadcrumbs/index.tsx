@@ -7,11 +7,12 @@ import type { BreadcrumbItem } from "@/types";
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];
+  className?: string;
 }
 
-export default function Breadcrumbs({ items }: BreadcrumbsProps) {
+export default function Breadcrumbs({ items ,  className }: BreadcrumbsProps) {
   return (
-    <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
+    <nav className={`${styles.breadcrumbs} ${className}`} aria-label="Breadcrumb">
       <FluidContainer>
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>

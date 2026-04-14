@@ -66,6 +66,7 @@
   &__card-content {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     flex-grow: 1;
     padding: $t-spacing-6;
   }
@@ -79,7 +80,7 @@
 
   &__card-title {
     @include heading-md;
-
+    @include ellipsis(2);
     margin-bottom: $t-spacing-3;
     color: $t-colors-text-primary;
   }

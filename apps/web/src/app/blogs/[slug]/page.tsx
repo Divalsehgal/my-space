@@ -102,7 +102,7 @@ export default async function BlogPost({ params }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <Breadcrumbs items={breadcrumbItems} />
+            <Breadcrumbs items={breadcrumbItems} className={styles["blog-post__breadcrumbs"]} />
             <article className={styles["blog-post"]}>
                 <FluidContainer maxWidth="800px">
                     <header className={styles["blog-post__header"]}>
@@ -240,6 +240,18 @@ export default async function BlogPost({ params }: Props) {
                                                 </code>
                                             </pre>
                                         );
+
+                                    case "quote":
+                                        return (
+                                            <blockquote key={block.id}>
+                                                <p>
+                                                    {renderRichText(block.quote?.rich_text)}
+                                                </p>
+                                            </blockquote>
+                                        );
+
+                                    case "divider":
+                                        return <hr key={block.id} />;
 
                                     default:
                                         return null;

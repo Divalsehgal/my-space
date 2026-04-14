@@ -1,185 +1,204 @@
 
 .blog-post {
     min-height: 100vh;
-    padding: $t-spacing-20 0;
-    background-color: var(--t-colors-bg-primary);
-}
-
-.blog-post__header {
-    margin-bottom: $t-spacing-12;
-    padding-bottom: $t-spacing-8;
-    border-bottom: 1px solid rgba($t-colors-text-primary, 0.1);
-}
-
-.blog-post__title {
-    margin-bottom: $t-spacing-4;
-
-    font-size: $t-font-size-5xl;
-    font-weight: $t-font-weight-bold;
-    line-height: 1.2;
+    padding: $t-spacing-16 0;
+    background-color: $t-colors-background-primary;
     color: $t-colors-text-primary;
-}
 
-.blog-post__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $t-spacing-6;
-    align-items: center;
-}
-
-.blog-post__date {
-    font-size: $t-font-size-base;
-    color: $t-colors-text-secondary;
-}
-
-.blog-post__tags {
-    display: flex;
-    gap: $t-spacing-2;
-
-    margin: 0;
-    padding: 0;
-
-    list-style: none;
-}
-
-.blog-post__tag {
-    padding: $t-spacing-1 $t-spacing-3;
-    border-radius: $t-spacing-full;
-
-    font-size: $t-font-size-xs;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-primary-default;
-
-    background: rgba($t-colors-primary-default, 0.1);
-}
-
-.blog-post__content {
-    font-size: $t-font-size-lg;
-    line-height: $t-font-line-height-relaxed; // Use a more relaxed line height for reading
-    color: var(--t-colors-text-primary);
-    word-wrap: break-word;
-
-    // Fluid width for blog content
-    max-width: 100%;
-    margin: 0 auto;
-
-    p {
-        margin-bottom: $t-spacing-4;
-        font-size: $t-font-size-sm;
-        line-height: $t-font-letter-spacing-tight-1;
-        opacity: 0.9;
+    &__header {
+        margin: 0 auto $t-spacing-10 auto;
+        padding-bottom: $t-spacing-8;
+        border-bottom: 1px solid rgba($t-colors-border-default, 0.5);
     }
 
-    h1,
-    h2,
-    h3 {
-        margin-top: $t-spacing-16;
-        margin-bottom: $t-spacing-6;
-        color: var(--t-colors-text-primary);
-        font-weight: $t-font-weight-bold;
-        line-height: 1.3;
-    }
-
-    h1 {
-        font-size: $t-font-size-4xl;
+    &__title {
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        font-weight: 800;
+        line-height: $t-font-line-height-tight;
         letter-spacing: -0.02em;
+        margin-bottom: $t-spacing-6;
+        color: $t-colors-text-primary;
+        text-transform: none;
+        text-shadow: none;
     }
 
-    h2 {
-        font-size: $t-font-size-3xl;
-        letter-spacing: -0.01em;
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $t-spacing-6;
+        align-items: center;
     }
 
-    h3 {
-        font-size: $t-font-size-2xl;
+    &__date {
+        @include label-md;
+        color: $t-colors-text-secondary;
     }
 
-    // Spacing adjustment for consecutive headings
-    h1 + h2, h2 + h3, h1 + h3 {
-        margin-top: $t-spacing-6;
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $t-spacing-3;
+        margin: 0;
+        padding: 0;
+        list-style: none;
     }
 
-    ul,
-    ol {
-        margin-bottom: $t-spacing-10;
-        padding-left: $t-spacing-6;
-        list-style-position: outside;
+    &__tag {
+        @include pill-tag;
+        font-size: $t-font-size-xs;
+        font-weight: $t-font-weight-bold;
+        color: $t-colors-primary-default;
+        text-shadow: none;
 
-        li {
-            margin-bottom: $t-spacing-4;
-            padding-left: $t-spacing-2;
-            line-height: 1.7;
-            opacity: 0.9;
+        border-color: rgba($t-colors-primary-default, 0.2);
+        background-color: rgba($t-colors-primary-default, 0.05);
 
-            &::marker {
-                font-weight: $t-font-weight-bold;
-                color: var(--t-colors-primary-default);
+        transition: all 0.2s ease;
+
+        &:hover {
+            background-color: rgba($t-colors-primary-default, 0.1);
+        }
+    }
+
+    &__content {
+        @include body-lg;
+        color: $t-colors-text-primary;
+        word-wrap: break-word;
+
+        margin: 0 auto;
+
+        p {
+            @include body-lg;
+            margin-top: 0;
+            margin-bottom: $t-spacing-8;
+            color: $t-colors-text-primary;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-top: $t-spacing-4;
+            margin-bottom: $t-spacing-2;
+            color: $t-colors-text-primary;
+            font-weight: $t-font-weight-bold;
+            line-height: $t-font-line-height-tight;
+        }
+
+        h1 {
+            @include heading-xl;
+            font-size: $t-font-size-2xl;
+        }
+
+        h2 {
+            @include heading-md;
+            font-size: $t-font-size-xl;
+        }
+
+        h3 {
+            @include heading-md;
+            font-size: $t-font-size-lg;
+        }
+
+        h1+h2,
+        h2+h3,
+        h1+h3 {
+            margin-top: $t-spacing-3;
+        }
+
+        ul,
+        ol {
+            margin-bottom: $t-spacing-8;
+            padding-left: $t-spacing-6;
+            list-style-position: outside;
+
+            li {
+                @include body-md;
+                margin-bottom: $t-spacing-3;
+
+                &::marker {
+                    font-weight: $t-font-weight-semibold;
+                    color: $t-colors-text-secondary;
+                }
+            }
+        }
+
+        ul {
+            list-style-type: disc;
+        }
+
+        ol {
+            list-style-type: decimal;
+        }
+
+        a {
+            @include text-link;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-thickness: 1px;
+            transition: opacity 0.2s ease, text-decoration-thickness 0.2s;
+
+            &:hover {
+                opacity: 0.8;
+                text-decoration-thickness: 2px;
+            }
+        }
+
+        strong {
+            font-weight: $t-font-weight-bold;
+        }
+
+        em {
+            font-style: italic;
+        }
+
+        hr {
+            margin: $t-spacing-3 auto;
+            border: 0;
+            border-top: 1px solid rgba($t-colors-border-default, 0.5);
+            width: 100%;
+        }
+
+        blockquote {
+            margin: $t-spacing-8 0 $t-spacing-8 -20px;
+            padding-left: 20px;
+            border-left: 4px solid $t-colors-primary-default;
+            font-style: italic;
+
+            p {
+                font-size: $t-font-size-sm;
+                color: $t-colors-text-secondary;
+                margin-bottom: 0;
             }
         }
     }
 
-    ul {
-        list-style-type: disc;
+    &__inline-code {
+        padding: 0.2em 0.4em;
+        border-radius: $t-spacing-2;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 0.85em;
+        font-weight: $t-font-weight-medium;
+        color: $t-colors-background-primary;
+        background: rgba($t-colors-text-primary, 0.8);
     }
 
-    ol {
-        list-style-type: decimal;
-    }
+    &__code {
+        overflow-x: auto;
+        margin: $t-spacing-10 0;
+        padding: $t-spacing-6;
+        border-radius: $t-spacing-2;
+        background: rgba($t-colors-text-primary, 0.9);
+        box-shadow: 0 4px 12px rgba($t-colors-text-primary, 0.05);
 
-    a {
-        color: var(--t-colors-primary-default);
-        text-decoration: underline;
-        text-underline-offset: 4px;
-        transition: opacity 0.2s ease;
-
-        &:hover {
-            opacity: 0.8;
+        code {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: $t-font-size-sm;
+            line-height: $t-font-line-height-relaxed;
+            color: $t-colors-background-primary;
+            white-space: pre;
         }
     }
-
-    strong {
-        color: var(--t-colors-text-primary);
-        font-weight: $t-font-weight-bold;
-    }
-
-    em {
-        font-style: italic;
-    }
-
-    .blog-post__inline-code {
-        padding: 0.2em 0.4em;
-        border-radius: 4px;
-        font-family: var(--t-font-family-mono, monospace);
-        font-size: 0.9em;
-        color: var(--t-colors-primary-default);
-        background: rgba($t-colors-primary-default, 0.1);
-    }
-}
-
-.blog-post__code {
-    overflow-x: auto;
-
-    margin: $t-spacing-6 0;
-    padding: $t-spacing-4;
-    border: 1px solid rgba($t-colors-text-primary, 0.1);
-    border-radius: $t-spacing-2;
-
-    background: rgba($t-colors-background-secondary, 0.8);
-
-    code {
-        font-family: monospace;
-        font-size: $t-font-size-sm;
-        color: $t-colors-primary-default;
-    }
-}
-
-.blog-post__not-found {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 50vh;
-
-    font-size: $t-font-size-2xl;
-    color: $t-colors-text-secondary;
 }
