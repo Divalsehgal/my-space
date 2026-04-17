@@ -9,6 +9,7 @@ type Props = {
     params: Promise<{ slug: string }>;
 };
 
+
 /**
  * SSG: Generate static paths for all published blog posts
  */
@@ -21,6 +22,9 @@ export async function generateStaticParams() {
 
 // Ensure dynamic segments are handled even if they don't exist at build time
 export const dynamicParams = true;
+
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
