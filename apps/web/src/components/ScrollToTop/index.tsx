@@ -48,7 +48,7 @@ export default function ScrollToTop() {
     }, 800);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {return null;}
 
   return (
     <div className={styles.scrollToTop}>

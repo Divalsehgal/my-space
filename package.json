@@ -11,7 +11,10 @@
     "build": "yarn workspace web build",
     "start": "yarn workspace web start",
     "lint": "yarn workspaces run lint",
-    "generate:tokens": "yarn workspace web generate:tokens"
+    "test": "yarn workspace web test",
+    "test:coverage": "yarn workspace web test:coverage",
+    "generate:tokens": "yarn workspace web generate:tokens",
+    "prepare": "husky"
   },
   "dependencies": {
     "@dival-sehgal/design-tokens": "*",
@@ -22,6 +25,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
     "typescript": "^5"
   },
   "resolutions": {

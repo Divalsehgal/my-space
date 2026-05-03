@@ -8,9 +8,11 @@
         "start": "next start",
         "lint": "eslint",
         "lint:style": "stylelint '**/*.scss'",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
         "clean": "rm -rf .next node_modules/.cache",
         "dev:clean": "yarn clean && yarn dev",
-        "generate:tokens": "yarn workspace @dival-sehgal/design-tokens build && mkdir -p src/styles/dist && cp ../../packages/design-tokens/build/scss/_variables.scss src/styles/dist/tokens.generated.scss"
+        "generate:tokens": "yarn workspace @dival-sehgal/design-tokens build"
     },
     "dependencies": {
         "@dival-sehgal/design-tokens": "*",
@@ -28,11 +30,6 @@
         "@react-three/fiber": "^9.5.0",
         "@tsparticles/react": "^3.0.0",
         "@tsparticles/slim": "^3.9.1",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "@types/three": "^0.183.1",
-        "eslint": "^9",
         "framer-motion": "^12.36.0",
         "maath": "^0.10.8",
         "next": "16.1.6",
@@ -45,19 +42,16 @@
         "zod": "^4.1.12"
     },
     "devDependencies": {
+        "@dival-sehgal/eslint-config": "*",
+        "@dival-sehgal/jest-config": "*",
         "@fullhuman/postcss-purgecss": "^8.0.0",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
+        "@types/three": "^0.183.1",
         "babel-plugin-react-compiler": "1.0.0",
-        "eslint": "^9",
-        "eslint-config-next": "16.1.6",
         "purgecss": "^8.0.0",
         "stylelint": "^16.26.1",
         "stylelint-config-clean-order": "^8.0.1",
         "stylelint-config-standard-scss": "^17.0.0",
         "stylelint-declaration-strict-value": "^1.11.1",
-        "stylelint-selector-bem-pattern": "^4.0.1",
-        "typescript": "^5"
+        "stylelint-selector-bem-pattern": "^4.0.1"
     }
 }

@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
   ...config,
   sassOptions: {
     ...config.sassOptions,
-    additionalData: `@use "${path.join(__dirname, "src/styles/dist/tokens.generated.scss").replace(/\\/g, '/')}" as *; @use "${path.join(__dirname, "src/styles/mixins.scss").replace(/\\/g, '/')}" as *;`,
+    additionalData: `@use "@dival-sehgal/design-tokens/variables.scss" as *; @use "${path.join(__dirname, "src/styles/mixins.scss").replace(/\\/g, '/')}" as *;`,
     includePaths: [
       path.join(__dirname, "src", "styles"),
       path.join(__dirname, "node_modules")

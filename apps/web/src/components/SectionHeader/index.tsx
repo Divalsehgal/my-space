@@ -25,7 +25,7 @@ export default function SectionHeader({
   titleClassName,
   subtitleClassName,
 }: Readonly<SectionHeaderProps>) {
-  if (!eyebrow && !title && !subtitle) return null;
+  if (!eyebrow && !title && !subtitle) {return null;}
 
   const rootClassNames = [
     styles["section-header"],

@@ -37,8 +37,8 @@ async function debug() {
             let status = "N/A";
             const sProp = page.properties.Status;
             if (sProp) {
-                if (sProp.type === 'status') status = sProp.status.name;
-                else if (sProp.type === 'select') status = sProp.select.name;
+                if (sProp.type === 'status') {status = sProp.status.name;}
+                else if (sProp.type === 'select') {status = sProp.select.name;}
             }
             
             console.log(`[${i}] Title: ${title}, Status: ${status}, ID: ${page.id}`);
@@ -47,8 +47,8 @@ async function debug() {
 
   } catch (error) {
     console.error("Error:", error.message);
-    if (error.body) console.error("Detail:", error.body);
-    if (error.stack) console.error("Stack:", error.stack);
+    if (error.body) {console.error("Detail:", error.body);}
+    if (error.stack) {console.error("Stack:", error.stack);}
   }
 }
 

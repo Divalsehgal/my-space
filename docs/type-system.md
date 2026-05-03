@@ -65,6 +65,7 @@ import type { BreadcrumbItem } from "@/types";
 ```
 
 Importing types is the **industry standard** for application code. It is:
+
 - Explicit — you know exactly where a type comes from
 - Tree-shakeable — unused types don't pollute the type namespace
 - IDE-friendly — "Go to Definition" works perfectly
@@ -74,6 +75,7 @@ Importing types is the **industry standard** for application code. It is:
 Use `declare global` / ambient `.d.ts` files **only** for:
 
 1. **Augmenting third-party types** — e.g. adding a property to the `Window` object:
+
    ```ts
    // src/types/globals.d.ts
    declare global {
@@ -84,6 +86,7 @@ Use `declare global` / ambient `.d.ts` files **only** for:
    ```
 
 2. **Process environment variables** — letting TypeScript know about `process.env.MY_VAR`:
+
    ```ts
    // src/types/env.d.ts
    declare namespace NodeJS {

@@ -9,14 +9,11 @@ import Button from "@mui/material/Button";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Box } from "@mui/system";
-import { useScroll, useTransform } from "framer-motion";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 export default function Hero() {
   const data = usePortfolioContext()?.hero;
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, -50]);
 
   const title = data?.title || "Dival Sehgal";
   const subtitle = data?.subtitle || "Full-Stack Engineer";
@@ -33,13 +30,13 @@ export default function Hero() {
     rel?: string;
   }[] = [{
     label: data?.primaryCtaLabel || "View Projects",
-    href: data?.primaryCtaHref || "#projects",
+    href: data?.primaryCtaHref ?? "#projects",
     variant: "contained",
     color: "primary",
     size: "large",
   }, {
     label: data?.secondaryCtaLabel || "Contact",
-    href: data?.secondaryCtaHref || "#contact",
+    href: data?.secondaryCtaHref ?? "#contact",
     variant: "outlined",
     color: "secondary",
     size: "large",
@@ -74,18 +71,23 @@ export default function Hero() {
         </h2>
         <div className={styles["hero__actions"]}>
           {
-            buttons.map((button: any, index: number) => (
+            buttons.map((button, index: number) => (
               <Button
                 key={index}
+                component="a"
                 variant={button.variant}
                 color={button.color}
                 size={button.size}
-                href={button.href}
+                href={button.href as string}
                 startIcon={button.startIcon}
                 target={button.target}
                 rel={button.rel}
                 onClick={() => {
-                  trackEvent("click", "Hero", button.label);
+                  if (button.label === "Resume") {
+                    trackInteraction("resume_view", { label: "Hero Resume Button" });
+                  } else {
+                    trackInteraction("nav_click", { label: button.label, href: button.href || "", location: "navbar" });
+                  }
                 }}
               >
                 {button.label}

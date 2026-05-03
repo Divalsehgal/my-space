@@ -25,7 +25,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setOpen(true);
   }, []);
 
-  const handleClose = useCallback((event?: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = useCallback((_event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }

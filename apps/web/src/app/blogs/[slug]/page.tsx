@@ -1,9 +1,10 @@
-import { getNotionPosts, getNotionPostContent } from "@/lib/services/notion";
+import { getNotionPosts, getPageContent } from "@/lib/services/notion";
 import { Metadata } from "next";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import styles from "./styles.module.scss";
 import { notFound } from "next/navigation";
 import FluidContainer from "@/components/FluidContainer";
+import { renderBlock, renderList } from "@/features/blog/Rendering";
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -79,7 +80,7 @@ export default async function BlogPost({ params }: Props) {
         notFound();
     }
 
-    const blocks = await getNotionPostContent(post.id);
+    const blocks = await getPageContent(post.id);
 
     const jsonLd = {
         "@context": "https://schema.org",
@@ -100,8 +101,36 @@ export default async function BlogPost({ params }: Props) {
         { label: post.title, href: `/blogs/${slug}` },
     ];
 
+    const content = [];
+    let currentList: { type: "bulleted_list_item" | "numbered_list_item"; items: any[] } | null = null;
+
+    for (const block of blocks as any[]) {
+        if (block.type === "bulleted_list_item" || block.type === "numbered_list_item") {
+            const listType = block.type as "bulleted_list_item" | "numbered_list_item";
+
+            if (currentList && currentList.type === listType) {
+                currentList.items.push(block);
+            } else {
+                if (currentList) {
+                    content.push(renderList(currentList));
+                }
+                currentList = { type: listType, items: [block] };
+            }
+        } else {
+            if (currentList) {
+                content.push(renderList(currentList));
+                currentList = null;
+            }
+            content.push(renderBlock(block));
+        }
+    }
+
+    if (currentList) {
+        content.push(renderList(currentList));
+    }
+
     return (
-        <main className="page-scroll">
+        <div className="page-scroll">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -118,7 +147,7 @@ export default async function BlogPost({ params }: Props) {
                                         year: 'numeric',
                                         month: 'long',
                                         day: 'numeric'
-                                    })}
+                                     })}
                                 </p>
                             )}
                             {post.tags && (
@@ -132,140 +161,11 @@ export default async function BlogPost({ params }: Props) {
                             )}
                         </div>
                     </header>
-
                     <section className={styles["blog-post__content"]}>
-                        {(() => {
-                            const result = [];
-                            let currentList: { type: string; items: any[] } | null = null;
-
-                            for (const block of blocks) {
-                                if (block.type === "bulleted_list_item" || block.type === "numbered_list_item") {
-                                    const listType = block.type === "bulleted_list_item" ? "ul" : "ol";
-
-                                    if (currentList && currentList.type === listType) {
-                                        currentList.items.push(block);
-                                    } else {
-                                        if (currentList) {
-                                            result.push(renderList(currentList));
-                                        }
-                                        currentList = { type: listType, items: [block] };
-                                    }
-                                } else {
-                                    if (currentList) {
-                                        result.push(renderList(currentList));
-                                        currentList = null;
-                                    }
-                                    result.push(renderBlock(block));
-                                }
-                            }
-
-                            if (currentList) {
-                                result.push(renderList(currentList));
-                            }
-
-                            return result;
-
-                            function renderRichText(richText: any[]) {
-                                if (!richText) return null;
-                                return richText.map((t: any, i: number) => {
-                                    const { annotations, text, href } = t;
-                                    if (!text) return null;
-
-                                    let content: React.ReactNode = text.content;
-
-                                    if (annotations.bold) content = <strong key={i}>{content}</strong>;
-                                    if (annotations.italic) content = <em key={i}>{content}</em>;
-                                    if (annotations.strikethrough) content = <s key={i}>{content}</s>;
-                                    if (annotations.underline) content = <u key={i}>{content}</u>;
-                                    if (annotations.code) content = <code key={i} className={styles["blog-post__inline-code"]}>{content}</code>;
-
-                                    if (href) {
-                                        return (
-                                            <a key={i} href={href} target="_blank" rel="noopener noreferrer">
-                                                {content}
-                                            </a>
-                                        );
-                                    }
-
-                                    return <span key={i}>{content}</span>;
-                                });
-                            }
-
-                            function renderList(list: { type: string; items: any[] }) {
-                                const Tag = list.type as "ul" | "ol";
-                                return (
-                                    <Tag key={list.items[0].id}>
-                                        {list.items.map((item) => (
-                                            <li key={item.id}>
-                                                {renderRichText(item[item.type]?.rich_text)}
-                                            </li>
-                                        ))}
-                                    </Tag>
-                                );
-                            }
-
-                            function renderBlock(block: any) {
-                                switch (block.type) {
-                                    case "paragraph":
-                                        return (
-                                            <p key={block.id}>
-                                                {renderRichText(block.paragraph?.rich_text)}
-                                            </p>
-                                        );
-
-                                    case "heading_1":
-                                        return (
-                                            <h1 key={block.id}>
-                                                {renderRichText(block.heading_1?.rich_text)}
-                                            </h1>
-                                        );
-
-                                    case "heading_2":
-                                        return (
-                                            <h2 key={block.id}>
-                                                {renderRichText(block.heading_2?.rich_text)}
-                                            </h2>
-                                        );
-
-                                    case "heading_3":
-                                        return (
-                                            <h3 key={block.id}>
-                                                {renderRichText(block.heading_3?.rich_text)}
-                                            </h3>
-                                        );
-
-                                    case "code":
-                                        return (
-                                            <pre key={block.id} className={styles["blog-post__code"]}>
-                                                <code>
-                                                    {block.code?.rich_text
-                                                        ?.map((t: any) => t.plain_text)
-                                                        .join("")}
-                                                </code>
-                                            </pre>
-                                        );
-
-                                    case "quote":
-                                        return (
-                                            <blockquote key={block.id}>
-                                                <p>
-                                                    {renderRichText(block.quote?.rich_text)}
-                                                </p>
-                                            </blockquote>
-                                        );
-
-                                    case "divider":
-                                        return <hr key={block.id} />;
-
-                                    default:
-                                        return null;
-                                }
-                            }
-                        })()}
+                        {content}
                     </section>
                 </FluidContainer>
             </article>
-        </main>
-
+        </div>
     );
 }

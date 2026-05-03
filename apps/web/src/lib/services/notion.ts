@@ -18,138 +18,149 @@ const notionContactDbId = process.env.NOTION_CONTACT_DB_ID!;
  */
 export const createContactSubmission = async (submission: ContactSubmission): Promise<void> => {
     if (!process.env.NOTION_API_KEY || !notionContactDbId) {
-        throw new Error("NOTION_API_KEY or NOTION_CONTACT_DB_ID env var is missing");
+        console.warn("Notion API key or Contact Database ID missing. Skipping submission.");
+        return;
     }
-
-    await notionClient.pages.create({
-        parent: { database_id: notionContactDbId },
-        properties: {
-            "Doc name": {
-                title: [{ text: { content: submission.name } }],
-            },
-            Email: {
-                email: submission.email,
-            },
-            Message: {
-                rich_text: [{ text: { content: submission.message } }],
-            },
-        },
-    });
-};
-
-// Cache for Data Source IDs
-let cachedDataSourceIds: Record<string, string> = {};
-
-/**
- * Resolves the Data Source ID from a Database ID.
- * In Notion v5.7.0, a "database" is a container that holds one or more "data sources".
- */
-const resolveDataSourceId = async (dbId: string): Promise<string> => {
-    if (cachedDataSourceIds[dbId]) return cachedDataSourceIds[dbId];
 
     try {
-        const db = await notionClient.databases.retrieve({ database_id: dbId }) as any;
-        
-        const dataSourceId = db.data_sources?.[0]?.id || dbId;
-        cachedDataSourceIds[dbId] = dataSourceId;
-        return dataSourceId;
+        await notionClient.pages.create({
+            parent: { database_id: notionContactDbId },
+            properties: {
+                Name: {
+                    title: [
+                        { text: { content: submission.name } }
+                    ]
+                },
+                Email: {
+                    email: submission.email
+                },
+                Message: {
+                    rich_text: [
+                        { text: { content: submission.message } }
+                    ]
+                }
+            }
+        });
     } catch (error) {
-        return dbId;
+        console.error("Error submitting to Notion:", error);
+        throw error;
     }
-}
+};
 
-/**
- * Converts a string into a URL-friendly slug.
- */
 const slugify = (text: string): string => {
     return text
         .toString()
         .toLowerCase()
         .trim()
-        .replace(/\s+/g, '-')      // Replace spaces with -
+        .replace(/\s+/g, '-')        // Replace spaces with -
         .replace(/[^\w-]+/g, '')     // Remove all non-word chars
         .replace(/--+/g, '-')        // Replace multiple - with single -
         .replace(/^-+/, '')          // Trim - from start of text
         .replace(/-+$/, '');         // Trim - from end of text
 }
 
+const getSlug = (props: Record<string, any>, title: string, pageId: string): string => {
+    const slugProp = props.Slug;
+    if (slugProp?.type === 'rich_text' && slugProp.rich_text[0]) {
+        return slugProp.rich_text[0].plain_text.trim();
+    }
+    return slugify(title) || pageId;
+};
+
+const getCover = (page: any): string | null => {
+    if (!page.cover) {
+        return null;
+    }
+    if (page.cover.type === 'external') {
+        return page.cover.external.url;
+    }
+    if (page.cover.type === 'file') {
+        return page.cover.file.url;
+    }
+    return null;
+};
+
+const mapNotionPageToBlogPost = (page: any): NotionBlogPost => {
+    const props = (page as PageObjectResponse).properties;
+    const title = props.Title?.type === 'title'
+        ? props.Title.title[0]?.plain_text || "Untitled"
+        : "Untitled";
+        
+    return {
+        id: page.id,
+        title,
+        cover: getCover(page),
+        date: page.created_time,
+        slug: getSlug(props, title, page.id),
+        description: props.Excerpt?.type === 'rich_text'
+            ? props.Excerpt.rich_text[0]?.plain_text || ""
+            : "",
+        tags: props.Tags?.type === 'multi_select'
+            ? props.Tags.multi_select.map((t) => t.name)
+            : [],
+    };
+};
+
 /**
- * Fetch Notion blog posts (metadata only)
+ * Fetches all published blog posts from Notion.
  */
-export const getNotionPosts = async (): Promise<NotionBlogPost[]> => {
-    if (!process.env.NOTION_API_KEY || !process.env.NOTION_DATABASE_ID) {
-        console.warn("Notion API key or Database ID missing");
+export async function getNotionPosts(): Promise<NotionBlogPost[]> {
+    if (!process.env.NOTION_API_KEY || !notionDbId) {
+        console.warn("Notion API key or Database ID missing.");
         return [];
     }
 
     try {
-        const dataSourceId = await resolveDataSourceId(notionDbId);
-
-        // In SDK v5.7.0 (API version 2025-09-03), databases are queried via dataSources
-        const response = await fetchWithRetry(() =>
-            (notionClient as any).dataSources.query({
-                data_source_id: dataSourceId,
-                filter: {
-                    property: "Status",
-                    status: { equals: "Published" },
+        const response = await fetchWithRetry(() => (notionClient as any).databases.query({
+            database_id: notionDbId,
+            filter: {
+                property: "Status",
+                status: {
+                    equals: "Published",
                 },
-                sorts: [{ property: "Publish Date", direction: "descending" }],
-            })
-        ) as any;
+            },
+            sorts: [
+                {
+                    property: "Date",
+                    direction: "descending",
+                },
+            ],
+        }));
 
-        return response.results.map((page: any) => {
-            const props = (page as PageObjectResponse).properties;
-            const title = props.Title?.type === 'title'
-                ? props.Title.title[0]?.plain_text || "Untitled"
-                : "Untitled";
-                
-            return {
-                id: page.id,
-                title,
-                slug: props.Slug?.type === 'rich_text' && props.Slug.rich_text[0]
-                    ? props.Slug.rich_text[0].plain_text.trim()
-                    : slugify(title) || page.id,
-                tags: props.Tags?.type === 'multi_select'
-                    ? props.Tags.multi_select.map(tag => tag.name)
-                    : [],
-                date: props["Publish Date"]?.type === 'date'
-                    ? props["Publish Date"].date?.start || null
-                    : null,
-                description: props.Description?.type === 'rich_text' && props.Description.rich_text[0]
-                    ? props.Description.rich_text[0].plain_text || null
-                    : null,
-                cover: page.cover?.type === 'external'
-                    ? page.cover.external.url
-                    : page.cover?.type === 'file'
-                        ? page.cover.file.url
-                        : null,
-            };
-        });
-    } catch (error: any) {
-        console.error("Error fetching Notion posts:", error.message || error);
+        return (response as any).results.map(mapNotionPageToBlogPost);
+    } catch (error) {
+        console.error("Error fetching Notion posts:", error);
         return [];
     }
 }
 
 /**
- * Fetch full content (blocks) of one blog post
+ * Fetches a single post by slug.
  */
-export const getNotionPostContent = async (pageId: string): Promise<BlockObjectResponse[]> => {
+export async function getPostBySlug(slug: string): Promise<NotionBlogPost | null> {
+    const posts = await getNotionPosts();
+    return posts.find((p) => p.slug === slug) || null;
+}
+
+/**
+ * Fetches blocks (content) for a specific page.
+ */
+export async function getPageContent(pageId: string): Promise<BlockObjectResponse[]> {
     const blocks: BlockObjectResponse[] = [];
     let cursor: string | undefined = undefined;
 
     try {
         while (true) {
-            const response = await fetchWithRetry(() =>
-                notionClient.blocks.children.list({
-                    block_id: pageId,
-                    start_cursor: cursor,
-                })
-            ) as any;
+            const response = await fetchWithRetry(() => notionClient.blocks.children.list({
+                block_id: pageId,
+                start_cursor: cursor,
+            })) as any;
 
             blocks.push(...(response.results as BlockObjectResponse[]));
 
-            if (!response.has_more) break;
+            if (!response.has_more) {
+                break;
+            }
             cursor = response.next_cursor || undefined;
         }
     } catch (error) {

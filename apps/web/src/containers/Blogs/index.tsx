@@ -2,10 +2,8 @@
 
 import { useState, useMemo, useEffect, ChangeEvent, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { NotionBlogPost } from "@/lib/services/notion";
 import styles from "./styles.module.scss";
 
@@ -16,7 +14,7 @@ type BlogPageContentProps = {
 export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps>) {
     const [inputValue, setInputValue] = useState("");
     const [deferredQuery, setDeferredQuery] = useState("");
-    const [isPending, startTransition] = useTransition();
+    const [, startTransition] = useTransition();
 
     const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -52,7 +50,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
             <div className={styles["blogs__card-content"]}>
                 {post.date && (
                     <p className={styles["blogs__card-date"]}>
-                        {new Date(post.date).toLocaleDateString("en-US")}
+                        {new Date(post.date).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
                     </p>
                 )}
                 <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
@@ -122,7 +120,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                                         <div className={styles["blogs__card-content"]}>
                                             {post.date && (
                                                 <p className={styles["blogs__card-date"]}>
-                                                    {new Date(post.date).toLocaleDateString("en-US")}
+                                                {new Date(post.date).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
                                                 </p>
                                             )}
                                             <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
@@ -138,6 +136,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                             )}
                     </div>
                 </>
+                <div style={{ paddingBottom: '4rem' }} />
             </FluidContainer>
         </>
     );

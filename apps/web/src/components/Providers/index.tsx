@@ -56,7 +56,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
           registration.unregister();
-          console.log("Service Worker unregistered in development mode to prevent stale caching.");
+          console.info("Service Worker unregistered in development mode to prevent stale caching.");
         }
       });
     }

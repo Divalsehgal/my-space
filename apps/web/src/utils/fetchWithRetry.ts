@@ -1,95 +1,61 @@
-// src/utils/fetchWithRetry.ts
-
-interface NetworkError extends Error {
-    code?: string;
+interface RetryOptions {
+    attempt?: number;
+    maxRetries?: number;
+    baseDelay?: number;
+    signal?: AbortSignal;
 }
 
+const wait = (ms: number, signal?: AbortSignal) =>
+    new Promise((resolve, reject) => {
+        const timeout = setTimeout(resolve, ms);
+        signal?.addEventListener("abort", () => {
+            clearTimeout(timeout);
+            reject(new Error("Aborted"));
+        }, { once: true });
+    });
+
+/**
+ * Utility for executing a fetch operation with a retry mechanism.
+ * The operation receives an AbortSignal that merges the user-provided signal
+ * with the retry timeout signal.
+ */
 export async function fetchWithRetry<T>(
     operation: (signal?: AbortSignal) => Promise<T>,
-    retryCount = 0,
-    maxRetries = 3,
-    initialRetryDelay = 1000, // 1s
-    signal?: AbortSignal
+    options: RetryOptions = {}
 ): Promise<T> {
+    const { attempt = 0, maxRetries = 3, baseDelay = 1000, signal } = options;
+
     if (signal?.aborted) {
-        throw new DOMException("Aborted", "AbortError");
+        throw new Error("Aborted");
     }
 
     try {
-        const res = await operation(signal);
+        // Create a controller for this specific attempt if we want to add a timeout
+        // But for now we just pass the main signal
+        const response = await operation(signal);
 
-        // For standard Response objects, check if they are OK
-        if (res instanceof Response && !res.ok) {
-            const status = res.status;
+        const shouldRetry = response instanceof Response && 
+            (response.status === 429 || (response.status >= 500 && response.status < 600));
 
-            // Decide when to retry (GitHub: 429/403/5xx)
-            const shouldRetry =
-                status === 429 ||
-                status === 403 ||
-                (status >= 500 && status < 600);
-
-            if (shouldRetry && retryCount < maxRetries) {
-                const delay =
-                    initialRetryDelay * Math.pow(2, retryCount) +
-                    Math.random() * 500; // jitter
-
-                console.warn(
-                    `Fetch failed (${status}). Retrying in ${Math.round(
-                        delay / 1000
-                    )}s... (attempt ${retryCount + 1}/${maxRetries})`
-                );
-
-                await new Promise((resolve, reject) => {
-                    const timer = setTimeout(resolve, delay);
-                    signal?.addEventListener("abort", () => {
-                        clearTimeout(timer);
-                        reject(new DOMException("Aborted", "AbortError"));
-                    }, { once: true });
-                });
-
-                return fetchWithRetry(operation, retryCount + 1, maxRetries, initialRetryDelay, signal);
-            }
-
-            // If we’re here, it’s the final failure
-            return res; // let caller inspect res.ok and throw a custom error
+        if (shouldRetry && attempt < maxRetries) {
+            const delay = baseDelay * Math.pow(2, attempt);
+            console.warn(`Status ${(response as Response).status}. Retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`);
+            await wait(delay, signal);
+            return fetchWithRetry(operation, { ...options, attempt: attempt + 1 });
         }
 
-        // Success
-        return res;
+        return response;
     } catch (error: unknown) {
-        const err = error as NetworkError;
-        if (err.name === "AbortError") throw error;
- 
-        // Network-level errors (DNS, timeout, etc.)
-        const retryable =
-            err.code === "ECONNRESET" ||
-            err.code === "ETIMEDOUT" ||
-            err.code === "ADDRINFO" ||
-            err.code === "EAI_AGAIN";
- 
-        if (retryable && retryCount < maxRetries) {
-            const delay =
-                initialRetryDelay * Math.pow(2, retryCount) +
-                Math.random() * 500;
+        const retryableErrors = ["ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN"];
+        const errorCode = (error as { code?: string })?.code;
 
-            console.warn(
-                `Network error (${err.code}). Retrying in ${Math.round(
-                    delay / 1000
-                )}s... (attempt ${retryCount + 1}/${maxRetries})`
-            );
-
-            await new Promise((resolve, reject) => {
-                const timer = setTimeout(resolve, delay);
-                signal?.addEventListener("abort", () => {
-                    clearTimeout(timer);
-                    reject(new DOMException("Aborted", "AbortError"));
-                }, { once: true });
-            });
-
-            return fetchWithRetry(operation, retryCount + 1, maxRetries, initialRetryDelay, signal);
+        if (attempt < maxRetries && errorCode && retryableErrors.includes(errorCode)) {
+            const delay = baseDelay * Math.pow(2, attempt);
+            console.warn(`Network error (${errorCode}). Retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`);
+            await wait(delay, signal);
+            return fetchWithRetry(operation, { ...options, attempt: attempt + 1 });
         }
 
-        // Non-retryable or out of retries → bubble up
         throw error;
     }
 }

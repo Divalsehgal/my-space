@@ -42,7 +42,7 @@ function SubmitButton() {
       fullWidth
       disabled={pending}
       onClick={() => {
-        trackEvent("click", "Contact", "Submit Button");
+        trackEvent("click", "Contact", { label: "Submit Button" });
       }}
     >
       {pending ? "Sending..." : "Send Message"}
@@ -69,12 +69,12 @@ export default function Contact({ action }: ContactProps) {
       showToast(state.message, state.status === "success" ? "success" : "error");
 
       if (state.status === "success") {
-        trackEvent("submit_success", "Contact", "Form");
+        trackEvent("submit_success", "Contact", { label: "Form" });
         const form = document.getElementById("contact-form") as HTMLFormElement;
         form?.reset();
-        setMessageLength(0);
+        setTimeout(() => setMessageLength(0), 0);
       } else if (state.status === "error") {
-        trackEvent("submit_error", "Contact", state.message);
+        trackEvent("submit_error", "Contact", { label: state.message });
       }
     }
   }, [state, showToast]);

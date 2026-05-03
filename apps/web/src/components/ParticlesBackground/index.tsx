@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import type { Container, RecursivePartial, IOptions } from "@tsparticles/engine";
+import type { RecursivePartial, IOptions } from "@tsparticles/engine";
 import { TColorsPrimaryDefault } from "@dival-sehgal/design-tokens/variables.js";
 
 export default function ParticlesBackground() {
@@ -17,9 +17,9 @@ export default function ParticlesBackground() {
         });
     }, []);
 
-    const particlesLoaded = React.useCallback(async (container?: Container): Promise<void> => {}, []);
+    const particlesLoaded = async (): Promise<void> => {};
 
-    const options: RecursivePartial<IOptions> = React.useMemo(() => ({
+    const options: RecursivePartial<IOptions> = {
         background: {
             color: { value: "transparent" },
         },
@@ -64,7 +64,7 @@ export default function ParticlesBackground() {
             size: { value: { min: 1, max: 3 } },
         },
         detectRetina: true,
-    }), []);
+    };
 
 
 

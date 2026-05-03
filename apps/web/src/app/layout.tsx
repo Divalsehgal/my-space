@@ -1,8 +1,8 @@
 
-import "./global.scss";
+import "@/styles/globals.scss";
 import Navbar from "@/components/Navbar";
 import type { Metadata, Viewport } from "next";
-import Providers from "./providers";
+import Providers from "@/components/Providers";
 import { StackHans } from "@dival-sehgal/fonts/next";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";

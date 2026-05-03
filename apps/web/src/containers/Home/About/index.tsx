@@ -51,7 +51,7 @@ export default function About() {
         {/* Right Column: Content */}
         <div className={`${styles["about__column"]} ${styles["about__column--right"]}`}>
           <Stack spacing={2}>
-            <SectionHeader title={title || "About Me"} align="left" />
+            <SectionHeader title={title} align="left" />
 
             <Stack spacing={1}>
               {paragraphs.map((text: string, index: number) => (
@@ -92,7 +92,7 @@ export default function About() {
                           aria-label={social.label}
                           size="large"
                           onClick={() => {
-                            trackEvent("click", "Social", social.label);
+                            trackEvent("click", "Social", { label: social.label });
                           }}
                         >
                           {Icon ? <Icon fontSize="large" /> : (

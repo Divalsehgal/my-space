@@ -19,21 +19,21 @@ export default async function Blogs() {
 
     if (!posts || posts.length === 0) {
         return (
-            <main className="page-scroll">
+            <div className="page-scroll">
                 <FluidContainer className={styles["blogs-container"]}>
                     <h1 className={styles["blogs-title"]}>Blog</h1>
                     <p>No posts found. Make sure your Notion database is connected and has published posts.</p>
                 </FluidContainer>
-            </main>
+            </div>
 
         );
     }
 
     return (
-        <main className="page-scroll">
+        <div className="page-scroll">
             <Breadcrumbs items={breadcrumbItems} />
             <BlogPageContent posts={posts} />
-        </main>
+        </div>
 
     );
 }

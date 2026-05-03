@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useRef, Suspense } from "react";
+import { useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
-// @ts-ignore
-import * as random from "maath/random/dist/maath-random.esm";
+import * as THREE from "three";
 import styles from "./styles.module.scss";
 
 import { useScroll, useTransform } from "framer-motion";
 import { TColorsPrimaryDefault } from "@dival-sehgal/design-tokens/variables.js";
 
 const TechObject = () => {
-    const meshRef = useRef<any>(null);
+    const meshRef = useRef<THREE.Mesh>(null);
     const { scrollY } = useScroll();
     
     const yTransform = useTransform(scrollY, [0, 1000], [0, 0.5]);

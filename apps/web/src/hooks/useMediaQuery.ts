@@ -11,18 +11,19 @@ const useEnhancedEffect =
  */
 export function useMediaQuery(query: string): boolean {
     const getMatch = () => {
-        if (typeof window === "undefined") return false;
+        if (typeof window === "undefined" || !window.matchMedia) {return false;}
         return window.matchMedia(query).matches;
     };
 
     const [matches, setMatches] = useState<boolean>(getMatch);
 
     useEnhancedEffect(() => {
+        if (typeof window === "undefined" || !window.matchMedia) {return;}
         let active = true;
         const mediaQueryList = window.matchMedia(query);
 
         const listener = () => {
-            if (!active) return;
+            if (!active) {return;}
             setMatches(mediaQueryList.matches);
         };
 

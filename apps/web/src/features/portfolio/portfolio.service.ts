@@ -17,7 +17,7 @@ export class PortfolioService {
 
     public async getConfig(signal?: AbortSignal): Promise<{ config: PortfolioConfig }> {
         try {
-            const res = await fetchWithRetry((sig) =>
+            const res = (await fetchWithRetry((sig) =>
                 fetch(`${CONFIG_URL}?t=${new Date().getTime()}`, {
                     next: {
                         revalidate: 60,
@@ -25,11 +25,8 @@ export class PortfolioService {
                     },
                     signal: sig,
                 }),
-                0,
-                3,
-                1000,
-                signal
-            );
+                { maxRetries: 3, baseDelay: 1000, signal }
+            )) as Response;
 
             if (!res.ok) {
                 throw new Error(`Failed to fetch portfolio config: ${res.statusText}`);

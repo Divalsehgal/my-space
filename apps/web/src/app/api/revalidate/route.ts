@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     revalidateTag("portfolio", "page");
     return NextResponse.json({ revalidated: true, now: Date.now() });
-  } catch (err) {
+  } catch (_err) {
     return NextResponse.json({ message: "Error revalidating" }, { status: 500 });
   }
 }

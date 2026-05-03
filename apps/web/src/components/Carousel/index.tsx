@@ -55,7 +55,7 @@ export default function Carousel<T>({
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd) {return;}
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -67,7 +67,7 @@ export default function Carousel<T>({
   };
 
   useEffect(() => {
-    if (!isAutoPlayActive || items.length <= 1) return;
+    if (!isAutoPlayActive || items.length <= 1) {return;}
 
     const interval = setInterval(() => {
       handleNext();
@@ -134,8 +134,9 @@ export default function Carousel<T>({
       </div>
 
       {/* Carousel Main Content */}
-      <main
+      <section
         className={styles["carousel__content"]}
+        data-testid="carousel-content"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -161,7 +162,7 @@ export default function Carousel<T>({
             ))}
           </div>
         )}
-      </main>
+      </section>
     </div>
   );
 }

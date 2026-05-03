@@ -59,7 +59,7 @@ export default function Navbar({ brand }: NavbarProps) {
 
   useEffect(() => {
     if (isDesktop && open) {
-      setOpen(false);
+      setTimeout(() => setOpen(false), 0);
     }
   }, [isDesktop, open]);
 
@@ -80,7 +80,7 @@ export default function Navbar({ brand }: NavbarProps) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {return;}
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -88,13 +88,13 @@ export default function Navbar({ brand }: NavbarProps) {
         return;
       }
 
-      if (e.key !== "Tab") return;
+      if (e.key !== "Tab") {return;}
 
       const focusableElements = navRef.current?.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
 
-      if (!focusableElements || focusableElements.length === 0) return;
+      if (!focusableElements || focusableElements.length === 0) {return;}
 
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
