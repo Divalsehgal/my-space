@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 
 type SectionHeaderProps = {
@@ -27,25 +28,16 @@ export default function SectionHeader({
 }: Readonly<SectionHeaderProps>) {
   if (!eyebrow && !title && !subtitle) {return null;}
 
-  const rootClassNames = [
+  const rootClassNames = clsx(
     styles["section-header"],
     styles[`section-header--${align}`],
-    variant !== "default" ? styles[`section-header--${variant}`] : null,
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const titleClasses = [styles["section-header__title"], titleClassName]
-    .filter(Boolean)
-    .join(" ");
-
-  const subtitleClasses = [
-    styles["section-header__subtitle"],
-    subtitleClassName,
-  ]
-    .filter(Boolean)
-    .join(" ");
+    variant !== "default" && styles[`section-header--${variant}`],
+    className
+  );
+ 
+  const titleClasses = clsx(styles["section-header__title"], titleClassName);
+ 
+  const subtitleClasses = clsx(styles["section-header__subtitle"], subtitleClassName);
 
   return (
     <Box className={rootClassNames}>

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -32,11 +33,11 @@ export default function About() {
     <FluidContainer
       as="section"
       id="about"
-      className={`section ${styles.about}`}
+      className={clsx("section", styles.about)}
     >
       <BackgroundPattern />
       <div className={styles["about__container"]}>
-        <div className={`${styles["about__column"]} ${styles["about__column--left"]}`}>
+        <div className={clsx(styles["about__column"], styles["about__column--left"])}>
           <div className={styles["about__avatar-group"]}>
             <div className={styles["about__avatar-frame"]} />
             <div
@@ -49,7 +50,7 @@ export default function About() {
         </div>
 
         {/* Right Column: Content */}
-        <div className={`${styles["about__column"]} ${styles["about__column--right"]}`}>
+        <div className={clsx(styles["about__column"], styles["about__column--right"])}>
           <Stack spacing={2}>
             <SectionHeader title={title} align="left" />
 

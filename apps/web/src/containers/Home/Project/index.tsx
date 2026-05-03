@@ -2,6 +2,7 @@
 
 import Carousel from "@/components/Carousel";
 import ProjectCard from "@/components/ProjectCard";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
@@ -12,7 +13,7 @@ export default function Project() {
   const items = config?.projects || [];
 
   return (
-    <FluidContainer as="section" id="projects" className={`section ${styles.project}`}>
+    <FluidContainer as="section" id="projects" className={clsx("section", styles.project)}>
       <SectionHeader title="Projects" align="left" />
       <Carousel
         items={items}

@@ -7,6 +7,7 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -80,7 +81,7 @@ export default function Contact({ action }: ContactProps) {
   }, [state, showToast]);
 
   return (
-    <FluidContainer as="section" id="contact" className={`${styles.contact} section`}>
+    <FluidContainer as="section" id="contact" className={clsx(styles.contact, "section")}>
       <SectionHeader
         title={
           <div className={styles["contact__title-wrapper"]}>

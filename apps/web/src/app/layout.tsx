@@ -103,7 +103,7 @@ export default async function RootLayout({
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID; // Keeping GTM support for future if needed
 
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en" data-theme="light" suppressHydrationWarning={true}>
       <head>
         {(gaId || adsId) && (
           <>
@@ -134,7 +134,7 @@ export default async function RootLayout({
           </Script>
         )}
       </head>
-      <body className={StackHans.variable}>
+      <body className={StackHans.variable} suppressHydrationWarning={true}>
         {gtmId && gtmId.startsWith("GTM-") && (
           <noscript>
             <iframe

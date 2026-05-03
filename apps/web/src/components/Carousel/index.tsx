@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { IconButton } from "@mui/material";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 
 type CarouselProps<T> = {
@@ -110,7 +111,7 @@ export default function Carousel<T>({
         {showNavigation && (
           <div className={styles["carousel__nav"]}>
             <IconButton
-              className={`${styles["carousel__nav-btn"]} ${styles["carousel__nav-btn--prev"]}`}
+              className={clsx(styles["carousel__nav-btn"], styles["carousel__nav-btn--prev"])}
               onClick={() => {
                 handlePrev();
                 setIsAutoPlayActive(false);
@@ -120,7 +121,7 @@ export default function Carousel<T>({
               <ChevronLeftIcon className={styles["carousel__nav-icon"]} />
             </IconButton>
             <IconButton
-              className={`${styles["carousel__nav-btn"]} ${styles["carousel__nav-btn--next"]}`}
+              className={clsx(styles["carousel__nav-btn"], styles["carousel__nav-btn--next"])}
               onClick={() => {
                 handleNext();
                 setIsAutoPlayActive(false);
@@ -152,7 +153,7 @@ export default function Carousel<T>({
             {items.map((_, index) => (
               <button
                 key={index}
-                className={`${styles["carousel__dot"]} ${currentIndex === index ? styles["carousel__dot--active"] : ""}`}
+                className={clsx(styles["carousel__dot"], { [styles["carousel__dot--active"]]: currentIndex === index })}
                 onClick={() => {
                   setCurrentIndex(index);
                   setIsAutoPlayActive(false);

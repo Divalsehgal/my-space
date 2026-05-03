@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { Typography } from "@mui/material";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -22,7 +23,7 @@ export default function GlassCard({
     className = "",
 }: Props) {
     return (
-        <div className={`${styles["glass-card"]} ${!visual ? styles["glass-card--no-visual"] : ""} ${className}`}>
+        <div className={clsx(styles["glass-card"], { [styles["glass-card--no-visual"]]: !visual }, className)}>
             {visual && <div className={styles["glass-card__visual"]}>
                 {visual}
                 <div className={styles["glass-card__visual-overlay"]} />

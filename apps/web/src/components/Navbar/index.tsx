@@ -7,6 +7,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
 import { TBreakpointTablet } from "@dival-sehgal/design-tokens/variables.js";
@@ -173,7 +174,7 @@ export default function Navbar({ brand }: NavbarProps) {
               <Link
                 key={l.label}
                 href={l.href}
-                className={`${styles["navbar__nav-link"]} ${styles["navbar__nav-link--mobile"]}`}
+                className={clsx(styles["navbar__nav-link"], styles["navbar__nav-link--mobile"])}
                 onClick={() => {
                   setOpen(false);
                 }}

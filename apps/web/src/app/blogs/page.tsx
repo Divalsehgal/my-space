@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     description: "Read the latest articles and insights on web development and AI from Dival Sehgal.",
 };
 
+export const revalidate = 0;
+
 export default async function Blogs() {
     const posts = await getNotionPosts();
     

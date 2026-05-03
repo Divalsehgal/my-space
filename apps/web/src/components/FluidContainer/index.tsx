@@ -1,4 +1,5 @@
 import { ElementType, ReactNode } from "react";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 
 type Props = {
@@ -16,7 +17,7 @@ export default function FluidContainer({
 }: Props) {
     const Tag = (as || "div") as any;
     return (
-        <Tag data-testid="fluid-container" className={`${styles["fluid-container"]} ${className}`} {...props}>
+        <Tag data-testid="fluid-container" className={clsx(styles["fluid-container"], className)} {...props}>
             {children}
         </Tag>
     );

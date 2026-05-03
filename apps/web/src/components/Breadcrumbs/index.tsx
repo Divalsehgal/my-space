@@ -1,5 +1,6 @@
 import Link from "next/link";
 import styles from "./styles.module.scss";
+import clsx from "clsx";
 import FluidContainer from "../FluidContainer";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import HomeIcon from "@mui/icons-material/Home";
@@ -12,7 +13,7 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ items ,  className }: BreadcrumbsProps) {
   return (
-    <nav className={`${styles.breadcrumbs} ${className}`} aria-label="Breadcrumb">
+    <nav className={clsx(styles.breadcrumbs, className)} aria-label="Breadcrumb">
       <FluidContainer>
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>

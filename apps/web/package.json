@@ -30,6 +30,7 @@
         "@react-three/fiber": "^9.5.0",
         "@tsparticles/react": "^3.0.0",
         "@tsparticles/slim": "^3.9.1",
+        "clsx": "^2.1.1",
         "framer-motion": "^12.36.0",
         "maath": "^0.10.8",
         "next": "16.1.6",

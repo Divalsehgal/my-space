@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
@@ -52,7 +53,7 @@ export default function Hero() {
   }]
 
   return (
-    <FluidContainer as="section" className={`section ${styles.hero}`} id="home">
+    <FluidContainer as="section" className={clsx("section", styles.hero)} id="home">
       <BackgroundPattern />
       <Box sx={{ position: 'relative', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
         <ParticlesBackground />
@@ -63,10 +64,10 @@ export default function Hero() {
             {badge.label}
           </div>
         )}
-        <h1 className={`${styles["hero__heading"]} MuiTypography-root MuiTypography-h1`}>
+        <h1 className={clsx(styles["hero__heading"], "MuiTypography-root", "MuiTypography-h1")}>
           {title}
         </h1>
-        <h2 className={`${styles["hero__subheading"]} MuiTypography-root MuiTypography-h2`}>
+        <h2 className={clsx(styles["hero__subheading"], "MuiTypography-root", "MuiTypography-h2")}>
           {subtitle}
         </h2>
         <div className={styles["hero__actions"]}>
