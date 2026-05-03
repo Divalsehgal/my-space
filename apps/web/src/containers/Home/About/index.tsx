@@ -4,13 +4,19 @@ import React from "react";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
-import GitHubIcon from '@mui/icons-material/GitHub';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import { Typography, IconButton, Stack, Grid, SvgIconProps } from "@mui/material";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import {
+  Typography,
+  IconButton,
+  Stack,
+  Grid,
+  SvgIconProps,
+} from "@mui/material";
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
@@ -37,7 +43,12 @@ export default function About() {
     >
       <BackgroundPattern />
       <div className={styles["about__container"]}>
-        <div className={clsx(styles["about__column"], styles["about__column--left"])}>
+        <div
+          className={clsx(
+            styles["about__column"],
+            styles["about__column--left"],
+          )}
+        >
           <div className={styles["about__avatar-group"]}>
             <div className={styles["about__avatar-frame"]} />
             <div
@@ -50,13 +61,22 @@ export default function About() {
         </div>
 
         {/* Right Column: Content */}
-        <div className={clsx(styles["about__column"], styles["about__column--right"])}>
+        <div
+          className={clsx(
+            styles["about__column"],
+            styles["about__column--right"],
+          )}
+        >
           <Stack spacing={2}>
             <SectionHeader title={title} align="left" />
 
             <Stack spacing={1}>
-              {paragraphs.map((text: string, index: number) => (
-                <Typography key={index} variant="body1" className={styles["about__description"]}>
+              {paragraphs.map((text: string) => (
+                <Typography
+                  key={text}
+                  variant="body1"
+                  className={styles["about__description"]}
+                >
                   {text}
                 </Typography>
               ))}
@@ -64,10 +84,17 @@ export default function About() {
 
             {/* Facts Section */}
             <Grid container spacing={4}>
-              {facts.map((fact: string, index: number) => (
-                <Grid size={{ xs: 6, sm: "auto" }} sx={{ flexGrow: 1 }} key={index}>
+              {facts.map((fact: string) => (
+                <Grid
+                  size={{ xs: 6, sm: "auto" }}
+                  sx={{ flexGrow: 1 }}
+                  key={fact}
+                >
                   <Stack>
-                    <Typography variant="body2" className={styles["about__fact-value"]}>
+                    <Typography
+                      variant="body2"
+                      className={styles["about__fact-value"]}
+                    >
                       {fact}
                     </Typography>
                   </Stack>
@@ -77,15 +104,19 @@ export default function About() {
               {/* Integrated Social Links */}
               <Grid size={{ xs: 6, sm: "auto" }} sx={{ flexGrow: 1 }}>
                 <Stack>
-                  <Typography variant="caption" className={styles["about__fact-label"]}>
+                  <Typography
+                    variant="caption"
+                    className={styles["about__fact-label"]}
+                  >
                     Socials
                   </Typography>
                   <div className={styles["about__social-links"]}>
-                    {socialItems.map((social, index: number) => {
-                      const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
+                    {socialItems.map((social) => {
+                      const Icon =
+                        ICON_MAP[social.icon?.toLowerCase() || ""] || null;
                       return (
                         <IconButton
-                          key={index}
+                          key={social.href}
                           className={styles["about__social-btn"]}
                           href={social.href}
                           target="_blank"
@@ -93,11 +124,19 @@ export default function About() {
                           aria-label={social.label}
                           size="large"
                           onClick={() => {
-                            trackEvent("click", "Social", { label: social.label });
+                            trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, {
+                              platform: social.label,
+                              href: social.href,
+                            });
                           }}
                         >
-                          {Icon ? <Icon fontSize="large" /> : (
-                            <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
+                          {Icon ? (
+                            <Icon fontSize="large" />
+                          ) : (
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: "bold" }}
+                            >
                               {social.label.substring(0, 2).toUpperCase()}
                             </Typography>
                           )}

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import clsx from "clsx";
 import Carousel from "@/components/Carousel";
 import styles from "./styles.module.scss";
@@ -14,7 +13,11 @@ export default function ExperienceSection() {
   const items = config?.experience || [];
 
   return (
-    <FluidContainer as="section" id="experience" className={clsx("section", styles.experience)}>
+    <FluidContainer
+      as="section"
+      id="experience"
+      className={clsx("section", styles.experience)}
+    >
       <SectionHeader title="Experience" align="left" />
       <Carousel
         items={items}
