@@ -18,7 +18,7 @@ import { type ContactFormState } from "@/types/contact";
 import { ToastContext } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
@@ -42,9 +42,6 @@ function SubmitButton() {
       size="large"
       fullWidth
       disabled={pending}
-      onClick={() => {
-        trackEvent("click", "Contact", { label: "Submit Button" });
-      }}
     >
       {pending ? "Sending..." : "Send Message"}
     </Button>
@@ -70,12 +67,12 @@ export default function Contact({ action }: ContactProps) {
       showToast(state.message, state.status === "success" ? "success" : "error");
 
       if (state.status === "success") {
-        trackEvent("submit_success", "Contact", { label: "Form" });
+        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "success", message: state.message });
         const form = document.getElementById("contact-form") as HTMLFormElement;
         form?.reset();
         setTimeout(() => setMessageLength(0), 0);
       } else if (state.status === "error") {
-        trackEvent("submit_error", "Contact", { label: state.message });
+        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "error", message: state.message });
       }
     }
   }, [state, showToast]);

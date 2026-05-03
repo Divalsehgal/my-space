@@ -10,6 +10,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { TBreakpointTablet } from "@dival-sehgal/design-tokens/variables.js";
 const navLinks = [
   { label: "Home", href: "/#home" },
@@ -148,7 +149,14 @@ export default function Navbar({ brand }: NavbarProps) {
           {/* Desktop Nav */}
           <div className={styles["navbar__nav-desktop"]}>
             {navLinks.map((l) => (
-              <Link key={l.label} href={l.href} className={styles["navbar__nav-link"]}>
+              <Link 
+                key={l.label} 
+                href={l.href} 
+                className={styles["navbar__nav-link"]}
+                onClick={() => {
+                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: l.label, href: l.href, location: "navbar" });
+                }}
+              >
                 {l.label}
               </Link>
             ))}
@@ -177,6 +185,7 @@ export default function Navbar({ brand }: NavbarProps) {
                 className={clsx(styles["navbar__nav-link"], styles["navbar__nav-link--mobile"])}
                 onClick={() => {
                   setOpen(false);
+                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: l.label, href: l.href, location: "navbar" });
                 }}
               >
                 {l.label}

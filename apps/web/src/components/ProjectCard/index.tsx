@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { type ProjectConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
 type Props = {
   readonly project: ProjectConfig;
@@ -34,7 +34,7 @@ export default function ProjectCard({ project }: Readonly<Props>) {
       href={(project.link || project.repo) as string}
       disabled={!project.link && !project.repo}
       onClick={() => {
-        trackEvent("click", "Project", { label: project.name });
+        trackInteraction(ANALYTICS_EVENTS.PROJECT_CLICK, { projectName: project.name, linkType: project.link ? "live" : "repo" });
       }}
     >
       View Project Details

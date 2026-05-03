@@ -9,6 +9,7 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 const footerLinks = [
     { label: "Home", href: "/#home" },
     { label: "About", href: "/#about" },
@@ -57,7 +58,13 @@ export default function Footer({ brand }: FooterProps) {
                         <ul className={styles["footer__links-list"]}>
                             {footerLinks.map((link) => (
                                 <li key={link.label}>
-                                    <Link href={link.href} className={styles["footer__link"]}>
+                                    <Link 
+                                        href={link.href} 
+                                        className={styles["footer__link"]}
+                                        onClick={() => {
+                                            trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: link.label, href: link.href, location: "footer" });
+                                        }}
+                                    >
                                         {link.label}
                                     </Link>
                                 </li>
@@ -79,6 +86,9 @@ export default function Footer({ brand }: FooterProps) {
                                     rel="noopener noreferrer"
                                     className={styles["footer__social-icon"]}
                                     aria-label={social.label}
+                                    onClick={() => {
+                                        trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, { platform: social.label, href: social.href });
+                                    }}
                                 >
                                     {social.icon}
                                 </a>

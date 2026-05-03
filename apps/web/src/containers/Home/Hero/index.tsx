@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Box } from "@mui/system";
-import { trackInteraction } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 export default function Hero() {
@@ -85,9 +85,9 @@ export default function Hero() {
                 rel={button.rel}
                 onClick={() => {
                   if (button.label === "Resume") {
-                    trackInteraction("resume_view", { label: "Hero Resume Button" });
+                    trackInteraction(ANALYTICS_EVENTS.RESUME_VIEW, { label: "Hero Resume Button" });
                   } else {
-                    trackInteraction("nav_click", { label: button.label, href: button.href || "", location: "navbar" });
+                    trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: button.label, href: button.href || "", location: "navbar" });
                   }
                 }}
               >
