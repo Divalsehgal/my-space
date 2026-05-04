@@ -13,11 +13,11 @@ describe("createMuiThemeFromTokens", () => {
     const theme = createMuiThemeFromTokens();
 
     expect(theme.palette?.mode).toBe("dark");
-    expect((theme.palette?.primary as any).main).toBe("#ff0000");
-    expect((theme.palette?.text as any).primary).toBe("#ffffff");
+    expect(theme.palette?.primary?.main).toBe("#ff0000");
+    expect(theme.palette?.text?.primary).toBe("#ffffff");
     
-    expect((theme.typography as any).h1.fontFamily).toBe("Inter, sans-serif");
-    expect((theme.typography as any).h1.fontSize).toBe("2rem");
+    expect(theme.typography?.h1?.fontFamily).toBe("Inter, sans-serif");
+    expect(theme.typography?.h1?.fontSize).toBe("2rem");
     
     expect(theme.shape?.borderRadius).toBe(8);
   });

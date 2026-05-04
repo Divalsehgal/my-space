@@ -15,7 +15,7 @@ export default function FluidContainer({
     className = "",
     ...props
 }: Props) {
-    const Tag = (as || "div") as any;
+    const Tag = as || "div";
     return (
         <Tag data-testid="fluid-container" className={clsx(styles["fluid-container"], className)} {...props}>
             {children}

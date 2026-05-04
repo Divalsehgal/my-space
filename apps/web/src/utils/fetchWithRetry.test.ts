@@ -5,10 +5,11 @@ describe("fetchWithRetry", () => {
 
   beforeAll(() => {
     jest.useFakeTimers();
-    (global as any).Response = class Response {
+    // @ts-expect-error - mocking global Response
+    global.Response = class Response {
       status: number;
       ok: boolean;
-      constructor(_body: any, init: any) {
+      constructor(_body: unknown, init?: { status?: number }) {
         this.status = init?.status || 200;
         this.ok = this.status >= 200 && this.status < 300;
       }
@@ -68,7 +69,7 @@ describe("fetchWithRetry", () => {
 
   it("retries on network error and resolves if it succeeds", async () => {
     const networkError = new Error("Network issue");
-    (networkError as any).code = "ECONNRESET";
+    (networkError as unknown as { code: string }).code = "ECONNRESET";
     
     const mockOperation = jest.fn()
       .mockRejectedValueOnce(networkError)
@@ -118,7 +119,7 @@ describe("fetchWithRetry", () => {
   it("aborts during a network error retry timeout", async () => {
     const controller = new AbortController();
     const networkError = new Error("Network issue");
-    (networkError as any).code = "ECONNRESET";
+    (networkError as unknown as { code: string }).code = "ECONNRESET";
     
     const mockOperation = jest.fn().mockRejectedValueOnce(networkError);
     

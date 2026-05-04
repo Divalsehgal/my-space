@@ -25,7 +25,7 @@ describe("GlassCard Component", () => {
   });
 
   it("renders with a visual component", () => {
-    const VisualMock = <img src="/test.png" alt="Test Image" data-testid="visual-mock" />;
+    const VisualMock = <div data-testid="visual-mock">Visual Content</div>;
     
     render(<GlassCard title="Visual Title" description="Desc" visual={VisualMock} />);
     

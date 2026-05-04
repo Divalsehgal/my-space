@@ -1,13 +1,17 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import About from "./index";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 // Mock analytics
-jest.mock("@/utils/analytics", () => ({
-  trackEvent: jest.fn(),
-}));
+jest.mock("@/utils/analytics", () => {
+  const actual = jest.requireActual("@/utils/analytics");
+  return {
+    ...actual,
+    trackInteraction: jest.fn(),
+  };
+});
 
 // Mock context
 jest.mock("@/context/PortfolioContext", () => ({
@@ -15,7 +19,11 @@ jest.mock("@/context/PortfolioContext", () => ({
 }));
 
 // Mock decorative background
-jest.mock("@/components/BackgroundPattern", () => () => <div data-testid="bg-pattern" />);
+jest.mock("@/components/BackgroundPattern", () => {
+  const MockBackgroundPattern = () => <div data-testid="bg-pattern" />;
+  MockBackgroundPattern.displayName = "BackgroundPattern";
+  return MockBackgroundPattern;
+});
 
 describe("About Container", () => {
   beforeEach(() => {
@@ -68,7 +76,10 @@ describe("About Container", () => {
     const githubBtn = screen.getByLabelText("Github");
     fireEvent.click(githubBtn);
     
-    expect(trackEvent).toHaveBeenCalledWith("click", "Social", { label: "Github" });
+    expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.SOCIAL_CLICK, {
+      platform: "Github",
+      href: "https://github.com",
+    });
   });
 
   it("uses fallback text for socials when icon is missing or unknown", () => {

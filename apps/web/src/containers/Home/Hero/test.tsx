@@ -1,13 +1,17 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Hero from "./index";
-import { trackInteraction } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
 // Mock utilities and context
-jest.mock("@/utils/analytics", () => ({
-  trackInteraction: jest.fn(),
-}));
+jest.mock("@/utils/analytics", () => {
+  const actual = jest.requireActual("@/utils/analytics");
+  return {
+    ...actual,
+    trackInteraction: jest.fn(),
+  };
+});
 
 jest.mock("@/context/PortfolioContext", () => ({
   usePortfolioContext: jest.fn(),
@@ -21,7 +25,7 @@ jest.mock("framer-motion", () => {
     useScroll: () => ({ scrollY: 0 }),
     useTransform: () => 0,
     motion: {
-      div: ({ style, className, children, ...props }: any) => (
+      div: ({ style, className, children, ...props }: { style?: React.CSSProperties; className?: string; children?: React.ReactNode; [key: string]: unknown }) => (
         <div data-testid="motion-div" style={style} className={className} {...props}>{children}</div>
       ),
     },
@@ -77,7 +81,7 @@ describe("Hero Container", () => {
     const resumeBtn = screen.getByText("Resume");
     fireEvent.click(resumeBtn);
     
-    expect(trackInteraction).toHaveBeenCalledWith("resume_view", { label: "Hero Resume Button" });
+    expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.RESUME_VIEW, { label: "Hero Resume Button" });
   });
 
   it("calls trackInteraction properly on other button clicks", () => {
@@ -86,7 +90,7 @@ describe("Hero Container", () => {
     const viewProjectsBtn = screen.getByText("View Projects");
     fireEvent.click(viewProjectsBtn);
     
-    expect(trackInteraction).toHaveBeenCalledWith("nav_click", { 
+    expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.NAV_CLICK, { 
       label: "View Projects", 
       href: "#projects", 
       location: "navbar" 
@@ -106,7 +110,7 @@ describe("Hero Container", () => {
     const btn = screen.getByText("No Href");
     fireEvent.click(btn);
     
-    expect(trackInteraction).toHaveBeenCalledWith("nav_click", { 
+    expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.NAV_CLICK, { 
       label: "No Href", 
       href: "", 
       location: "navbar" 

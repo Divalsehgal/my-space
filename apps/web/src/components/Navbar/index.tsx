@@ -7,19 +7,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { TBreakpointTablet } from "@dival-sehgal/design-tokens/variables.js";
-const navLinks = [
-  { label: "Home", href: "/#home" },
-  { label: "About", href: "/#about" },
-  { label: "Blogs", href: "/blogs" },
-  { label: "Projects", href: "/#projects" },
-  { label: "Experience", href: "/#experience" },
-  { label: "Contact", href: "/#contact", cta: true },
-];
+import { navLinks } from "./constants";
+import MobileMenu from "./MobileMenu";
 
 type NavbarProps = {
   readonly brand?: string;
@@ -82,7 +75,9 @@ export default function Navbar({ brand }: NavbarProps) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) {return;}
+    if (!open) {
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -90,13 +85,17 @@ export default function Navbar({ brand }: NavbarProps) {
         return;
       }
 
-      if (e.key !== "Tab") {return;}
+      if (e.key !== "Tab") {
+        return;
+      }
 
       const focusableElements = navRef.current?.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
 
-      if (!focusableElements || focusableElements.length === 0) {return;}
+      if (!focusableElements || focusableElements.length === 0) {
+        return;
+      }
 
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
@@ -176,23 +175,7 @@ export default function Navbar({ brand }: NavbarProps) {
           </IconButton>
         </FluidContainer>
 
-        {open && (
-          <div className={styles["navbar__mobile-menu"]}>
-            {navLinks.map((l) => (
-              <Link
-                key={l.label}
-                href={l.href}
-                className={clsx(styles["navbar__nav-link"], styles["navbar__nav-link--mobile"])}
-                onClick={() => {
-                  setOpen(false);
-                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: l.label, href: l.href, location: "navbar" });
-                }}
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        )}
+        <MobileMenu isOpen={open} onClose={() => setOpen(false)} />
 
         {/* Curved Progress Bar and Bottom Shape */}
         <div className={styles["navbar__curve-container"]}>

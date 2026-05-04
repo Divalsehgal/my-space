@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import Footer from "./index";
 
 jest.mock("next/link", () => {
-  return function MockLink({ children, href }: any) {
+  return function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
     return (
       <a href={href} data-testid={`link-${href}`}>
         {children}

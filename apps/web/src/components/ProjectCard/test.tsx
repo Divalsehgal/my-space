@@ -2,12 +2,16 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProjectCard from "./index";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
 // Mock the analytics utility
-jest.mock("@/utils/analytics", () => ({
-  trackEvent: jest.fn(),
-}));
+jest.mock("@/utils/analytics", () => {
+  const actual = jest.requireActual("@/utils/analytics");
+  return {
+    ...actual,
+    trackInteraction: jest.fn(),
+  };
+});
 
 // Mock the GlassCard component to simplify this test and isolate ProjectCard logic
 jest.mock("../GlassCard", () => {
@@ -85,8 +89,11 @@ describe("ProjectCard Component", () => {
       fireEvent.click(linkButton);
     }
     
-    expect(trackEvent).toHaveBeenCalledTimes(1);
-    expect(trackEvent).toHaveBeenCalledWith("click", "Project", { label: "Awesome App" });
+    expect(trackInteraction).toHaveBeenCalledTimes(1);
+    expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.PROJECT_CLICK, {
+      projectName: "Awesome App",
+      linkType: "live",
+    });
   });
 
   it("renders with placeholder image if project image is missing", () => {

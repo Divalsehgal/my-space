@@ -6,7 +6,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Mock next/link
 jest.mock("next/link", () => {
-  return function MockLink({ children, href, onClick, className }: any) {
+  return function MockLink({ children, href, onClick, className }: { children: React.ReactNode; href: string; onClick?: () => void; className?: string }) {
     return (
       <a href={href} onClick={onClick} className={className} data-testid={`navlink-${href}`}>
         {children}
@@ -15,10 +15,18 @@ jest.mock("next/link", () => {
   };
 });
 
-// Mock custom hooks
+// Mock custom hooks and utilities
 jest.mock("@/hooks/useMediaQuery", () => ({
   useMediaQuery: jest.fn(),
 }));
+
+jest.mock("@/utils/analytics", () => {
+  const actual = jest.requireActual("@/utils/analytics");
+  return {
+    ...actual,
+    trackInteraction: jest.fn(),
+  };
+});
 
 describe("Navbar Component", () => {
   beforeEach(() => {
@@ -229,7 +237,7 @@ describe("Navbar Component", () => {
     });
 
     const nav = screen.getByRole("navigation");
-    jest.spyOn(nav, 'querySelectorAll').mockReturnValue([] as any);
+    jest.spyOn(nav, 'querySelectorAll').mockReturnValue([] as unknown as NodeListOf<Element>);
 
     act(() => {
       fireEvent.keyDown(window, { key: "Tab" });

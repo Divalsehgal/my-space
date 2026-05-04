@@ -13,6 +13,48 @@ import { Box } from "@mui/system";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
+type HeroData = {
+  title: string;
+  subtitle: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+  resumeLabel?: string;
+  resumeUrl?: string;
+  badge?: {
+    enabled: boolean;
+    label: string;
+  };
+};
+
+const getButtons = (data?: HeroData) => [
+  {
+    label: data?.primaryCtaLabel || "View Projects",
+    href: data?.primaryCtaHref ?? "#projects",
+    variant: "contained" as const,
+    color: "primary" as const,
+    size: "large" as const,
+  },
+  {
+    label: data?.secondaryCtaLabel || "Contact",
+    href: data?.secondaryCtaHref ?? "#contact",
+    variant: "outlined" as const,
+    color: "secondary" as const,
+    size: "large" as const,
+  },
+  {
+    label: data?.resumeLabel || "Resume",
+    href: data?.resumeUrl,
+    variant: "text" as const,
+    color: "secondary" as const,
+    size: "large" as const,
+    startIcon: <DescriptionIcon />,
+    target: "_blank",
+    rel: "noopener noreferrer",
+  },
+];
+
 export default function Hero() {
   const data = usePortfolioContext()?.hero;
 
@@ -20,37 +62,7 @@ export default function Hero() {
   const subtitle = data?.subtitle || "Full-Stack Engineer";
   const badge = data?.badge;
 
-  const buttons: {
-    label: string;
-    href?: string;
-    variant: NonNullable<React.ComponentProps<typeof Button>["variant"]>;
-    color: NonNullable<React.ComponentProps<typeof Button>["color"]>;
-    size: NonNullable<React.ComponentProps<typeof Button>["size"]>;
-    startIcon?: React.ReactNode;
-    target?: string;
-    rel?: string;
-  }[] = [{
-    label: data?.primaryCtaLabel || "View Projects",
-    href: data?.primaryCtaHref ?? "#projects",
-    variant: "contained",
-    color: "primary",
-    size: "large",
-  }, {
-    label: data?.secondaryCtaLabel || "Contact",
-    href: data?.secondaryCtaHref ?? "#contact",
-    variant: "outlined",
-    color: "secondary",
-    size: "large",
-  }, {
-    label: data?.resumeLabel || "Resume",
-    href: data?.resumeUrl,
-    variant: "text",
-    color: "secondary",
-    size: "large",
-    startIcon: <DescriptionIcon />,
-    target: "_blank",
-    rel: "noopener noreferrer",
-  }]
+  const buttons = getButtons(data);
 
   return (
     <FluidContainer as="section" className={clsx("section", styles.hero)} id="home">
@@ -72,7 +84,7 @@ export default function Hero() {
         </h2>
         <div className={styles["hero__actions"]}>
           {
-            buttons.map((button, index: number) => (
+            buttons.map((button, index) => (
               <Button
                 key={index}
                 component="a"

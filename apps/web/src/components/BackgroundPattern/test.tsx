@@ -11,7 +11,7 @@ jest.mock("framer-motion", () => {
     useScroll: () => ({ scrollY: 0 }),
     useTransform: () => 0,
     motion: {
-      div: ({ style, className }: any) => (
+      div: ({ style, className }: { style?: React.CSSProperties; className?: string }) => (
         <div data-testid="motion-div" style={style} className={className} />
       ),
     },

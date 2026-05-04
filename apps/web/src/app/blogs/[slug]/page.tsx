@@ -5,6 +5,7 @@ import styles from "./styles.module.scss";
 import { notFound } from "next/navigation";
 import FluidContainer from "@/components/FluidContainer";
 import { renderBlock, renderList } from "@/features/blog/Rendering";
+import type { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -107,10 +108,10 @@ export default async function BlogPost({ params }: Props) {
   const content = [];
   let currentList: {
     type: "bulleted_list_item" | "numbered_list_item";
-    items: any[];
+    items: BlockObjectResponse[];
   } | null = null;
 
-  for (const block of blocks as any[]) {
+  for (const block of (blocks as unknown as BlockObjectResponse[])) {
     if (
       block.type === "bulleted_list_item" ||
       block.type === "numbered_list_item"

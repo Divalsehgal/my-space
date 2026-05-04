@@ -86,25 +86,25 @@ export interface AnalyticsEventPayloads {
 // ---------------------------------------------------------------------------
 const resolveLabel = (
   eventName: AnalyticsEventName,
-  payload: Record<string, any>
+  payload: Record<string, unknown>
 ): string | undefined => {
   switch (eventName) {
     case ANALYTICS_EVENTS.NAV_CLICK:
-      return payload.label;
+      return payload.label as string;
     case ANALYTICS_EVENTS.SOCIAL_CLICK:
-      return payload.platform;
+      return payload.platform as string;
     case ANALYTICS_EVENTS.RESUME_VIEW:
     case ANALYTICS_EVENTS.RESUME_DOWNLOAD:
-      return payload.label ?? "Hero Resume Button";
+      return (payload.label as string) ?? "Hero Resume Button";
     case ANALYTICS_EVENTS.PROJECT_VIEW:
     case ANALYTICS_EVENTS.PROJECT_CLICK:
-      return payload.projectName;
+      return payload.projectName as string;
     case ANALYTICS_EVENTS.CONTACT_SUBMIT:
-      return payload.status;
+      return payload.status as string;
     case ANALYTICS_EVENTS.PAGE_END_REACHED:
-      return payload.label ?? "Reached Footer";
+      return (payload.label as string) ?? "Reached Footer";
     case ANALYTICS_EVENTS.BLOG_VIEW:
-      return payload.title;
+      return payload.title as string;
     default:
       return undefined;
   }
@@ -113,38 +113,60 @@ const resolveLabel = (
 // ---------------------------------------------------------------------------
 // 5. LOW-LEVEL ENGINE — Not for component use. Called only by trackInteraction.
 // ---------------------------------------------------------------------------
-const trackEvent = (
+export function trackEvent(
   action: string,
   category: string,
-  label: string | undefined,
-  payload: Record<string, any>
-) => {
-  if (typeof window === "undefined") return;
-
-  // Push to GTM dataLayer
-  if (!(window as any).dataLayer) {
-    (window as any).dataLayer = [];
+  labelOrPayload: string | (Record<string, unknown> & { label?: string; additionalParams?: Record<string, unknown> }) | undefined = undefined,
+  extraPayload: Record<string, unknown> = {}
+) {
+  if (typeof window === "undefined") {
+    return;
   }
-  (window as any).dataLayer.push({
+
+  let label: string | undefined;
+  let payload: Record<string, unknown> = { ...extraPayload };
+
+  if (typeof labelOrPayload === "string") {
+    label = labelOrPayload;
+  } else if (labelOrPayload && typeof labelOrPayload === "object") {
+    const { label: l, additionalParams, ...rest } = labelOrPayload;
+    label = l;
+    payload = { ...rest, ...payload };
+    if (additionalParams) {
+      payload = { ...payload, ...additionalParams };
+    }
+  }
+
+  const win = window as unknown as { 
+    dataLayer: Record<string, unknown>[]; 
+    gtag: (command: string, action: string, params: Record<string, unknown>) => void 
+  };
+
+  const eventPayload = {
     event: action,
     event_category: category,
     event_label: label,
     ...payload,
-  });
+  };
 
-  // Also send directly to GA4 via gtag if present (direct-GA4 mode)
-  if (typeof (window as any).gtag === "function") {
-    (window as any).gtag("event", action, {
-      event_category: category,
-      event_label: label,
-      ...payload,
-    });
+  // Push to GTM dataLayer
+  if (!win.dataLayer) {
+    win.dataLayer = [];
+  }
+  win.dataLayer.push(eventPayload);
+
+  // Also send directly to GA4 via gtag if present
+  if (typeof win.gtag === "function") {
+    win.gtag("event", action, eventPayload);
   }
 
+  // Development logging
   if (process.env.NODE_ENV === "development") {
-    console.info("[Analytics]", { action, category, label, ...payload });
+    console.info("[Analytics Event]", { action, category, label, payload });
   }
-};
+}
+
+
 
 // ---------------------------------------------------------------------------
 // 6. PUBLIC API — The only function components should import and call.
@@ -153,9 +175,9 @@ export const trackInteraction = <T extends AnalyticsEventName>(
   eventName: T,
   payload: AnalyticsEventPayloads[T]
 ): void => {
-  const category = EVENT_CATEGORY_MAP[eventName];
-  const label = resolveLabel(eventName, payload as Record<string, any>);
-  trackEvent(eventName, category, label, payload as Record<string, any>);
+  const category = EVENT_CATEGORY_MAP[eventName] || "General";
+  const label = resolveLabel(eventName, payload as unknown as Record<string, unknown>);
+  trackEvent(eventName, category, label, payload as unknown as Record<string, unknown>);
 };
 
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;

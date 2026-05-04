@@ -3,9 +3,11 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ToastProvider, useToast } from "./ToastContext";
 
+import { AlertColor } from "@mui/material";
+
 // Mock the Toaster presentation component
 jest.mock("@/components/Toaster", () => ({
-  Toaster: ({ open, message, severity, onClose }: any) => {
+  Toaster: ({ open, message, severity, onClose }: { open: boolean; message: string; severity: AlertColor; onClose: (event?: React.SyntheticEvent | Event | null, reason?: string) => void }) => {
     if (!open) {return null;}
     return (
       <div data-testid="mock-toaster" data-severity={severity}>
@@ -17,7 +19,7 @@ jest.mock("@/components/Toaster", () => ({
   },
 }));
 
-const TestComponent = ({ msg, severity }: { msg?: string, severity?: any }) => {
+const TestComponent = ({ msg, severity }: { msg?: string, severity?: AlertColor }) => {
   const { showToast } = useToast();
   return (
     <button onClick={() => showToast(msg || "Test Message", severity)}>

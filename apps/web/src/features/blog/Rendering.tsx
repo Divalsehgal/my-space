@@ -11,9 +11,9 @@ export function renderRichText(richText: RichTextItemResponse[] | undefined) {
         return null;
     }
     return richText.map((t, i) => {
-        const { annotations, plain_text, href } = t;
+        const { annotations, plain_text: plainText, href } = t;
 
-        let content: React.ReactNode = plain_text;
+        let content: React.ReactNode = plainText;
 
         if (annotations.bold) {
             content = <strong key={i}>{content}</strong>;
@@ -50,13 +50,19 @@ export function renderList(list: { type: "bulleted_list_item" | "numbered_list_i
     const Tag = list.type === "bulleted_list_item" ? "ul" : "ol";
     return (
         <Tag>
-            {list.items.map((item) => (
-                <li key={item.id}>
-                    {renderRichText(
-                        (item as any)[item.type]?.rich_text
-                    )}
-                </li>
-            ))}
+            {list.items.map((item) => {
+                let content: RichTextItemResponse[] = [];
+                if (item.type === "bulleted_list_item") {
+                    content = item.bulleted_list_item.rich_text;
+                } else if (item.type === "numbered_list_item") {
+                    content = item.numbered_list_item.rich_text;
+                }
+                return (
+                    <li key={item.id}>
+                        {renderRichText(content)}
+                    </li>
+                );
+            })}
         </Tag>
     );
 }
@@ -112,7 +118,7 @@ function renderImageBlock(block: BlockObjectResponse & { type: "image" }) {
 /**
  * Renders a single Notion block
  */
-export function renderBlock(block: any) {
+export function renderBlock(block: BlockObjectResponse) {
     if (["paragraph", "heading_1", "heading_2", "heading_3", "quote"].includes(block.type)) {
         return renderTextContent(block as BlockObjectResponse);
     }
@@ -122,7 +128,7 @@ export function renderBlock(block: any) {
             return (
                 <pre key={block.id} className={styles["blog-post__code"]}>
                     <code>
-                        {(block as any).code?.rich_text?.map((t: any) => t.plain_text).join("")}
+                        {block.code.rich_text.map((t) => t.plain_text).join("")}
                     </code>
                 </pre>
             );

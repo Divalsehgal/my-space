@@ -4,7 +4,14 @@ import { useMediaQuery } from "./useMediaQuery";
 describe("useMediaQuery Hook", () => {
   let addEventListenerMock: jest.Mock;
   let removeEventListenerMock: jest.Mock;
-  let mockMediaQueryList: any;
+  let mockMediaQueryList: {
+    matches: boolean;
+    media: string;
+    onchange: null;
+    addEventListener: jest.Mock;
+    removeEventListener: jest.Mock;
+    dispatchEvent: jest.Mock;
+  };
 
   beforeEach(() => {
     addEventListenerMock = jest.fn();
@@ -72,8 +79,8 @@ describe("useMediaQuery Hook", () => {
 
   it("handles missing window.matchMedia gracefully", () => {
     const originalMatchMedia = window.matchMedia;
-    // @ts-ignore
-    delete window.matchMedia;
+    // Cast to Partial<Window> to allow deletion of matchMedia for testing purposes
+    delete (window as Partial<Window>).matchMedia;
 
     const { result } = renderHook(() => useMediaQuery("(min-width: 768px)"));
     expect(result.current).toBe(false);

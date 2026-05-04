@@ -1,0 +1,24 @@
+{
+    "$schema": "../../node_modules/wrangler/config-schema.json",
+    "name": "ai-chatbot-widget",
+    "main": "src/worker/index.ts",
+    "compatibility_date": "2025-12-23",
+    "observability": {
+        "enabled": true
+    },
+    "ai": {
+        "binding": "AI"
+    },
+    "vectorize": [
+        {
+            "binding": "VECTORIZE",
+            "index_name": "faq-vectors"
+        }
+    ],
+    "kv_namespaces": [
+        {
+            "binding": "CHAT_SESSIONS",
+            "id": "ffb5298350b14bf1824de6dc93a2e0c6"
+        }
+    ]
+}

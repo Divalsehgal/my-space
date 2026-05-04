@@ -1,19 +1,19 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import React from "react";
-import { useFormStatus } from "react-dom";
+
 import Contact from "./index";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
 // Mock analytics
-jest.mock("@/utils/analytics", () => ({
-  trackInteraction: jest.fn(),
-  ANALYTICS_EVENTS: {
-    SOCIAL_CLICK: "social_click",
-    CONTACT_SUBMIT: "contact_submit",
-  },
-}));
+jest.mock("@/utils/analytics", () => {
+  const actual = jest.requireActual("@/utils/analytics");
+  return {
+    ...actual,
+    trackInteraction: jest.fn(),
+  };
+});
 
 // Mock context
 jest.mock("@/context/PortfolioContext", () => ({
@@ -26,6 +26,7 @@ jest.mock("@/context/ToastContext", () => ({
 
 // Dynamic Action State Mock
 let currentActionState = { status: "idle", message: "", errors: {} };
+let currentIsPending = false;
 const currentShowToast = jest.fn();
 
 // Mock React 19 Hooks
@@ -33,7 +34,7 @@ jest.mock("react", () => {
     const actualReact = jest.requireActual("react");
   return {
     ...actualReact,
-    useActionState: jest.fn(() => [currentActionState, jest.fn(), false]),
+    useActionState: jest.fn(() => [currentActionState, jest.fn(), currentIsPending]),
     use: jest.fn(() => ({ showToast: currentShowToast })),
   };
 });
@@ -49,6 +50,7 @@ describe("Contact Container", () => {
   beforeEach(() => {
     jest.mocked(usePortfolioContext).mockReturnValue(undefined);
     currentActionState = { status: "idle", message: "", errors: {} };
+    currentIsPending = false;
   });
 
   afterEach(() => {
@@ -137,7 +139,7 @@ describe("Contact Container", () => {
   });
 
   it("shows sending state when form is pending", () => {
-    jest.mocked(useFormStatus).mockReturnValue({ pending: true } as unknown as ReturnType<typeof useFormStatus>);
+    currentIsPending = true;
     
     render(<Contact action={mockAction} />);
     expect(screen.getByRole("button", { name: "Sending..." })).toBeInTheDocument();

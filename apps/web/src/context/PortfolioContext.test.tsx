@@ -2,6 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { PortfolioProvider, usePortfolioContext } from "./PortfolioContext";
+import { type PortfolioConfig } from "@/features/portfolio";
 
 const TestComponent = () => {
   const context = usePortfolioContext();
@@ -10,9 +11,9 @@ const TestComponent = () => {
 
 describe("PortfolioContext", () => {
   it("provides the value to children via usePortfolioContext", () => {
-    const mockValue: any = {
+    const mockValue = {
       hero: { title: "Portfolio Context Working" },
-    };
+    } as unknown as PortfolioConfig;
 
     render(
       <PortfolioProvider value={mockValue}>

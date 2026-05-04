@@ -17,8 +17,6 @@ export default function ParticlesBackground() {
         });
     }, []);
 
-    const particlesLoaded = async (): Promise<void> => {};
-
     const options: RecursivePartial<IOptions> = {
         background: {
             color: { value: "transparent" },
@@ -66,13 +64,10 @@ export default function ParticlesBackground() {
         detectRetina: true,
     };
 
-
-
     if (init) {
         return (
             <Particles
                 id="tsparticles"
-                particlesLoaded={particlesLoaded}
                 options={options}
                 style={{
                     position: "absolute",

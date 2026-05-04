@@ -14,11 +14,17 @@ const wait = (ms: number, signal?: AbortSignal) =>
         }, { once: true });
     });
 
-/**
- * Utility for executing a fetch operation with a retry mechanism.
- * The operation receives an AbortSignal that merges the user-provided signal
- * with the retry timeout signal.
- */
+function shouldRetryResponse(response: unknown): boolean {
+    return response instanceof Response && 
+        (response.status === 429 || (response.status >= 500 && response.status < 600));
+}
+
+function isRetryableError(error: unknown): boolean {
+    const retryableErrors = ["ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN"];
+    const errorCode = (error as { code?: string })?.code;
+    return Boolean(errorCode && retryableErrors.includes(errorCode));
+}
+
 export async function fetchWithRetry<T>(
     operation: (signal?: AbortSignal) => Promise<T>,
     options: RetryOptions = {}
@@ -30,14 +36,9 @@ export async function fetchWithRetry<T>(
     }
 
     try {
-        // Create a controller for this specific attempt if we want to add a timeout
-        // But for now we just pass the main signal
         const response = await operation(signal);
 
-        const shouldRetry = response instanceof Response && 
-            (response.status === 429 || (response.status >= 500 && response.status < 600));
-
-        if (shouldRetry && attempt < maxRetries) {
+        if (shouldRetryResponse(response) && attempt < maxRetries) {
             const delay = baseDelay * Math.pow(2, attempt);
             console.warn(`Status ${(response as Response).status}. Retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`);
             await wait(delay, signal);
@@ -46,12 +47,9 @@ export async function fetchWithRetry<T>(
 
         return response;
     } catch (error: unknown) {
-        const retryableErrors = ["ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN"];
-        const errorCode = (error as { code?: string })?.code;
-
-        if (attempt < maxRetries && errorCode && retryableErrors.includes(errorCode)) {
+        if (attempt < maxRetries && isRetryableError(error)) {
             const delay = baseDelay * Math.pow(2, attempt);
-            console.warn(`Network error (${errorCode}). Retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`);
+            console.warn(`Network error. Retrying in ${delay}ms... (${attempt + 1}/${maxRetries})`);
             await wait(delay, signal);
             return fetchWithRetry(operation, { ...options, attempt: attempt + 1 });
         }
