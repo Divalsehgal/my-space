@@ -32,35 +32,35 @@ export function createMuiThemeFromTokens(): ThemeOptions {
             h1: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeXxl,
-                fontWeight: Tokens.TFontWeightBold as number, // Cast to number for MUI
+                fontWeight: Tokens.TFontWeightBold as unknown as number, // Cast to number for MUI
                 lineHeight: Tokens.TFontLineHeightTight,
             },
             h2: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeXl,
-                fontWeight: Tokens.TFontWeightMedium as number,
+                fontWeight: Tokens.TFontWeightMedium as unknown as number,
                 lineHeight: Tokens.TFontLineHeightTight,
             },
             h3: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeLg,
-                fontWeight: Tokens.TFontWeightMedium as number,
+                fontWeight: Tokens.TFontWeightMedium as unknown as number,
             },
             body1: {
                 fontFamily: Tokens.TFontFamilyBody,
                 fontSize: Tokens.TFontSizeMd,
-                fontWeight: Tokens.TFontWeightRegular as number,
+                fontWeight: Tokens.TFontWeightRegular as unknown as number,
                 lineHeight: Tokens.TFontLineHeightNormal,
             },
             body2: {
                 fontFamily: Tokens.TFontFamilyBody,
                 fontSize: Tokens.TFontSizeSm,
-                fontWeight: Tokens.TFontWeightRegular as number,
+                fontWeight: Tokens.TFontWeightRegular as unknown as number,
                 lineHeight: Tokens.TFontLineHeightNormal,
             },
             button: {
                 fontFamily: Tokens.TFontFamilyBody,
-                fontWeight: Tokens.TFontWeightMedium as number,
+                fontWeight: Tokens.TFontWeightMedium as unknown as number,
                 textTransform: 'none', // Modern convention
             },
         },

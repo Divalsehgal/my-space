@@ -18,7 +18,8 @@ const cookie = (r: Request) => r.headers.get('Cookie')?.match(/chatbot_session=(
 
 async function faq(env: Env, q: string): Promise<string> {
     try {
-        const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [q] });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [q] }) as any;
         if (!e.data) {
             return '';
         }

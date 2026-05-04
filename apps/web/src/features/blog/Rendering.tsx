@@ -1,4 +1,4 @@
-import React from "react";
+import { ReactNode } from "react";
 import Image from "next/image";
 import styles from "@/app/blogs/[slug]/styles.module.scss";
 import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
@@ -13,7 +13,7 @@ export function renderRichText(richText: RichTextItemResponse[] | undefined) {
     return richText.map((t, i) => {
         const { annotations, plain_text: plainText, href } = t;
 
-        let content: React.ReactNode = plainText;
+        let content: ReactNode = plainText;
 
         if (annotations.bold) {
             content = <strong key={i}>{content}</strong>;

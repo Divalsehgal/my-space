@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
+import { ReactNode } from "react";
 import { Box, Typography } from "@mui/material";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 
 type SectionHeaderProps = {
   eyebrow?: string;
-  title?: React.ReactNode;
-  subtitle?: React.ReactNode;
+  title?: ReactNode;
+  subtitle?: ReactNode;
   align?: "left" | "center";
   variant?: "default" | "contact";
   className?: string;

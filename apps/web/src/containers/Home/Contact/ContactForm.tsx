@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+
 import { TextField, Box, Button } from "@mui/material";
 import { type ContactFormState } from "@/types/contact";
 import styles from "./styles.module.scss";
