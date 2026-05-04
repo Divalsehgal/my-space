@@ -42,35 +42,60 @@ async function notionFetch(path: string, options: RequestInit = {}) {
  * Creates a new row in the Notion contact submissions database.
  */
 export const createContactSubmission = async (submission: ContactSubmission): Promise<void> => {
-    if (!notionApiKey || !notionContactDbId) {
-        console.warn("Notion API key or Contact Database ID missing. Skipping submission.");
-        return;
+    if (!notionApiKey) {
+        throw new Error("NOTION_API_KEY is not configured. Unable to submit contact form.");
+    }
+
+    if (!notionContactDbId) {
+        throw new Error("NOTION_CONTACT_DB_ID is not configured. Unable to submit contact form.");
     }
 
     try {
+        // Fetch database schema to detect property names dynamically
+        const db = await notionFetch(`/databases/${notionContactDbId}`);
+        const properties = db.properties;
+
+        // Find property names by type
+        const titlePropName = Object.keys(properties).find(key => properties[key].type === 'title');
+        const emailPropName = Object.keys(properties).find(key => properties[key].type === 'email');
+        const messagePropName = Object.keys(properties).find(key => 
+            properties[key].type === 'rich_text' && (key.toLowerCase().includes('message') || key.toLowerCase().includes('content'))
+        ) || Object.keys(properties).find(key => properties[key].type === 'rich_text');
+
+        if (!titlePropName) {
+            throw new Error(`No 'title' property found in Notion database ${notionContactDbId}`);
+        }
+
+        const notionPageProperties: Record<string, unknown> = {
+            [titlePropName]: {
+                title: [
+                    { text: { content: submission.name } }
+                ]
+            }
+        };
+
+        if (emailPropName) {
+            notionPageProperties[emailPropName] = {
+                email: submission.email
+            };
+        }
+
+        if (messagePropName) {
+            notionPageProperties[messagePropName] = {
+                rich_text: [
+                    { text: { content: submission.message } }
+                ]
+            };
+        }
+
         await notionFetch("/pages", {
             method: "POST",
             body: JSON.stringify({
                 parent: { database_id: notionContactDbId },
-                properties: {
-                    Name: {
-                        title: [
-                            { text: { content: submission.name } }
-                        ]
-                    },
-                    Email: {
-                        email: submission.email
-                    },
-                    Message: {
-                        rich_text: [
-                            { text: { content: submission.message } }
-                        ]
-                    }
-                }
+                properties: notionPageProperties
             }),
         });
     } catch (error) {
-        console.error("Error submitting to Notion:", error);
         throw error;
     }
 };
@@ -87,7 +112,7 @@ const slugify = (text: string): string => {
         .replace(/-+$/, '');
 }
 
-const getSlug = (props: Record<string, any>, title: string, pageId: string): string => {
+const getSlug = (props: PageObjectResponse['properties'], title: string, pageId: string): string => {
     const slugProp = props.Slug;
     if (slugProp?.type === 'rich_text' && slugProp.rich_text[0]) {
         return slugProp.rich_text[0].plain_text.trim();
@@ -95,7 +120,7 @@ const getSlug = (props: Record<string, any>, title: string, pageId: string): str
     return slugify(title) || pageId;
 };
 
-const getCover = (page: any): string | null => {
+const getCover = (page: PageObjectResponse): string | null => {
     if (!page.cover) {
         return null;
     }
@@ -108,8 +133,8 @@ const getCover = (page: any): string | null => {
     return null;
 };
 
-const mapNotionPageToBlogPost = (page: any): NotionBlogPost => {
-    const props = (page as PageObjectResponse).properties;
+const mapNotionPageToBlogPost = (page: PageObjectResponse): NotionBlogPost => {
+    const props = page.properties;
     const title = props.Title?.type === 'title'
         ? props.Title.title[0]?.plain_text || "Untitled"
         : "Untitled";
@@ -124,7 +149,7 @@ const mapNotionPageToBlogPost = (page: any): NotionBlogPost => {
             ? props.Excerpt.rich_text[0]?.plain_text || ""
             : "",
         tags: props.Tags?.type === 'multi_select'
-            ? props.Tags.multi_select.map((t: any) => t.name)
+            ? props.Tags.multi_select.map((t) => t.name)
             : [],
     };
 };
@@ -139,7 +164,6 @@ export async function getNotionPosts(): Promise<NotionBlogPost[]> {
     }
 
     try {
-        console.log("Fetching Notion posts...", { dbId: notionDbId, hasKey: !!notionApiKey });
         const response = await fetchWithRetry(() => notionFetch(`/databases/${notionDbId}/query`, {
             method: "POST",
             body: JSON.stringify({
@@ -152,8 +176,7 @@ export async function getNotionPosts(): Promise<NotionBlogPost[]> {
             }),
         }));
 
-        console.log("Notion response results count:", (response as any).results?.length);
-        return (response as any).results.map(mapNotionPageToBlogPost);
+        return (response as { results: PageObjectResponse[] }).results.map(mapNotionPageToBlogPost);
     } catch (error) {
         console.error("Error fetching Notion posts:", error);
         return [];
@@ -184,7 +207,7 @@ export async function getPageContent(pageId: string): Promise<BlockObjectRespons
             const queryString = queryParams.toString();
             const url = `/blocks/${pageId}/children${queryString ? `?${queryString}` : ""}`;
 
-            const response = await fetchWithRetry((signal) => notionFetch(url, { signal })) as any;
+            const response = await fetchWithRetry((signal) => notionFetch(url, { signal })) as { results: unknown[], has_more: boolean, next_cursor: string | null };
 
             blocks.push(...(response.results as BlockObjectResponse[]));
 
@@ -193,8 +216,8 @@ export async function getPageContent(pageId: string): Promise<BlockObjectRespons
             }
             cursor = response.next_cursor || undefined;
         }
-    } catch (error) {
-        console.error("Error fetching Notion post content:", error);
+    } catch {
+        // Silently fail or handle error appropriately
     }
 
     return blocks;

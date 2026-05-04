@@ -6,20 +6,19 @@
 
 ## Table of Contents
 
-1. [Why Do We Even Do This?](#1-why-do-we-even-do-this)
-2. [What is GA4 and Why We Use It](#2-what-is-ga4-and-why-we-use-it)
-3. [What is GTM and Why We Use It](#3-what-is-gtm-and-why-we-use-it)
-4. [How GA4 + GTM Work Together](#4-how-ga4--gtm-work-together)
-5. [The GTM Script — What GTM Asks You to Add](#5-the-gtm-script--what-gtm-asks-you-to-add)
-6. [The Single Source of Truth — Our Event Registry](#6-the-single-source-of-truth--our-event-registry)
-7. [Data Flow: Click → Dashboard](#7-data-flow-click--dashboard)
-8. [What Is Currently Wired Up](#8-what-is-currently-wired-up)
-9. [What Is Pending (End-to-End)](#9-what-is-pending-end-to-end)
-10. [GTM Dashboard — What to Configure](#10-gtm-dashboard--what-to-configure)
-11. [GA4 Dashboard — What to Set Up](#11-ga4-dashboard--what-to-set-up)
-12. [How to Scale This](#12-how-to-scale-this)
-13. [Adding a New Event — The Full Workflow](#13-adding-a-new-event--the-full-workflow)
-14. [Environment Variables](#14-environment-variables)
+1. [Why Analytics?](#1-why-do-we-even-do-this)
+2. [GA4 Overview](#2-what-is-ga4-and-why-we-use-it)
+3. [GTM Overview](#3-what-is-gtm-and-why-we-use-it)
+4. [Data Layer Architecture](#4-data-layer-architecture-push--gtm--ga4)
+5. [GTM Setup](#5-gtm-setup-the-two-required-snippets)
+6. [Event Registry](#6-understanding-your-event-registry)
+7. [Event Flow Example](#7-event-flow-visual-example)
+8. [Implementation Roadmap](#8-next-steps-implementation-roadmap)
+9. [GTM Dashboard Configuration](#9-gtm-dashboard--what-to-configure)
+10. [GA4 Dashboard Setup](#10-ga4-dashboard--what-to-set-up)
+11. [Scaling This System](#11-how-to-scale-this)
+12. [Adding New Events](#12-adding-a-new-event--the-full-workflow)
+13. [Environment Variables](#13-environment-variables)
 
 ---
 
@@ -99,237 +98,226 @@ You embed one GTM snippet in your site. From GTM's dashboard you can then route 
 
 ---
 
-## 4. How GA4 + GTM Work Together
+## 4. Data Layer Architecture: Push → GTM → GA4
 
-There are two architectures. We must choose one (running both causes double-counting):
+### The GTM Data Layer Approach (Recommended)
 
-### Architecture A — GTM Only (Recommended)
+Your site and GTM communicate through a JavaScript array called `window.dataLayer`.
 
-```
-Site code pushes to dataLayer
-        ↓
-GTM Container reads dataLayer
-        ↓
-GTM fires a "GA4 Configuration" Tag on All Pages
-GTM fires "GA4 Event" Tags on custom events
-        ↓
-GA4 Dashboard receives all data
-```
-
-**Pros:** All tracking lives in GTM. One place to add/remove any tool. No redeploys for tracking changes.
-
-### Architecture B — Direct GA4 Only
+**Flow:**
 
 ```
-Site code calls window.gtag() directly
-        ↓
-GA4 Dashboard receives events
+Component Code
+    │
+    ├─ trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {...})
+    │
+    ▼
+window.dataLayer.push({
+    event: "nav_click",
+    event_category: "Navigation",
+    event_label: "About",
+    location: "navbar"
+})
+    │
+    ▼ (GTM wakes up and inspects every dataLayer push)
+    │
+GTM Container
+    ├─ Matches Trigger: "Custom Event = nav_click" ✓
+    ├─ Fires Tag: "GA4 - nav_click"
+    │
+    ▼
+GA4 Property (G-XXXXXXXXXX)
+    │
+    ├─ Receives: event=nav_click
+    ├─ Receives: parameters={event_category, event_label, location}
+    │
+    ▼
+GA4 Dashboard (real-time + 24-48h reports)
 ```
 
-**Pros:** Simpler. No GTM to manage.
-**Cons:** Every tracking change requires a code deploy.
+### Why This Approach
 
-> **This project currently runs BOTH simultaneously** — which causes double page views in GA4. See §9 for the fix.
+- **Separation of Concerns**: Your code pushes data; GTM routes it
+- **No Code Deploy for Tracking Changes**: Modify GTM dashboard → immediate effect
+- **Future-Proof**: Add Facebook Pixel, LinkedIn Insight, HotJar, etc. without touching code
+- **Single Source of Truth**: `ANALYTICS_EVENTS` registry is your contract with GTM
+
+### Two Modes (Choose One — NOT Both)
+
+| Mode | Setup | Redeploys for Changes |
+|:---|:---|:---|
+| **GTM-Only** (recommended) | Delete `NEXT_PUBLIC_GA_ID`, remove `gtag.js` from layout | No |
+| **Direct GA4** (simpler) | Delete `NEXT_PUBLIC_GTM_ID`, remove GTM from layout | Yes, every tracking change |
+
+> **Current Status**: We're running both, causing double page views. Priority 1 is to choose one (§9).
 
 ---
 
-## 5. The GTM Script — What GTM Asks You to Add
+## 5. GTM Setup: The Two Required Snippets
 
-When you create a GTM container, GTM shows you two snippets to install.
+When you create a GTM container, Google shows you snippets to install. **Both are already in `src/app/layout.tsx`:**
 
-### Snippet 1 — Goes in `<head>`
-
-GTM says: *"Copy this and paste it as close to the opening `<head>` tag as possible."*
-
-```html
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
-<!-- End Google Tag Manager -->
-```
-
-**How this is handled in Next.js (`src/app/layout.tsx`):**
+### Snippet 1 — Container Script (`<head>`)
 
 ```tsx
-{gtmId && gtmId.startsWith("GTM-") && (
-  <Script id="google-tag-manager" strategy="afterInteractive">
-    {`(function(w,d,s,l,i){...})(window,document,'script','dataLayer','${gtmId}');`}
-  </Script>
-)}
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <head>
+        {gtmId && gtmId.startsWith("GTM-") && (
+          <Script id="google-tag-manager" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];...})(window,document,'script','dataLayer','${gtmId}');`}
+          </Script>
+        )}
+      </head>
+      <body>
 ```
 
-> `strategy="afterInteractive"` is the correct Next.js equivalent of placing a script in `<head>`. GTM is async so it does not block page rendering regardless.
-
-### Snippet 2 — Goes immediately after `<body>`
-
-GTM says: *"Paste this immediately after the opening `<body>` tag."*
-
-```html
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-```
-
-**Already in the codebase (`src/app/layout.tsx`):**
+### Snippet 2 — Fallback (`<body>`)
 
 ```tsx
-{gtmId && gtmId.startsWith("GTM-") && (
-  <noscript>
-    <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-      height="0" width="0" style={{ display: "none", visibility: "hidden" }} />
-  </noscript>
-)}
+export default function RootLayout({ children }) {
+  return (
+    <body>
+      {gtmId && gtmId.startsWith("GTM-") && (
+        <noscript>
+          <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0" width="0" style={{ display: "none", visibility: "hidden" }} />
+        </noscript>
+      )}
 ```
 
-**Both snippets are implemented. You only need `NEXT_PUBLIC_GTM_ID` set as an environment variable and GTM configured internally.**
+**What You Need to Do**: Set `NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX` in `.env.local`.
 
----
+## 6. Understanding Your Event Registry
 
-## 6. The Single Source of Truth — Our Event Registry
+All events live in one file: `src/utils/analytics.ts`. This is the single source of truth.
 
-All analytics configuration lives in **one file**: `src/utils/analytics.ts`.
-
-**Rule: Never write a raw event name string in a component.** Always import from the registry.
-
-### Why This Matters
-
-Without a registry, you get this across your codebase:
-
-```tsx
-// Navbar
-trackInteraction("nav_click", ...)
-
-// Footer
-trackInteraction("nav_click", ...)  // typo: "nav-click"? Same thing? Different report in GA4?
-
-// Somewhere else
-gtag("event", "navigation_click", ...) // completely different name — unmatchable in GTM
-```
-
-With the registry, there is exactly one truth:
-
-```tsx
-// src/utils/analytics.ts — the ONLY place names are declared
+```typescript
+// Registry: declares all event names (never spelling mistakes)
 export const ANALYTICS_EVENTS = {
   NAV_CLICK: "nav_click",
   SOCIAL_CLICK: "social_click",
   // ...
 } as const;
+
+// Category mapper: event → GA4 category
+export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
+  [ANALYTICS_EVENTS.NAV_CLICK]: "Navigation",
+  [ANALYTICS_EVENTS.SOCIAL_CLICK]: "Social",
+};
+
+// Type enforcer: ensures correct payload per event
+export interface AnalyticsEventPayloads {
+  [ANALYTICS_EVENTS.NAV_CLICK]: { label: string; location: "navbar" | "footer" };
+  [ANALYTICS_EVENTS.SOCIAL_CLICK]: { platform: string; href: string };
+}
+
+// Public API: what components call
+export const trackInteraction = <T extends AnalyticsEventName>(
+  eventName: T,
+  payload: AnalyticsEventPayloads[T]
+) => {
+  const category = EVENT_CATEGORY_MAP[eventName];
+  const label = resolveLabel(eventName, payload);
+
+  // Push to data layer (GTM picks this up)
+  window.dataLayer.push({ event: eventName, event_category: category, event_label: label, ...payload });
+
+  // Also send to gtag if present (backup)
+  window.gtag?.("event", eventName, { event_category: category, event_label: label, ...payload });
+};
 ```
 
-Every component imports this:
-
-```tsx
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
-
-trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: "About", href: "/#about", location: "navbar" });
-```
-
-If you rename an event, change it in `ANALYTICS_EVENTS` once → TypeScript will immediately flag every call site that breaks.
-
-### The Four Layers in `analytics.ts`
-
-| Layer | What It Does |
-|:---|:---|
-| `ANALYTICS_EVENTS` | Declares event name constants |
-| `EVENT_CATEGORY_MAP` | Maps each event → GA4 category (e.g., `nav_click` → `"Navigation"`) |
-| `AnalyticsEventPayloads` | TypeScript interface — enforces correct payload per event |
-| `trackInteraction()` | The only public function components call |
+**Key Insight**: Components only import `ANALYTICS_EVENTS` and `trackInteraction()`. They never write raw event names or know about categories.
 
 ---
 
-## 7. Data Flow: Click → Dashboard
+## 7. Event Flow: Visual Example
 
-Tracing a single event end-to-end:
+**User clicks "About" in navbar:**
 
 ```
-User clicks "About" in Navbar
-    │
-    ▼
-onClick fires in Navbar/index.tsx:
-trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
-    label: "About", href: "/#about", location: "navbar"
-})
-    │
-    ▼
+Navbar onClick handler
+  ↓
+trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: "About", location: "navbar" })
+  ↓
 analytics.ts resolves:
-- category = EVENT_CATEGORY_MAP["nav_click"] → "Navigation"
-- label    = resolveLabel(...)               → "About"
-    │
-    ├──────────────────────────────────────────────┐
-    ▼                                              ▼
-window.dataLayer.push({                   window.gtag("event", "nav_click", {
-    event: "nav_click",                       event_category: "Navigation",
-    event_category: "Navigation",             event_label: "About",
-    event_label: "About",                     location: "navbar"
-    location: "navbar",                   })
-    href: "/#about"                       (only if gtag.js also loaded)
-})
-    │
-    ▼
-GTM Container wakes up, reads dataLayer push
-Finds Trigger: "Custom Event = nav_click" → MATCH
-Fires Tag: "GA4 - nav_click"
-    │
-    ▼
-GA4 receives event:
-    property:   G-XXXXXXXXXX
-    event:      nav_click
-    parameters: {location: "navbar", event_label: "About"}
-    │
-    ▼
-GA4 Realtime Report — visible in ~30 seconds
-GA4 Standard Reports — visible within 24-48 hours
+  ├─ category = "Navigation" (from EVENT_CATEGORY_MAP)
+  ├─ label = "About" (from resolveLabel)
+  │
+  ├─→ window.dataLayer.push({
+  │    event: "nav_click",
+  │    event_category: "Navigation",
+  │    event_label: "About",
+  │    location: "navbar"
+  │  }) ← GTM reads this!
+  │
+  └─→ window.gtag?.("event", "nav_click", {...}) ← Backup direct GA4
+       (only if gtag.js loaded)
+  ↓
+GTM Container wakes up
+  ├─ Finds Match: Custom Event = "nav_click"
+  ├─ Fires Tag: "GA4 - nav_click"
+  │
+  ↓
+GA4 Property (G-XXXXXXXXXX)
+  ├─ event: nav_click
+  ├─ parameters: { event_category, event_label, location }
+  │
+  ↓
+GA4 Realtime Dashboard (30 seconds)
+GA4 Reports (24-48 hours)
 ```
 
----
+## 8. Next Steps: Implementation Roadmap
 
-## 8. What Is Currently Wired Up
+### Immediate (Week 1) — REQUIRED
 
-| Component | Event | Status |
-|:---|:---|:---|
-| Navbar links (desktop + mobile) | `NAV_CLICK` | ✅ Done |
-| Footer nav links | `NAV_CLICK` | ✅ Done |
-| Footer social icons | `SOCIAL_CLICK` | ✅ Done |
-| Hero CTA buttons | `NAV_CLICK` | ✅ Done |
-| Hero Resume button | `RESUME_VIEW` | ✅ Done |
-| ProjectCard "View Project" | `PROJECT_CLICK` | ✅ Done |
-| Contact form success | `CONTACT_SUBMIT` (status: success) | ✅ Done |
-| Contact form error | `CONTACT_SUBMIT` (status: error) | ✅ Done |
-| GTM `<head>` script | — | ✅ In layout.tsx |
-| GTM `<body>` noscript | — | ✅ In layout.tsx |
-| GA4 direct gtag.js | — | ✅ In layout.tsx |
+#### Step 1️⃣: Choose Your Architecture
+**Status**: Blocked — currently running both (causing double page views)
 
----
+**Decision**: GTM-Only or Direct GA4?
 
-## 9. What Is Pending (End-to-End)
+**GTM-Only (Recommended)** ← Pick this
+- Pro: No code deploy for tracking changes
+- How: Delete `NEXT_PUBLIC_GA_ID` env var, remove `gtag.js` from layout.tsx
+- Add GTM "GA4 Configuration Tag" set to trigger "All Pages"
 
-### 🔴 P1 — Blockers (data loss without these)
+**Direct GA4**
+- Pro: Simpler setup
+- Con: Every tracking change needs a code deploy
+- How: Delete `NEXT_PUBLIC_GTM_ID` env var, remove GTM from layout.tsx
 
-#### 1. GTM Container Not Configured
+**Action**: Make the choice, then follow steps 2-3
 
-Both GTM scripts are in the codebase but the GTM container itself has no Tags, Triggers, or Variables set up. **Events push to `dataLayer` but GTM does nothing with them.** GA4 only receives events because of the parallel `gtag.js` script.
+#### Step 2️⃣: Configure GTM Dashboard (if GTM-Only mode)
+**Time**: 30 minutes
 
-→ Fix: Complete §10 (GTM Dashboard configuration).
+1. Log into [tagmanager.google.com](https://tagmanager.google.com)
+2. Create Variables (Data Layer Variables — see §10 table)
+3. Create Triggers (Custom Event triggers — see §10 table)
+4. Create GA4 Event Tags (see §10 table)
+5. Preview → Test → Publish
 
-#### 2. Double-Tracking (Direct GA4 + GTM simultaneously)
+**Reference**: Use tables in §10 for exact names and mappings
 
-`layout.tsx` loads both `gtag.js` and the GTM container. If GTM is configured with a GA4 Configuration Tag, every page view is counted **twice** in GA4.
+#### Step 3️⃣: Register Custom Dimensions in GA4
+**Time**: 15 minutes
 
-→ Fix (choose one):
-- **GTM-only**: Remove `NEXT_PUBLIC_GA_ID` from env vars and delete the `gtag.js` block in `layout.tsx`. Add a GA4 Configuration Tag inside GTM.
-- **Direct GA4 only**: Remove `NEXT_PUBLIC_GTM_ID`, remove the GTM blocks from `layout.tsx`. Lose GTM flexibility.
+1. GA4 → Admin → Custom Definitions → Custom Dimensions
+2. Register: `location`, `platform`, `project_name`, `link_type`, `status`
 
-#### 3. Client-Side Page View Tracking Missing
+**Without this**: GA4 receives parameters but they won't be filterable in reports
 
-Next.js App Router uses soft (client-side) navigation — the page never fully reloads when clicking links. GA4 only auto-fires `page_view` on hard loads. **Every blog post visit after the first page load is missed.**
+### Important (Week 2) — HIGH VALUE
 
-→ Fix: Create `src/components/RouteChangeTracker/index.tsx`:
+#### Step 4️⃣: Track Client-Side Page Views
+**Why**: Next.js soft navigation means blog posts after first load aren't tracked
 
+**Implementation**:
 ```tsx
+// src/components/RouteChangeTracker/index.tsx
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -341,36 +329,25 @@ export default function RouteChangeTracker() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = pathname + (searchParams.toString() ? `?${searchParams}` : "");
-    (window as any).dataLayer?.push({ event: "page_view", page_path: url });
-    (window as any).gtag?.("event", "page_view", { page_path: url, page_title: document.title });
+    window.dataLayer?.push({ event: "page_view", page_path: url });
   }, [pathname, searchParams]);
 
   return null;
 }
 ```
 
-Add to `layout.tsx` inside `<Providers>`:
-
+Add to `layout.tsx`:
 ```tsx
-import { Suspense } from "react";
-import RouteChangeTracker from "@/components/RouteChangeTracker";
-
 <Providers>
   <Suspense fallback={null}>
     <RouteChangeTracker />
   </Suspense>
-  <Navbar ... />
+  {/* rest of layout */}
+</Providers>
 ```
 
----
-
-### 🟡 P2 — Important (incomplete coverage)
-
-#### 4. Blog Post View Event (`BLOG_VIEW`)
-
-`BLOG_VIEW` is declared in the registry but never fired. Individual blog post visits are untracked.
-
-→ Fix: Create a thin client component `BlogViewTracker` and add it to `src/app/blogs/[slug]/page.tsx`:
+#### Step 5️⃣: Wire Blog Post Tracking
+**Why**: `BLOG_VIEW` event is declared but never fired
 
 ```tsx
 // src/features/blog/BlogViewTracker.tsx
@@ -378,7 +355,7 @@ import RouteChangeTracker from "@/components/RouteChangeTracker";
 import { useEffect } from "react";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
-export default function BlogViewTracker({ title, slug, tags }: { title: string; slug: string; tags: string[] }) {
+export default function BlogViewTracker({ title, slug, tags }: any) {
   useEffect(() => {
     trackInteraction(ANALYTICS_EVENTS.BLOG_VIEW, { title, slug, tags });
   }, [title, slug, tags]);
@@ -386,59 +363,66 @@ export default function BlogViewTracker({ title, slug, tags }: { title: string; 
 }
 ```
 
-#### 5. Contact Section Social Icons Not Tracked
+Add to `src/app/blogs/[slug]/page.tsx`:
+```tsx
+<BlogViewTracker title={post.title} slug={slug} tags={post.tags} />
+```
 
-The social icons inside the Contact section header are not tracked. Only Footer social icons were updated.
+### Nice to Have (Week 3+) — POLISH
 
-→ Fix: Add `onClick` with `ANALYTICS_EVENTS.SOCIAL_CLICK` to the `<a>` tags in `Contact/index.tsx` around line 93.
+#### Step 6️⃣: Scroll Depth & Footer Reach
+```tsx
+// Inside Footer component
+useEffect(() => {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      trackInteraction(ANALYTICS_EVENTS.PAGE_END_REACHED, {});
+    }
+  });
+  observer.observe(footerRef.current);
+}, []);
+```
 
-#### 6. GA4 Custom Dimensions Not Registered
+#### Step 7️⃣: Project Visibility Tracking
+```tsx
+// Inside ProjectCard component
+useEffect(() => {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      trackInteraction(ANALYTICS_EVENTS.PROJECT_VIEW, { projectName: project.name });
+    }
+  });
+  observer.observe(cardRef.current);
+}, []);
+```
 
-You're sending custom parameters (`location`, `platform`, `projectName`) with events, but GA4 has no idea what they are. They exist in the data but are not available as filters in GA4 reports.
+## 9. GTM Dashboard — What to Configure
 
-→ Fix: Register them in GA4 Admin (see §11).
+Log into [tagmanager.google.com](https://tagmanager.google.com) → select your container.
 
----
+### Variables (Data Layer Variables)
 
-### 🟢 P3 — Nice to Have
+These map dataLayer properties to GTM variables so they can be reused in tags.
 
-#### 7. `PAGE_END_REACHED` Event Not Wired
+**Create these Data Layer Variables:**
 
-Declared in registry, never fired. Would tell you which users read to the bottom.
-
-→ Fix: Add an `IntersectionObserver` in the `Footer` component that fires `ANALYTICS_EVENTS.PAGE_END_REACHED` when the footer enters the viewport.
-
-#### 8. `PROJECT_VIEW` Event Not Wired
-
-Declared in registry, never fired. Would tell you which projects were *seen* vs. which were *clicked*.
-
-→ Fix: `IntersectionObserver` on each `ProjectCard`.
-
-#### 9. `RESUME_DOWNLOAD` Not Differentiated From `RESUME_VIEW`
-
-Currently only `RESUME_VIEW` fires. If the resume is a downloadable PDF, add a separate download tracking event using `ANALYTICS_EVENTS.RESUME_DOWNLOAD`.
-
----
-
-## 10. GTM Dashboard — What to Configure
-
-Log into [tagmanager.google.com](https://tagmanager.google.com) → your container.
-
-### Step 1: Variables (User-Defined → Data Layer Variable)
-
-| Variable Name | Data Layer Variable Name |
+| GTM Variable Name | Data Layer Property |
 |:---|:---|
 | `DL - event_category` | `event_category` |
 | `DL - event_label` | `event_label` |
 | `DL - location` | `location` |
 | `DL - platform` | `platform` |
-| `DL - projectName` | `projectName` |
+| `DL - project_name` | `projectName` |
 | `DL - status` | `status` |
 | `DL - page_path` | `page_path` |
 
-### Step 2: Triggers (Custom Event)
+### Triggers (Custom Event Triggers)
 
-| Trigger Name | Event Name Equals |
+These fire when specific events are pushed to dataLayer.
+
+**Create these Triggers:**
+
+| Trigger Name | Custom Event Name |
 |:---|:---|
 | `CE - nav_click` | `nav_click` |
 | `CE - social_click` | `social_click` |
@@ -448,205 +432,273 @@ Log into [tagmanager.google.com](https://tagmanager.google.com) → your contain
 | `CE - blog_view` | `blog_view` |
 | `CE - page_view` | `page_view` |
 
-### Step 3: Tags (GA4 Event Tags)
+### Tags (GA4 Event Tags)
 
-All tags → **Measurement ID: `G-XXXXXXXXXX`**
+These send data to your GA4 property. You'll create 7 GA4 Event Tags (one for each Trigger).
 
-| Tag Name | GA4 Event Name | Parameters | Trigger |
-|:---|:---|:---|:---|
-| `GA4 - nav_click` | `nav_click` | `location: {{DL - location}}` | `CE - nav_click` |
-| `GA4 - social_click` | `social_click` | `platform: {{DL - platform}}` | `CE - social_click` |
-| `GA4 - resume_view` | `resume_view` | — | `CE - resume_view` |
-| `GA4 - project_click` | `project_click` | `project_name: {{DL - projectName}}` | `CE - project_click` |
-| `GA4 - contact_submit` | `contact_submit` | `status: {{DL - status}}` | `CE - contact_submit` |
-| `GA4 - blog_view` | `blog_view` | `page_path: {{DL - page_path}}` | `CE - blog_view` |
-| `GA4 - SPA page_view` | `page_view` | `page_path: {{DL - page_path}}` | `CE - page_view` |
+#### Tag Configuration (What to Fill In)
 
-### Step 4: GA4 Configuration Tag (if using GTM-only mode)
+When you create a GA4 Event Tag in GTM, you'll see these fields:
 
-**Tag type:** Google Analytics: GA4 Configuration
-- Measurement ID: `G-XXXXXXXXXX`
-- Trigger: **All Pages**
-- Send page view: **Yes**
+```
+Tag Type:           Google Analytics: GA4 Event
+Measurement ID:     G-XXXXXXXXXX (your GA4 property ID)
+Event Name:         (see mapping table below)
+Parameters:         (see mapping table below)
+Trigger:            (see mapping table below)
+```
 
-### Step 5: Preview → Test → Publish
+#### Tag Mapping (Which Event → Which Parameters → Which Trigger)
 
-1. Click **Preview**, enter your site URL.
-2. Trigger each tracked event (click nav, submit form, click project).
-3. Confirm events appear in GTM debug panel.
-4. Check **GA4 DebugView** (`Admin → DebugView`) — events should appear in seconds.
-5. Click **Submit → Publish**.
+**Create these 7 GA4 Event Tags** (one row = one tag):
 
----
+| # | Tag Name | GA4 Event Name | Parameters | Trigger to Connect |
+|---|---|---|---|---|
+| 1 | `GA4 - nav_click` | `nav_click` | `location: {{DL - location}}` | `CE - nav_click` |
+| 2 | `GA4 - social_click` | `social_click` | `platform: {{DL - platform}}` | `CE - social_click` |
+| 3 | `GA4 - resume_view` | `resume_view` | (none) | `CE - resume_view` |
+| 4 | `GA4 - project_click` | `project_click` | `project_name: {{DL - project_name}}` | `CE - project_click` |
+| 5 | `GA4 - contact_submit` | `contact_submit` | `status: {{DL - status}}` | `CE - contact_submit` |
+| 6 | `GA4 - blog_view` | `blog_view` | `page_path: {{DL - page_path}}` | `CE - blog_view` |
+| 7 | `GA4 - page_view` | `page_view` | `page_path: {{DL - page_path}}` | `CE - page_view` |
 
-## 11. GA4 Dashboard — What to Set Up
+#### How to Create Each Tag (Step-by-Step)
+
+**For each row in the table above:**
+
+1. **Left menu** → **Tags** → **New**
+2. **Tag Name**: Enter the name (e.g., `GA4 - nav_click`)
+3. **Tag Type**: `Google Analytics: GA4 Event`
+4. **Measurement ID**: Paste your GA4 property ID (`G-XXXXXXXXXX`)
+5. **Event Name**: Enter the GA4 Event Name (from table)
+6. **Parameters** (if any):
+   - Click "Add parameter"
+   - **Parameter name**: Fill in left column (e.g., `location`)
+   - **Parameter value**: Fill in right column using {{variable}} syntax (e.g., `{{DL - location}}`)
+   - If table shows "(none)", skip this step
+7. **Trigger**: Select from your Triggers list (from table, rightmost column)
+8. **Save**
+
+**Example: Creating `GA4 - nav_click` tag**
+
+```
+Tag Name:       GA4 - nav_click
+Tag Type:       Google Analytics: GA4 Event
+Measurement ID: G-XXXXXXXXXX
+Event Name:     nav_click
+
+Parameters:
+  Parameter 1:
+    Name:  location
+    Value: {{DL - location}}
+
+Trigger:        CE - nav_click ✓
+```
+
+**Example: Creating `GA4 - resume_view` tag** (no parameters)
+
+```
+Tag Name:       GA4 - resume_view
+Tag Type:       Google Analytics: GA4 Event
+Measurement ID: G-XXXXXXXXXX
+Event Name:     resume_view
+
+Parameters:     (skip - none needed)
+
+Trigger:        CE - resume_view ✓
+```
+
+### GA4 Configuration Tag (if using GTM-only mode)
+
+If you chose GTM-Only in Step 1:
+
+**Create a GA4 Configuration Tag:**
+- **Tag Type**: Google Analytics: GA4 Configuration
+- **Measurement ID**: `G-XXXXXXXXXX`
+- **Trigger**: All Pages
+- **Send pageview**: Yes
+
+### Testing
+
+1. Click **Preview** at the top
+2. Enter your site URL
+3. Trigger events: click nav, submit form, click project, etc.
+4. Confirm events appear in GTM debug panel
+5. Open GA4 → Admin → **DebugView**
+6. Confirm events appear in GA4 (within 30 seconds)
+7. Stop Preview → Click **Submit** → **Publish**
+
+## 10. GA4 Dashboard — What to Set Up
 
 ### Register Custom Dimensions
 
-**Admin → Custom Definitions → Custom Dimensions → Create**
+Log into GA4 → **Admin** → **Custom Definitions** → **Custom Dimensions** → **Create**
 
 | Display Name | Scope | Parameter Name |
 |:---|:---|:---|
 | Nav Location | Event | `location` |
 | Social Platform | Event | `platform` |
 | Project Name | Event | `project_name` |
-| Link Type | Event | `link_type` |
 | Contact Status | Event | `status` |
-| Blog Post Title | Event | `page_title` |
 
-> Custom dimensions must be registered **before** they appear as filterable dimensions. Historical data is not backfilled.
+> Custom dimensions must be created **before** sending data. Historical data won't be backfilled, but new events will include these filters.
 
 ### Enable Enhanced Measurement
 
-**Admin → Data Streams → [Your Stream] → Enhanced Measurement → ON**
+**Admin** → **Data Streams** → **[Your Stream]** → **Enhanced Measurement** → **ON**
 
-This automatically tracks:
-- Scroll depth (% of page scrolled)
-- Outbound link clicks
-- Site search
-- Video engagement (YouTube embeds)
-- File downloads
+This auto-tracks:
+- 📊 Scroll depth
+- 🔗 Outbound link clicks
+- 🎥 Video engagement (YouTube)
+- 📥 File downloads
 
-### Explorations to Build (after 1 week of data)
+### Link to Search Console
 
-- **Navigation Funnel**: Which sections are clicked most → does it correlate with contact form opens?
-- **Blog Engagement**: Posts viewed, scroll depth, exit rate per post.
-- **Project Popularity**: Which project gets clicked most, live vs repo split.
-- **Contact Conversion**: `page_view /` → `contact_submit (success)` funnel.
-- **Resume Interest**: How many users click resume within 30 seconds of landing?
-
-### Link GA4 to Google Search Console
-
-**Admin → Search Console Links** — shows which search queries bring people to your site. Critical for understanding SEO performance.
+**Admin** → **Search Console Links** — shows which search queries bring people to your site. Essential for SEO feedback.
 
 ---
 
-## 12. How to Scale This
+## 11. How to Scale This
 
-### Pattern: Central Registry, Typed Contracts
+## 11. How to Scale This
 
-The `ANALYTICS_EVENTS` registry in `analytics.ts` is the foundation of scaling:
+### Core Pattern: Registry + Typed Contracts
 
-- **New developer joins** → reads `analytics.ts` to understand every event in the system.
-- **Business asks for new metric** → add one entry to registry, one type, one GTM tag.
-- **Rename an event** → change it in registry, TypeScript flags all broken call sites immediately.
-- **Wrong payload** → TypeScript compile error before it reaches GA4.
-
-### Pattern: Thin Call Sites
-
-Components should be dumb about analytics:
-
-```tsx
-// ✅ Correct — component knows nothing about categories, labels, or GA4
-onClick={() => trackInteraction(ANALYTICS_EVENTS.PROJECT_CLICK, { projectName: project.name, linkType: "live" })}
-
-// ❌ Wrong — component knows too much
-onClick={() => gtag("event", "project_click", { event_category: "Projects", ... })}
-```
-
-### Pattern: GTM as the Deployment Layer
-
-When you need to change a tracking parameter or add a new marketing tool:
-- **Don't touch Next.js code** — update GTM.
-- Keep the `ANALYTICS_EVENTS` registry as the contract between code and GTM.
-
-### When You Outgrow This
-
-| Scale | Solution |
-|:---|:---|
-| High event volume (>10M/mo) | Upgrade GA4, consider BigQuery export |
-| Multiple sites | GA4 cross-domain tracking |
-| Marketing automation | Integrate with Google Ads via GTM |
-| User behavior heatmaps | Add HotJar via GTM (no code change) |
-| A/B testing | Add Optimize or VWO via GTM |
-
----
-
-## 13. Adding a New Event — The Full Workflow
-
-Every new event requires these steps in order. Do not skip any.
-
-**Example: tracking a newsletter signup.**
-
-### Step 1 — Add to `ANALYTICS_EVENTS`
+Everything flows from `ANALYTICS_EVENTS`:
 
 ```typescript
-// src/utils/analytics.ts
+// Single source of truth
 export const ANALYTICS_EVENTS = {
-  // ... existing events
+  MY_NEW_EVENT: "my_new_event",
+} as const;
+
+// TypeScript enforces the payload
+export interface AnalyticsEventPayloads {
+  [ANALYTICS_EVENTS.MY_NEW_EVENT]: { myParam: string };
+}
+
+// Components can't get it wrong
+trackInteraction(ANALYTICS_EVENTS.MY_NEW_EVENT, { myParam: "value" }); // ✓
+trackInteraction(ANALYTICS_EVENTS.MY_NEW_EVENT, { wrongParam: "value" }); // ✗ TypeScript error
+```
+
+### When to Add GTM Tools
+
+Once this system is live, adding new tools is trivial because they all read `dataLayer`:
+
+```
+Add Facebook Pixel  → New Trigger + New Tag in GTM → No code change
+Add LinkedIn Insight → New Trigger + New Tag in GTM → No code change
+Add HotJar           → New Trigger + New Tag in GTM → No code change
+```
+
+### Evolving Your Metrics
+
+After 2-4 weeks with live data:
+
+1. **Build GA4 Explorations**: Funnel analysis (landing → contact), cohort analysis (by referrer)
+2. **Identify drop-off points**: Where do users stop scrolling? Which projects are ignored?
+3. **Refine tracking**: Add new events based on real user behavior patterns
+
+---
+
+## 12. Adding a New Event — The Full Workflow
+
+Example: tracking newsletter signups
+
+**Step 1 — Add to registry** (`src/utils/analytics.ts`)
+```typescript
+export const ANALYTICS_EVENTS = {
   NEWSLETTER_SIGNUP: "newsletter_signup",
 } as const;
 ```
 
-### Step 2 — Add payload type to `AnalyticsEventPayloads`
-
+**Step 2 — Add payload type**
 ```typescript
 export interface AnalyticsEventPayloads {
-  // ...
   [ANALYTICS_EVENTS.NEWSLETTER_SIGNUP]: { email_domain: string };
 }
 ```
 
-### Step 3 — Add category to `EVENT_CATEGORY_MAP`
-
+**Step 3 — Add category**
 ```typescript
-export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
-  // ...
+export const EVENT_CATEGORY_MAP = {
   [ANALYTICS_EVENTS.NEWSLETTER_SIGNUP]: "Engagement",
 };
 ```
 
-### Step 4 — Add label resolver (if applicable)
-
-```typescript
-case ANALYTICS_EVENTS.NEWSLETTER_SIGNUP:
-  return payload.email_domain;
-```
-
-### Step 5 — Call from component
-
+**Step 4 — Call from component**
 ```tsx
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
-
-trackInteraction(ANALYTICS_EVENTS.NEWSLETTER_SIGNUP, { email_domain: "gmail.com" });
+trackInteraction(ANALYTICS_EVENTS.NEWSLETTER_SIGNUP, { email_domain: domain });
 ```
 
-### Step 6 — Add Trigger in GTM
+**Step 5 — Add to GTM** (no code redeploy needed)
+- Create Trigger: "Custom Event = newsletter_signup"
+- Create GA4 Event Tag: "newsletter_signup"
+- Map parameter: `email_domain: {{DL - email_domain}}`
+- Preview → Publish
 
-Custom Event → Event Name equals `newsletter_signup`.
-
-### Step 7 — Add GA4 Event Tag in GTM
-
-Fire on new trigger → map `email_domain` parameter → Publish.
-
-### Step 8 — Register Custom Dimension in GA4 (if new parameter)
-
-Admin → Custom Definitions → Create `email_domain`.
+**Step 6 — Register in GA4** (optional, if new parameter)
+- Admin → Custom Dimensions → Create `Email Domain`
 
 ---
 
-## 14. Environment Variables
+## 13. Environment Variables
 
-### Local `.env`
+### Local `.env.local`
 
 ```bash
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+# Choose ONE mode:
+
+# GTM-Only mode (recommended)
 NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
+
+# Direct GA4 mode (simpler, but needs code redeploy for tracking changes)
+# NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
 
 ### Vercel Dashboard
 
-**Settings → Environment Variables → Production + Preview**
+**Settings → Environment Variables** (Production + Preview)
 
 | Variable | Required | Notes |
 |:---|:---|:---|
-| `NEXT_PUBLIC_GA_ID` | Yes (if direct GA4 mode) | `G-XXXXXXXXXX` |
-| `NEXT_PUBLIC_GTM_ID` | Yes | `GTM-XXXXXXX` |
+| `NEXT_PUBLIC_GTM_ID` | Yes (GTM-only mode) | `GTM-XXXXXXX` |
+| `NEXT_PUBLIC_GA_ID` | Yes (Direct GA4 mode) | `G-XXXXXXXXXX` — only if not using GTM |
 | `NEXT_PUBLIC_BASE_URL` | Yes | `https://divalsehgal.vercel.app` |
 | `NOTION_API_KEY` | Yes | Blog integration |
-| `NOTION_DATABASE_ID` | Yes | Blog posts database |
-| `NOTION_CONTACT_DB_ID` | Yes | Contact submissions |
+| `NOTION_DATABASE_ID` | Yes | Blog posts |
 
 ---
 
-*Keep this doc and `src/utils/analytics.ts` in sync — they describe the same system from different angles.*
+## Quick Reference
+
+### Architecture Decision Tree
+
+```
+Question: Do you want to add more tracking tools later?
+├─ YES → Choose GTM-Only
+│        ├─ Pro: No code redeploys for new tools
+│        ├─ Pro: No double-counting
+│        └─ Action: Delete NEXT_PUBLIC_GA_ID, complete §8 Step 1 & 2
+│
+└─ NO → Choose Direct GA4
+         ├─ Pro: Simpler setup
+         ├─ Con: Every tracking change needs a code deploy
+         └─ Action: Delete NEXT_PUBLIC_GTM_ID, remove GTM from layout.tsx
+```
+
+### Current Status Checklist
+
+- [ ] Architecture decision made (GTM-Only or Direct GA4)
+- [ ] Unnecessary env var and code removed
+- [ ] GTM Dashboard configured (if GTM-Only) or direct GA4 (if Direct)
+- [ ] Custom Dimensions registered in GA4
+- [ ] RouteChangeTracker component added to layout
+- [ ] BlogViewTracker component added to blog post page
+- [ ] Events appearing in GA4 DebugView within 30 seconds
+
+---
+
+*Keep this doc in sync with `src/utils/analytics.ts` — they describe the same system from different angles.*

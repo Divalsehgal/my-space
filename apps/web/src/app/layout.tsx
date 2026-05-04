@@ -6,11 +6,16 @@ import Providers from "@/components/Providers";
 import { StackHans } from "@dival-sehgal/fonts/next";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import Script from "next/script";
+import GoogleTracking from "@/components/GoogleTracking";
 
 import { portfolioService } from "@/features/portfolio";
 
+import GTMNoScript from "@/components/GTMNoScript";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const ADS_ID = process.env.NEXT_PUBLIC_ADS_ID;
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -98,53 +103,13 @@ export default async function RootLayout({
 }>) {
   const { config } = await portfolioService.getConfig();
 
-  const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const adsId = process.env.NEXT_PUBLIC_ADS_ID;
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID; // Keeping GTM support for future if needed
-
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning={true}>
       <head>
-        {(gaId || adsId) && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId || adsId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                ${gaId ? `gtag('config', '${gaId}', { page_path: window.location.pathname, send_page_view: true });` : ""}
-                ${adsId ? `gtag('config', 'AW-${adsId.includes("-") ? adsId.split("-")[1] : adsId}');` : ""}
-              `}
-            </Script>
-          </>
-        )}
-        {gtmId && gtmId.startsWith("GTM-") && (
-          <Script id="google-tag-manager" strategy="afterInteractive">
-            {`
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','${gtmId}');
-            `}
-          </Script>
-        )}
+        <GoogleTracking gaId={GA_ID} adsId={ADS_ID} gtmId={GTM_ID} />
       </head>
       <body className={StackHans.variable} suppressHydrationWarning={true}>
-        {gtmId && gtmId.startsWith("GTM-") && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
+        <GTMNoScript gtmId={GTM_ID} />
         <Providers>
           <Navbar brand={config?.navbar?.brand || "Portfolio"} />
           <main id="main-content">{children}</main>

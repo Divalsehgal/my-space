@@ -1,12 +1,18 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import React from "react";
+import { useFormStatus } from "react-dom";
 import Contact from "./index";
 import { usePortfolioContext } from "@/context/PortfolioContext";
-import { trackEvent } from "@/utils/analytics";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
 // Mock analytics
 jest.mock("@/utils/analytics", () => ({
-  trackEvent: jest.fn(),
+  trackInteraction: jest.fn(),
+  ANALYTICS_EVENTS: {
+    SOCIAL_CLICK: "social_click",
+    CONTACT_SUBMIT: "contact_submit",
+  },
 }));
 
 // Mock context
@@ -15,7 +21,7 @@ jest.mock("@/context/PortfolioContext", () => ({
 }));
 
 jest.mock("@/context/ToastContext", () => ({
-  ToastContext: require("react").createContext({ showToast: jest.fn() }),
+  ToastContext: React.createContext({ showToast: jest.fn() }),
 }));
 
 // Dynamic Action State Mock
@@ -24,7 +30,7 @@ const currentShowToast = jest.fn();
 
 // Mock React 19 Hooks
 jest.mock("react", () => {
-  const actualReact = jest.requireActual("react");
+    const actualReact = jest.requireActual("react");
   return {
     ...actualReact,
     useActionState: jest.fn(() => [currentActionState, jest.fn(), false]),
@@ -41,7 +47,7 @@ describe("Contact Container", () => {
   const mockAction = jest.fn();
 
   beforeEach(() => {
-    (usePortfolioContext as jest.Mock).mockReturnValue(undefined);
+    jest.mocked(usePortfolioContext).mockReturnValue(undefined);
     currentActionState = { status: "idle", message: "", errors: {} };
   });
 
@@ -51,7 +57,7 @@ describe("Contact Container", () => {
 
   it("renders form elements correctly", () => {
     render(<Contact action={mockAction} />);
-    
+
     expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Message/i)).toBeInTheDocument();
@@ -59,7 +65,7 @@ describe("Contact Container", () => {
   });
 
   it("renders with context overrides and social items", () => {
-    (usePortfolioContext as jest.Mock).mockReturnValue({
+    jest.mocked(usePortfolioContext).mockReturnValue({
       contact: {
         title: "Say Hello",
         subtitle: "Drop a line",
@@ -71,36 +77,36 @@ describe("Contact Container", () => {
     });
 
     render(<Contact action={mockAction} />);
-    
+
     expect(screen.getByText("Say Hello")).toBeInTheDocument();
     expect(screen.getByText("Drop a line")).toBeInTheDocument();
-    
+
     // GitHub Icon maps successfully
     expect(screen.getByTestId("GitHubIcon")).toBeInTheDocument();
     // Unknown Icon falls back to text "UN"
     expect(screen.getByText("UN")).toBeInTheDocument();
   });
 
-  it("tracks event on submit button click", () => {
-    render(<Contact action={mockAction} />);
-    fireEvent.click(screen.getByRole("button", { name: "Send Message" }));
-    expect(trackEvent).toHaveBeenCalledWith("click", "Contact", { label: "Submit Button" });
-  });
-
-  it("shows success toast and tracks event on successful form state", () => {
+  it("tracks event on successful form submission", () => {
     currentActionState = { status: "success", message: "Sent successfully", errors: {} };
     render(<Contact action={mockAction} />);
-    
+
     expect(currentShowToast).toHaveBeenCalledWith("Sent successfully", "success");
-    expect(trackEvent).toHaveBeenCalledWith("submit_success", "Contact", { label: "Form" });
+    expect(trackInteraction).toHaveBeenCalledWith(
+      ANALYTICS_EVENTS.CONTACT_SUBMIT,
+      { status: "success", message: "Sent successfully" }
+    );
   });
 
-  it("shows error toast and tracks event on error form state", () => {
+  it("tracks event on form submission error", () => {
     currentActionState = { status: "error", message: "Failed to send", errors: { name: ["Name is required"] } };
     render(<Contact action={mockAction} />);
-    
+
     expect(currentShowToast).toHaveBeenCalledWith("Failed to send", "error");
-    expect(trackEvent).toHaveBeenCalledWith("submit_error", "Contact", { label: "Failed to send" });
+    expect(trackInteraction).toHaveBeenCalledWith(
+      ANALYTICS_EVENTS.CONTACT_SUBMIT,
+      { status: "error", message: "Failed to send" }
+    );
   });
 
   it("updates message character count on change", () => {
@@ -112,7 +118,7 @@ describe("Contact Container", () => {
   });
 
   it("uses fallback text for socials in header when icon is unknown or missing", () => {
-    (usePortfolioContext as jest.Mock).mockReturnValue({
+    jest.mocked(usePortfolioContext).mockReturnValue({
       socials: [
         { label: "Twitter", href: "https://twitter.com", icon: "twitter" },
         { label: "Website", href: "https://dival.me" }, // missing icon property
@@ -124,15 +130,14 @@ describe("Contact Container", () => {
   });
 
   it("renders defaults when context is empty", () => {
-    (usePortfolioContext as jest.Mock).mockReturnValue({});
+    jest.mocked(usePortfolioContext).mockReturnValue({});
     render(<Contact action={mockAction} />);
     expect(screen.getByText("Get in Touch")).toBeInTheDocument();
     expect(screen.getByText(/Feel free to reach out/i)).toBeInTheDocument();
   });
 
   it("shows sending state when form is pending", () => {
-    const { useFormStatus } = require("react-dom");
-    (useFormStatus as jest.Mock).mockReturnValue({ pending: true });
+    jest.mocked(useFormStatus).mockReturnValue({ pending: true } as unknown as ReturnType<typeof useFormStatus>);
     
     render(<Contact action={mockAction} />);
     expect(screen.getByRole("button", { name: "Sending..." })).toBeInTheDocument();

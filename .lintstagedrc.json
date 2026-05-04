@@ -1,7 +1,7 @@
 {
   "apps/web/**/*.{ts,tsx}": [
-    "eslint --fix",
-    "jest --findRelatedTests --passWithNoTests"
+    "eslint --fix --config apps/web/eslint.config.mjs",
+    "jest --config apps/web/jest.config.js --findRelatedTests --passWithNoTests"
   ],
   "packages/**/*.{ts,tsx}": [
     "eslint --fix"
