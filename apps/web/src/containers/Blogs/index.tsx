@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, ChangeEvent, useTransition } from "react"
 import Link from "next/link";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
-import { ContentfulPost } from "@/lib/services/contentful";
+import type { ContentfulPost } from "@/types";
 import styles from "./styles.module.scss";
 
 type BlogPageContentProps = {

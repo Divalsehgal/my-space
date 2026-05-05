@@ -1,4 +1,5 @@
-import { getContentfulPosts, getContentfulPostBySlug, ContentfulPost } from "@/lib/services/contentful";
+import { getContentfulPosts, getContentfulPostBySlug } from "@/lib/services/contentful";
+import type { ContentfulPost } from "@/types";
 import { Metadata } from "next";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import styles from "./styles.module.scss";

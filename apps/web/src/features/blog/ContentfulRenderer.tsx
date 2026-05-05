@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { CodeBlock } from '@/components/CodeBlock';
-import { ContentfulRichText, ContentfulAsset } from '@/lib/services/contentful';
+import type { ContentfulRichText, ContentfulAsset } from '@/types';
 
 /**
  * Renderer for Contentful Rich Text
