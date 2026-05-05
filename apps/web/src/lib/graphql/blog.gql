@@ -1,0 +1,69 @@
+query GetBlogPosts($limit: Int = 10, $preview: Boolean = false) {
+  blogPageCollection(limit: $limit, preview: $preview) {
+    items {
+      sys {
+        id
+        firstPublishedAt
+      }
+      title
+      slug
+      image {
+        url
+        title
+        width
+        height
+      }
+      body {
+        json
+        links {
+          assets {
+            block {
+              sys {
+                id
+              }
+              url
+              title
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetBlogPostBySlug($slug: string!, $preview: Boolean = false) {
+  blogPageCollection(where: { slug: $slug }, limit: 1, preview: $preview) {
+    items {
+      sys {
+        id
+        firstPublishedAt
+      }
+      title
+      slug
+      image {
+        url
+        title
+        width
+        height
+      }
+      body {
+        json
+        links {
+          assets {
+            block {
+              sys {
+                id
+              }
+              url
+              title
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+}

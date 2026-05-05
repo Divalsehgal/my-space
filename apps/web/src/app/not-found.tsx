@@ -29,7 +29,6 @@ export default function NotFound() {
             position: "absolute",
             zIndex: -1,
             userSelect: "none",
-            background: "linear-gradient(180deg, rgba(250, 129, 18, 0.2) 0%, rgba(250, 129, 18, 0) 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             top: "50%",
@@ -79,11 +78,6 @@ export default function NotFound() {
               textTransform: "none",
               fontSize: "1rem",
               fontWeight: 600,
-              boxShadow: "0 10px 20px rgba(250, 129, 18, 0.15)",
-              "&:hover": {
-                boxShadow: "0 15px 30px rgba(250, 129, 18, 0.25)",
-                transform: "translateY(-2px)",
-              },
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >

@@ -90,22 +90,14 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
 
                 {/* Search and All Posts */}
                 <>
-                    <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                        <h2 className={styles["blogs__title"]} style={{ fontSize: '2rem', marginBottom: 0 }}>All Posts</h2>
+                    <div className={styles["blogs__search-container"]}>
+                        <h2 className={styles["blogs__search-title"]}>All Posts</h2>
                         <input
                             type="text"
                             placeholder="Search posts..."
                             value={inputValue}
                             onChange={changeHandler}
-                            style={{
-                                padding: '0.75rem 1.5rem',
-                                borderRadius: '9999px',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                background: 'rgba(255,255,255,0.05)',
-                                color: 'white',
-                                width: '100%',
-                                maxWidth: '300px'
-                            }}
+                            className={styles["blogs__search-input"]}
                         />
                     </div>
 
@@ -132,7 +124,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                                     </Link>
                                 ))
                             ) : (
-                                <p style={{ gridColumn: '1/-1', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>No posts found matching your search.</p>
+                                <p className={styles["blogs__no-results"]}>No posts found matching your search.</p>
                             )}
                     </div>
                 </>

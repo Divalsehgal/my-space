@@ -12,7 +12,7 @@
   min-height: calc(100vh - $t-spacing-16);
   margin-top: $t-spacing-16;
 
-  background-color: var(--t-colors-bg-primary);
+  background-color: $t-colors-background-primary;
 
   &__bg-pattern {
     pointer-events: none;

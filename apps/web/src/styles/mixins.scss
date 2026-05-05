@@ -12,7 +12,7 @@
     border: 1px solid rgba($t-colors-border-default, 0.3);
     border-radius: $t-spacing-3; // rounded-xl
 
-    background-color: rgb(255 255 255 / 5%); // bg-white/5
+    background-color: rgba($t-colors-text-primary, 0.05); // bg-white/5
     backdrop-filter: blur(4px); // backdrop-blur-sm
 }
 
@@ -21,7 +21,7 @@
 
     &:hover {
         transform: translateY(-4px);
-        background-color: rgb(255 255 255 / 8%);
+        background-color: rgba($t-colors-text-primary, 0.08);
     }
 }
 
@@ -175,7 +175,8 @@
 // Gradients & Effects
 @mixin title-gradient {
     display: inline-block;
-    background: linear-gradient(135deg, $t-colors-primary-default 0%, #fff 100%);
+    background: linear-gradient(135deg, $t-colors-primary-default 0%, $t-colors-text-primary 100%);
+    -webkit-background-clip: text;
     background-clip: text;
 
     -webkit-text-fill-color: transparent;
@@ -183,6 +184,7 @@
 
 @mixin text-gradient-primary {
     background: linear-gradient(to right, $t-colors-primary-default, color.adjust($t-colors-primary-default, $lightness: 20%));
+    -webkit-background-clip: text;
     background-clip: text;
 
     -webkit-text-fill-color: transparent;

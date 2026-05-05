@@ -1,0 +1,178 @@
+import { GraphQLClient } from 'graphql-request';
+
+const spaceId = process.env.CONTENTFUL_SPACE_ID;
+const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
+const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
+
+if (!spaceId || (!accessToken && !previewToken)) {
+  console.warn('Contentful environment variables are missing. GraphQL client may not work.');
+}
+
+const endpoint = `https://graphql.contentful.com/content/v1/spaces/${spaceId}`;
+
+/**
+ * Production client for Contentful Delivery API
+ */
+export const client = new GraphQLClient(endpoint, {
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+  },
+});
+
+/**
+ * Preview client for Contentful Preview API
+ */
+export const previewClient = new GraphQLClient(endpoint, {
+  headers: {
+    Authorization: `Bearer ${previewToken}`,
+  },
+});
+
+import { Document } from '@contentful/rich-text-types';
+
+export interface ContentfulAsset {
+  sys: { id: string };
+  url: string;
+  title?: string;
+  width?: number;
+  height?: number;
+}
+
+export interface ContentfulRichText {
+  json: Document; // Using Document type directly
+  links?: {
+    assets?: {
+      block?: ContentfulAsset[];
+    };
+  };
+}
+
+
+export interface ContentfulPost {
+  id: string;
+  title: string;
+  cover: string | null;
+  date: string;
+  slug: string;
+  description: string;
+  tags: string[];
+  content: ContentfulRichText;
+}
+
+/**
+ * Raw item structure from Contentful GraphQL API
+ */
+interface ContentfulPostItem {
+  sys: { 
+    id: string;
+    firstPublishedAt: string;
+  };
+  title: string;
+  slug: string;
+  excerpt?: string;
+  image?: { url: string };
+  body: ContentfulRichText;
+}
+
+/**
+ * Utility to fetch data from Contentful using the GraphQL client
+ */
+export async function fetchContentful<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+  preview = false
+): Promise<T> {
+  const activeClient = preview ? previewClient : client;
+  return activeClient.request<T>(query, variables);
+}
+
+/**
+ * Mapping function to convert Contentful data to our shared Blog Post format
+ */
+function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
+  return {
+    id: item.sys.id,
+    title: item.title,
+    cover: item.image?.url || null,
+    date: item.sys.firstPublishedAt,
+    slug: item.slug,
+    description: item.excerpt || "",
+    tags: [],
+    content: item.body,
+  };
+}
+
+interface ContentfulCollectionResponse<T> {
+  blogPageCollection: {
+    items: T[];
+  };
+}
+
+/**
+ * Fetches all blog posts from Contentful
+ */
+export async function getContentfulPosts(limit = 10, preview = false): Promise<ContentfulPost[]> {
+  const query = `
+    query GetBlogPosts($limit: Int, $preview: Boolean) {
+      blogPageCollection(limit: $limit, preview: $preview) {
+        items {
+          sys { id, firstPublishedAt }
+          title
+          slug
+          image { url }
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { limit, preview }, preview);
+    return data.blogPageCollection.items.map(mapContentfulPost);
+  } catch (error) {
+    console.error('Error fetching Contentful posts:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetches a single blog post by slug from Contentful
+ */
+export async function getContentfulPostBySlug(slug: string, preview = false): Promise<ContentfulPost | null> {
+  const query = `
+    query GetBlogPostBySlug($slug: String, $preview: Boolean) {
+      blogPageCollection(where: { slug: $slug }, limit: 1, preview: $preview) {
+        items {
+          sys { id, firstPublishedAt }
+          title
+          slug
+          image { url }
+          body { 
+            json
+            links {
+              assets {
+                block {
+                  sys { id }
+                  url
+                  title
+                  width
+                  height
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { slug, preview }, preview);
+    const item = data.blogPageCollection.items[0];
+    return item ? mapContentfulPost(item) : null;
+  } catch (error) {
+    console.error(`Error fetching Contentful post by slug ${slug}:`, error);
+    return null;
+  }
+}
+
+

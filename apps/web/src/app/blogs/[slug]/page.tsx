@@ -1,11 +1,10 @@
-import { getNotionPosts, getPageContent } from "@/lib/services/notion";
+import { getContentfulPosts, getContentfulPostBySlug, ContentfulPost } from "@/lib/services/contentful";
 import { Metadata } from "next";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import styles from "./styles.module.scss";
 import { notFound } from "next/navigation";
 import FluidContainer from "@/components/FluidContainer";
-import { renderBlock, renderList } from "@/features/blog/Rendering";
-import type { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { renderContentfulRichText } from "@/features/blog/ContentfulRenderer";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,8 +14,8 @@ type Props = {
  * SSG: Generate static paths for all published blog posts
  */
 export async function generateStaticParams() {
-  const posts = await getNotionPosts();
-  return posts.map((post) => ({
+  const posts = await getContentfulPosts();
+  return posts.map((post: ContentfulPost) => ({
     slug: post.slug,
   }));
 }
@@ -32,8 +31,7 @@ export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const posts = await getNotionPosts();
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getContentfulPostBySlug(slug);
 
   if (!post) {
     return {
@@ -75,14 +73,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
-  const posts = await getNotionPosts();
-  const post = posts.find((p) => p.slug === slug);
+  const post = await getContentfulPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const blocks = await getPageContent(post.id);
+  const content = renderContentfulRichText(post.content);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -105,41 +102,6 @@ export default async function BlogPost({ params }: Props) {
     { label: post.title, href: `/blogs/${slug}` },
   ];
 
-  const content = [];
-  let currentList: {
-    type: "bulleted_list_item" | "numbered_list_item";
-    items: BlockObjectResponse[];
-  } | null = null;
-
-  for (const block of (blocks as unknown as BlockObjectResponse[])) {
-    if (
-      block.type === "bulleted_list_item" ||
-      block.type === "numbered_list_item"
-    ) {
-      const listType = block.type as
-        | "bulleted_list_item"
-        | "numbered_list_item";
-
-      if (currentList && currentList.type === listType) {
-        currentList.items.push(block);
-      } else {
-        if (currentList) {
-          content.push(renderList(currentList));
-        }
-        currentList = { type: listType, items: [block] };
-      }
-    } else {
-      if (currentList) {
-        content.push(renderList(currentList));
-        currentList = null;
-      }
-      content.push(renderBlock(block));
-    }
-  }
-
-  if (currentList) {
-    content.push(renderList(currentList));
-  }
 
   return (
     <div className="page-scroll">
@@ -152,7 +114,7 @@ export default async function BlogPost({ params }: Props) {
         className={styles["blog-post__breadcrumbs"]}
       />
       <article className={styles["blog-post"]}>
-        <FluidContainer maxWidth="800px">
+        <FluidContainer className={styles["blog-post__container"]}>
           <header className={styles["blog-post__header"]}>
             <h1 className={styles["blog-post__title"]}>{post.title}</h1>
             <div className={styles["blog-post__meta"]}>
@@ -167,9 +129,9 @@ export default async function BlogPost({ params }: Props) {
               )}
               {post.tags && (
                 <ul className={styles["blog-post__tags"]}>
-                  {post.tags.map((tag) => (
+                  {post.tags.map((tag: string) => (
                     <li key={tag} className={styles["blog-post__tag"]}>
-                      {tag}
+                      <span>{tag}</span>
                     </li>
                   ))}
                 </ul>

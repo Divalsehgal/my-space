@@ -1,0 +1,52 @@
+.pre {
+  position: relative;
+  margin: $t-spacing-6 0;
+  padding: $t-spacing-6;
+  background: $t-colors-background-secondary;
+  border: 1px solid rgba($t-colors-border-default, 0.3);
+  border-radius: $t-spacing-4;
+  overflow-x: auto;
+
+
+  code {
+    display: block;
+    background: none;
+    padding: $t-spacing-0;
+    color: $t-colors-text-secondary;
+    font-size: $t-font-size-sm;
+    line-height: $t-font-line-height-normal;
+    border: none;
+  }
+}
+
+.copyButtonWrapper {
+  position: absolute;
+  top: $t-spacing-2;
+  right: $t-spacing-2;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.copyButton {
+  background: rgba($t-colors-background-secondary, 0.8);
+  border: 1px solid rgba($t-colors-border-default, 0.3);
+  color: $t-colors-text-secondary;
+  backdrop-filter: blur(4px);
+  padding: $t-spacing-1;
+
+
+
+  &.copied {
+    background: $t-colors-primary-default;
+    color: $t-colors-background-primary;
+    border-color: $t-colors-primary-default;
+    opacity: 1;
+  }
+}
+
+.pre:hover {
+  .copyButtonWrapper {
+    opacity: 1;
+  }
+}

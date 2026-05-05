@@ -37,7 +37,7 @@ describe("SectionHeader Component", () => {
   });
 
   it("applies custom class names", () => {
-    render(
+    const { container } = render(
       <SectionHeader 
         title="Title" 
         className="custom-root" 
@@ -46,7 +46,8 @@ describe("SectionHeader Component", () => {
         subtitleClassName="custom-sub"
       />
     );
-    expect(screen.getByText("Title").parentElement?.className).toContain("custom-root");
+    const root = container.firstChild as HTMLElement;
+    expect(root.className).toContain("custom-root");
     expect(screen.getByText("Title")).toHaveClass("custom-title");
     expect(screen.getByText("Sub")).toHaveClass("custom-sub");
   });

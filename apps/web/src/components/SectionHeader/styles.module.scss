@@ -1,11 +1,40 @@
 
 .section-header {
   display: flex;
-  flex-direction: column;
-  gap: $t-spacing-3; // Increased gap for better hierarchy
+  flex-direction: row; // Changed to row to allow action on the right
+  justify-content: space-between;
+  align-items: flex-end; // Align bottom by default
+  gap: $t-spacing-3;
 
   width: 100%;
   margin-top: $t-spacing-8;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-3;
+  }
+
+  &__action {
+    display: flex;
+    align-items: center;
+    margin-bottom: $t-spacing-1; // Fine-tune alignment with title/subtitle
+  }
+
+  &__action-button {
+    color: $t-colors-primary-default;
+    font-weight: $t-font-weight-bold;
+    text-transform: none;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+    padding: $t-spacing-2 $t-spacing-4;
+    border-radius: $t-spacing-2;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba($t-colors-primary-default, 0.05);
+      transform: translateX($t-spacing-1);
+    }
+  }
 
   &__eyebrow {
     display: block; // Ensure it behaves like a block element
@@ -46,9 +75,9 @@
   }
 
   &--contact {
-    align-items: center !important;
+    align-items: center;
     margin-bottom: $t-spacing-12;
-    text-align: center !important;
+    text-align: center;
 
     .section-header__title {
       position: relative;

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 
@@ -14,6 +14,11 @@ type SectionHeaderProps = {
   className?: string;
   titleClassName?: string;
   subtitleClassName?: string;
+  action?: {
+    label?: string;
+    href: string;
+    icon?: ReactNode;
+  };
 };
 
 export default function SectionHeader({
@@ -25,6 +30,7 @@ export default function SectionHeader({
   className,
   titleClassName,
   subtitleClassName,
+  action,
 }: Readonly<SectionHeaderProps>) {
   if (!eyebrow && !title && !subtitle) {return null;}
 
@@ -41,23 +47,40 @@ export default function SectionHeader({
 
   return (
     <Box className={rootClassNames}>
-      {eyebrow && (
-        <Typography
-          component="span"
-          className={styles["section-header__eyebrow"]}
-        >
-          {eyebrow}
-        </Typography>
-      )}
+      <Box className={styles["section-header__content"]}>
+        {eyebrow && (
+          <Typography
+            component="span"
+            className={styles["section-header__eyebrow"]}
+          >
+            {eyebrow}
+          </Typography>
+        )}
 
-      {title && (
-        <Typography className={titleClasses} component="h2" variant="h2">
-          {title}
-        </Typography>
-      )}
+        {title && (
+          <Typography className={titleClasses} component="h2" variant="h2">
+            {title}
+          </Typography>
+        )}
 
-      {subtitle && (
-        <Typography className={subtitleClasses}>{subtitle}</Typography>
+        {subtitle && (
+          <Typography className={subtitleClasses}>{subtitle}</Typography>
+        )}
+      </Box>
+
+      {action && (
+        <Box className={styles["section-header__action"]}>
+          <Button
+            component="a"
+            href={action.href}
+            target={action.href.startsWith('http') ? "_blank" : "_self"}
+            rel={action.href.startsWith('http') ? "noopener noreferrer" : ""}
+            endIcon={action.icon}
+            className={styles["section-header__action-button"]}
+          >
+            {action.label}
+          </Button>
+        </Box>
       )}
     </Box>
   );

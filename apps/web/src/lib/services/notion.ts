@@ -195,7 +195,7 @@ export async function getPostBySlug(slug: string): Promise<NotionBlogPost | null
  * Fetches blocks (content) for a specific page.
  */
 export async function getPageContent(pageId: string): Promise<BlockObjectResponse[]> {
-    const blocks: BlockObjectResponse[] = [];
+    let blocks: BlockObjectResponse[] = [];
     let cursor: string | undefined = undefined;
 
     try {
@@ -216,8 +216,25 @@ export async function getPageContent(pageId: string): Promise<BlockObjectRespons
             }
             cursor = response.next_cursor || undefined;
         }
-    } catch {
-        // Silently fail or handle error appropriately
+
+        // Notion's API doesn't inline table_row children inside the table block by default. 
+        // We need to fetch them separately for any block whose type is table.
+        blocks = await Promise.all(
+            blocks.map(async (block) => {
+                if (block.type === "table" && block.has_children) {
+                    try {
+                        const { results } = await notionFetch(`/blocks/${block.id}/children`);
+                        // @ts-expect-error - attaching children to the block for the renderer
+                        block.table.children = results;
+                    } catch (err) {
+                        console.error(`Error fetching table children for block ${block.id}:`, err);
+                    }
+                }
+                return block;
+            })
+        );
+    } catch (error) {
+        console.error("Error fetching page content:", error);
     }
 
     return blocks;

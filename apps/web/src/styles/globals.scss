@@ -22,8 +22,6 @@
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   font-family: var(--font-body);
 }
 
@@ -142,7 +140,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  border: 4px solid $t-colors-background-primary;
+  border: $t-spacing-1 solid $t-colors-background-primary;
   border-radius: $t-spacing-1;
   background-color: rgba($t-colors-primary-default, 0.4);
   transition: background-color 0.2s;
@@ -164,7 +162,7 @@ html {
 // conflict with component-specific heading styles (which are CSS Modules)
 h1,
 h2 {
-  text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
+  text-shadow: $t-spacing-1 $t-spacing-1 $t-spacing-1 rgba($t-colors-primary-default, 0.4);
 }
 
 a {

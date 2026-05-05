@@ -1,4 +1,4 @@
-import { getNotionPosts } from "@/lib/services/notion";
+import { getContentfulPosts } from "@/lib/services/contentful";
 import BlogPageContent from "@/containers/Blogs";
 import FluidContainer from "@/components/FluidContainer";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 
 // Revalidate blog listing every 1 hour (ISR - Incremental Static Regeneration)
 // This allows the blog listing page to be statically generated and cached,
-// while refreshing periodically to show new posts from Notion.
+// while refreshing periodically to show new posts from Contentful.
 // Previously revalidate = 0 caused "Dynamic server usage" errors during build.
 export const revalidate = 3600; // 1 hour
 
 export default async function Blogs() {
-  const posts = await getNotionPosts();
+  const posts = await getContentfulPosts();
 
   const breadcrumbItems = [{ label: "Blogs", href: "/blogs" }];
 

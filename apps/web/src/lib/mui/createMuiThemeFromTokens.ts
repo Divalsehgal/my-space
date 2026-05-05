@@ -87,7 +87,7 @@ export function createMuiThemeFromTokens(): ThemeOptions {
                         },
                         '&.Mui-disabled': {
                             backgroundColor: Tokens.TColorsButtonPrimaryBackgroundDisabled,
-                            color: 'rgba(255,255,255,0.3)', // Fallback or need disabled text token
+                            color: Tokens.TColorsTextDisabled,
                         }
                     },
                     outlinedSecondary: {

@@ -5,9 +5,10 @@ export interface Message {
   content: string;
 }
 
-const BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8787' 
-  : 'https://ai-chatbot-widget.sehgaldival.workers.dev';
+const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL || 
+  (process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:8787' 
+    : 'https://ai-chatbot-widget.sehgaldival.workers.dev');
 
 function parseChunk(data: string): string | null {
   try {

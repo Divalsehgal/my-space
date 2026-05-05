@@ -7,6 +7,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   ...nextEslintConfig,
+  {
+    settings: {
+      next: {
+        rootDir: "apps/web/",
+      },
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",

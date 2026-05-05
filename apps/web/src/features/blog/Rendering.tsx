@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Image from "next/image";
-import styles from "@/app/blogs/[slug]/styles.module.scss";
+import { CodeBlock } from "@/components/CodeBlock";
+
 import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
 
 /**
@@ -28,7 +29,7 @@ export function renderRichText(richText: RichTextItemResponse[] | undefined) {
             content = <u key={i}>{content}</u>;
         }
         if (annotations.code) {
-            content = <code key={i} className={styles["blog-post__inline-code"]}>{content}</code>;
+            content = <code key={i}>{content}</code>;
         }
 
         if (href) {
@@ -98,16 +99,15 @@ function renderImageBlock(block: BlockObjectResponse & { type: "image" }) {
     const url = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
     const caption = block.image.caption?.[0]?.plain_text || "";
     return (
-        <figure key={block.id} className={styles["blog-post__image-container"]}>
+        <figure key={block.id}>
             <Image
                 src={url}
                 alt={caption || "Blog post image"}
                 width={800}
                 height={450}
-                className={styles["blog-post__image"]}
             />
             {caption && (
-                <figcaption className={styles["blog-post__image-caption"]}>
+                <figcaption>
                     {caption}
                 </figcaption>
             )}
@@ -124,14 +124,14 @@ export function renderBlock(block: BlockObjectResponse) {
     }
 
     switch (block.type) {
-        case "code":
+        case "code": {
+            const content = block.code.rich_text.map((t) => t.plain_text).join("");
             return (
-                <pre key={block.id} className={styles["blog-post__code"]}>
-                    <code>
-                        {block.code.rich_text.map((t) => t.plain_text).join("")}
-                    </code>
-                </pre>
+                <CodeBlock key={block.id} content={content}>
+                    {content}
+                </CodeBlock>
             );
+        }
 
         case "divider":
             return <hr key={block.id} />;
