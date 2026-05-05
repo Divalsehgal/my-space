@@ -127,12 +127,24 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
 
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { limit, preview }, preview);
+    
+    if (!data?.blogPageCollection) {
+      console.error('Contentful Error: blogPageCollection not found in response. This usually means the Content Type ID "blogPage" does not exist in your Contentful space.');
+      return [];
+    }
+
+    if (!data.blogPageCollection.items) {
+      console.warn('Contentful Warning: blogPageCollection exists but items is missing.');
+      return [];
+    }
+
     return data.blogPageCollection.items.map(mapContentfulPost);
   } catch (error) {
-    console.error('Error fetching Contentful posts:', error);
+    console.error('Error fetching Contentful posts collection:', error);
     return [];
   }
 }
+
 
 /**
  * Fetches a single blog post by slug from Contentful
@@ -167,6 +179,12 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
 
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { slug, preview }, preview);
+    
+    if (!data?.blogPageCollection?.items) {
+      console.error(`Contentful Error: blogPageCollection not found when fetching slug "${slug}".`);
+      return null;
+    }
+
     const item = data.blogPageCollection.items[0];
     return item ? mapContentfulPost(item) : null;
   } catch (error) {
@@ -174,5 +192,6 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
     return null;
   }
 }
+
 
 
