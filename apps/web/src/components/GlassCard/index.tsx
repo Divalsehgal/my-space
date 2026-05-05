@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
+
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 

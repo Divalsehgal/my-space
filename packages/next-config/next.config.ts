@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     productionBrowserSourceMaps: true,
     experimental: {
         externalDir: true,
+        optimizePackageImports: ["@mui/material", "@mui/icons-material"],
     },
     images: {
         remotePatterns: [
@@ -26,7 +27,9 @@ const nextConfig: NextConfig = {
                 hostname: "images.pexels.com"
             }
         ]
-    }
+    },
 };
+
+
 
 export default nextConfig;

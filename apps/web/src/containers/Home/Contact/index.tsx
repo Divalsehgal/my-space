@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useActionState, useEffect, use, useState } from "react";
-import {
-  SvgIconProps,
-} from "@mui/material";
+import { type SvgIconProps } from "@mui/material";
+
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import GitHubIcon from "@mui/icons-material/GitHub";

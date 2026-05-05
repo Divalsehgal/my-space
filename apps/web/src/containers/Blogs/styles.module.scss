@@ -152,3 +152,31 @@
     padding: $t-spacing-10;
   }
 }
+
+// Blog Post Skeleton Layout (Matches blogs/[slug]/styles.module.scss)
+.blog-post {
+  min-height: 100vh;
+  padding: $t-spacing-0 0 $t-spacing-24;
+  background: radial-gradient(circle at top right, rgba($t-colors-primary-default, 0.05), transparent 40%),
+      $t-colors-background-primary;
+
+  &__container {
+    max-width: 1280px !important; // Match the latest change from the user
+    margin: 0 auto;
+  }
+
+  &__header {
+    margin: 0 auto $t-spacing-8 auto;
+    padding-bottom: $t-spacing-4;
+  }
+
+  &__content {
+    margin: 0 auto;
+  }
+
+  &__meta {
+    display: flex;
+    gap: $t-spacing-6;
+    margin-top: $t-spacing-4;
+  }
+}

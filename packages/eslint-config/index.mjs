@@ -57,7 +57,28 @@ export const nextEslintConfig = [
             "match": false
           }
         }
+      ],
+
+      // Tree-shaking Enforcement (MUI)
+      "no-restricted-imports": [
+        "error",
+        {
+          "paths": [
+            {
+              "name": "@mui/material",
+              "message": "Please use path imports from @mui/material/<Component> for better tree-shaking.",
+              "allowTypeImports": true
+            },
+            {
+              "name": "@mui/icons-material",
+              "message": "Please use path imports from @mui/icons-material/<Icon> for better tree-shaking.",
+              "allowTypeImports": true
+            }
+          ]
+        }
       ]
+
     }
   }
 ];
+

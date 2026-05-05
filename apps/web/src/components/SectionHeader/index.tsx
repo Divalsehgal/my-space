@@ -1,7 +1,10 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 

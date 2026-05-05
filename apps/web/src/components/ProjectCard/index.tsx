@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
+
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { type ProjectConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";

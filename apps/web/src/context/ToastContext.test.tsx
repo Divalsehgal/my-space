@@ -3,7 +3,8 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ToastProvider, useToast } from "./ToastContext";
 
-import { AlertColor } from "@mui/material";
+import { type AlertColor } from "@mui/material";
+
 
 // Mock the Toaster presentation component
 jest.mock("@/components/Toaster", () => ({

@@ -7,13 +7,13 @@ import FluidContainer from "@/components/FluidContainer";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import {
-  Typography,
-  IconButton,
-  Stack,
-  Grid,
-  SvgIconProps,
-} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import Grid from "@mui/material/Grid";
+
+import { type SvgIconProps } from "@mui/material";
+
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";

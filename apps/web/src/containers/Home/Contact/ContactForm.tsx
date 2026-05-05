@@ -1,7 +1,10 @@
 "use client";
 
 
-import { TextField, Box, Button } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
 import { type ContactFormState } from "@/types/contact";
 import styles from "./styles.module.scss";
 

@@ -64,7 +64,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
 
 
     return (
-        <>
+        <div className={styles.blogs}>
             <FluidContainer>
                 <div className={styles["blogs__header"]}>
                     <h1 className={styles["blogs__title"]}>Our Blog</h1>
@@ -130,6 +130,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                 </>
                 <div style={{ paddingBottom: '4rem' }} />
             </FluidContainer>
-        </>
+        </div>
     );
+
 }

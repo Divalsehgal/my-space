@@ -25,12 +25,15 @@ export default async function Blogs() {
   if (!posts || posts.length === 0) {
     return (
       <div className="page-scroll">
-        <FluidContainer className={styles["blogs-container"]}>
-          <h1 className={styles["blogs-title"]}>Blog</h1>
-          <p>
-            No posts found. Make sure your Notion database is connected and has
-            published posts.
-          </p>
+        <Breadcrumbs items={breadcrumbItems} />
+        <FluidContainer>
+          <div className={styles["blogs-empty-state"]}>
+            <h1 className={styles["blogs-title"]}>Blog</h1>
+            <p className={styles["blogs-empty-message"]}>
+              No posts found. Make sure your Contentful space is connected and has
+              published posts.
+            </p>
+          </div>
         </FluidContainer>
       </div>
     );

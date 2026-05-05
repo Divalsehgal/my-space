@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
+
 import TerminalIcon from "@mui/icons-material/Terminal";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import FacebookIcon from "@mui/icons-material/Facebook";

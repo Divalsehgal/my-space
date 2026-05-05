@@ -1,17 +1,27 @@
 
-.blogs-container {
-    max-width: $t-global-fluid-width;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: $t-spacing-20 $t-spacing-6;
+.blogs-empty-state {
+    padding: $t-spacing-20 0;
+    min-height: 60vh;
 }
 
 .blogs-title {
-    margin-bottom: $t-spacing-12;
-    font-size: $t-font-size-6xl;
+    margin-bottom: $t-spacing-8;
+    font-size: $t-font-size-5xl;
     font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
+
+    @media (min-width: $t-breakpoint-tablet) {
+        font-size: $t-font-size-6xl;
+    }
 }
+
+.blogs-empty-message {
+    font-size: $t-font-size-lg;
+    line-height: 1.6;
+    color: $t-colors-text-secondary;
+    max-width: 600px;
+}
+
 
 .blogs-grid {
     display: grid;

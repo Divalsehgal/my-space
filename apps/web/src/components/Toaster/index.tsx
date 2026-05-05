@@ -1,6 +1,8 @@
 // Inline Toaster component to keep it simple, or we can move it to components/Toaster
 import { ToastSeverity } from "@/types/contact";
-import { Snackbar, Alert } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
 
 interface ToasterProps {
     open: boolean;

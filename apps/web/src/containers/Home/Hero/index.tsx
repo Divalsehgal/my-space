@@ -9,7 +9,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import Button from "@mui/material/Button";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import ParticlesBackground from "@/components/ParticlesBackground";
-import { Box } from "@mui/system";
+import Box from "@mui/material/Box";
+
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { usePortfolioContext } from "@/context/PortfolioContext";
 
@@ -40,14 +41,14 @@ const getButtons = (data?: HeroData) => [
     label: data?.secondaryCtaLabel || "Contact",
     href: data?.secondaryCtaHref ?? "#contact",
     variant: "outlined" as const,
-    color: "secondary" as const,
+    color: "primary" as const,
     size: "large" as const,
   },
   {
     label: data?.resumeLabel || "Resume",
     href: data?.resumeUrl,
     variant: "text" as const,
-    color: "secondary" as const,
+    color: "primary" as const,
     size: "large" as const,
     startIcon: <DescriptionIcon />,
     target: "_blank",
