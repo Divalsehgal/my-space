@@ -1,20 +1,17 @@
 import { NextResponse } from 'next/server';
 import { portfolioService } from '@/features/portfolio';
-import { getNotionPosts } from '@/lib/services/notion';
+import { getContentfulPostsForContext } from '@/lib/services/contentful-context';
 
 export async function GET() {
     try {
-        const { config } = await portfolioService.getConfig();
-        const posts = await getNotionPosts();
+        const [{ config }, posts] = await Promise.all([
+            portfolioService.getConfig(),
+            getContentfulPostsForContext(10)
+        ]);
         
         return NextResponse.json({
             portfolio: config,
-            blogs: posts.map(p => ({
-                title: p.title,
-                description: p.description,
-                tags: p.tags,
-                date: p.date
-            }))
+            blogPosts: posts
         });
     } catch (error) {
         console.error('Chat context API error:', error);

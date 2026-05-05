@@ -1,4 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
+import type { ContentfulPost, ContentfulRichText } from '@/types/contentful';
 
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -28,41 +29,10 @@ export const previewClient = new GraphQLClient(endpoint, {
   },
 });
 
-import { Document } from '@contentful/rich-text-types';
-
-export interface ContentfulAsset {
-  sys: { id: string };
-  url: string;
-  title?: string;
-  width?: number;
-  height?: number;
-}
-
-export interface ContentfulRichText {
-  json: Document; // Using Document type directly
-  links?: {
-    assets?: {
-      block?: ContentfulAsset[];
-    };
-  };
-}
-
-
-export interface ContentfulPost {
-  id: string;
-  title: string;
-  cover: string | null;
-  date: string;
-  slug: string;
-  description: string;
-  tags: string[];
-  content: ContentfulRichText;
-}
-
 /**
  * Raw item structure from Contentful GraphQL API
  */
-interface ContentfulPostItem {
+export interface ContentfulPostItem {
   sys: { 
     id: string;
     firstPublishedAt: string;
@@ -89,7 +59,7 @@ export async function fetchContentful<T>(
 /**
  * Mapping function to convert Contentful data to our shared Blog Post format
  */
-function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
+export function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
   return {
     id: item.sys.id,
     title: item.title,
@@ -102,7 +72,7 @@ function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
   };
 }
 
-interface ContentfulCollectionResponse<T> {
+export interface ContentfulCollectionResponse<T> {
   blogPageCollection: {
     items: T[];
   };
@@ -128,13 +98,7 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { limit, preview }, preview);
     
-    if (!data?.blogPageCollection) {
-      console.error('Contentful Error: blogPageCollection not found in response. This usually means the Content Type ID "blogPage" does not exist in your Contentful space.');
-      return [];
-    }
-
-    if (!data.blogPageCollection.items) {
-      console.warn('Contentful Warning: blogPageCollection exists but items is missing.');
+    if (!data?.blogPageCollection?.items) {
       return [];
     }
 
@@ -181,7 +145,6 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { slug, preview }, preview);
     
     if (!data?.blogPageCollection?.items) {
-      console.error(`Contentful Error: blogPageCollection not found when fetching slug "${slug}".`);
       return null;
     }
 
@@ -192,6 +155,3 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
     return null;
   }
 }
-
-
-

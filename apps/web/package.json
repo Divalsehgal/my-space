@@ -32,7 +32,6 @@
         "@mui/icons-material": "^7.3.5",
         "@mui/material": "^7.3.5",
         "@mui/system": "^7.3.5",
-        "@notionhq/client": "^5.7.0",
         "@react-three/drei": "^10.7.7",
         "@react-three/fiber": "^9.5.0",
         "@tsparticles/react": "^3.0.0",

@@ -1,6 +1,6 @@
 import { GET } from './route';
 import { portfolioService } from '@/features/portfolio';
-import { getNotionPosts } from '@/lib/services/notion';
+import { getContentfulPostsForContext } from '@/lib/services/contentful-context';
 
 // Mock services
 jest.mock('@/features/portfolio', () => ({
@@ -9,8 +9,8 @@ jest.mock('@/features/portfolio', () => ({
     },
 }));
 
-jest.mock('@/lib/services/notion', () => ({
-    getNotionPosts: jest.fn(),
+jest.mock('@/lib/services/contentful-context', () => ({
+    getContentfulPostsForContext: jest.fn(),
 }));
 
 // Mock NextResponse
@@ -31,19 +31,19 @@ describe('Chat Context API Route', () => {
     it('should aggregate portfolio and blog data correctly', async () => {
         const mockConfig = { hero: { title: 'Lead Engineer' }, about: { facts: ['India'] }, experience: [], projects: [] };
         const mockPosts = [
-            { title: 'Post 1', description: 'Desc 1', tags: ['AI'], date: '2024-01-01' }
+            { title: 'Post 1', content: 'Desc 1', slug: 'post-1' }
         ];
 
         (portfolioService.getConfig as jest.Mock).mockResolvedValue({ config: mockConfig });
-        (getNotionPosts as jest.Mock).mockResolvedValue(mockPosts);
+        (getContentfulPostsForContext as jest.Mock).mockResolvedValue(mockPosts);
 
         const response = await GET();
         const data = await response.json();
 
         expect(response.status).toBe(200);
         expect(data.portfolio).toEqual(mockConfig);
-        expect(data.blogs).toHaveLength(1);
-        expect(data.blogs[0].title).toBe('Post 1');
+        expect(data.blogPosts).toHaveLength(1);
+        expect(data.blogPosts[0].title).toBe('Post 1');
     });
 
     it('should return 500 if one of the services fails', async () => {

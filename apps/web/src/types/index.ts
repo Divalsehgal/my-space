@@ -8,6 +8,5 @@
  */
 
 export type { ContactSubmission, ContactFormState, ToastSeverity, ToastContextType } from "./contact";
-export type { NotionBlogPost } from "./blog";
 export type { GitHubFileResponse, CommitResult } from "./github";
 export type { BreadcrumbItem } from "./ui";

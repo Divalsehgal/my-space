@@ -4,11 +4,11 @@ import { useState, useMemo, useEffect, ChangeEvent, useTransition } from "react"
 import Link from "next/link";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
-import { NotionBlogPost } from "@/lib/services/notion";
+import { ContentfulPost } from "@/lib/services/contentful";
 import styles from "./styles.module.scss";
 
 type BlogPageContentProps = {
-    posts: NotionBlogPost[];
+    posts: ContentfulPost[];
 };
 
 export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps>) {
@@ -42,7 +42,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
         });
     }, [posts, deferredQuery]);
 
-    const renderCarouselItem = (post: NotionBlogPost) => (
+    const renderCarouselItem = (post: ContentfulPost) => (
         <Link href={`/blogs/${post.slug}`} className={styles["blogs__card"]} key={post.id}>
             {post.cover && (
                 <div className={styles["blogs__card-image"]} style={{ backgroundImage: `url(${post.cover})` }} />
