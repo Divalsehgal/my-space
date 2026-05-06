@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { portfolioService } from '@/features/portfolio';
 import { getContentfulPostsForContext } from '@/lib/services/contentful-context';
 
+// Set to 1 hour to cache context for faster AI responses (Fallback)
+// Updates automatically via 'contentful' tag when posts are published
+
 export async function GET() {
     try {
         const [{ config }, posts] = await Promise.all([
@@ -11,7 +14,7 @@ export async function GET() {
         
         return NextResponse.json({
             portfolio: config,
-            blogPosts: posts
+            blogs: posts
         });
     } catch (error) {
         console.error('Chat context API error:', error);

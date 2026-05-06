@@ -18,9 +18,10 @@ export class PortfolioService {
     public async getConfig(signal?: AbortSignal): Promise<{ config: PortfolioConfig }> {
         try {
             const res = (await fetchWithRetry((sig) =>
-                fetch(`${CONFIG_URL}?t=${new Date().getTime()}`, {
+                fetch(CONFIG_URL, {
                     next: {
-                        revalidate: 60,
+                        // Time-based TTL: Refresh every 2 minutes from GitHub
+                        revalidate: 120, 
                         tags: ["portfolio"]
                     },
                     signal: sig,

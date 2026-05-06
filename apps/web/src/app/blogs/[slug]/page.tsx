@@ -24,11 +24,7 @@ export async function generateStaticParams() {
 // Ensure dynamic segments are handled even if they don't exist at build time
 export const dynamicParams = true;
 
-// Revalidate blog posts every 60 seconds (ISR - Incremental Static Regeneration)
-// This allows pages to be statically generated at build time and on-demand,
-// while refreshing content periodically to fetch new Notion data.
-// Note: revalidate = 0 would cause "Dynamic server usage" errors during static generation
-export const revalidate = 60;
+// Revalidate blog posts (Uses tag-based revalidation via Contentful)
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

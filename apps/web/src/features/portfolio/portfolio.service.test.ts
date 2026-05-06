@@ -83,8 +83,8 @@ describe("PortfolioService", () => {
     await portfolioService.getConfig();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("config.json?t="),
-      expect.objectContaining({ next: { revalidate: 60, tags: ["portfolio"] } })
+      expect.stringContaining("config.json"),
+      expect.objectContaining({ next: { revalidate: 120, tags: ["portfolio"] } })
     );
 
     global.fetch = originalFetch;

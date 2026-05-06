@@ -42,8 +42,8 @@ describe('Chat Context API Route', () => {
 
         expect(response.status).toBe(200);
         expect(data.portfolio).toEqual(mockConfig);
-        expect(data.blogPosts).toHaveLength(1);
-        expect(data.blogPosts[0].title).toBe('Post 1');
+        expect(data.blogs).toHaveLength(1);
+        expect(data.blogs[0].title).toBe('Post 1');
     });
 
     it('should return 500 if one of the services fails', async () => {

@@ -33,6 +33,8 @@ interface Portfolio {
 interface Blog {
   title: string;
   description: string;
+  content: string;
+  slug: string;
   date: string;
   tags: string[];
 }
@@ -87,8 +89,8 @@ export async function seed(req: Request, env: Env): Promise<Response> {
         blogs.forEach((b, i) => {
             chunks.push({
                 id: `blog-${i}`,
-                content: `Blog Post: ${b.title}. Summary: ${b.description}. Published on: ${b.date}. Tags: ${b.tags?.join(', ')}.`,
-                metadata: { type: 'blog', title: b.title }
+                content: `Blog Post: ${b.title}. Content: ${b.content}. Published on: ${b.date}. URL: /blogs/${b.slug}`,
+                metadata: { type: 'blog', title: b.title, slug: b.slug }
             });
         });
 

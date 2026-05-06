@@ -7,7 +7,6 @@ import { portfolioService } from "@/features/portfolio";
 import Contact from "@/containers/Home/Contact";
 import ScrollSnapControl from "@/components/ScrollSnapControl";
 import JsonLd from "@/components/JsonLd";
-import { submitContact } from "@/actions/submit-contact";
 import { PortfolioProvider } from "@/context/PortfolioContext";
 
 export default async function HomePage() {
@@ -26,13 +25,13 @@ export default async function HomePage() {
   return (
     <PortfolioProvider value={config ?? null}>
       <div className="page-scroll">
-        <ScrollSnapControl />
+        <ScrollSnapControl />{/*TODO: Need to Check if this helps or not*/}
         <JsonLd data={jsonLd} />
         <Hero />
         <About />
         <Experience />
         <Project />
-        <Contact action={submitContact} />
+        <Contact  />
       </div>
     </PortfolioProvider>
   );

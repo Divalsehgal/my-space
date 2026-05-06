@@ -1,11 +1,13 @@
 "use client";
 
-
+import { useActionState, useEffect, use, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import { submitContact } from "@/actions/submit-contact";
 
-import { type ContactFormState } from "@/types/contact";
+import { ToastContext } from "@/context/ToastContext";
+import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import styles from "./styles.module.scss";
 
 type SubmitButtonProps = {
@@ -26,21 +28,29 @@ export function SubmitButton({ pending }: SubmitButtonProps) {
   );
 }
 
-type ContactFormProps = {
-  readonly formAction: (formData: FormData) => void;
-  readonly isPending: boolean;
-  readonly state: ContactFormState;
-  readonly messageLength: number;
-  readonly onMessageChange: (length: number) => void;
-};
 
-export default function ContactForm({
-  formAction,
-  isPending,
-  state,
-  messageLength,
-  onMessageChange,
-}: ContactFormProps) {
+export default function ContactForm() {
+  const [state, formAction, isPending] = useActionState(submitContact, { status: "idle" });
+  const [messageLength, setMessageLength] = useState(0);
+
+  const toastContext = use(ToastContext);
+  const showToast = toastContext?.showToast;
+
+  useEffect(() => {
+    if (state.status !== "idle" && state.message && showToast) {
+      showToast(state.message, state.status === "success" ? "success" : "error");
+
+      if (state.status === "success") {
+        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "success", message: state.message });
+        const form = document.getElementById("contact-form") as HTMLFormElement;
+        form?.reset();
+        setTimeout(() => setMessageLength(0), 0);
+      } else if (state.status === "error") {
+        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "error", message: state.message });
+      }
+    }
+  }, [state, showToast]);
+
   return (
     <Box
       component="form"
@@ -85,7 +95,7 @@ export default function ContactForm({
         helperText={state.errors?.message?.[0] ?? `${messageLength} / 1000`}
         slotProps={{ htmlInput: { maxLength: 1000 } }}
         className={styles["contact__field"]}
-        onChange={(e) => onMessageChange(e.target.value.length)}
+        onChange={(e) => setMessageLength(e.target.value.length)}
       />
 
       <div className={styles["contact__actions"]}>

@@ -18,6 +18,16 @@ export const client = new GraphQLClient(endpoint, {
   headers: {
     Authorization: `Bearer ${accessToken}`,
   },
+  // Custom fetch allows Next.js to track GraphQL requests for caching
+  fetch: (url, options) => fetch(url, { 
+    ...options, 
+    next: { 
+      // Tags allow us to clear the cache instantly via webhooks
+      tags: ['contentful'], 
+      // 1-hour fallback revalidation (Safety net)
+      revalidate: 3600 
+    } 
+  }),
 });
 
 /**
@@ -27,6 +37,14 @@ export const previewClient = new GraphQLClient(endpoint, {
   headers: {
     Authorization: `Bearer ${previewToken}`,
   },
+  // Preview API bypasses caching to show draft content immediately
+  fetch: (url, options) => fetch(url, { 
+    ...options, 
+    next: { 
+      tags: ['contentful-preview'], 
+      revalidate: 0 // No cache for preview
+    } 
+  }),
 });
 
 /**

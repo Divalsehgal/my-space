@@ -38,13 +38,15 @@ export function contentfulToPlainText(richText: ContentfulRichText): string {
 /**
  * Fetches latest blog posts with their full content for AI context purposes.
  */
-export async function getContentfulPostsForContext(limit = 5): Promise<Array<{ title: string; content: string; slug: string }>> {
+export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ title: string; content: string; slug: string; description: string; date: string; tags: string[] }>> {
   const query = `
     query GetBlogPostsForContext($limit: Int) {
       blogPageCollection(limit: $limit) {
         items {
+          sys { firstPublishedAt }
           title
           slug
+          excerpt
           body { 
             json 
           }
@@ -54,7 +56,7 @@ export async function getContentfulPostsForContext(limit = 5): Promise<Array<{ t
   `;
 
   try {
-    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { limit });
+    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem & { excerpt?: string }>>(query, { limit });
     
     if (!data?.blogPageCollection?.items) {
       return [];
@@ -63,6 +65,9 @@ export async function getContentfulPostsForContext(limit = 5): Promise<Array<{ t
     return data.blogPageCollection.items.map(item => ({
       title: item.title,
       slug: item.slug,
+      description: item.excerpt || "",
+      date: item.sys.firstPublishedAt,
+      tags: [], // Contentful schema might need tags added, leaving empty for now
       content: contentfulToPlainText(item.body)
     }));
   } catch (error) {

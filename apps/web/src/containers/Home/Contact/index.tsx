@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useActionState, useEffect, use, useState } from "react";
+import React from "react";
 import { type SvgIconProps } from "@mui/material";
 
 import clsx from "clsx";
@@ -8,12 +6,9 @@ import styles from "./styles.module.scss";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import { type ContactFormState } from "@/types/contact";
-import { ToastContext } from "@/context/ToastContext";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
-import { usePortfolioContext } from "@/context/PortfolioContext";
+import { portfolioService } from "@/features/portfolio";
 
 import ContactForm from "./ContactForm";
 
@@ -29,9 +24,6 @@ type SocialItem = {
   icon?: string;
 };
 
-type ContactProps = Readonly<{
-  action: (prevState: ContactFormState, formData: FormData) => Promise<ContactFormState>;
-}>;
 
 function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   return (
@@ -55,34 +47,10 @@ function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   );
 }
 
-export default function Contact({ action }: ContactProps) {
-  const config = usePortfolioContext();
+export default async function Contact() {
+  const { config } = await portfolioService.getConfig();
   const data = config?.contact;
   const socialItems = (config?.socials as SocialItem[]) || [];
-  const [messageLength, setMessageLength] = useState(0);
-
-  const toastContext = use(ToastContext);
-  const showToast = toastContext?.showToast;
-
-  const [state, formAction, isPending] = useActionState(
-    action,
-    { status: "idle" }
-  );
-
-  useEffect(() => {
-    if (state.status !== "idle" && state.message && showToast) {
-      showToast(state.message, state.status === "success" ? "success" : "error");
-
-      if (state.status === "success") {
-        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "success", message: state.message });
-        const form = document.getElementById("contact-form") as HTMLFormElement;
-        form?.reset();
-        setTimeout(() => setMessageLength(0), 0);
-      } else if (state.status === "error") {
-        trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: "error", message: state.message });
-      }
-    }
-  }, [state, showToast]);
 
   return (
     <FluidContainer as="section" id="contact" className={clsx(styles.contact, "section")}>
@@ -97,13 +65,7 @@ export default function Contact({ action }: ContactProps) {
         align="left"
       />
       <div className={styles["contact__container"]}>
-        <ContactForm 
-          formAction={formAction}
-          isPending={isPending}
-          state={state}
-          messageLength={messageLength}
-          onMessageChange={setMessageLength}
-        />
+        <ContactForm  />
       </div>
     </FluidContainer>
   );
