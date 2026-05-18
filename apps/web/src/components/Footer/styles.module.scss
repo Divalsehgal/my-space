@@ -2,7 +2,7 @@
 .footer {
   margin-top: auto;
   padding: $t-spacing-12 0 $t-spacing-6;
-  border-top: 1px solid rgba($t-colors-border-default, 0.3);
+  border-top: 1px solid $t-colors-border-muted;
   background-color: $t-colors-background-primary;
 
   // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
@@ -136,7 +136,7 @@
     align-items: center;
 
     padding-top: $t-spacing-6;
-    border-top: 1px solid rgba($t-colors-border-default, 0.1);
+    border-top: 1px solid $t-colors-border-subtle;
 
     @media (min-width: $t-breakpoint-tablet) {
       flex-direction: row;

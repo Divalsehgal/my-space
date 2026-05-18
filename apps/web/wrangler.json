@@ -9,6 +9,10 @@
     "ai": {
         "binding": "AI"
     },
+    "vars": {
+        "CHAT_CONTEXT_URL": "https://divalsehgal.vercel.app/api/chat-context",
+        "CONTACT_API_URL": "https://divalsehgal.vercel.app/api/contact"
+    },
     "vectorize": [
         {
             "binding": "VECTORIZE",

@@ -9,11 +9,6 @@ import Paper from "@mui/material/Paper";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import {
-  TColorsBackgroundSecondary,
-  TColorsShadowDefault,
-  TColorsShadowPrimary
-} from "@dival-sehgal/design-tokens/variables.js";
 
 export default function Error({
   error,
@@ -50,7 +45,7 @@ export default function Error({
             alignItems: "center",
             gap: 3,
             backdropFilter: "blur(10px)",
-            boxShadow: TColorsShadowDefault,
+            boxShadow: "var(--t-colors-shadow-default)",
           }}
         >
           <Box
@@ -58,7 +53,7 @@ export default function Error({
               width: 80,
               height: 80,
               borderRadius: "24px",
-              bgcolor: TColorsBackgroundSecondary,
+              bgcolor: "var(--t-colors-background-secondary)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -110,9 +105,9 @@ export default function Error({
               textTransform: "none",
               fontWeight: 600,
               fontSize: "1rem",
-              boxShadow: `0 8px 16px ${TColorsShadowPrimary}`,
+              boxShadow: "0 8px 16px var(--t-colors-shadow-primary)",
               "&:hover": {
-                boxShadow: `0 12px 24px ${TColorsShadowPrimary}`,
+                boxShadow: "0 12px 24px var(--t-colors-shadow-primary)",
                 transform: "translateY(-2px)",
               },
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",

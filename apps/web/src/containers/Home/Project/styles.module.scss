@@ -14,7 +14,7 @@
   &__visual-overlay {
     width: 100%;
     height: 100%;
-    background: linear-gradient(to top, rgba($t-colors-background-primary, 0.8), transparent);
+    background: linear-gradient(to top, $t-colors-surface-page-fade, transparent);
   }
 
   &__title {
@@ -29,7 +29,7 @@
   &__description {
     font-size: $t-font-size-sm;
     line-height: $t-font-line-height-relaxed;
-    color: rgba($t-colors-text-primary, 0.7);
+    color: $t-colors-text-secondary;
   }
 
   &__tags {
@@ -46,10 +46,10 @@
 
     height: $t-spacing-8;
     padding: 0 $t-spacing-4;
-    border: 1px solid rgba($t-colors-primary-default, 0.3);
+    border: 1px solid $t-colors-border-primary;
     border-radius: 9999px;
 
-    background-color: rgba($t-colors-primary-default, 0.2);
+    background-color: $t-colors-surface-brand-strong;
     
     span {
       font-size: $t-font-size-xs;

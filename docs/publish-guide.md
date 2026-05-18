@@ -1,56 +1,112 @@
-# NPM Publishing Guide
+NPM publishing control means verifying package contents, versions, and side effects before shared workspace code becomes an external contract.
 
-This guide outlines the steps to publish the `@divalsehgal` packages to the NPM registry.
-
-## Prerequisites
-
-1.  **NPM Account**: Ensure you have an account on [npmjs.com](https://www.npmjs.com/).
-2.  **Login**: Run `npm login` in your terminal to authenticate.
-3.  **Organization**: If you want to publish under the `@divalsehgal` scope, ensure you have created this organization on NPM.
-
-## Packages
-
-The following packages are ready for publishing:
-
-- `@divalsehgal/design-tokens`
-- `@divalsehgal/fonts`
-
-## Steps to Publish
-
-We have provided a helper script `publish.sh` in the root directory to automate the process.
-
-### 1. Manual Dry Run (Recommended)
-Before publishing, run a final dry-run to verify the contents of each package:
+## Identity (scope)
+Attack: Wrong package target — a package publishes under the wrong scope, access level, or registry identity.
+Fix: authenticate first and verify the package name, registry, and access mode before publish.
 
 ```bash
-cd packages/design-tokens && npm publish --dry-run
-cd ../fonts && npm publish --dry-run
+# ❌ publish before identity is verified
+npm publish
+
+# ✅ confirm account and package target
+npm whoami
+npm publish --dry-run
 ```
 
-### 2. Actual Publish
-Run the following commands to publish each package:
+| **Check** | **Prevents** |
+|---|---|
+| `npm whoami` | Wrong account publish |
+| Package scope | Wrong namespace |
+| Access mode | Private package surprise |
+
+**Scope** — `@divalsehgal/*` requires the matching npm org or user scope.
+
+**Registry** — verify `.npmrc` before release.
+
+**Access** — scoped public packages need `--access public`.
+
+## Dry Run (contents)
+Attack: Artifact leak — source logs, build caches, or missing generated files ship in the package tarball.
+Fix: inspect the dry-run output before every publish.
 
 ```bash
-# From the root directory
-./publish.sh
+# ❌ publish blind
+npm publish --access public
+
+# ✅ inspect package contents first
+cd packages/design-tokens
+npm publish --dry-run
 ```
 
-Alternatively, publish manually:
+| **Artifact** | **Publish rule** |
+|---|---|
+| Build output | Include when package consumers need it |
+| Source tokens | Include when consumers customize |
+| Cache logs | Exclude from package |
+
+**Dry run** — the tarball preview is the source of truth.
+
+**Files field** — use it to define the package surface.
+
+**Generated output** — build before dry run.
+
+## Versioning (contract)
+Attack: Silent breaking change — consumers receive incompatible exports under a patch version.
+Fix: choose version increments based on package API changes, not implementation effort.
 
 ```bash
-cd packages/design-tokens && npm publish --access public
-cd ../fonts && npm publish --access public
+# ❌ breaking export change as patch
+npm version patch
+
+# ✅ version matches contract change
+npm version major
+npm publish --access public
 ```
 
-## Maintenance
+| **Change** | **Version** |
+|---|---|
+| Bug fix | Patch |
+| New compatible export | Minor |
+| Removed or changed export | Major |
 
-### Versioning
-To update the version of a package, use `npm version`:
+**Package API** — exports, CSS entry points, and token names are public contracts.
 
-```bash
-cd packages/<package-name>
-npm version patch # or minor, or major
+**Consumer impact** — version by what breaks downstream.
+
+**Lockfile** — update it intentionally after version changes.
+
+## Side Effects (bundling)
+Attack: Broken tree shaking — CSS side effects are removed or JavaScript side effects block optimization.
+Fix: declare `sideEffects` according to each package's runtime behavior.
+
+```js
+// ❌ CSS can be dropped accidentally
+{ "sideEffects": false }
+
+// ✅ CSS entry points are preserved
+{
+  "sideEffects": ["*.css"]
+}
 ```
 
-### Tree-Shaking Verification
-All packages are configured with `sideEffects: false` (except `@divalsehgal/fonts` which allows `.css` side effects). When consuming these packages in a bundler like Webpack or Rollup, ensure that unused code is properly removed.
+| **Package** | **Side-effect rule** |
+|---|---|
+| Design tokens JS | Usually side-effect free |
+| Token CSS | Must be preserved |
+| Font CSS | Must be preserved |
+
+**Tree shaking** — only safe when imports have no runtime effects.
+
+**CSS import** — always a side effect from the bundler's perspective.
+
+**Consumer build** — test published packages in a clean app.
+
+## Critical Chain
+Order matters because publishing turns local workspace assumptions into permanent external contracts.
+
+    Package publishes without a dry run
+      -> tarball misses generated CSS
+      -> consumer imports the documented entry point
+      -> app builds without required variables
+      -> patch release changes exports again
+      -> downstream projects stop trusting the package contract

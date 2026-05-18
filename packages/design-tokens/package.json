@@ -8,18 +8,34 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf build",
-    "build": "style-dictionary build",
-    "watch": "style-dictionary build --watch"
+    "build": "node build-tokens.js",
+
+    "watch": "style-dictionary build --config config.light.json --watch"
+
   },
   "exports": {
-    "./variables.css": "./build/css/_variables.css",
-    "./variables.scss": "./build/scss/_variables.scss",
+    "./light": {
+      "types": "./build/ts/variables.light.d.ts",
+      "import": "./build/ts/variables.light.js",
+      "default": "./build/ts/variables.light.js"
+    },
+    "./dark": {
+      "types": "./build/ts/variables.dark.d.ts",
+      "import": "./build/ts/variables.dark.js",
+      "default": "./build/ts/variables.dark.js"
+    },
     "./variables.js": {
-      "types": "./build/ts/variables.d.ts",
-      "import": "./build/ts/variables.js",
-      "default": "./build/ts/variables.js"
-    }
-  },
+      "types": "./build/ts/variables.light.d.ts",
+      "import": "./build/ts/variables.light.js",
+      "default": "./build/ts/variables.light.js"
+    },
+    "./variables.scss": "./build/scss/variables.scss",
+    "./variables.dark.scss": "./build/scss/variables.dark.scss",
+    "./light.css": "./build/css/variables.light.css",
+    "./dark.css": "./build/css/variables.dark.css"
+  }
+
+,
   "devDependencies": {
     "style-dictionary": "^4.3.3"
   }

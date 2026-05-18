@@ -1,32 +1,87 @@
 import { Env, ChatSession } from "./types";
 import { getCorsHeaders, json, seed } from "./seed";
 
-const SYS = `You are Dival Sehgal's AI Technical Assistant. Your mission is to represent Dival's professional engineering portfolio with high fidelity.
+const OFF_TOPIC_REPLY = "I can only help with Dival Sehgal's portfolio, engineering experience, projects, skills, contact details, and blog posts. Try asking about his work, tech stack, projects, or writing.";
+
+const SYS = `You are Dival Sehgal's portfolio assistant for divalsehgal.vercel.app.
 
 RULES:
-1. SCOPE: Only answer questions about Dival's career, projects, skills, and blog posts. Politely decline general-purpose AI tasks or off-topic questions.
-2. CONTACT FLOW: If a user wants to "contact", "message", or "get in touch" with Dival:
+1. SCOPE: Only answer questions about Dival Sehgal's portfolio website, career, projects, skills, contact details, and blog posts.
+2. FACTS: Use only the provided facts and recent conversation. Do not invent employers, projects, dates, skills, claims, links, or blog details.
+3. REFUSAL: If a question asks for general AI help, coding help unrelated to Dival's work, news, finance, homework, politics, personal advice, or anything outside this portfolio/blog scope, reply with a short refusal and suggest asking about Dival's work.
+4. CONTACT FLOW: If a user wants to "contact", "message", or "get in touch" with Dival:
    - Step A: Ask for their Name, Email, and the Message they want to send.
    - Step B: Once you have all 3, confirm the details with the user.
    - Step C: If they confirm (e.g. "Send it"), output this EXACT token at the end of your response: [SUBMIT_CONTACT: {"name": "NAME", "email": "EMAIL", "message": "MSG"}]
-3. CONFIRMATION: After the token, tell the user you have forwarded their message to Dival.
-4. TONE: Professional, engineering-centric, and authoritative.`;
+5. CONFIRMATION: After the token, tell the user you have forwarded their message to Dival.
+6. STYLE: Keep answers concise, specific, and grounded in the portfolio/blog context.`;
 
 const TTL = 30 * 24 * 60 * 60;
 
 const cookie = (r: Request) => r.headers.get('Cookie')?.match(/chatbot_session=([^;]+)/)?.[1];
 
-async function faq(env: Env, q: string): Promise<string> {
+const portfolioTerms = [
+    'dival', 'sehgal', 'portfolio', 'website', 'site', 'blog', 'post', 'article',
+    'project', 'projects', 'work', 'experience', 'career', 'company', 'role',
+    'skill', 'skills', 'tech', 'stack', 'resume', 'cv', 'contact', 'email',
+    'message', 'hire', 'hiring', 'developer', 'engineer', 'frontend', 'backend',
+    'full stack', 'next', 'react', 'typescript', 'cloudflare', 'contentful'
+];
+
+const greetingTerms = ['hi', 'hello', 'hey', 'thanks', 'thank you', 'what can you do', 'help'];
+
+const sseHeaders = (req: Request, extra: Record<string, string> = {}) => ({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    ...getCorsHeaders(req),
+    ...extra
+});
+
+function chatStream(req: Request, text: string, headers: Record<string, string> = {}) {
+    return new Response(
+        `data: ${JSON.stringify({ response: text })}\n\ndata: [DONE]\n\n`,
+        { headers: sseHeaders(req, headers) }
+    );
+}
+
+function isInPortfolioScope(message: string, hasStrongContext: boolean): boolean {
+    const msg = message.toLowerCase().trim();
+    if (hasStrongContext) {
+        return true;
+    }
+    return portfolioTerms.some(term => msg.includes(term)) || greetingTerms.includes(msg);
+}
+
+function stripContactToken(text: string): { cleaned: string; contact?: { name: string; email: string; message: string } } {
+    const contactMatch = text.match(/\[SUBMIT_CONTACT:\s*(\{.*?\})\]/);
+    if (!contactMatch) {
+        return { cleaned: text.trim() };
+    }
+
+    try {
+        const contact = JSON.parse(contactMatch[1]) as { name: string; email: string; message: string };
+        return { cleaned: text.replace(contactMatch[0], '').trim(), contact };
+    } catch {
+        return { cleaned: text.replace(contactMatch[0], '').trim() };
+    }
+}
+
+async function faq(env: Env, q: string): Promise<{ text: string; hasStrongContext: boolean }> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [q] }) as any;
         if (!e.data) {
-            return '';
+            return { text: '', hasStrongContext: false };
         }
         const r = await env.VECTORIZE.query(e.data[0], { topK: 3, returnMetadata: 'all' });
-        return (r.matches as { metadata?: { text?: string } }[]).map((m) => m.metadata?.text || '').join('\n\n');
+        const matches = r.matches as { score?: number; metadata?: { text?: string } }[];
+        const relevantMatches = matches.filter((m) => typeof m.score !== 'number' || m.score >= 0.65);
+        return {
+            text: relevantMatches.map((m) => m.metadata?.text || '').filter(Boolean).join('\n\n'),
+            hasStrongContext: relevantMatches.length > 0
+        };
     } catch {
-        return '';
+        return { text: '', hasStrongContext: false };
     }
 }
 
@@ -47,7 +102,7 @@ async function validateMessage(message: string): Promise<{ valid: boolean; reaso
     const msg = message.toLowerCase();
     
     if (blocked.some(word => msg.includes(word))) {
-        return { valid: false, reason: "I'm here to discuss Dival's professional portfolio. Let's keep the conversation focused on engineering and career insights." };
+        return { valid: false, reason: OFF_TOPIC_REPLY };
     }
     
     if (message.length > 500) {
@@ -62,13 +117,14 @@ async function chat(req: Request, env: Env): Promise<Response> {
         return new Response('Method not allowed', { status: 405, headers: getCorsHeaders(req) });
     }
     const { message } = await req.json() as { message?: string };
-    if (!message?.trim()) {
+    const trimmedMessage = message?.trim();
+    if (!trimmedMessage) {
         return json({ error: 'Message required' }, 400, {}, req);
     }
     
     const validation = await validateMessage(message);
     if (!validation.valid) {
-        return json({ assistant: validation.reason }, 200, {}, req);
+        return chatStream(req, validation.reason || OFF_TOPIC_REPLY);
     }
 
     await trackQuestion(env, message);
@@ -83,10 +139,26 @@ async function chat(req: Request, env: Env): Promise<Response> {
         isNew = true; 
     }
     
-    sess.messages.push({ role: 'user', content: message.trim(), timestamp: Date.now() });
+    sess.messages.push({ role: 'user', content: trimmedMessage, timestamp: Date.now() });
     const ctx = await faq(env, message);
+
+    const cookieHeader = isNew && sid
+        ? { 'Set-Cookie': `chatbot_session=${sid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${TTL}` }
+        : {};
+
+    if (!sid) {
+        return chatStream(req, "Sorry, I could not start a chat session. Please try again.");
+    }
+
+    if (!isInPortfolioScope(trimmedMessage, ctx.hasStrongContext)) {
+        sess.messages.push({ role: 'assistant', content: OFF_TOPIC_REPLY, timestamp: Date.now() });
+        sess.updatedAt = Date.now();
+        await env.CHAT_SESSIONS.put(sid, JSON.stringify(sess), { expirationTtl: TTL });
+        return chatStream(req, OFF_TOPIC_REPLY, cookieHeader);
+    }
+
     const msgs = [
-        { role: 'system', content: SYS + (ctx ? `\n\nPROVEN FACTS ABOUT DIVAL SEHGAL:\n${ctx}` : '') }, 
+        { role: 'system', content: SYS + (ctx.text ? `\n\nAPPROVED PORTFOLIO/BLOG FACTS:\n${ctx.text}` : '\n\nNo matching portfolio facts were retrieved. Answer only if the recent conversation already contains the needed portfolio facts; otherwise say you do not have that detail yet.') },
         ...sess.messages.slice(-10).map(m => ({ role: m.role, content: m.content }))
     ];
     
@@ -95,7 +167,7 @@ async function chat(req: Request, env: Env): Promise<Response> {
     let full = '';
     
     const { readable, writable } = new TransformStream({
-        transform(chunk, ctrl) {
+        transform(chunk) {
             for (const ln of new TextDecoder().decode(chunk).split('\n')) {
                 if (ln.startsWith('data: ') && ln.slice(6) !== '[DONE]') {
                     try { 
@@ -104,21 +176,23 @@ async function chat(req: Request, env: Env): Promise<Response> {
                     } catch { }
                 }
             }
-            ctrl.enqueue(chunk);
         },
         async flush() {
+            if (!full) {
+                full = "I do not have enough portfolio context to answer that confidently yet.";
+            }
             if (full && sess && sid) { 
-                const contactMatch = full.match(/\[SUBMIT_CONTACT:\s*(\{.*?\})\]/);
-                if (contactMatch) {
+                const { cleaned, contact } = stripContactToken(full);
+                full = cleaned || "I do not have enough portfolio context to answer that confidently yet.";
+
+                if (contact) {
                     try {
-                        const data = JSON.parse(contactMatch[1]);
-                        const baseUrl = new URL(req.url).origin;
-                        await fetch(`${baseUrl}/api/contact`, {
+                        const contactUrl = env.CONTACT_API_URL || `${new URL(req.url).origin}/api/contact`;
+                        await fetch(contactUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(data)
+                            body: JSON.stringify(contact)
                         });
-                        full = full.replace(contactMatch[0], '').trim();
                     } catch (e) {
                         console.error('Contact submission error:', e);
                     }
@@ -128,18 +202,14 @@ async function chat(req: Request, env: Env): Promise<Response> {
                 sess.updatedAt = Date.now(); 
                 await env.CHAT_SESSIONS.put(sid, JSON.stringify(sess), { expirationTtl: TTL }); 
             }
+            ctrl.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ response: full })}\n\ndata: [DONE]\n\n`));
         }
     });
     
-    stream.pipeTo(writable);
+    stream.pipeTo(writable).catch((error) => console.error('AI stream error:', error));
     
     return new Response(readable, { 
-        headers: { 
-            'Content-Type': 'text/event-stream', 
-            'Cache-Control': 'no-cache', 
-            ...getCorsHeaders(req), 
-            ...(isNew ? { 'Set-Cookie': `chatbot_session=${sid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${TTL}` } : {}) 
-        } 
+        headers: sseHeaders(req, cookieHeader)
     });
 }
 

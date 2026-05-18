@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import type { RecursivePartial, IOptions } from "@tsparticles/engine";
-import { TColorsPrimaryDefault } from "@dival-sehgal/design-tokens/variables.js";
+import * as LightTokens from "@dival-sehgal/design-tokens/light";
+import * as DarkTokens from "@dival-sehgal/design-tokens/dark";
+import { useThemeContext } from "@/context/ThemeContext";
 
 export default function ParticlesBackground() {
     const [init, setInit] = useState(false);
+    const { mode } = useThemeContext();
+    const Tokens = mode === "light" ? LightTokens : DarkTokens;
 
     useEffect(() => {
         initParticlesEngine(async (engine) => {
@@ -39,7 +43,7 @@ export default function ParticlesBackground() {
             },
         },
         particles: {
-            color: { value: TColorsPrimaryDefault },
+            color: { value: Tokens.TColorsPrimaryDefault },
             // No links — stars only, no connecting lines
             links: { enable: false },
             move: {

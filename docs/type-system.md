@@ -1,138 +1,110 @@
-# TypeScript Type System
+TypeScript type-system control means keeping contracts traceable so application boundaries fail at compile time instead of runtime.
 
-> **One file to rule them all**: all shared types live in `src/types/`.
+## Barrels (imports)
+Attack: Path drift — components import shared types from internal files until refactors become breaking changes.
+Fix: Re-export shared types from one domain barrel and import through it.
 
----
+```js
+// ❌ leaks internal file layout
+import type { BreadcrumbItem } from "@/types/ui";
 
-## Directory Layout
-
-```
-src/types/
-├── index.ts      ← barrel re-export (import from here)
-├── blog.ts       ← Notion blog post shapes
-├── contact.ts    ← Contact form, submissions, toast
-├── github.ts     ← GitHub API response shapes
-└── ui.ts         ← Shared UI / component types
-```
-
----
-
-## How to Import
-
-Always import from the barrel:
-
-```ts
-// ✅ Correct — one consistent import path
-import type { NotionBlogPost, BreadcrumbItem } from "@/types";
-
-// ❌ Avoid — brittle, leaks internal structure
-import type { NotionBlogPost } from "@/types/blog";
-```
-
----
-
-## `interface` vs `type` — When to Use Which
-
-| Use `interface` | Use `type` |
-|---|---|
-| Object shapes that describe a *contract* (e.g. props, context) | Union / intersection types (`"success" \| "error"`) |
-| When you expect the shape to be extended or implemented | Zod-inferred types (`z.infer<typeof Schema>`) |
-| Public API contracts | Tuple types, mapped types, conditional types |
-
-```ts
-// interface — public contract, could be implemented by a class
-export interface ToastContextType {
-    showToast: (message: string, severity?: ToastSeverity) => void;
-}
-
-// type — union literal
-export type ToastSeverity = "success" | "info" | "warning" | "error";
-
-// type — inferred from Zod (never write interfaces for these)
-export type PortfolioConfig = z.infer<typeof PortfolioConfigSchema>;
-```
-
-In practice: **be consistent within a file**. Both `interface` and `type` compile identically for object shapes — pick one and stick with it.
-
----
-
-## Global vs Imported Types
-
-### Prefer imports (what we do here)
-
-```ts
+// ✅ stable public type surface
 import type { BreadcrumbItem } from "@/types";
 ```
 
-Importing types is the **industry standard** for application code. It is:
+| **Import** | **Notes** |
+|---|---|
+| Barrel | Stable public API for shared types |
+| Domain file | Owns the source declaration |
+| Component file | Owns private prop types |
 
-- Explicit — you know exactly where a type comes from
-- Tree-shakeable — unused types don't pollute the type namespace
-- IDE-friendly — "Go to Definition" works perfectly
+**Barrel export** — use it for cross-module types only.
 
-### When to use global declarations
+**Internal path** — avoid it unless the type is intentionally private.
 
-Use `declare global` / ambient `.d.ts` files **only** for:
+**Refactor cost** — stable imports make file moves cheap.
 
-1. **Augmenting third-party types** — e.g. adding a property to the `Window` object:
+## Shapes (contracts)
+Attack: Type ambiguity — object contracts, unions, and inferred schema types all use the same construct.
+Fix: Use `interface` for extensible object contracts and `type` for unions, mapped types, and schema inference.
 
-   ```ts
-   // src/types/globals.d.ts
-   declare global {
-     interface Window {
-       gtag: Gtag.Gtag;
-     }
-   }
-   ```
+```js
+// ❌ union modeled as an interface concept
+interface Severity { value: "success" | "error" }
 
-2. **Process environment variables** — letting TypeScript know about `process.env.MY_VAR`:
-
-   ```ts
-   // src/types/env.d.ts
-   declare namespace NodeJS {
-     interface ProcessEnv {
-       NOTION_API_KEY: string;
-     }
-   }
-   ```
-
-3. **Module augmentation** — adding fields to library types.
-
-> **Never** declare global types as a shortcut to avoid writing imports. It makes code harder to trace and breaks code-splitting.
-
----
-
-## Co-location Rule
-
-Not everything belongs in `src/types/`. Follow this rule:
-
-| Type | Where it lives | Reason |
-|---|---|---|
-| `PortfolioConfig`, `ExperienceConfig` | `src/features/portfolio/schema.ts` | Inferred from Zod schema — must stay with schema |
-| `ContactFormState`, `NotionBlogPost`, `BreadcrumbItem` | `src/types/` | Used across multiple unrelated modules |
-| `BreadcrumbsProps`, `ToasterProps` | Inside their component file | Private to the component — not exported |
-| `GitHubFileResponse` | `src/types/github.ts` | Service layer type shared between network code and consumers |
-
-**Rule of thumb**: if a type is used in **more than one module**, move it to `src/types/`. If it is only used in one file, keep it co-located.
-
----
-
-## Adding a New Type
-
-1. Identify which domain file it belongs to (`blog.ts`, `contact.ts`, etc.)
-2. If none fit, create a new domain file: `src/types/payments.ts`
-3. Add a re-export to `src/types/index.ts`
-4. Import via `@/types` everywhere
-
-```ts
-// 1. Define in domain file
-// src/types/payments.ts
-export type PaymentStatus = "pending" | "paid" | "failed";
-
-// 2. Re-export in barrel
-// src/types/index.ts
-export type { PaymentStatus } from "./payments";
-
-// 3. Use anywhere
-import type { PaymentStatus } from "@/types";
+// ✅ each construct matches the shape
+interface ToastContext { showToast(message: string): void }
+type Severity = "success" | "error";
 ```
+
+| **Construct** | **Use** |
+|---|---|
+| `interface` | Public object contracts |
+| `type` | Unions, tuples, mapped types |
+| `z.infer` | Runtime schema-derived types |
+
+**Object contract** — prefer `interface` when extension is expected.
+
+**Union value** — prefer `type` for closed sets.
+
+**Schema output** — infer from Zod instead of duplicating by hand.
+
+## Globals (ambient)
+Attack: Hidden namespace coupling — global declarations are used to avoid imports.
+Fix: Reserve ambient types for environment, platform, and library augmentation.
+
+```js
+// ❌ global shortcut hides ownership
+declare global { type ToastSeverity = "success" | "error"; }
+
+// ✅ explicit import keeps ownership visible
+export type ToastSeverity = "success" | "error";
+import type { ToastSeverity } from "@/types";
+```
+
+| **Global type** | **Allowed?** | **Reason** |
+|---|---|---|
+| `Window.gtag` | Yes | Platform augmentation |
+| `ProcessEnv` | Yes | Environment typing |
+| App domain type | No | Should be imported |
+
+**Ambient declaration** — use it when a runtime global already exists.
+
+**Domain model** — import it from its owner.
+
+**Code splitting** — global shortcuts make dependencies harder to trace.
+
+## Colocation (ownership)
+Attack: Type dumping — every prop, service response, and schema output lands in `src/types`.
+Fix: Keep private types with their module and move only shared contracts to domain files.
+
+```js
+// ❌ private prop type exported globally
+export interface CardProps { title: string }
+
+// ✅ private until another module needs it
+interface CardProps { title: string }
+export function Card(props: CardProps) {}
+```
+
+| **Type** | **Location** | **Reason** |
+|---|---|---|
+| Component props | Component file | Private API |
+| Shared UI contract | `src/types/ui.ts` | Cross-module use |
+| Zod config type | Schema file | Runtime contract owner |
+
+**One-module type** — keep it local.
+
+**Two-module type** — promote it to a domain file.
+
+**Schema-derived type** — keep it next to the schema.
+
+## Critical Chain
+Order matters because type ownership determines whether refactors are local edits or application-wide breakages.
+
+    Shared type is imported from an internal file
+      -> component code depends on folder layout
+      -> refactor moves the domain file
+      -> imports break across unrelated modules
+      -> developer adds global shortcuts
+      -> contract ownership disappears from the codebase

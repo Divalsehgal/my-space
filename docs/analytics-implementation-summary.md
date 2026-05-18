@@ -1,338 +1,117 @@
-# Analytics Implementation Summary
+Analytics implementation control means making event names and payloads compile-time contracts before they become reporting data.
 
-## Overview
+## Registry (contract)
+Attack: Stringly events — components spell event names manually and drift from GTM triggers.
+Fix: Define all event names in a single registry and export typed constants.
 
-This document summarizes the complete analytics implementation for the portfolio using **Google Tag Manager (GTM)** and **Google Analytics 4 (GA4)**. The approach centralizes event management through a registry pattern, ensuring consistency and type safety across the entire application.
+```js
+// ❌ typo creates a dead event
+trackInteraction("nav_clik", { label: "About" });
 
-## Architecture
-
-### Data Flow
-
-```
-Component
-    ↓
-trackInteraction(ANALYTICS_EVENTS.EVENT_NAME, payload)
-    ↓
-Analytics Engine (src/utils/analytics.ts)
-    ├─ Resolves event category from registry
-    ├─ Derives label from payload
-    └─ Pushes to dataLayer
-    ↓
-GTM Container (via GTM script tag)
-    ├─ Listens to dataLayer events
-    ├─ Routes events to GA4 Tags
-    ├─ Applies transformations/enrichment
-    └─ Sends to GA4
-    ↓
-GA4 (Google Analytics 4)
-    ├─ Records events with categories/labels
-    ├─ Tracks custom dimensions
-    └─ Generates reports in GA Dashboard
-```
-
-### Key Principles
-
-1. **Single Source of Truth**: All event names defined in `ANALYTICS_EVENTS` registry
-2. **Type Safety**: TypeScript enforces correct payload shape per event
-3. **Separation of Concerns**: Components only call `trackInteraction()`, GTM handles routing
-4. **No Direct GA4**: All events flow through dataLayer → GTM → GA4 (except legacy direct gtag)
-5. **Production-Safe**: Build process works correctly with GTM-only setup
-
-## Event Registry
-
-### File: `src/utils/analytics.ts`
-
-The event registry (`ANALYTICS_EVENTS`) is the canonical source for all event names:
-
-```typescript
-export const ANALYTICS_EVENTS = {
-  // Navigation
-  NAV_CLICK: "nav_click",
-
-  // Social
-  SOCIAL_CLICK: "social_click",
-
-  // Resume
-  RESUME_VIEW: "resume_view",
-  RESUME_DOWNLOAD: "resume_download",
-
-  // Projects
-  PROJECT_VIEW: "project_view",
-  PROJECT_CLICK: "project_click",
-
-  // Contact
-  CONTACT_SUBMIT: "contact_submit",
-
-  // Engagement
-  PAGE_END_REACHED: "page_end_reached",
-  BLOG_VIEW: "blog_view",
-};
-```
-
-### Event Categories
-
-Each event is mapped to a GA4 category:
-
-| Event | Category | Purpose |
-|-------|----------|---------|
-| `nav_click` | Navigation | User navigates to a section |
-| `social_click` | Social | User clicks social media links |
-| `resume_view` | Resume | User views/downloads resume |
-| `resume_download` | Resume | User downloads resume |
-| `project_view` | Projects | User views project details |
-| `project_click` | Projects | User clicks project link |
-| `contact_submit` | Contact | User submits contact form |
-| `page_end_reached` | Engagement | User scrolls to footer |
-| `blog_view` | Blog | User views blog post |
-
-## Implementation Status
-
-### Implemented Events ✓
-
-#### 1. **Navigation Clicks** (`NAV_CLICK`)
-- **Location**: Navbar (desktop & mobile), Footer, Hero section
-- **Payload**: `{ label: string, href: string, location: "navbar" | "footer" }`
-- **Components**:
-  - `src/components/Navbar/index.tsx` (lines 157, 188)
-  - `src/components/Footer/index.tsx` (line 65)
-  - `src/containers/Home/Hero/index.tsx` (line 90)
-
-#### 2. **Social Media Clicks** (`SOCIAL_CLICK`)
-- **Location**: About section, Contact section, Footer
-- **Payload**: `{ platform: string, href: string }`
-- **Components**:
-  - `src/containers/Home/About/index.tsx` (lines 125-130)
-  - `src/containers/Home/Contact/index.tsx` (social links)
-  - `src/components/Footer/index.tsx` (line 90)
-
-#### 3. **Resume Interactions** (`RESUME_VIEW`)
-- **Location**: Hero section
-- **Payload**: `{ label?: string }`
-- **Components**:
-  - `src/containers/Home/Hero/index.tsx` (line 88)
-- **Status**: Currently tracking view action. Separate `RESUME_DOWNLOAD` event exists in registry but not actively tracked.
-
-#### 4. **Project Clicks** (`PROJECT_CLICK`)
-- **Location**: Project cards
-- **Payload**: `{ projectName: string, linkType: "live" | "repo" }`
-- **Components**:
-  - `src/components/ProjectCard/index.tsx` (line 37)
-
-#### 5. **Contact Form Submission** (`CONTACT_SUBMIT`)
-- **Location**: Contact section
-- **Payload**: `{ status: "success" | "error", message?: string }`
-- **Components**:
-  - `src/containers/Home/Contact/index.tsx` (lines 70, 75)
-- **Status**: Recently fixed - now properly handles submission errors and tracks events with status
-
-### Pending Implementation
-
-#### 1. **Blog View Tracking** (`BLOG_VIEW`)
-- **Required**: Client-side component to track when user views a blog post
-- **Suggested Implementation**: Create `BlogViewTracker` component that:
-  - Wraps `src/app/blogs/[slug]/page.tsx`
-  - Sends event on component mount with: `{ title, slug, tags }`
-  - Requires `"use client"` wrapper since blogs are server-rendered
-
-#### 2. **Page End Tracking** (`PAGE_END_REACHED`)
-- **Required**: Detect when user scrolls to footer
-- **Suggested Implementation**: Create `PageEndTracker` component that:
-  - Uses intersection observer to detect footer in viewport
-  - Fires event once per page load
-  - Payload: `{ label?: "Reached Footer" }`
-
-#### 3. **Project View Tracking** (`PROJECT_VIEW`)
-- **Status**: Defined in registry but no tracking implementation
-- **Note**: Could be combined with `PROJECT_CLICK` or tracked separately on modal/detail pages
-
-## GTM Configuration
-
-### Required Tags in GTM Container
-
-1. **GA4 Configuration Tag**
-   - Initializes GA4 connection
-   - Measurement ID: `G-4X085TNM6R` (from `NEXT_PUBLIC_GA_ID`)
-   - Trigger: All Pages
-
-2. **GA4 Event Tags** (7 total)
-   - Each mapped to a dataLayer event
-   - Manual creation required for each event type
-   - See `docs/analytics-setup.md` for detailed setup
-
-### Data Layer Variables (GTM)
-
-```javascript
-// Components push to dataLayer:
-window.dataLayer.push({
-  event: "nav_click",           // Event name from ANALYTICS_EVENTS
-  event_category: "Navigation", // From EVENT_CATEGORY_MAP
-  event_label: "About",         // Derived from payload via resolveLabel()
-  label: "About",               // Original payload properties
-  href: "/#about",
-  location: "navbar"
+// ✅ registry keeps names canonical
+trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
+  label: "About",
 });
 ```
 
-## Component Integration Guide
+| **Registry item** | **Purpose** |
+|---|---|
+| Event name | GTM trigger contract |
+| Category map | GA4 grouping |
+| Payload type | Component compile-time check |
 
-### How Components Track Events
+**Canonical name** — GTM should match the registry value exactly.
 
-All components follow this pattern:
+**No literals** — component code should not invent event strings.
 
-```typescript
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+**Review point** — new analytics behavior starts in the registry.
 
-function MyComponent() {
-  return (
-    <button
-      onClick={() =>
-        trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, {
-          platform: "Twitter",
-          href: "https://twitter.com/...",
-        })
-      }
-    >
-      Follow
-    </button>
-  );
-}
+## Payloads (typing)
+Attack: Shape drift — two components send the same event with incompatible payload fields.
+Fix: Type each event payload and make `trackInteraction` generic over the event name.
+
+```js
+// ❌ payload shape is unchecked
+track("social_click", { network: "GitHub" });
+
+// ✅ payload matches the event contract
+trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, {
+  platform: "GitHub",
+  href: "https://github.com/user",
+});
 ```
 
-### Adding a New Event
+| **Event** | **Required payload** |
+|---|---|
+| `nav_click` | `label`, `href`, `location` |
+| `social_click` | `platform`, `href` |
+| `contact_submit` | `status`, optional `message` |
 
-1. **Define in Registry** (`src/utils/analytics.ts`):
-   ```typescript
-   export const ANALYTICS_EVENTS = {
-     // ... existing events
-     MY_NEW_EVENT: "my_new_event",
-   };
-   ```
+**Payload type** — make illegal analytics states unrepresentable.
 
-2. **Add Payload Type**:
-   ```typescript
-   export interface AnalyticsEventPayloads {
-     [ANALYTICS_EVENTS.MY_NEW_EVENT]: { myParam: string };
-   }
-   ```
+**Optional field** — use it only when reports can handle absence.
 
-3. **Add Category Mapping**:
-   ```typescript
-   export const EVENT_CATEGORY_MAP = {
-     [ANALYTICS_EVENTS.MY_NEW_EVENT]: "My Category",
-   };
-   ```
+**Event category** — derive it centrally, not inside components.
 
-4. **Add Label Resolver** (if needed):
-   ```typescript
-   case ANALYTICS_EVENTS.MY_NEW_EVENT:
-     return payload.myParam;
-   ```
+## Integration (components)
+Attack: Analytics logic leaks into UI — components build categories, labels, and vendor payloads inline.
+Fix: Components call one public helper with event intent and domain payload.
 
-5. **Use in Component**:
-   ```typescript
-   trackInteraction(ANALYTICS_EVENTS.MY_NEW_EVENT, { myParam: "value" });
-   ```
+```js
+// ❌ component knows reporting internals
+dataLayer.push({ event_category: "Social", event_label: "GitHub" });
 
-## Testing
-
-### Unit Tests Location
-- `src/utils/analytics.test.ts` - Core analytics engine tests
-- `src/containers/Home/Contact/test.tsx` - Contact form tracking tests (updated)
-- `src/containers/Home/Hero/test.tsx` - Hero section tracking tests
-
-### Manual Testing
-
-1. **In Development**:
-   ```bash
-   npm run dev
-   ```
-   - Events logged to browser console with `[Analytics]` prefix
-   - Check DevTools console for trackInteraction calls
-
-2. **GTM Preview Mode**:
-   - Open GTM container in Preview mode
-   - Navigate through app and verify events in debugger
-   - Check dataLayer in browser console: `window.dataLayer`
-
-3. **GA4 DebugView**:
-   - In GA4 dashboard, enable DebugView filter
-   - Real-time event tracking as you browse
-   - Verify event names, categories, labels match expected values
-
-## Production Deployment Checklist
-
-- [x] All event names defined in `ANALYTICS_EVENTS` registry
-- [x] Event categories mapped in `EVENT_CATEGORY_MAP`
-- [x] Payload types defined in `AnalyticsEventPayloads`
-- [x] Components use `trackInteraction()` (not direct dataLayer pushes)
-- [x] GTM container created with GA4 Configuration Tag
-- [x] GA4 Event Tags configured for all events
-- [x] GTM script tag added to `src/app/layout.tsx`
-- [x] Contact form submission errors now properly handled
-- [x] Test file updated to use new analytics API
-- [ ] Pending: BlogViewTracker component implementation
-- [ ] Pending: PageEndTracker component implementation
-- [ ] Verified: Events flow through dataLayer → GTM → GA4
-- [ ] Verified: GA4 DebugView shows incoming events
-
-## Recent Fixes
-
-### Contact Form Submission (Fixed May 3, 2026)
-
-**Issue**: Contact form errors were silently swallowed, form appeared to succeed but didn't submit.
-
-**Fix**:
-- Updated `src/lib/services/notion.ts` to throw errors instead of silently returning
-- Errors now propagate to action handler and show in toast
-- Updated test file to use new `trackInteraction` API
-
-**Files Changed**:
-- `src/lib/services/notion.ts` - Error handling improvement
-- `src/containers/Home/Contact/test.tsx` - API migration
-
-## Environment Setup
-
-Required environment variables:
-
-```bash
-# Notion Configuration (for Blog & Contact)
-NOTION_API_KEY=...
-NOTION_DATABASE_ID=...
-NOTION_CONTACT_DB_ID=...
-
-# GA4 Configuration
-NEXT_PUBLIC_GA_ID=G-4X085TNM6R
+// ✅ component reports intent
+trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, {
+  platform: "GitHub",
+  href,
+});
 ```
 
-GTM container ID is embedded in `src/app/layout.tsx` script tag.
+| **Layer** | **Knows** |
+|---|---|
+| Component | User action and local context |
+| Analytics helper | Category and label derivation |
+| GTM | Vendor routing |
 
-## Troubleshooting
+**Component boundary** — UI should not know GA4 category names.
 
-### Events Not Appearing in GA4
+**Label derivation** — centralize it so dashboards stay consistent.
 
-1. **Check dataLayer**:
-   ```javascript
-   console.log(window.dataLayer);
-   ```
+**One helper** — makes instrumentation easy to audit.
 
-2. **Verify GTM Container**:
-   - Open GTM Preview mode
-   - Ensure GA4 Configuration Tag is firing
-   - Check trigger conditions
+## Gaps (coverage)
+Attack: Declared-but-unused events — registry entries exist but no component emits them.
+Fix: Track implementation status for each event and remove or wire dead contracts.
 
-3. **Check Console Logs**:
-   - Development mode logs all events with `[Analytics]` prefix
-   - Production: Check browser console for errors
+```js
+// ❌ event exists but never fires
+PROJECT_VIEW: "project_view";
 
-4. **GA4 DebugView**:
-   - Enable in GA4 settings
-   - Check real-time events dashboard
-   - Verify event names match exactly
+// ✅ mount tracker emits the view
+useEffect(() => {
+  trackInteraction(ANALYTICS_EVENTS.BLOG_VIEW, { title, slug });
+}, [title, slug]);
+```
 
-## References
+| **Event** | **Status** | **Next action** |
+|---|---|---|
+| `blog_view` | Pending | Client view tracker |
+| `page_end_reached` | Pending | Intersection observer |
+| `project_view` | Pending | Detail view or remove |
 
-- [GTM Setup Guide](./analytics-setup.md)
-- [ISR Strategy](./isr-notion-strategy.md)
-- [CSS Architecture](./css-architecture.md)
-- [Google Tag Manager Docs](https://support.google.com/tagmanager)
-- [GA4 Implementation Guide](https://support.google.com/analytics/answer/9304153)
+**Dead event** — a registry entry without an emitter creates false confidence.
+
+**View event** — server-rendered pages need a client boundary to fire on mount.
+
+**Once-per-page** — scroll-depth and footer events need de-duplication.
+
+## Critical Chain
+Order matters because analytics quality depends on the registry before the dashboard ever sees an event.
+
+    Component writes a raw event string
+      -> GTM trigger expects a different spelling
+      -> event never reaches GA4
+      -> dashboard shows an artificial drop
+      -> team adds duplicate instrumentation
+      -> reports contain both gaps and double counts

@@ -1,0 +1,55 @@
+@use "@dival-sehgal/design-tokens/variables.scss" as *;
+
+.skeleton-page {
+  min-height: 100vh;
+}
+
+.blogs {
+  background-color: $t-colors-background-secondary;
+  padding: $t-spacing-8 0 $t-spacing-20;
+
+  &__header {
+    margin-bottom: $t-spacing-8;
+    text-align: center;
+  }
+
+  &__search-container {
+    margin-bottom: $t-spacing-8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $t-spacing-4;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: $t-spacing-8;
+    margin-top: $t-spacing-12;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $t-breakpoint-desktop) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: $t-colors-background-secondary;
+    border-radius: $t-spacing-4;
+    overflow: hidden;
+  }
+
+  &__card-content {
+    padding: $t-spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-3;
+  }
+}

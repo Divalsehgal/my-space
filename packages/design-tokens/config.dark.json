@@ -1,0 +1,56 @@
+{
+  "source": [
+    "tokens/breakpoint.json",
+    "tokens/colors.json",
+    "tokens/dimensions.json",
+    "tokens/font.json",
+    "tokens/global.json",
+    "tokens/layer.json",
+    "tokens/spacing.json",
+    "tokens/semantic-colors.dark.json"
+  ],
+  "platforms": {
+    "ts": {
+      "transformGroup": "js",
+      "buildPath": "build/ts/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.dark.js",
+          "format": "javascript/es6"
+        },
+        {
+          "destination": "variables.dark.d.ts",
+          "format": "typescript/es6-declarations"
+        }
+      ]
+    },
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "build/css/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.dark.css",
+          "format": "css/variables",
+          "options": {
+            "selector": "[data-theme='dark']"
+          }
+        }
+      ]
+
+    },
+    "scss": {
+      "transformGroup": "scss",
+      "buildPath": "build/scss/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.dark.scss",
+          "format": "scss/variables"
+        }
+      ]
+    }
+  }
+}
+

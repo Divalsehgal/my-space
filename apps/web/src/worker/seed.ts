@@ -39,13 +39,27 @@ interface Blog {
   tags: string[];
 }
 
+async function getContextUrl(req: Request, env: Env): Promise<string> {
+    const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
+
+    try {
+        const body = await req.clone().json() as { contextUrl?: string };
+        if (body.contextUrl) {
+            return body.contextUrl;
+        }
+    } catch {
+        /* POST /api/seed does not require a JSON body */
+    }
+
+    return env.CHAT_CONTEXT_URL || `${fallbackSiteUrl}/api/chat-context`;
+}
+
 export async function seed(req: Request, env: Env): Promise<Response> {
     if (req.method !== 'POST') {
         return new Response('Method not allowed', { status: 405, headers: getCorsHeaders(req) });
     }
     
-    const baseUrl = new URL(req.url).origin;
-    const CONTEXT_URL = `${baseUrl}/api/chat-context`;
+    const CONTEXT_URL = await getContextUrl(req, env);
     
     try {
         const res = await fetch(CONTEXT_URL);

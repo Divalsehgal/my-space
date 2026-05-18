@@ -1,23 +1,32 @@
 import { ThemeOptions } from '@mui/material/styles';
-import * as Tokens from '@dival-sehgal/design-tokens/variables.js';
+import * as LightTokens from '@dival-sehgal/design-tokens/light';
+import * as DarkTokens from '@dival-sehgal/design-tokens/dark';
 
 /**
  * Maps design tokens to MUI ThemeOptions.
  * This ensures that the MUI theme is always in sync with the design tokens.
  */
-export function createMuiThemeFromTokens(): ThemeOptions {
+export function createMuiThemeFromTokens(mode: 'light' | 'dark' = 'light'): ThemeOptions {
+    const Tokens = mode === 'light' ? LightTokens : DarkTokens;
+
     return {
         palette: {
-            mode: 'dark', // The current token set is designed for a dark theme (BackgroundPrimary is dark)
+            mode,
             primary: {
                 main: Tokens.TColorsPrimaryDefault,
                 light: Tokens.TColorsPrimaryLight,
                 dark: Tokens.TColorsPrimaryDark,
-                contrastText: Tokens.TColorsTextPrimary, // Assuming light text on primary orange
+                contrastText: Tokens.TColorsButtonPrimaryText,
+            },
+            secondary: {
+                main: Tokens.TColorsSecondaryDefault,
+                light: Tokens.TColorsSecondaryLight,
+                dark: Tokens.TColorsSecondaryDark,
+                contrastText: Tokens.TColorsButtonSecondaryText,
             },
             background: {
                 default: Tokens.TColorsBackgroundPrimary,
-                paper: Tokens.TColorsInputBackground, // Using input background as a surface proxy if needed, or default
+                paper: Tokens.TColorsBackgroundSecondary,
             },
             text: {
                 primary: Tokens.TColorsTextPrimary,
@@ -25,53 +34,60 @@ export function createMuiThemeFromTokens(): ThemeOptions {
                 disabled: Tokens.TColorsTextDisabled,
             },
             divider: Tokens.TColorsBorderDefault,
-            // Add other semantic colors if available
         },
         typography: {
             fontFamily: Tokens.TFontFamilyBody,
             h1: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeXxl,
-                fontWeight: Tokens.TFontWeightBold as unknown as number, // Cast to number for MUI
+                fontWeight: parseInt(Tokens.TFontWeightBold, 10),
                 lineHeight: Tokens.TFontLineHeightTight,
             },
             h2: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeXl,
-                fontWeight: Tokens.TFontWeightMedium as unknown as number,
+                fontWeight: parseInt(Tokens.TFontWeightMedium, 10),
                 lineHeight: Tokens.TFontLineHeightTight,
             },
             h3: {
                 fontFamily: Tokens.TFontFamilyHeading,
                 fontSize: Tokens.TFontSizeLg,
-                fontWeight: Tokens.TFontWeightMedium as unknown as number,
+                fontWeight: parseInt(Tokens.TFontWeightMedium, 10),
             },
             body1: {
                 fontFamily: Tokens.TFontFamilyBody,
-                fontSize: Tokens.TFontSizeMd,
-                fontWeight: Tokens.TFontWeightRegular as unknown as number,
+                fontSize: Tokens.TFontSizeSm, // Base size is 16px usually
+                fontWeight: parseInt(Tokens.TFontWeightRegular, 10),
                 lineHeight: Tokens.TFontLineHeightNormal,
             },
             body2: {
                 fontFamily: Tokens.TFontFamilyBody,
-                fontSize: Tokens.TFontSizeSm,
-                fontWeight: Tokens.TFontWeightRegular as unknown as number,
+                fontSize: Tokens.TFontSizeXs,
+                fontWeight: parseInt(Tokens.TFontWeightRegular, 10),
                 lineHeight: Tokens.TFontLineHeightNormal,
             },
             button: {
                 fontFamily: Tokens.TFontFamilyBody,
-                fontWeight: Tokens.TFontWeightMedium as unknown as number,
-                textTransform: 'none', // Modern convention
+                fontWeight: parseInt(Tokens.TFontWeightMedium, 10),
+                textTransform: 'none',
             },
         },
         shape: {
-            borderRadius: parseInt(Tokens.TDimensions1, 10) || 4, // Default to a token value if possible
+            borderRadius: parseInt(Tokens.TDimensions1, 10) || 4,
         },
         components: {
+            MuiCssBaseline: {
+                styleOverrides: {
+                    body: {
+                        backgroundColor: 'var(--t-colors-surface-brand-subtle)',
+                        color: 'var(--t-colors-text-secondary)',
+                    },
+                },
+            },
             MuiButton: {
                 styleOverrides: {
                     root: {
-                        borderRadius: Tokens.TDimensions1, // 4px based on checks, or choose a button radius token if exists
+                        borderRadius: Tokens.TDimensions1,
                         textTransform: 'none',
                         fontWeight: Tokens.TFontWeightMedium,
                     },
@@ -90,13 +106,12 @@ export function createMuiThemeFromTokens(): ThemeOptions {
                             color: Tokens.TColorsTextDisabled,
                         }
                     },
-                    outlinedSecondary: {
+                    containedSecondary: {
                         backgroundColor: Tokens.TColorsButtonSecondaryBackground,
                         color: Tokens.TColorsButtonSecondaryText,
-                        borderColor: Tokens.TColorsButtonSecondaryBorder,
+                        border: `1px solid ${Tokens.TColorsButtonSecondaryBorder}`,
                         '&:hover': {
                             backgroundColor: Tokens.TColorsButtonSecondaryBackgroundHover,
-                            borderColor: Tokens.TColorsButtonSecondaryBorderHover,
                         },
                         '&:active': {
                             backgroundColor: Tokens.TColorsButtonSecondaryBackgroundActive,
@@ -119,8 +134,11 @@ export function createMuiThemeFromTokens(): ThemeOptions {
                             borderColor: Tokens.TColorsInputBorder,
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: Tokens.TColorsInputBorder, // Or a hover border token
+                            borderColor: Tokens.TColorsInputBorder,
                         },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: Tokens.TColorsInputBorderFocus,
+                        }
                     },
                     input: {
                         '&::placeholder': {
@@ -129,17 +147,6 @@ export function createMuiThemeFromTokens(): ThemeOptions {
                         }
                     }
                 }
-            },
-            MuiTypography: {
-                defaultProps: {
-                    variantMapping: {
-                        h1: 'h1',
-                        h2: 'h2',
-                        h3: 'h3',
-                        body1: 'p',
-                        body2: 'p',
-                    },
-                },
             },
         },
     };

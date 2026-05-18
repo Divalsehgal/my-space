@@ -75,7 +75,7 @@
   &__description {
     font-size: $t-font-size-sm;
     line-height: $t-font-line-height-relaxed;
-    color: rgba($t-colors-text-primary, 0.9);
+    color: $t-colors-text-primary-muted;
 
     ul {
       margin-top: $t-spacing-2;

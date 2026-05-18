@@ -16,9 +16,14 @@ export async function POST(request: Request) {
     // NEW: If we are updating Contentful content, also trigger the AI to re-seed its memory
     if (tag === "contentful") {
       const workerUrl = process.env.NEXT_PUBLIC_CHATBOT_URL || "https://ai-chatbot-widget.sehgaldival.workers.dev";
+      const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
       
       // Fire and forget (don't wait for AI to finish to keep the webhook fast)
-      fetch(`${workerUrl}/api/seed`, { method: "POST" }).catch((err) => 
+      fetch(`${workerUrl}/api/seed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contextUrl: `${siteUrl}/api/chat-context` })
+      }).catch((err) =>
         console.error("Automated AI Seeding failed:", err)
       );
     }

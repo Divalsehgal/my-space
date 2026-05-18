@@ -50,14 +50,14 @@
 
     margin-bottom: $t-spacing-8;
     padding: $t-spacing-2 $t-spacing-4;
-    border: 1px solid rgba($t-colors-primary-default, 0.2);
+    border: 1px solid $t-colors-surface-brand-strong;
     border-radius: 9999px;
 
     font-size: $t-font-size-sm;
     font-weight: $t-font-weight-medium;
     color: $t-colors-primary-default;
 
-    background-color: rgba($t-colors-primary-default, 0.1);
+    background-color: $t-colors-surface-brand-muted;
   }
 
   &__heading {

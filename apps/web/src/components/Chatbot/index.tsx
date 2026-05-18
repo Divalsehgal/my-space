@@ -90,9 +90,9 @@ export default function Chatbot() {
             {/* Header */}
             <div className={styles['chatbot__header']}>
               <div className={styles['chatbot__header-info']}>
-                <div className={styles['chatbot__avatar']}>C</div>
+                <div className={styles['chatbot__avatar']}>D</div>
                 <div>
-                  <h3 className={styles['chatbot__title']}>Assistant</h3>
+                  <h3 className={styles['chatbot__title']}>Portfolio Assistant</h3>
                   <div className={styles['chatbot__status']}>
                     <span className={styles['chatbot__status-dot']}></span>
                     <span className={styles['chatbot__status-text']}>Online</span>
@@ -110,14 +110,14 @@ export default function Chatbot() {
                       <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
                     </svg>
                   </div>
-                  <h4 style={{ margin: '0 0 8px 0' }}>How can I help?</h4>
-                  <p style={{ fontSize: '13px', opacity: 0.6, margin: '0 0 16px 0' }}>
-                    Ask me about Dival&apos;s experience, skills or projects.
+                  <h4 className={styles['chatbot__empty-title']}>How can I help?</h4>
+                  <p className={styles['chatbot__empty-copy']}>
+                    Ask about Dival&apos;s portfolio, blogs, projects, or experience.
                   </p>
                   <div className={styles['chatbot__suggestions']}>
                     {[
                       "Tell me about Dival",
-                      "Show me his key projects",
+                      "Show me Dival's projects",
                       "How can I contact him?",
                       "Send a message to Dival"
                     ].map((s, i) => (
@@ -146,9 +146,9 @@ export default function Chatbot() {
                     m.role === 'user' ? styles['chatbot__message--user'] : styles['chatbot__message--assistant']
                   )}>
                     {m.role === 'assistant' && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                        <div style={{ width: '18px', height: '18px', backgroundColor: 'var(--t-colors-primary-default)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: 'white', fontWeight: 'bold' }}>C</div>
-                        <span style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--t-colors-primary-default)' }}>AI Assistant</span>
+                      <div className={styles['chatbot__message-meta']}>
+                        <div className={styles['chatbot__message-avatar']}>D</div>
+                        <span className={styles['chatbot__message-author']}>Portfolio Assistant</span>
                       </div>
                     )}
                     <div>{m.content}</div>
@@ -174,7 +174,7 @@ export default function Chatbot() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a question..."
+                  placeholder="Ask a question about Dival..."
                   className={styles['chatbot__input']}
                 />
                 <button

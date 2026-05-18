@@ -1,107 +1,95 @@
-# AI Chatbot Technology Stack & Leveraging Cloudflare Workers
+# Portfolio Chatbot Technology
 
-This document explains the underlying technology of your new AI chatbot and how you can leverage the Cloudflare ecosystem to scale and enhance it.
+This chatbot is a scoped portfolio assistant for Dival Sehgal's website. It should answer only about the portfolio, Dival's engineering experience, projects, skills, contact flow, and blog posts.
 
-## 1. The Technology Stack
+## Architecture
 
-Your chatbot is built on a **Serverless AI Architecture** that runs entirely on the edge (closest to your users).
+- **Next.js app** provides the website UI and `/api/chat-context`, which combines portfolio JSON and recent blog content into one context payload.
+- **Cloudflare Worker** exposes `/api/chat`, `/api/history`, `/api/seed`, and `/api/health`.
+- **Workers AI** generates embeddings and assistant responses.
+- **Vectorize** stores portfolio/blog chunks for retrieval-augmented generation.
+- **KV** stores anonymous chat sessions for 30 days.
 
-### Cloudflare Workers (The Engine)
+## Request Flow
 
-- **What it is**: A serverless execution environment that runs your code globally across Cloudflare's network.
-- **Benefit**: Extremely low latency (no cold starts) and automatic scaling. It handles the API requests for your chat and history.
+1. The browser sends messages to `NEXT_PUBLIC_CHATBOT_URL/api/chat`.
+2. The Worker validates the message and rejects clearly off-topic requests before calling the model.
+3. The Worker embeds the question and searches Vectorize for approved portfolio/blog facts.
+4. If the question is in scope, the Worker sends the system prompt, recent session messages, and retrieved facts to Workers AI.
+5. The Worker streams an SSE-shaped response back to the React hook.
 
-### Workers AI (The Brain)
+Guardrail responses also use the same SSE format. This is important because the frontend chat hook reads every `/api/chat` response as a stream.
 
-- **What it is**: A service that allows you to run machine learning models (LLMs) directly on Cloudflare's GPUs.
-- **Model Used**: Currently leveraging powerful models like `llama-3-8b-instruct` or `deepseek-r1-distill-qwen-32b` (as configured in `src/worker/index.ts`).
-- **Benefit**: You don't need to manage expensive GPU servers or pay for high-cost external APIs like OpenAI for every request.
+## Scope Rules
 
-### Vectorize (The Memory/Knowledge)
+Allowed topics:
 
-- **What it is**: Cloudflare’s vector database designed for Semantic Search and RAG (Retrieval-Augmented Generation).
-- **How it works**: Your project documentation is converted into "embeddings" (mathematical vectors) and stored here. When a user asks a question, the bot searches this database for the most relevant context.
-- **Benefit**: This allows the AI to answer specific questions about *your* career and projects that it wasn't originally trained on.
+- Dival Sehgal's portfolio website
+- Career, roles, experience, and companies
+- Projects and technical stack
+- Skills and engineering strengths
+- Blog posts and article summaries
+- Contacting or hiring Dival
 
-### KV Storage (The Persistence)
+Rejected topics:
 
-- **What it is**: A global, low-latency, key-value data store.
-- **Use Case**: Stores user chat sessions associated with unique IDs.
+- General coding help unrelated to Dival's work
+- News, finance, politics, homework, entertainment, or personal advice
+- Anything asking the assistant to behave like a general-purpose chatbot
 
----
+The model is also instructed to use only retrieved facts and recent conversation. If the data is missing, it should say it does not have that detail rather than inventing an answer.
 
-## 2. User Identification & Session Management
+## Seeding Vectorize
 
-To provide a seamless experience, the chatbot identifies "new" vs "returning" users using a secure, anonymous session system:
+The seed endpoint must read context from the Next.js app, not from the Worker itself.
 
-- **Anonymous Session ID**: When a user first interacts with the bot, the Cloudflare Worker generates a unique, random session ID (e.g., `sess_uuid`).
-- **HTTP-Only Cookies**: This ID is sent back to the browser via a `Set-Cookie` header. We use `HttpOnly` and `SameSite=Lax` flags to ensure the cookie is secure and protected from client-side script access.
-- **Automatic Recognition**: Every subsequent request from that user automatically includes this cookie. The Worker uses it to look up their specific chat history in the KV database.
-- **Privacy First**: We do not track personal data (PII). We only track the *conversation flow* for that specific browser session to ensure the AI has context of previous messages.
-- **Expiration**: Sessions are automatically cleared after 30 days of inactivity (controlled by the `TTL` variable in the code).
+Use one of these options:
 
-## 3. How to Leverage This System
+```bash
+curl -X POST https://ai-chatbot-widget.sehgaldival.workers.dev/api/seed \
+  -H "Content-Type: application/json" \
+  -d '{"contextUrl":"https://divalsehgal.vercel.app/api/chat-context"}'
+```
 
-### Enhance the Knowledge Base (RAG)
+Or configure the Worker variable:
 
-You can make the bot significantly smarter by adding more "knowledge" to it:
+```json
+{
+  "CHAT_CONTEXT_URL": "https://divalsehgal.vercel.app/api/chat-context"
+}
+```
 
-1. Update the `seed` function in `apps/web/src/worker/seed.ts` with your latest resume, blog posts, or detailed project case studies.
-2. Run `curl -X POST https://your-worker-url/api/seed` to update the vector index.
-3. The bot will immediately start using this new information to answer queries.
+When Contentful revalidation runs for the `contentful` tag, the Next.js app now calls `/api/seed` with the correct `contextUrl` automatically.
 
-### Multi-Model Experimentation
+## Contact Flow
 
-Cloudflare Workers AI supports dozens of models. You can easily swap the model in `src/worker/index.ts` to experiment with different "personalities" or capabilities (e.g., swapping Llama for Mistral or Qwen).
+For contact requests, the assistant collects:
 
-### Image & Vision Capabilities
+- Name
+- Email
+- Message
 
-You can extend the worker to support:
+After confirmation, the model emits an internal `[SUBMIT_CONTACT: ...]` token. The Worker strips that token before the response reaches the UI, then submits the payload to `CONTACT_API_URL`.
 
-- **Text-to-Image**: Let users ask the bot to generate an image based on your work.
-- **Vision**: Let users upload a screenshot of a bug or a design, and have the bot analyze it.
+Production Worker variables should include:
 
-### Analytics & Guardrails
+```json
+{
+  "CHAT_CONTEXT_URL": "https://divalsehgal.vercel.app/api/chat-context",
+  "CONTACT_API_URL": "https://divalsehgal.vercel.app/api/contact"
+}
+```
 
-You can leverage Cloudflare's built-in observability to:
+## UI Notes
 
-- Track which questions users are asking most frequently.
-- Implement "Guardrails" to ensure the bot stays professional and on-topic.
+- The chat widget is fixed at the bottom-right with a higher layer than nearby floating controls.
+- On small mobile screens, the scroll-to-top control moves to the bottom-left so it does not overlap the chat button.
+- The chat window uses viewport-aware height, safe-area spacing, and message word wrapping to keep long answers usable on mobile.
 
-## 4. Our Implementation Approach
+## Operational Checklist
 
-We followed a multi-phased "Hardening" methodology to ensure the bot is production-ready:
-
-1.  **Contextual Awareness**: Connected the bot to a unified data pipeline that consumes both your **Portfolio JSON** and **Blog Markdown** to create a single source of truth.
-2.  **Functional Integration**: Moving beyond just "chatting," we implemented a custom background protocol that allows the AI to trigger real-world actions, such as submitting the contact form on your behalf.
-3.  **Safety & Reliability**: Implemented strict guardrails and content filters to ensure the AI remains a professional representative of your brand.
-4.  **Observability**: Integrated custom analytics within the worker to track engagement and frequently asked questions.
-
-## 5. Underlying Principles
-
-*   **RAG (Retrieval-Augmented Generation)**: We don't rely on the model's static training data. Instead, we provide the model with "ground truth" facts in real-time, ensuring zero hallucinations regarding your career details.
-*   **Privacy by Design**: We use anonymous, secure session tracking that respects user privacy while maintaining context for a seamless conversation flow.
-*   **Serverless First**: By running everything at the "Edge" (Cloudflare Workers), we eliminate infrastructure management and ensure 100% availability.
-
-## 6. Industry Standards & Business Value
-
-*   **Edge Computing**: By processing AI requests in data centers closest to the user, we achieve sub-second latency, significantly improving user retention compared to traditional server-based AI.
-*   **Cost-Efficient Scaling**: Leveraging Cloudflare's GPU network (Workers AI) means we avoid expensive token costs from external providers like OpenAI.
-*   **Automated Lead Gen**: The bot acts as a 24/7 technical recruiter assistant, qualifying leads and collecting contact information through natural conversation.
-
-## 7. Technical Expertise Reflected
-
-This implementation showcases a high level of full-stack AI engineering:
-- **Cloud Infrastructure**: Deep integration with Vector databases (Vectorize), KV stores, and serverless compute.
-- **LLM Orchestration**: Advanced prompt engineering and state management for streaming AI responses.
-- **System Architecture**: Bridging the gap between a modern Next.js frontend and a distributed edge backend.
-- **Security Engineering**: Implementing secure cookie handling, CORS policies, and content-safety guardrails.
-
----
-
-## 8. Global Scalability
-
-Because this is built on Cloudflare, your chatbot is naturally:
-
-- **DDoS Protected**: Inherits Cloudflare's world-class security.
-- **Globally Distributed**: The AI runs in data centers in 300+ cities, meaning a user in London gets a response just as fast as a user in Bangalore.
+1. Deploy the Next.js app so `/api/chat-context` is reachable.
+2. Deploy the Worker with `CHAT_CONTEXT_URL` and `CONTACT_API_URL`.
+3. Run `/api/seed` after portfolio or blog updates.
+4. Test one in-scope question, one blog question, one contact request, and one off-topic request.
+5. Confirm off-topic requests receive a short portfolio-only refusal.

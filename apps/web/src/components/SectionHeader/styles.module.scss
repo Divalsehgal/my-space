@@ -31,7 +31,7 @@
     transition: all 0.3s ease;
 
     &:hover {
-      background: rgba($t-colors-primary-default, 0.05);
+      background: $t-colors-surface-brand-subtle;
       transform: translateX($t-spacing-1);
     }
   }

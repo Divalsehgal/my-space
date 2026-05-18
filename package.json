@@ -2,18 +2,19 @@
   "name": "dival-portfolio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "dev": "yarn workspace web dev",
-    "build": "yarn workspace web build",
-    "start": "yarn workspace web start",
-    "lint": "yarn workspaces run lint",
-    "test": "yarn workspace web test",
-    "test:coverage": "yarn workspace web test:coverage",
-    "generate:tokens": "yarn workspace web generate:tokens",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "start": "turbo start",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "test:coverage": "turbo test:coverage",
+    "generate:tokens": "turbo generate:tokens",
     "prepare": "husky"
   },
   "dependencies": {

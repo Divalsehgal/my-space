@@ -1,0 +1,52 @@
+{
+  "source": [
+    "tokens/breakpoint.json",
+    "tokens/colors.json",
+    "tokens/dimensions.json",
+    "tokens/font.json",
+    "tokens/global.json",
+    "tokens/layer.json",
+    "tokens/spacing.json",
+    "tokens/semantic-colors.light.json"
+  ],
+  "platforms": {
+    "ts": {
+      "transformGroup": "js",
+      "buildPath": "build/ts/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.light.js",
+          "format": "javascript/es6"
+        },
+        {
+          "destination": "variables.light.d.ts",
+          "format": "typescript/es6-declarations"
+        }
+      ]
+    },
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "build/css/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.light.css",
+          "format": "css/variables"
+        }
+      ]
+    },
+    "scss": {
+      "transformGroup": "scss",
+      "buildPath": "build/scss/",
+      "prefix": "t",
+      "files": [
+        {
+          "destination": "variables.scss",
+          "format": "scss/variables"
+        }
+      ]
+    }
+  }
+}
+

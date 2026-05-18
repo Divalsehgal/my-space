@@ -1,4 +1,6 @@
 
+import "@dival-sehgal/design-tokens/light.css";
+import "@dival-sehgal/design-tokens/dark.css";
 import "@/styles/globals.scss";
 import Navbar from "@/components/Navbar";
 import type { Metadata, Viewport } from "next";
@@ -17,6 +19,25 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const ADS_ID = process.env.NEXT_PUBLIC_ADS_ID;
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const THEME_BOOTSTRAP_SCRIPT = `
+(function () {
+  try {
+    var savedMode = window.localStorage.getItem("theme-mode");
+    var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var mode = savedMode === "light" || savedMode === "dark"
+      ? savedMode
+      : prefersDark
+        ? "dark"
+        : "light";
+
+    document.documentElement.setAttribute("data-theme", mode);
+    document.documentElement.style.colorScheme = mode;
+  } catch (_) {
+    document.documentElement.setAttribute("data-theme", "light");
+    document.documentElement.style.colorScheme = "light";
+  }
+})();
+`;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -107,6 +128,7 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning={true}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
         <GoogleTracking gaId={GA_ID} adsId={ADS_ID} gtmId={GTM_ID} />
       </head>
       <body className={StackHans.variable} suppressHydrationWarning={true}>

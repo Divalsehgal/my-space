@@ -1,102 +1,113 @@
-# Vite Integration Guide for Workspace Packages
+Vite workspace integration means consuming shared packages through explicit build contracts instead of framework-specific injection assumptions.
 
-This guide explains how to effectively integrate your shared packages (`@divalsehgal/design-tokens` and `@divalsehgal/fonts`) into a Vite project. It also addresses your questions about package managers and UI injection methods.
+## Manager (workspace)
+Attack: Phantom dependency — a package works locally because another workspace installed a dependency it never declared.
+Fix: Use a strict workspace package manager and declare package boundaries explicitly.
 
----
+```bash
+# ❌ dependency can be satisfied accidentally
+npm install
 
-## 1. Package Manager Choice: npm vs. Others
-
-In a monorepo where you plan to share and deploy packages, **pnpm** is generally superior to `npm` or `yarn` for several reasons:
-
-| Feature | npm | Yarn (v1) | pnpm |
-| :--- | :--- | :--- | :--- |
-| **Speed** | Slowest | Fast | **Fastest** |
-| **Storage** | Duplicates deps | Duplicates deps | **Content-addressable (saves GBs)** |
-| **Monorepo** | Basic | Good | **Excellent (Workspace protocol)** |
-| **Strictness** | Lax | Lax | **Prevents "phantom" dependencies** |
-
-> [!TIP]
-> If you are starting fresh or want better monorepo support, **pnpm** is the recommended choice. If you prefer to stay with what you have, **Yarn v4** is also a great modern option for monorepos.
-
----
-
-## 2. Alternatives to MUI for Vite
-
-While MUI is powerful, it can be heavy for a lightweight Vite project. Here are faster, better-integrated alternatives for your design tokens:
-
-### **A. CSS Variables (The "Native" Way)**
-Your `design-tokens` package already generates CSS variables.
-1. Install: `yarn add @divalsehgal/design-tokens` (locally)
-2. Import:
-   ```javascript
-   // main.js or main.ts
-   import "@divalsehgal/design-tokens/variables.css";
-   ```
-3. Use: `background-color: var(--color-primary-500);`
-
-### **B. SCSS Modules (The Standard Way)**
-Vite has built-in support for SCSS and CSS Modules. This is the most straightforward way to use your tokens:
-1. Install Sass: `yarn add -D sass`
-2. Import variables in your `*.module.scss` files:
-   ```scss
-   @use "@divalsehgal/design-tokens/variables.scss" as tokens;
-
-   .button {
-     background-color: tokens.$color-primary-500;
-   }
-   ```
-3. Use in your components: `import styles from "./Button.module.scss";`
-
-### **C. Panda CSS (The Modern Design System Way)**
-If you want type-safety and a developer experience similar to Tailwind but without the "utility-first" constraints, Panda CSS is perfect:
-- **Build-time**: Zero runtime overhead.
-- **Type-safe**: It generates TypeScript types from your design tokens.
-- **Tokens-first**: It's designed specifically for building design systems.
-
----
-
-## 3. Integrating Fonts in Vite
-
-We've#### [index.css](file:///Users/divalsehgal/Documents/nextjs-template/packages/fonts/index.css)
-If you are using the CSS import in Vite, you can override the font URLs dynamically using CSS variables:
-```css
-:root {
-  --font-url-regular: url('https://your-cdn.com/fonts/StackSans-Regular.ttf');
-}
+# ✅ workspace resolution is strict
+pnpm install
+pnpm --filter web dev
 ```
 
-#### [Configurable Loader](file:///Users/divalsehgal/Documents/nextjs-template/packages/fonts/next/index.js)
-If you are using Next.js, you can now pass a custom `assetsPath`:
-```javascript
-import { createStackSans } from "@divalsehgal/fonts/next";
+| **Manager** | **Monorepo behavior** | **Risk** |
+|---|---|---|
+| npm | Basic workspaces | Loose dependency graph |
+| Yarn v1 | Common workspace support | Hoisting hides gaps |
+| pnpm | Strict workspace graph | Requires clean manifests |
 
-const myFont = createStackSans({ assetsPath: "https://my-cdn.com/" });
+**Phantom dependency** — code imports a package it does not list.
+
+**Workspace protocol** — use it when packages live in the same repo.
+
+**Strict install** — catches dependency ownership bugs early.
+
+## Tokens (native)
+Attack: Framework lock-in — design tokens are consumed only through MUI-specific theme injection.
+Fix: Import generated CSS variables or SCSS variables directly in Vite apps.
+
+```js
+// ❌ token access tied to one UI library
+import { theme } from "@mui/material";
+
+// ✅ Vite entry imports runtime variables
+import "@divalsehgal/design-tokens/light.css";
+import "@divalsehgal/design-tokens/dark.css";
 ```
 
----
+| **Surface** | **Use** |
+|---|---|
+| CSS variables | Runtime theming |
+| SCSS variables | CSS modules |
+| TS variables | Theme object construction |
 
-## **Layered Design Tokens**
-Your design tokens support tiered sourcing:
-1.  **Package Defaults**: Located at `packages/design-tokens/tokens/`.
-2.  **Parent Overrides**: Located at the monorepo root `tokens/`.
+**Native variables** — work without a component library.
 
-Anything defined in the root `tokens/` directory will automatically **override** the package defaults when you run a build. This allows you to customize the theme without modifying the base package code.
-`Inter`) are now available globally via the CSS classes defined in the package.
+**SCSS modules** — align well with Vite's CSS pipeline.
 
----
+**MUI adapter** — should be optional, not the source of truth.
 
-## 4. How to use in Vite (Step-by-Step)
+## Fonts (assets)
+Attack: Broken font URLs — a package references local font files that do not exist in the consuming app's public path.
+Fix: expose stable CSS imports or configurable asset paths.
 
-1.  **Link the packages**: Use `workspace:*` (if in the same monorepo) or install them after publishing.
-2.  **Configuration**: In your `vite.config.ts`, you might need to ensure your shared packages are transpiled:
-    ```typescript
-    export default defineConfig({
-      optimizeDeps: {
-        include: ["@divalsehgal/design-tokens", "@divalsehgal/fonts"]
-      }
-    });
-    ```
-3.  **Entry Point**: Import the styles in your main entry point.
+```js
+// ❌ consumer assumes package internals
+const url = "/packages/fonts/assets/StackSans-Regular.ttf";
 
----
-*By moving away from MUI-specific injection, your Vite apps will be faster and have smaller bundle sizes.*
+// ✅ package controls its public loader
+import "@divalsehgal/fonts/index.css";
+```
+
+| **Method** | **Best for** |
+|---|---|
+| CSS import | Vite and browser-native loading |
+| Configurable loader | Next.js font integration |
+| CDN asset path | Published packages |
+
+**Asset path** — package consumers should not depend on repo folders.
+
+**CSS import** — simplest cross-framework font contract.
+
+**CDN path** — useful after publishing packages.
+
+## Optimization (bundling)
+Attack: Untranspiled workspace package — Vite skips dependency processing and the app fails on package syntax or styles.
+Fix: include shared packages in dependency optimization when the app needs it.
+
+```js
+// ❌ Vite has no package hint
+export default defineConfig({});
+
+// ✅ shared packages are optimized
+export default defineConfig({
+  optimizeDeps: {
+    include: ["@divalsehgal/design-tokens", "@divalsehgal/fonts"],
+  },
+});
+```
+
+| **Config** | **Prevents** |
+|---|---|
+| `optimizeDeps.include` | Missed dependency prebundle |
+| CSS entry import | Missing runtime variables |
+| Package exports | Deep import coupling |
+
+**Package exports** — expose public entry points deliberately.
+
+**Prebundle hint** — add it when Vite misses workspace packages.
+
+**Entry import** — put global token CSS in the app root.
+
+## Critical Chain
+Order matters because Vite apps consume packages through package boundaries, not Next.js-specific runtime assumptions.
+
+    Shared token package only works through MUI
+      -> Vite app imports framework-specific theme code
+      -> fonts reference repo-local asset paths
+      -> package fails after publishing
+      -> consumer adds deep imports
+      -> package API becomes impossible to stabilize

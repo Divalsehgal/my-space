@@ -1,4 +1,3 @@
-
 import Hero from "@/containers/Home/Hero";
 import About from "@/containers/Home/About";
 import Experience from "@/containers/Home/Experience";
@@ -15,23 +14,24 @@ export default async function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "name": "Dival Sehgal",
-    "url": "https://divalsehgal.vercel.app",
-    "jobTitle": "Senior Software Engineer",
-    "sameAs": config.socials?.map((s) => s.href) || [],
-    "description": config.about?.paragraphs.join(" "),
+    name: "Dival Sehgal",
+    url: "https://divalsehgal.vercel.app",
+    jobTitle: "Senior Software Engineer",
+    sameAs: config.socials?.map((s) => s.href) || [],
+    description: config.about?.paragraphs.join(" "),
   };
 
   return (
     <PortfolioProvider value={config ?? null}>
       <div className="page-scroll">
-        <ScrollSnapControl />{/*TODO: Need to Check if this helps or not*/}
+        <ScrollSnapControl />
+        {/*TODO: Need to Check if this helps or not*/}
         <JsonLd data={jsonLd} />
         <Hero />
         <About />
         <Experience />
         <Project />
-        <Contact  />
+        <Contact />
       </div>
     </PortfolioProvider>
   );

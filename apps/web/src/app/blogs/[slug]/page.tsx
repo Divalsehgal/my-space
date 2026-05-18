@@ -1,14 +1,18 @@
-import { getContentfulPosts, getContentfulPostBySlug } from "@/lib/services/contentful";
+import {
+  getContentfulPosts,
+  getContentfulPostBySlug,
+} from "@/lib/services/contentful";
 import type { ContentfulPost } from "@/types";
 import { Metadata } from "next";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import styles from "./styles.module.scss";
 import { notFound } from "next/navigation";
-import FluidContainer from "@/components/FluidContainer";
-import { renderContentfulRichText } from "@/features/blog/ContentfulRenderer";
+import { Suspense } from "react";
+import BlogPostContainer from "@/containers/BlogPost";
+import BlogPostSkeleton from "@/containers/BlogPost/BlogPostSkeleton";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import styles from "../styles.module.scss";
 
 type Props = {
-  params: Promise<{ slug: string }>;
+  readonly params: Promise<{ slug: string }>;
 };
 
 /**
@@ -68,15 +72,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BlogPost({ params }: Props) {
+export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getContentfulPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
-
-  const content = renderContentfulRichText(post.content);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -99,45 +101,20 @@ export default async function BlogPost({ params }: Props) {
     { label: post.title, href: `/blogs/${slug}` },
   ];
 
-
   return (
-    <div className="page-scroll">
+    <div className={`page-scroll ${styles["blog-page"]}`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Breadcrumbs
-        items={breadcrumbItems}
-        className={styles["blog-post__breadcrumbs"]}
-      />
-      <article className={styles["blog-post"]}>
-        <FluidContainer className={styles["blog-post__container"]}>
-          <header className={styles["blog-post__header"]}>
-            <h1 className={styles["blog-post__title"]}>{post.title}</h1>
-            <div className={styles["blog-post__meta"]}>
-              {post.date && (
-                <p className={styles["blog-post__date"]}>
-                  {new Date(post.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              )}
-              {post.tags && (
-                <ul className={styles["blog-post__tags"]}>
-                  {post.tags.map((tag: string) => (
-                    <li key={tag} className={styles["blog-post__tag"]}>
-                      <span>{tag}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </header>
-          <section className={styles["blog-post__content"]}>{content}</section>
-        </FluidContainer>
-      </article>
+      <Breadcrumbs items={breadcrumbItems} />
+      <Suspense fallback={<BlogPostSkeleton skipBreadcrumbs />}>
+        <BlogPostContent post={post} />
+      </Suspense>
     </div>
   );
+}
+
+function BlogPostContent({ post }: Readonly<{ post: ContentfulPost }>) {
+  return <BlogPostContainer post={post} />;
 }

@@ -7,11 +7,15 @@ import * as THREE from "three";
 import styles from "./styles.module.scss";
 
 import { useScroll, useTransform } from "framer-motion";
-import { TColorsPrimaryDefault } from "@dival-sehgal/design-tokens/variables.js";
+import * as LightTokens from "@dival-sehgal/design-tokens/light";
+import * as DarkTokens from "@dival-sehgal/design-tokens/dark";
+import { useThemeContext } from "@/context/ThemeContext";
 
 const TechObject = () => {
     const meshRef = useRef<THREE.Mesh>(null);
     const { scrollY } = useScroll();
+    const { mode } = useThemeContext();
+    const Tokens = mode === "light" ? LightTokens : DarkTokens;
     
     const yTransform = useTransform(scrollY, [0, 1000], [0, 0.5]);
     
@@ -27,7 +31,7 @@ const TechObject = () => {
     return (
         <mesh ref={meshRef}>
             <icosahedronGeometry args={[1, 1]} />
-            <meshStandardMaterial color={TColorsPrimaryDefault} wireframe />
+            <meshStandardMaterial color={Tokens.TColorsPrimaryDefault} wireframe />
         </mesh>
     );
 }

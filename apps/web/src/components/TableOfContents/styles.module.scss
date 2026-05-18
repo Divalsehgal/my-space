@@ -1,0 +1,86 @@
+@use "@/styles/mixins.scss" as *;
+
+.toc {
+  width: 100%;
+  padding: $t-spacing-4 0;
+
+  &__title {
+    @include label-xs;
+    margin-bottom: $t-spacing-6;
+    color: $t-colors-primary-default;
+    font-weight: $t-font-weight-bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: $t-spacing-2;
+
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: $t-colors-surface-brand-strong;
+    }
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid $t-colors-border-subtle;
+  }
+
+  &__item {
+    font-size: $t-font-size-sm;
+
+    &--h3 {
+      font-size: $t-font-size-xs;
+      
+      .toc__link {
+        padding-left: $t-spacing-8;
+        color: $t-colors-text-secondary-muted;
+        
+        &::before {
+          content: "•";
+          position: absolute;
+          left: $t-spacing-4;
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+
+  &__link {
+    color: $t-colors-text-secondary;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    padding: $t-spacing-2 $t-spacing-4;
+    position: relative;
+    margin-left: -1px; // overlap border
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+
+    &::first-letter {
+      text-transform: uppercase;
+      font-weight: $t-font-weight-bold;
+    }
+
+    &:hover {
+      color: $t-colors-primary-default;
+      background: $t-colors-surface-brand-subtle;
+      border-left-color: $t-colors-focus-ring;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    &[data-active="true"] {
+      color: $t-colors-primary-default;
+      background: $t-colors-surface-brand-muted;
+      border-left-color: $t-colors-primary-default;
+      font-weight: $t-font-weight-medium;
+    }
+  }
+}

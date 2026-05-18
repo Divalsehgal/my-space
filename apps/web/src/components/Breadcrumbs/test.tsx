@@ -16,8 +16,12 @@ jest.mock("next/link", () => {
 
 // Mock FluidContainer
 jest.mock("../FluidContainer", () => {
-  return function MockFluidContainer({ children }: { children: React.ReactNode }) {
-    return <div data-testid="fluid-container">{children}</div>;
+  return function MockFluidContainer({ children, className }: { children: React.ReactNode; className?: string }) {
+    return (
+      <div data-testid="fluid-container" className={className}>
+        {children}
+      </div>
+    );
   };
 });
 
@@ -29,7 +33,9 @@ describe("Breadcrumbs Component", () => {
 
   it("always renders the Home link", () => {
     render(<Breadcrumbs items={[]} />);
-    
+
+    expect(screen.getByRole("navigation", { name: "breadcrumb" })).toBeInTheDocument();
+
     const homeLink = screen.getByTestId("link-/");
     expect(homeLink).toBeInTheDocument();
     expect(homeLink).toHaveTextContent("Home");
@@ -37,7 +43,10 @@ describe("Breadcrumbs Component", () => {
 
   it("renders breadcrumb items correctly", () => {
     render(<Breadcrumbs items={mockItems} />);
-    
+
+    expect(screen.getByRole("list")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+
     // First item should be a link
     const firstItemLink = screen.getByTestId("link-/blog");
     expect(firstItemLink).toBeInTheDocument();
@@ -52,9 +61,18 @@ describe("Breadcrumbs Component", () => {
     expect(lastItemText).toHaveAttribute("aria-current", "page");
   });
 
+  it("renders disabled breadcrumb items as non-interactive", () => {
+    render(<Breadcrumbs items={[{ label: "Archive", href: "/archive", disabled: true }, ...mockItems]} />);
+
+    const disabledItem = screen.getByText("Archive");
+    expect(disabledItem.tagName).toBe("SPAN");
+    expect(disabledItem).toHaveAttribute("aria-disabled", "true");
+    expect(screen.queryByTestId("link-/archive")).not.toBeInTheDocument();
+  });
+
   it("applies custom class name to nav element", () => {
     const { container } = render(<Breadcrumbs items={[]} className="custom-breadcrumbs" />);
-    
+
     const nav = container.querySelector("nav");
     expect(nav).toHaveClass("custom-breadcrumbs");
   });

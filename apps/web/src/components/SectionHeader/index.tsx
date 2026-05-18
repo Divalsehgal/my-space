@@ -3,7 +3,6 @@
 import { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 
 import clsx from "clsx";
 import styles from "./styles.module.scss";
@@ -33,20 +32,24 @@ export default function SectionHeader({
   className,
   titleClassName,
   subtitleClassName,
-  action,
 }: Readonly<SectionHeaderProps>) {
-  if (!eyebrow && !title && !subtitle) {return null;}
+  if (!eyebrow && !title && !subtitle) {
+    return null;
+  }
 
   const rootClassNames = clsx(
     styles["section-header"],
     styles[`section-header--${align}`],
     variant !== "default" && styles[`section-header--${variant}`],
-    className
+    className,
   );
- 
+
   const titleClasses = clsx(styles["section-header__title"], titleClassName);
- 
-  const subtitleClasses = clsx(styles["section-header__subtitle"], subtitleClassName);
+
+  const subtitleClasses = clsx(
+    styles["section-header__subtitle"],
+    subtitleClassName,
+  );
 
   return (
     <Box className={rootClassNames}>
@@ -70,21 +73,6 @@ export default function SectionHeader({
           <Typography className={subtitleClasses}>{subtitle}</Typography>
         )}
       </Box>
-
-      {action && (
-        <Box className={styles["section-header__action"]}>
-          <Button
-            component="a"
-            href={action.href}
-            target={action.href.startsWith('http') ? "_blank" : "_self"}
-            rel={action.href.startsWith('http') ? "noopener noreferrer" : ""}
-            endIcon={action.icon}
-            className={styles["section-header__action-button"]}
-          >
-            {action.label}
-          </Button>
-        </Box>
-      )}
     </Box>
   );
 }

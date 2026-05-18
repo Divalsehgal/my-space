@@ -25,7 +25,7 @@
   &__role-description {
     font-size: $t-font-size-sm;
     line-height: $t-font-line-height-relaxed;
-    color: rgba($t-colors-text-primary, 0.7);
+    color: $t-colors-text-secondary;
   }
 
   &__tags {

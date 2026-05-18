@@ -12,6 +12,8 @@ export interface Env {
         query: (vector: number[], options: unknown) => Promise<{ matches: unknown[] }>;
     };
     CHAT_SESSIONS: KVNamespace;
+    CHAT_CONTEXT_URL?: string;
+    CONTACT_API_URL?: string;
 }
 
 export interface ChatMessage {

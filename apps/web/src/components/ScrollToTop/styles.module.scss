@@ -5,14 +5,20 @@
   bottom: $t-spacing-8;
 
   animation: fade-in 0.3s ease-out;
+
+  @media (max-width: 450px) {
+    right: auto;
+    left: $t-spacing-4;
+    bottom: calc($t-spacing-4 + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .button {
-  border: 2px solid rgba($t-colors-border-default, 0.9) !important;
+  border: 2px solid $t-colors-border-strong !important;
 
   color: $t-colors-primary-default !important;
 
-  background-color: rgba($t-colors-background-primary, 0.3) !important;
+  background-color: $t-colors-surface-glass !important;
   backdrop-filter: blur(8px);
 
   transition: all 0.2s ease-in-out !important;

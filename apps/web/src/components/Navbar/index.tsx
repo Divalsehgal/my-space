@@ -3,10 +3,11 @@
 import Link from "next/link";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import TerminalIcon from "@mui/icons-material/Terminal";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./styles.module.scss";
@@ -15,16 +16,17 @@ import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { TBreakpointTablet } from "@dival-sehgal/design-tokens/variables.js";
 import { navLinks } from "./constants";
 import MobileMenu from "./MobileMenu";
+import { useThemeContext } from "@/context/ThemeContext";
 
 type NavbarProps = {
   readonly brand?: string;
 };
 
 export default function Navbar({ brand }: NavbarProps) {
+  const { mode, toggleTheme } = useThemeContext();
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery(`(min-width: ${TBreakpointTablet})`);
   const navRef = useRef<HTMLElement>(null);
-  const progressBarRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -34,8 +36,8 @@ export default function Navbar({ brand }: NavbarProps) {
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const scrolled = height > 0 ? winScroll / height : 0;
       
-      if (progressBarRef.current) {
-        progressBarRef.current.style.setProperty("--scroll-scale", scrolled.toString());
+      if (navRef.current) {
+        navRef.current.style.setProperty("--scroll-scale", scrolled.toString());
       }
       ticking = false;
     };
@@ -161,51 +163,41 @@ export default function Navbar({ brand }: NavbarProps) {
                 {l.label}
               </Link>
             ))}
+            
+            <IconButton 
+              onClick={toggleTheme} 
+              sx={{ color: 'text.primary', ml: 1 }}
+              aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
           </div>
 
-          {/* Mobile Menu Button */}
-          <IconButton
-            className={styles["navbar__menu-btn"]}
-            onClick={() => {
-              setOpen((prev) => !prev);
-            }}
-            edge="end"
-            aria-label={open ? "Close menu" : "Open menu"}
-            size="large"
-          >
-            {open ? <CloseIcon /> : <MenuIcon />}
-          </IconButton>
+          {/* Mobile Menu Button Container */}
+          <div className={styles["navbar__mobile-actions"]}>
+            <IconButton 
+              onClick={toggleTheme} 
+              sx={{ color: 'text.primary', mr: 1, display: { xs: 'flex', md: 'none' } }}
+              aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+
+            <IconButton
+              className={styles["navbar__menu-btn"]}
+              onClick={() => {
+                setOpen((prev) => !prev);
+              }}
+              edge="end"
+              aria-label={open ? "Close menu" : "Open menu"}
+              size="large"
+            >
+              {open ? <CloseIcon /> : <MenuIcon />}
+            </IconButton>
+          </div>
         </FluidContainer>
 
         <MobileMenu isOpen={open} onClose={() => setOpen(false)} />
-
-        {/* Curved Progress Bar and Bottom Shape */}
-        <div className={styles["navbar__curve-container"]}>
-          <svg
-            className={styles["navbar__curve-svg"]}
-            viewBox="0 0 1440 40"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            {/* Background shape for glass effect continuation */}
-            <path
-              d="M0 0 L1440 0 L1440 10 Q720 40 0 10 Z"
-              className={styles["navbar__curve-bg"]}
-            />
-            {/* Progress Track (Subtle) */}
-            <path
-              d="M0 10 Q720 40 1440 10"
-              className={styles["navbar__curve-track"]}
-            />
-            {/* Actual Progress Bar */}
-            <path
-              d="M0 10 Q720 40 1440 10"
-              className={styles["navbar__curve-progress"]}
-              ref={progressBarRef}
-              pathLength="1"
-            />
-          </svg>
-        </div>
       </nav>
     </>
   );

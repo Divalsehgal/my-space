@@ -1,5 +1,7 @@
 
 .navbar {
+  --scroll-scale: 0;
+
   position: fixed;
   z-index: $t-layer-level-positive-9;
   top: 0;
@@ -11,12 +13,32 @@
   justify-content: center;
 
   height: $t-spacing-16; // 64px
+  border-bottom: 1px solid $t-colors-border-subtle;
+  border-bottom-right-radius: 50% $t-spacing-8;
+  border-bottom-left-radius: 50% $t-spacing-8;
+  overflow: hidden;
 
-  text-shadow: 4px 4px 4px rgba($t-colors-primary-default, 0.4);
+  text-shadow: 4px 4px 4px $t-colors-scrollbar-thumb;
 
   // Glass effect
-  background-color: rgba($t-colors-background-primary, 0.6);
+  background-color: $t-colors-surface-glass;
   backdrop-filter: blur(60px);
+
+  &::after {
+    content: "";
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    height: $t-spacing-1;
+
+    background: $t-colors-surface-brand-strong;
+    transform: scaleX(var(--scroll-scale));
+    transform-origin: left center;
+    transition: transform 0.1s ease-out;
+  }
 
   &__container {
     display: flex;
@@ -93,12 +115,23 @@
     }
   }
 
+  &__mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: $t-spacing-1;
+
+    @media (width >= 850px) {
+      display: none;
+    }
+  }
+
+
   &__overlay {
     position: fixed;
     z-index: $t-layer-level-positive-8;
     inset: 0;
 
-    background-color: rgba($t-colors-background-primary, 0.4);
+    background-color: $t-colors-surface-glass;
     backdrop-filter: blur(4px);
     backdrop-filter: blur($t-spacing-16);
 
@@ -123,46 +156,6 @@
     box-shadow: $t-colors-shadow-default;
 
     animation: navbar-slide-down 0.2s ease-out;
-  }
-
-  &__curve-container {
-    pointer-events: none;
-
-    position: absolute;
-    top: 100%;
-    left: 0;
-
-    width: 100%;
-    height: 40px;
-    margin-top: -1px; // Ensure no gap
-  }
-
-  &__curve-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  &__curve-bg {
-    backdrop-filter: blur(40px);
-    fill: rgba($t-colors-background-primary, 0.6);
-  }
-
-  &__curve-track {
-    fill: none;
-    stroke: rgba($t-colors-border-default, 0.1);
-    stroke-width: 2;
-  }
-
-  &__curve-progress {
-    fill: none;
-    stroke: rgba($t-colors-primary-default,0.2);
-    stroke-dasharray: 1;
-    stroke-dashoffset: calc(1 - var(--scroll-scale, 0));
-    stroke-linecap: round;
-    stroke-width: 3;
-
-    transition: stroke-dashoffset 0.1s ease-out;
   }
 }
 

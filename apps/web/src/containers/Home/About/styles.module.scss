@@ -87,7 +87,7 @@
   &__avatar-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba($t-colors-background-primary, 0.4), transparent);
+    background: linear-gradient(to top, $t-colors-surface-glass, transparent);
   }
 
   &__label {
@@ -109,7 +109,7 @@
 
   &__fact-label {
     font-weight: $t-font-weight-medium !important;
-    color: rgba($t-colors-text-secondary, 0.7);
+    color: $t-colors-text-secondary-muted;
     text-transform: uppercase;
     letter-spacing: 0.05em !important;
   }
@@ -140,7 +140,7 @@
     &:hover {
       transform: translateY(-2px);
       color: $t-colors-primary-default !important;
-      background-color: rgba($t-colors-primary-default, 0.1) !important;
+      background-color: $t-colors-surface-brand-muted !important;
     }
   }
 }

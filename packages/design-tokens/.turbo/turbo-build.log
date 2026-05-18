@@ -1,0 +1,14 @@
+
+[2K[1G[1myarn run v1.22.22[22m
+[2K[1G[2m$ style-dictionary build[22m
+
+css
+[1m[32m✔︎ build/css/_variables.css[39m[22m
+
+scss
+[1m[32m✔︎ build/scss/_variables.scss[39m[22m
+
+ts
+[1m[32m✔︎ build/ts/variables.js[39m[22m
+[1m[32m✔︎ build/ts/variables.d.ts[39m[22m
+[2K[1G✨  Done in 0.60s.

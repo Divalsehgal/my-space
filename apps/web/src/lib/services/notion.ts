@@ -41,8 +41,7 @@ export const createContactSubmission = async (submission: ContactSubmission): Pr
         throw new Error("NOTION_API_KEY is not configured. Unable to submit contact form.");
     }
 
-    if (!notionContactDbId) {
-        throw new Error("NOTION_CONTACT_DB_ID is not configured. Unable to submit contact form.");
+    if (!notionContactDbId) {        throw new Error("NOTION_CONTACT_DB_ID is not configured. Unable to submit contact form.");
     }
 
     try {

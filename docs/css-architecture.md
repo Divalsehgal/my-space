@@ -1,299 +1,120 @@
-# CSS Architecture & Layer Strategy
+CSS cascade architecture means making precedence explicit so production bundling cannot change which layout rule wins.
 
-## Overview
+## Layers (precedence)
+Attack: Bundle-order override — global styles win in production because extraction and minification changed stylesheet order.
+Fix: Declare cascade layers once and put broad defaults below component-owned styles.
 
-This project uses **CSS Cascade Layers** (`@layer`) to manage styling precedence and prevent specificity conflicts, especially in production where minification changes code order.
-
-## Problem Statement
-
-### Why Layers Matter
-
-In development, styles load in a predictable order:
-
-```
-globals.scss → component.module.scss
-```
-
-But in production after minification/bundling, the order becomes unreliable. **CSS Layers solve this by establishing a explicit precedence rule that works regardless of load order.**
-
-### The Core Issue: `.section` Overriding `FluidContainer`
-
-**❌ PROBLEM:**
-
-```scss
-// globals.scss - .section sets horizontal padding
-.section {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-// FluidContainer/styles.module.scss - tries to override
-.fluid-container {
-  padding-left: 40px;
-  padding-right: 40px;
-}
+```html
+<style>
+/* ❌ order decides the winner */
+.section { padding-inline: 20px; }
+.container { padding-inline: 40px; }
+/* ✅ layer order decides the winner */
+@layer base, utilities, components;
+@layer base { .section { padding-block: 16px; } }
+.container { padding-inline: 40px; }
+</style>
 ```
 
-In development, if `globals.scss` loads last, it wins. In production, if `globals.scss` is bundled first (common in build processes), `globals.scss` wins regardless of specificity.
+| **Rule** | **Detail** |
+|---|---|
+| Layer order | Later declared layers outrank earlier layers |
+| Unlayered CSS | Beats layered CSS at the same origin |
+| Specificity | Still matters inside one layer |
 
-**✓ SOLUTION: CSS Layers**
+**Layer declaration** — place it before all layered rules.
 
-CSS Layers establish an explicit hierarchy:
+**Base layer** — keep resets and broad page primitives weak.
 
-```scss
-// globals.scss
-@layer base, utilities, components; // Declare order first
+**CSS Module** — let component files own component geometry.
 
-@layer base {
-  .section {
-    // Vertical padding ONLY
-    padding-top: 16px;
-    padding-bottom: 16px;
-    // ❌ NO horizontal padding
-  }
-}
+## Ownership (boundaries)
+Attack: Shared padding collision — sections, containers, and components all set the same horizontal spacing.
+Fix: Assign each layout concern one owner and remove duplicated axis control.
 
-// FluidContainer/styles.module.scss (UNLAYERED)
-.fluid-container {
-  // These styles ALWAYS win (unlayered > any layer)
-  padding-left: 40px;
-  padding-right: 40px;
-}
+```html
+<style>
+/* ❌ two owners for horizontal rhythm */
+.section { padding-inline: 24px; }
+.fluidContainer { padding-inline: 40px; }
+/* ✅ section owns vertical rhythm only */
+.section { padding-block: 24px; }
+.fluidContainer { padding-inline: clamp(20px, 4vw, 48px); }
+</style>
 ```
 
-## CSS Layer Hierarchy
+| **Owner** | **Controls** | **Avoids** |
+|---|---|---|
+| Section | Vertical spacing | Container drift |
+| Container | Inline padding and max width | Double gutters |
+| Component | Internal layout | Page coupling |
 
-```
-Priority Order (highest to lowest):
-1. ⭐ UNLAYERED (CSS Modules) ← Component styles always win
-2. @layer components        ← Specific component base styles
-3. @layer utilities         ← Reusable utility classes
-4. @layer base              ← Global defaults & resets
-```
+**Axis ownership** — vertical and horizontal spacing can have different owners.
 
-**Key Principle:** Unlayered CSS always beats any layered CSS, regardless of specificity or load order. This is a CSS spec feature, not a hack.
+**Container contract** — consumers should not patch inline padding externally.
 
-## File Structure
+**Page primitive** — broad classes should be intentionally weak.
 
-### `src/styles/globals.scss` (LAYERED)
+## Specificity (escape)
+Attack: Specificity escalation — selectors become longer until local overrides require `!important`.
+Fix: Reduce selector depth and move reusable defaults into weak layers.
 
-```scss
-@layer base, utilities, components; // Must be first
-
-@layer base {
-  // Global resets
-  * {
-    margin: 0;
-    padding: 0;
-  }
-
-  // Section layouts (vertical padding ONLY)
-  .section {
-    padding-top: 16px;
-    padding-bottom: 16px;
-    // ❌ NEVER: padding-left, padding-right
-  }
-}
-
-@layer utilities {
-  // Scroll snap utilities
-  .snap-proximity {
-    scroll-snap-type: y proximity;
-  }
-}
-
-@layer components {
-  // Global component baselines (rarely needed)
-  // If added, ensure it doesn't conflict with CSS Modules
-}
+```html
+<style>
+/* ❌ override requires a stronger selector */
+main .page .section .title { margin-block: 0; }
+.card .title { margin-block: 12px !important; }
+/* ✅ weak default, local override */
+@layer base { .title { margin-block: 0; } }
+.cardTitle { margin-block: 12px; }
+</style>
 ```
 
-### `src/components/FluidContainer/styles.module.scss` (UNLAYERED)
+| **Token** | **Notes** |
+|---|---|
+| `!important` | Hides ownership mistakes |
+| Deep selector | Couples style to DOM shape |
+| Module class | Keeps override local |
 
-```scss
-// This file is UNLAYERED (Next.js default for .module.scss)
-// It ALWAYS overrides .section padding from @layer base
+**Selector depth** — treat more than two structural hops as debt.
 
-.fluid-container {
-  padding-left: 40px; // ✓ These always win
-  padding-right: 40px; // ✓ Over the @layer base rules
-}
-```
+**Important flag** — reserve it for external integration constraints.
 
-### Component-Specific Styles (UNLAYERED)
+**Local class** — prefer one clear class over ancestor-dependent selectors.
 
-```scss
-// src/containers/Home/About/styles.module.scss (UNLAYERED)
+## Debugging (verification)
+Attack: Dev-only confidence — the style is correct locally but breaks after production CSS extraction.
+Fix: Inspect cascade metadata and verify the production build.
 
-.about {
-  // Component top-level layout, margins, etc.
-  margin-top: 20px; // ✓ Fine - this doesn't conflict with .section
-}
-```
+```js
+// ❌ visual check only in dev
+console.log("looks fine");
 
-## Rules & Guidelines
-
-### ✓ DO:
-
-- Use `@layer base, utilities, components;` declaration at the top of `globals.scss`
-- Keep `.section` vertical padding in `@layer base`
-- Keep component styles in unlayered CSS Modules (default in Next.js)
-- Document why styles live in each layer
-- Test in production build to catch specificity issues early
-
-### ❌ DON'T:
-
-- Set horizontal padding on `.section` (reserve for FluidContainer)
-- Mix layered and unlayered styles within the same file without clear intent
-- Use `!important` to override layer precedence (defeats the purpose)
-- Add component styles to `globals.scss` without putting them in `@layer components`
-- Rely on stylesheet load order to determine style precedence
-
-### ⚠️ ANTI-PATTERNS:
-
-```scss
-// ❌ BAD: Specificity wars
-.section {
-  padding-left: 20px !important; // Don't force layer issues
-}
-
-// ❌ BAD: Horizontal padding in base layer
-.section {
-  padding-left: 20px; // Conflicts with FluidContainer
-  padding-right: 20px;
-}
-
-// ❌ BAD: Layered and unlayered mixed without clarity
-@layer base {
-  .component {
-    color: red;
-  }
-}
-// (In same file) unlayered .component { color: blue; } — confusing!
-```
-
-## How to Debug Styles in Production
-
-### 1. Use DevTools Cascade Panel
-
-```
-Browser DevTools > Elements panel > Styles tab
-Look at the "Cascade" section to see which styles won
-```
-
-### 2. Verify Layer Order
-
-```javascript
-// In browser console
-const layers = Array.from(document.styleSheets)
-  .filter((sheet) => sheet.cssRules)
-  .flatMap((sheet) => Array.from(sheet.cssRules))
+// ✅ inspect layer statements
+const rules = [...document.styleSheets]
+  .flatMap((sheet) => [...sheet.cssRules])
   .filter((rule) => rule.type === CSSRule.LAYER_STATEMENT_RULE);
-
-console.log(layers); // See declared layer names and order
+console.log(rules);
 ```
 
-### 3. Check Specificity
+| **Check** | **Prevents** |
+|---|---|
+| Production build | Extraction-order regressions |
+| DevTools cascade | Misread specificity causes |
+| Layer scan | Missing declarations |
 
-- Using a selector of equal specificity? CSS Layers are the tiebreaker.
-- See a selector is losing in production but winning in dev? CSS Layers.
+**Build parity** — CSS bugs often appear after optimization.
 
-### 4. Test Both Builds
+**Cascade panel** — read the winning and losing rules together.
 
-```bash
-# Development (styles load in order)
-npm run dev
-# ✓ Verify layout looks correct
+**Layout snapshot** — verify critical dimensions when spacing matters.
 
-# Production (styles minified, bundled)
-npm run build
-npm run start
-# ✓ Verify layout still looks correct — if not, it's a layer issue!
-```
+## Critical Chain
+Order matters because cascade decisions are global, and one broad rule can silently rewrite component layout after bundling.
 
-## Common Pitfalls & Solutions
-
-### Issue: Layout Breaks After Production Build
-
-**Cause:** Horizontal padding on `.section` in `@layer base` is overriding FluidContainer
-
-**Solution:**
-
-1. Open `globals.scss`
-2. Find `.section` rule
-3. Remove any `padding-left` or `padding-right`
-4. Keep only `padding-top` and `padding-bottom`
-5. Verify FluidContainer has the horizontal padding
-
-### Issue: Component Styles Not Applying
-
-**Cause:** CSS Module defined but layered styles are overriding
-
-**Solution:**
-
-1. CSS Modules should NOT be in any `@layer` (Next.js default)
-2. If you added `@layer components` inside a component style, remove it
-3. Verify the component style file is `.module.scss` (not `.scss`)
-
-### Issue: Utilities Not Applying
-
-**Cause:** Utilities in global styles but being overridden by component CSS
-
-**Solution:**
-
-1. Utilities should be in `@layer utilities`
-2. Component CSS Modules (unlayered) will always override utilities ✓ (intended)
-3. To make utilities override component styles, you'd need to add a more specific selector (but don't do this — use scoped variables instead)
-
-## Best Practices Checklist
-
-- [ ] `globals.scss` starts with `@layer base, utilities, components;`
-- [ ] `.section` has ONLY `padding-top` and `padding-bottom`
-- [ ] FluidContainer has ONLY `padding-left` and `padding-right`
-- [ ] All global styles are within an `@layer` block
-- [ ] Component CSS Modules are unlayered (default .module.scss)
-- [ ] Tested in both `npm run dev` and `npm run build && npm run start`
-- [ ] Used DevTools cascade panel to verify precedence
-
-## References
-
-- [MDN: Cascade Layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
-- [CSS Spec: Layered Style Rules](https://www.w3.org/TR/css-cascade-5/#layer-rules)
-- [Next.js CSS Modules](https://nextjs.org/docs/app/building-your-application/styling/css-modules)
-
-## Quick Checklist for New Sections
-
-When adding a new section, follow this pattern:
-
-```tsx
-// src/containers/Home/NewSection/index.tsx
-"use client";
-import styles from "./styles.module.scss";
-import FluidContainer from "@/components/FluidContainer";
-
-export default function NewSection() {
-  return (
-    <FluidContainer
-      as="section"
-      id="new-section"
-      className={clsx("section", styles.newSection)} // ✓ Both classes
-    >
-      {/* content */}
-    </FluidContainer>
-  );
-}
-```
-
-```scss
-// src/containers/Home/NewSection/styles.module.scss (UNLAYERED)
-
-.newSection {
-  // Add content spacing, layout, etc.
-  // The .section parent + this module work together
-  // .section provides vertical padding (from @layer base)
-  // FluidContainer provides horizontal padding (CSS Module, unlayered)
-  // This file adds component-specific styling (CSS Module, unlayered)
-}
-```
-
-This ensures consistent, production-safe styling across all sections.
+    Global class owns component spacing
+      -> production extraction changes stylesheet order
+      -> component padding loses without a code change
+      -> developer adds deeper selectors
+      -> later override needs `!important`
+      -> layout behavior becomes impossible to reason about

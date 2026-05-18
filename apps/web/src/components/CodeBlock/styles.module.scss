@@ -3,7 +3,7 @@
   margin: $t-spacing-6 0;
   padding: $t-spacing-6;
   background: $t-colors-background-secondary;
-  border: 1px solid rgba($t-colors-border-default, 0.3);
+  border: 1px solid $t-colors-border-muted;
   border-radius: $t-spacing-4;
   overflow-x: auto;
 
@@ -29,8 +29,8 @@
 }
 
 .copyButton {
-  background: rgba($t-colors-background-secondary, 0.8);
-  border: 1px solid rgba($t-colors-border-default, 0.3);
+  background: $t-colors-surface-glass-hover;
+  border: 1px solid $t-colors-border-muted;
   color: $t-colors-text-secondary;
   backdrop-filter: blur(4px);
   padding: $t-spacing-1;
@@ -39,7 +39,7 @@
 
   &.copied {
     background: $t-colors-primary-default;
-    color: $t-colors-background-primary;
+    color: $t-colors-button-primary-text;
     border-color: $t-colors-primary-default;
     opacity: 1;
   }
