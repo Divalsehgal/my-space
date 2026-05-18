@@ -44,8 +44,8 @@ function chatStream(req: Request, text: string, headers: Record<string, string> 
     );
 }
 
-function isInPortfolioScope(message: string, hasStrongContext: boolean): boolean {
-    const msg = message.toLowerCase().trim();
+function isInPortfolioScope(message: string | undefined, hasStrongContext: boolean): boolean {
+    const msg = message?.toLowerCase().trim() || '';
     if (hasStrongContext) {
         return true;
     }
@@ -97,18 +97,18 @@ async function trackQuestion(env: Env, q: string) {
     }
 }
 
-async function validateMessage(message: string): Promise<{ valid: boolean; reason?: string }> {
+async function validateMessage(message: string | undefined): Promise<{ valid: boolean; reason?: string }> {
     const blocked = ['crypto', 'bitcoin', 'gambling', 'dating', 'adult', 'politics', 'offensive'];
-    const msg = message.toLowerCase();
-    
+    const msg = message?.toLowerCase().trim() || '';
+
     if (blocked.some(word => msg.includes(word))) {
         return { valid: false, reason: OFF_TOPIC_REPLY };
     }
-    
-    if (message.length > 500) {
+
+    if (!message || message.length > 500) {
         return { valid: false, reason: "Please keep your questions concise so I can provide the best technical insights." };
     }
-    
+
     return { valid: true };
 }
 
@@ -121,28 +121,28 @@ async function chat(req: Request, env: Env): Promise<Response> {
     if (!trimmedMessage) {
         return json({ error: 'Message required' }, 400, {}, req);
     }
-    
+
     const validation = await validateMessage(message);
     if (!validation.valid) {
         return chatStream(req, validation.reason || OFF_TOPIC_REPLY);
     }
 
-    await trackQuestion(env, message);
-    
+    await trackQuestion(env, message ?? "");
+
     let sid = cookie(req);
     let isNew = !sid;
     let sess = sid ? await env.CHAT_SESSIONS.get(sid, { type: 'json' }) as ChatSession | null : null;
-    
-    if (!sess) { 
-        sid = 'sess_' + crypto.randomUUID(); 
-        sess = { id: sid, messages: [], createdAt: Date.now(), updatedAt: Date.now() }; 
-        isNew = true; 
-    }
-    
-    sess.messages.push({ role: 'user', content: trimmedMessage, timestamp: Date.now() });
-    const ctx = await faq(env, message);
 
-    const cookieHeader = isNew && sid
+    if (!sess) {
+        sid = 'sess_' + crypto.randomUUID();
+        sess = { id: sid, messages: [], createdAt: Date.now(), updatedAt: Date.now() };
+        isNew = true;
+    }
+
+    sess.messages.push({ role: 'user', content: trimmedMessage, timestamp: Date.now() });
+    const ctx = await faq(env, message ?? "");
+
+    const cookieHeader: Record<string, string> = isNew && sid
         ? { 'Set-Cookie': `chatbot_session=${sid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${TTL}` }
         : {};
 
@@ -161,27 +161,27 @@ async function chat(req: Request, env: Env): Promise<Response> {
         { role: 'system', content: SYS + (ctx.text ? `\n\nAPPROVED PORTFOLIO/BLOG FACTS:\n${ctx.text}` : '\n\nNo matching portfolio facts were retrieved. Answer only if the recent conversation already contains the needed portfolio facts; otherwise say you do not have that detail yet.') },
         ...sess.messages.slice(-10).map(m => ({ role: m.role, content: m.content }))
     ];
-    
+
     const llamaRun = env.AI.run as (model: string, options: { messages: { role: string; content: string }[]; stream: boolean }) => Promise<ReadableStream>;
     const stream = await llamaRun('@cf/meta/llama-3-8b-instruct', { messages: msgs, stream: true });
     let full = '';
-    
+
     const { readable, writable } = new TransformStream({
         transform(chunk) {
             for (const ln of new TextDecoder().decode(chunk).split('\n')) {
                 if (ln.startsWith('data: ') && ln.slice(6) !== '[DONE]') {
-                    try { 
+                    try {
                         const part = JSON.parse(ln.slice(6));
-                        full += part.response || ''; 
+                        full += part.response || '';
                     } catch { }
                 }
             }
         },
-        async flush() {
+        async flush(ctrl) {
             if (!full) {
                 full = "I do not have enough portfolio context to answer that confidently yet.";
             }
-            if (full && sess && sid) { 
+            if (full && sess && sid) {
                 const { cleaned, contact } = stripContactToken(full);
                 full = cleaned || "I do not have enough portfolio context to answer that confidently yet.";
 
@@ -198,17 +198,17 @@ async function chat(req: Request, env: Env): Promise<Response> {
                     }
                 }
 
-                sess.messages.push({ role: 'assistant', content: full, timestamp: Date.now() }); 
-                sess.updatedAt = Date.now(); 
-                await env.CHAT_SESSIONS.put(sid, JSON.stringify(sess), { expirationTtl: TTL }); 
+                sess.messages.push({ role: 'assistant', content: full, timestamp: Date.now() });
+                sess.updatedAt = Date.now();
+                await env.CHAT_SESSIONS.put(sid, JSON.stringify(sess), { expirationTtl: TTL });
             }
             ctrl.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ response: full })}\n\ndata: [DONE]\n\n`));
         }
     });
-    
+
     stream.pipeTo(writable).catch((error) => console.error('AI stream error:', error));
-    
-    return new Response(readable, { 
+
+    return new Response(readable, {
         headers: sseHeaders(req, cookieHeader)
     });
 }
@@ -217,17 +217,17 @@ const worker = {
     async fetch(req: Request, env: Env): Promise<Response> {
         const p = new URL(req.url).pathname;
         if (req.method === 'OPTIONS') {
-            return new Response(null, { 
+            return new Response(null, {
                 headers: getCorsHeaders(req)
             });
         }
         if (p === '/api/chat') {
             return chat(req, env);
         }
-        if (p === '/api/history') { 
-            const s = cookie(req); 
+        if (p === '/api/history') {
+            const s = cookie(req);
             const sess = s ? await env.CHAT_SESSIONS.get(s, { type: 'json' }) as ChatSession | null : null;
-            return json({ messages: sess?.messages || [] }, 200, {}, req); 
+            return json({ messages: sess?.messages || [] }, 200, {}, req);
         }
         if (p === '/api/seed') {
             return seed(req, env);
