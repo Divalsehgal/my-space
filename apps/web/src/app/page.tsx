@@ -25,7 +25,6 @@ export default async function HomePage() {
     <PortfolioProvider value={config ?? null}>
       <div className="page-scroll">
         <ScrollSnapControl />
-        {/*TODO: Need to Check if this helps or not*/}
         <JsonLd data={jsonLd} />
         <Hero />
         <About />

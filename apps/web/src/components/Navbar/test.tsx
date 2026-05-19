@@ -1,4 +1,6 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Navbar from "./index";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -91,9 +93,7 @@ describe("Navbar Component", () => {
     const mobileLinks = screen.getAllByTestId("navlink-/#about");
     const mobileLink = mobileLinks.length > 1 ? mobileLinks[1] : mobileLinks[0];
 
-    act(() => {
-      fireEvent.click(mobileLink);
-    });
+    fireEvent.click(mobileLink);
 
     // Menu should be closed
     expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
@@ -103,19 +103,15 @@ describe("Navbar Component", () => {
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     const { container } = renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
 
     // Overlay is the first div with navbar__overlay class
     const overlay = container.querySelector(".navbar__overlay");
     expect(overlay).toBeInTheDocument();
 
-    act(() => {
-      if (overlay) {
-        fireEvent.click(overlay);
-      }
-    });
+    if (overlay) {
+      fireEvent.click(overlay);
+    }
 
     expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
   });
@@ -124,13 +120,9 @@ describe("Navbar Component", () => {
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId("navlink-/"));
-    });
+    fireEvent.click(screen.getByTestId("navlink-/"));
 
     expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
   });
@@ -140,9 +132,7 @@ describe("Navbar Component", () => {
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     const { rerender } = renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
     expect(screen.getByLabelText("Close menu")).toBeInTheDocument();
 
     // Resize to desktop
@@ -153,26 +143,20 @@ describe("Navbar Component", () => {
       </ThemeContextProvider>,
     );
 
-    // Wait for setTimeout(() => setOpen(false), 0)
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 0));
+    // Wait for menu to close after resize
+    await waitFor(() => {
+      expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
     });
-
-    expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
   });
 
   it("closes mobile menu when Escape key is pressed", () => {
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
     expect(screen.getByLabelText("Close menu")).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.keyDown(window, { key: "Escape" });
-    });
+    fireEvent.keyDown(globalThis as any, { key: "Escape" });
 
     expect(screen.getByLabelText("Open menu")).toBeInTheDocument();
   });
@@ -181,9 +165,7 @@ describe("Navbar Component", () => {
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
 
     const allFocusable = document.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
@@ -199,9 +181,7 @@ describe("Navbar Component", () => {
     firstEl.focus();
 
     // Shift+Tab on first element should move to last focusable
-    act(() => {
-      fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
-    });
+    fireEvent.keyDown(globalThis as any, { key: "Tab", shiftKey: true });
 
     expect(lastFocusSpy).toHaveBeenCalled();
 
@@ -209,36 +189,30 @@ describe("Navbar Component", () => {
     lastEl.focus();
 
     // Tab on last element should move to first focusable
-    act(() => {
-      fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
-    });
+    fireEvent.keyDown(globalThis as any, { key: "Tab", shiftKey: false });
 
     expect(firstFocusSpy).toHaveBeenCalled();
 
     // Ignore non-Tab keys
-    act(() => {
-      fireEvent.keyDown(window, { key: "A" });
-    });
+    fireEvent.keyDown(globalThis as any, { key: "A" });
   });
 
   it("updates progress bar scale on window scroll", () => {
     jest.useFakeTimers();
-    const originalRAF = window.requestAnimationFrame;
-    window.requestAnimationFrame = jest.fn((cb) => {
+    const originalRAF = globalThis.requestAnimationFrame;
+    globalThis.requestAnimationFrame = jest.fn((cb) => {
       cb(0);
       return 0;
     });
 
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      // Trigger scroll
-      fireEvent.scroll(window);
-    });
+    // Trigger scroll
+    fireEvent.scroll(globalThis as any);
 
-    expect(window.requestAnimationFrame).toHaveBeenCalled();
+    expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
 
-    window.requestAnimationFrame = originalRAF;
+    globalThis.requestAnimationFrame = originalRAF;
     jest.useRealTimers();
   });
 
@@ -254,9 +228,7 @@ describe("Navbar Component", () => {
 
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.scroll(window);
-    });
+    fireEvent.scroll(globalThis as any);
 
     expect(screen.getByRole("navigation")).toBeInTheDocument();
   });
@@ -266,18 +238,14 @@ describe("Navbar Component", () => {
     // Mock querySelectorAll to return empty for the navRef
     renderWithTheme(<Navbar />);
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText("Open menu"));
-    });
+    fireEvent.click(screen.getByLabelText("Open menu"));
 
     const nav = screen.getByRole("navigation");
     jest
       .spyOn(nav, "querySelectorAll")
       .mockReturnValue([] as unknown as NodeListOf<Element>);
 
-    act(() => {
-      fireEvent.keyDown(window, { key: "Tab" });
-    });
+    fireEvent.keyDown(globalThis as any, { key: "Tab" });
 
     // No error should occur
     expect(screen.getByLabelText("Close menu")).toBeInTheDocument();

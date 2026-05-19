@@ -10,13 +10,12 @@ import Paper from "@mui/material/Paper";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+interface ErrorPageProps {
+  readonly error: Error & { digest?: string };
+  readonly reset: () => void;
+}
+
+export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error("Global Error Boundary caught:", error);
@@ -64,13 +63,21 @@ export default function Error({
           </Box>
 
           <Box>
-            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, letterSpacing: "-0.01em" }}>
+            <Typography
+              variant="h3"
+              sx={{ fontWeight: 700, mb: 1, letterSpacing: "-0.01em" }}
+            >
               Something went wrong
             </Typography>
 
-            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 450, mx: "auto", mb: 2 }}>
-              We encountered an unexpected error. This might be a temporary glitch.
-              If the problem persists, please try clearing your cache or contact support.
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ maxWidth: 450, mx: "auto", mb: 2 }}
+            >
+              We encountered an unexpected error. This might be a temporary
+              glitch. If the problem persists, please try clearing your cache or
+              contact support.
             </Typography>
           </Box>
 
@@ -86,7 +93,11 @@ export default function Error({
                 overflowX: "auto",
               }}
             >
-              <Typography variant="caption" component="pre" sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
+              <Typography
+                variant="caption"
+                component="pre"
+                sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}
+              >
                 {error.stack || error.message}
               </Typography>
             </Box>

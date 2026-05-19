@@ -1,0 +1,7 @@
+{
+  "buildCommand": "yarn generate:tokens && turbo build",
+  "outputDirectory": "apps/web/.next",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

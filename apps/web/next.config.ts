@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   turbopack: {},  // Use Turbopack (Next.js 16 default), ignore webpack configs from plugins
   sassOptions: {
     ...config.sassOptions,
+    implementation: require.resolve('sass'),
     additionalData: `@use "@dival-sehgal/design-tokens/variables.scss" as *; @use "${path.join(__dirname, "src/styles/mixins.scss").replaceAll('\\', '/')}" as *;`,
     includePaths: [
       path.join(__dirname, "src", "styles"),

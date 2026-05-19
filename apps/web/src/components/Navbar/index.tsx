@@ -33,9 +33,11 @@ export default function Navbar({ brand }: NavbarProps) {
 
     const updateProgress = () => {
       const winScroll = window.scrollY || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
       const scrolled = height > 0 ? winScroll / height : 0;
-      
+
       if (navRef.current) {
         navRef.current.style.setProperty("--scroll-scale", scrolled.toString());
       }
@@ -52,7 +54,7 @@ export default function Navbar({ brand }: NavbarProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     // Initialize
     updateProgress();
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -94,7 +96,7 @@ export default function Navbar({ brand }: NavbarProps) {
       }
 
       const focusableElements = navRef.current?.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
 
       if (!focusableElements || focusableElements.length === 0) {
@@ -102,23 +104,23 @@ export default function Navbar({ brand }: NavbarProps) {
       }
 
       const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      const lastElement = focusableElements[
+        focusableElements.length - 1
+      ] as HTMLElement;
 
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
           lastElement.focus();
           e.preventDefault();
         }
-      } else {
-        if (document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
+      } else if (document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
   return (
@@ -136,9 +138,9 @@ export default function Navbar({ brand }: NavbarProps) {
       <nav className={styles.navbar} ref={navRef}>
         <FluidContainer className={styles["navbar__container"]}>
           {/* Brand */}
-          <Link 
-            href="/" 
-            className={styles["navbar__brand"]} 
+          <Link
+            href="/"
+            className={styles["navbar__brand"]}
             onClick={() => {
               setOpen(false);
             }}
@@ -152,35 +154,43 @@ export default function Navbar({ brand }: NavbarProps) {
           {/* Desktop Nav */}
           <div className={styles["navbar__nav-desktop"]}>
             {navLinks.map((l) => (
-              <Link 
-                key={l.label} 
-                href={l.href} 
+              <Link
+                key={l.label}
+                href={l.href}
                 className={styles["navbar__nav-link"]}
                 onClick={() => {
-                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: l.label, href: l.href, location: "navbar" });
+                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
+                    label: l.label,
+                    href: l.href,
+                    location: "navbar",
+                  });
                 }}
               >
                 {l.label}
               </Link>
             ))}
-            
-            <IconButton 
-              onClick={toggleTheme} 
-              sx={{ color: 'text.primary', ml: 1 }}
-              aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+
+            <IconButton
+              onClick={toggleTheme}
+              sx={{ color: "text.primary", ml: 1 }}
+              aria-label={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
             >
-              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
           </div>
 
           {/* Mobile Menu Button Container */}
           <div className={styles["navbar__mobile-actions"]}>
-            <IconButton 
-              onClick={toggleTheme} 
-              sx={{ color: 'text.primary', mr: 1, display: { xs: 'flex', md: 'none' } }}
-              aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                color: "text.primary",
+                mr: 1,
+                display: { xs: "flex", md: "none" },
+              }}
+              aria-label={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
             >
-              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
 
             <IconButton

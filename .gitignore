@@ -45,3 +45,4 @@ src/styles/dist/
 
 # local debug scripts
 apps/web/notion_debug.js
+.turbo

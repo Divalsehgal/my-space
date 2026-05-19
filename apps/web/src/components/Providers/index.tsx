@@ -8,7 +8,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  children,
+}: {
+  readonly children: React.ReactNode;
+}) {
   const [{ cache, flush }] = useState(() => {
     const cache = createCache({ key: "mui" });
     cache.compat = true;
@@ -51,11 +55,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   // Unregister service workers in development to prevent stale caching issues
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" && "serviceWorker" in navigator) {
+    if (
+      process.env.NODE_ENV === "development" &&
+      "serviceWorker" in navigator
+    ) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
           registration.unregister();
-          console.info("Service Worker unregistered in development mode to prevent stale caching.");
+          console.info(
+            "Service Worker unregistered in development mode to prevent stale caching.",
+          );
         }
       });
     }
@@ -65,9 +74,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <CacheProvider value={cache}>
       <ThemeContextProvider>
         <CssBaseline />
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </ThemeContextProvider>
     </CacheProvider>
   );
