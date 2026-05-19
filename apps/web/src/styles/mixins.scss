@@ -90,6 +90,7 @@
 // Typography
 @mixin role-title {
     margin-bottom: $t-spacing-2;
+    margin-top: $t-spacing-0;
 
     font-size: 1.5rem;
     font-weight: $t-font-weight-bold;

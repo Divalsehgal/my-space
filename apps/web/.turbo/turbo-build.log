@@ -1,5 +1,26 @@
 
 [2K[1G[1myarn run v1.22.22[22m
+[2K[1G[2m$ cd ../../packages/design-tokens && node build-tokens.js[22m
+
+scss
+[1m[32m✔︎ build/scss/variables.scss[39m[22m
+
+css
+[1m[32m✔︎ build/css/variables.light.css[39m[22m
+
+ts
+[1m[32m✔︎ build/ts/variables.light.js[39m[22m
+[1m[32m✔︎ build/ts/variables.light.d.ts[39m[22m
+
+css
+[1m[32m✔︎ build/css/variables.dark.css[39m[22m
+
+scss
+[1m[32m✔︎ build/scss/variables.dark.scss[39m[22m
+
+ts
+[1m[32m✔︎ build/ts/variables.dark.js[39m[22m
+[1m[32m✔︎ build/ts/variables.dark.d.ts[39m[22m
 [2K[1G[2m$ next build[22m
 [33m[1m⚠[22m[39m Warning: Next.js inferred your workspace root, but it may not be correct.
  We detected multiple lockfiles and selected the directory of /Users/divalsehgal/yarn.lock as the root directory.
@@ -15,29 +36,20 @@
   · optimizePackageImports
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 6.5s
-[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 4.0s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 4.0s    [32m[1m✓[22m[39m Finished TypeScript in 4.0s 
-[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 437.6ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 437.6ms 
-[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/12)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (4/12)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (4/12)  [36m[==  ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (6/12)  [36m[=== ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (6/12)  [36m[ ===][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (6/12)  [36m[  ==][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (12/12) in 1134.4ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 334.3ms    [32m[1m✓[22m[39m Finalizing page optimization in 334.3ms 
+[32m[1m✓[22m[39m Compiled successfully in 7.2s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[31mFailed to compile.
+[39m
+[36m./src/app/page.tsx[39m:[33m32[39m:[33m45[39m
+[31m[1mType error[22m[39m: Type '{ title: string; subtitle: string; email: string; } | undefined' is not assignable to type 'ContactData'.
+  Type 'undefined' is not assignable to type 'ContactData'.
 
-[4mRoute (app)[24m               [4mRevalidate[24m  [4mExpire[24m
-┌ ○ /                             2m      1y
-├ ○ /_not-found                   2m      1y
-├ ƒ /api/chat-context
-├ ƒ /api/contact
-├ ƒ /api/revalidate
-├ ○ /blogs                        2m      1y
-├ ● /blogs/[slug]                 2m      1y
-│ ├ /blogs/web-security           2m      1y
-│ ├ /blogs/design-system          2m      1y
-│ └ /blogs/next-js-guide          2m      1y
-├ ○ /robots.txt
-└ ○ /sitemap.xml                  1h      1y
-
-
-○  (Static)   prerendered as static content
-●  (SSG)      prerendered as static HTML (uses [36mgenerateStaticParams[39m)
-ƒ  (Dynamic)  server-rendered on demand
-
-[?25h[2K[1G✨  Done in 14.43s.
+[0m [90m 30 |[39m       [33m<[39m[33mExperience[39m items[33m=[39m{config[33m?[39m[33m.[39mexperience} [33m/[39m[33m>[39m
+ [90m 31 |[39m       [33m<[39m[33mProject[39m items[33m=[39m{config[33m?[39m[33m.[39mprojects} [33m/[39m[33m>[39m
+[31m[1m>[22m[39m[90m 32 |[39m       [33m<[39m[33mContact[39m socialItems[33m=[39m{config[33m.[39msocials} data[33m=[39m{config[33m?[39m[33m.[39mcontact} [33m/[39m[33m>[39m
+ [90m    |[39m                                             [31m[1m^[22m[39m
+ [90m 33 |[39m     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 34 |[39m   )[33m;[39m
+ [90m 35 |[39m }[0m
+[2K[1G[?25hNext.js build worker exited with code: 1 and signal: null
+[?25l [36m.[39m [?25h[2K[1G[31merror[39m Command failed with exit code 1.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.
