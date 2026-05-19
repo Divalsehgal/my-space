@@ -1,23 +1,24 @@
 
-node:internal/modules/cjs/loader:1372
-  throw err;
-  ^
+[2K[1G[1myarn run v1.22.22[22m
+[2K[1G[2m$ node build-tokens.js[22m
 
-Error: Cannot find module '/Users/divalsehgal/.yarn/bin/../lib/cli'
-Require stack:
-- /Users/divalsehgal/.yarn/bin/yarn.js
-    at Module._resolveFilename (node:internal/modules/cjs/loader:1369:15)
-    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
-    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
-    at Module._load (node:internal/modules/cjs/loader:1179:37)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at Object.<anonymous> (/Users/divalsehgal/.yarn/bin/yarn.js:24:13)
-    at Module._compile (node:internal/modules/cjs/loader:1692:14) {
-  code: 'MODULE_NOT_FOUND',
-  requireStack: [ '/Users/divalsehgal/.yarn/bin/yarn.js' ]
-}
+scss
+[1m[32m✔︎ build/scss/variables.scss[39m[22m
 
-Node.js v24.3.0
+css
+[1m[32m✔︎ build/css/variables.light.css[39m[22m
+
+ts
+[1m[32m✔︎ build/ts/variables.light.js[39m[22m
+[1m[32m✔︎ build/ts/variables.light.d.ts[39m[22m
+
+css
+[1m[32m✔︎ build/css/variables.dark.css[39m[22m
+
+scss
+[1m[32m✔︎ build/scss/variables.dark.scss[39m[22m
+
+ts
+[1m[32m✔︎ build/ts/variables.dark.js[39m[22m
+[1m[32m✔︎ build/ts/variables.dark.d.ts[39m[22m
+[2K[1G✨  Done in 1.44s.
