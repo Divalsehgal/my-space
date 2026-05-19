@@ -1,4 +1,5 @@
-@use "@/styles/mixins.scss" as *;
+@use "variables.scss" as *;
+@use "mixins" as *;
 
 .toc {
   width: 100%;

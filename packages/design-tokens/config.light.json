@@ -35,17 +35,6 @@
           "format": "css/variables"
         }
       ]
-    },
-    "scss": {
-      "transformGroup": "scss",
-      "buildPath": "build/scss/",
-      "prefix": "t",
-      "files": [
-        {
-          "destination": "variables.scss",
-          "format": "scss/variables"
-        }
-      ]
     }
   }
 }

@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 // Main Container
 .carousel {
   display: flex;

@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 
 .about {
   overflow: hidden; // Clip BackgroundPattern's 120% parallax height — stops bleed into Experience section

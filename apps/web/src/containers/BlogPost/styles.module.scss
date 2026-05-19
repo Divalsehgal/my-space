@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 .blog-post {
   min-height: 100vh;
   font-size: $t-font-size-base;

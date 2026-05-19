@@ -1,4 +1,3 @@
-// next.config.ts
 import path from "node:path";
 import config from "@dival-sehgal/next-config";
 import type { NextConfig } from "next";
@@ -7,7 +6,7 @@ import bundleAnalyzer from "@next/bundle-analyzer";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})
+});
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -21,17 +20,14 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   ...config,
-  turbopack: {},  // Use Turbopack (Next.js 16 default), ignore webpack configs from plugins
+  turbopack: {},
   sassOptions: {
     ...config.sassOptions,
-    implementation: require.resolve('sass'),
-    additionalData: `@use "@dival-sehgal/design-tokens/variables.scss" as *; @use "${path.join(__dirname, "src/styles/mixins.scss").replaceAll('\\', '/')}" as *;`,
-    includePaths: [
-      path.join(__dirname, "src", "styles"),
-      path.join(__dirname, "node_modules")
+    loadPaths: [
+      path.join(__dirname, "src/styles"),
+      path.join(__dirname, "../../packages/design-tokens/build/scss"),
     ],
   },
 };
-
 
 export default withBundleAnalyzer(withPWA(nextConfig));

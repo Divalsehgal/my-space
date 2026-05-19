@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 .blogs {
   min-height: 100vh;
   padding: $t-spacing-8 0 $t-spacing-20;

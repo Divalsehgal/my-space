@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 .breadcrumbs {
   position: relative;
   z-index: $t-layer-level-positive-1;

@@ -1,3 +1,6 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
 // CSS Modules are UNLAYERED by default in Next.js, which means they always
 // take precedence over @layer styles in globals.scss. This is intentional!
 //
