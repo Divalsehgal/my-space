@@ -1,5 +1,5 @@
 const StyleDictionary = require('style-dictionary').default;
-// Cache buster for Turborepo: 1
+// Cache buster for Turborepo: 2
 
 // Register a custom format to output SCSS variables that point to CSS variables
 StyleDictionary.registerFormat({
