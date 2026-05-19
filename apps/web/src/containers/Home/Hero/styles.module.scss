@@ -1,13 +1,12 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-
 .hero {
   scroll-snap-align: start;
 
   position: relative;
 
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,20 +20,23 @@
     pointer-events: none;
 
     position: absolute;
-    z-index: 1;
+    z-index: 0;
     inset: 0;
 
     opacity: 0.25;
 
     // Small dot cubic pattern
-    background-image: radial-gradient($t-colors-primary-default 1.5px, transparent 1.5px);
+    background-image: radial-gradient(
+      $t-colors-primary-default 1.5px,
+      transparent 1.5px
+    );
     background-position: center;
     background-size: 32px 32px;
   }
 
   &__container {
     position: relative;
-    z-index: $t-layer-level-positive-2;
+    z-index: 10;
 
     display: flex;
     flex-direction: column;
@@ -65,7 +67,7 @@
   &__heading {
     // Mobile First Sizing
     margin-bottom: $t-spacing-6 !important;
-    margin-top:$t-spacing-2 !important;
+    margin-top: $t-spacing-2 !important;
     font-size: 3.75rem !important; // approx 60px
     text-transform: uppercase;
 
@@ -103,7 +105,7 @@
     cursor: pointer;
 
     position: absolute;
-    z-index: $t-layer-level-positive-2;
+    z-index: 10;
     bottom: $t-spacing-12;
     left: 50%;
     transform: translateX(-50%);
