@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "cd ../../packages/design-tokens && node build-tokens.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
