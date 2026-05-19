@@ -51,7 +51,6 @@
     align-items: center;
     justify-content: center;
 
-    margin-bottom: $t-spacing-8;
     padding: $t-spacing-2 $t-spacing-4;
     border: 1px solid $t-colors-surface-brand-strong;
     border-radius: 9999px;
@@ -66,6 +65,7 @@
   &__heading {
     // Mobile First Sizing
     margin-bottom: $t-spacing-6 !important;
+    margin-top:$t-spacing-2 !important;
     font-size: 3.75rem !important; // approx 60px
     text-transform: uppercase;
 
