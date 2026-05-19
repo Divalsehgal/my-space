@@ -1,13 +1,6 @@
-
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProjectSection from "./index";
-import { usePortfolioContext } from "@/context/PortfolioContext";
-
-// Mock the context
-jest.mock("@/context/PortfolioContext", () => ({
-  usePortfolioContext: jest.fn(),
-}));
 
 // Mock Carousel
 jest.mock("@/components/Carousel", () => {
@@ -30,10 +23,6 @@ jest.mock("@/components/ProjectCard", () => {
 });
 
 describe("ProjectSection Container", () => {
-  beforeEach(() => {
-    (usePortfolioContext as jest.Mock).mockReturnValue(undefined);
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -45,14 +34,12 @@ describe("ProjectSection Container", () => {
   });
 
   it("renders project items in the carousel", () => {
-    (usePortfolioContext as jest.Mock).mockReturnValue({
-      projects: [
-        { id: "p-1", name: "AI Agent" },
-        { id: "p-2", name: "Web App" },
-      ],
-    });
+    const mockItems = [
+      { id: "p-1", name: "AI Agent", description: "AI stuff" },
+      { id: "p-2", name: "Web App", description: "Web stuff" },
+    ];
 
-    render(<ProjectSection />);
+    render(<ProjectSection items={mockItems} />);
     expect(screen.getByText("Projects")).toBeInTheDocument();
     expect(screen.getByTestId("proj-card-p-1")).toHaveTextContent("AI Agent");
     expect(screen.getByTestId("proj-card-p-2")).toHaveTextContent("Web App");

@@ -149,6 +149,12 @@ export function trackEvent(
     ...payload,
   };
 
+  // Development logging
+  if (process.env.NODE_ENV === "development") {
+    console.info("[Analytics Event]", { action, category, label, payload });
+    return;
+  }
+
   // Push to GTM dataLayer
   if (!win.dataLayer) {
     win.dataLayer = [];
@@ -158,11 +164,6 @@ export function trackEvent(
   // Also send directly to GA4 via gtag if present
   if (typeof win.gtag === "function") {
     win.gtag("event", action, eventPayload);
-  }
-
-  // Development logging
-  if (process.env.NODE_ENV === "development") {
-    console.info("[Analytics Event]", { action, category, label, payload });
   }
 }
 

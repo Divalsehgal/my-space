@@ -6,9 +6,9 @@ import { portfolioService } from "@/features/portfolio";
 import Contact from "@/containers/Home/Contact";
 import ScrollSnapControl from "@/components/ScrollSnapControl";
 import JsonLd from "@/components/JsonLd";
-import { PortfolioProvider } from "@/context/PortfolioContext";
 
 export default async function HomePage() {
+  
   const { config } = await portfolioService.getConfig();
 
   const jsonLd = {
@@ -22,16 +22,14 @@ export default async function HomePage() {
   };
 
   return (
-    <PortfolioProvider value={config ?? null}>
-      <div className="page-scroll">
-        <ScrollSnapControl />
-        <JsonLd data={jsonLd} />
-        <Hero />
-        <About />
-        <Experience />
-        <Project />
-        <Contact />
-      </div>
-    </PortfolioProvider>
+    <div className="page-scroll">
+      <ScrollSnapControl />
+      <JsonLd data={jsonLd} />
+      <Hero data={config?.hero} />
+      <About data={config?.about} socials={config?.socials} />
+      <Experience items={config?.experience} />
+      <Project items={config?.projects} />
+      <Contact socialItems={config.socials} data={config?.contact} />
+    </div>
   );
 }

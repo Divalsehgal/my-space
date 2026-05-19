@@ -8,14 +8,18 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
-import { portfolioService } from "@/features/portfolio";
 
-import ContactForm from "./ContactForm";
+import ContactForm from "./Form";
 
 const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
   github: GitHubIcon,
   linkedin: LinkedInIcon,
   instagram: InstagramIcon,
+};
+
+type ContactData = {
+  title?: string;
+  subtitle?: string;
 };
 
 type SocialItem = {
@@ -47,11 +51,7 @@ function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   );
 }
 
-export default async function Contact() {
-  const { config } = await portfolioService.getConfig();
-  const data = config?.contact;
-  const socialItems = (config?.socials as SocialItem[]) || [];
-
+export default async function Contact({data,socialItems}: { socialItems: SocialItem[], data: ContactData }) {
   return (
     <FluidContainer as="section" id="contact" className={clsx(styles.contact, "section")}>
       <SectionHeader

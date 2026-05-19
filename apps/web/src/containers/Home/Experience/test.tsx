@@ -1,16 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ExperienceSection from "./index";
-import { usePortfolioContext } from "@/context/PortfolioContext";
-
-// Mock the context
-jest.mock("@/context/PortfolioContext", () => ({
-  usePortfolioContext: jest.fn(),
-}));
 
 // Mock Carousel to just render the items map
 jest.mock("@/components/Carousel", () => {
-  return function MockCarousel({ items, renderItem }: unknown) {
+  return function MockCarousel({ items, renderItem }: any) {
     return (
       <div data-testid="carousel-mock">
         {items.map((item: unknown, i: number) => (
@@ -23,16 +19,12 @@ jest.mock("@/components/Carousel", () => {
 
 // Mock ExperienceCard
 jest.mock("@/components/ExperienceCard", () => {
-  return function MockExperienceCard({ experience }: unknown) {
+  return function MockExperienceCard({ experience }: any) {
     return <div data-testid={`exp-card-${experience.id}`}>{experience.role}</div>;
   };
 });
 
 describe("ExperienceSection Container", () => {
-  beforeEach(() => {
-    (usePortfolioContext as jest.Mock).mockReturnValue(undefined);
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -44,14 +36,12 @@ describe("ExperienceSection Container", () => {
   });
 
   it("renders experience items in the carousel", () => {
-    (usePortfolioContext as jest.Mock).mockReturnValue({
-      experience: [
-        { id: "exp-1", role: "Software Engineer" },
-        { id: "exp-2", role: "Senior Developer" },
-      ],
-    });
+    const mockItems = [
+      { id: "exp-1", role: "Software Engineer", company: "Company A", period: "2020-2022", description: [] },
+      { id: "exp-2", role: "Senior Developer", company: "Company B", period: "2022-Present", description: [] },
+    ];
 
-    render(<ExperienceSection />);
+    render(<ExperienceSection items={mockItems} />);
     expect(screen.getByText("Experience")).toBeInTheDocument();
     expect(screen.getByTestId("exp-card-exp-1")).toHaveTextContent("Software Engineer");
     expect(screen.getByTestId("exp-card-exp-2")).toHaveTextContent("Senior Developer");

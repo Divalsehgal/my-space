@@ -1,18 +1,16 @@
-"use client";
-
-import Carousel from "@/components/Carousel";
-import ProjectCard from "@/components/ProjectCard";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
-import { usePortfolioContext } from "@/context/PortfolioContext";
+import { type ProjectConfig } from "@/features/portfolio";
+import ProjectCarousel from "./ProjectCarousel";
 
-export default function Project() {
-  const config = usePortfolioContext();
-  const items = config?.projects || [];
+interface ProjectProps {
+  items?: ProjectConfig[];
+}
 
+export default function Project({ items = [] }: ProjectProps) {
   return (
     <FluidContainer as="section" id="projects" className={clsx("section", styles.project)}>
       <SectionHeader 
@@ -24,11 +22,7 @@ export default function Project() {
           icon: <ArrowOutwardIcon />
         }}
       />
-      <Carousel
-        items={items}
-        progressLabelPrefix="Project"
-        renderItem={(item) => <ProjectCard project={item} />}
-      />
+      <ProjectCarousel items={items} />
     </FluidContainer>
   );
 }

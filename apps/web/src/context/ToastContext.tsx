@@ -19,10 +19,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState<ToastSeverity>("success");
 
+  const timerRef = React.useRef<NodeJS.Timeout>(null);
+
   const showToast = useCallback((msg: string, sev: ToastSeverity = "success") => {
     setMessage(msg);
     setSeverity(sev);
     setOpen(true);
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    
+    timerRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 5000);
   }, []);
 
   const handleClose = useCallback((_event?: React.SyntheticEvent | Event, reason?: string) => {

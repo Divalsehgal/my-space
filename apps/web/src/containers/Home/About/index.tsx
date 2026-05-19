@@ -1,34 +1,35 @@
-"use client";
-
 
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 
-import { type SvgIconProps } from "@mui/material";
 
 import SectionHeader from "@/components/SectionHeader";
 import BackgroundPattern from "@/components/BackgroundPattern";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
-import { usePortfolioContext } from "@/context/PortfolioContext";
+import AboutSocialLinks from "./AboutSocialLinks";
 
-const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
-  github: GitHubIcon,
-  linkedin: LinkedInIcon,
-  instagram: InstagramIcon,
+
+type SocialItem = {
+  label: string;
+  href: string;
+  icon?: string;
 };
 
-export default function About() {
-  const config = usePortfolioContext();
-  const data = config?.about;
-  const socials = config?.socials;
+type AboutData = {
+  title: string;
+  paragraphs?: string[];
+  facts?: string[];
+};
+
+interface AboutProps {
+  data?: AboutData;
+  socials?: SocialItem[];
+}
+
+export default function About({ data, socials }: AboutProps) {
 
   const title = data?.title || "About Me";
   const paragraphs = data?.paragraphs || [];
@@ -110,40 +111,7 @@ export default function About() {
                   >
                     Socials
                   </Typography>
-                  <div className={styles["about__social-links"]}>
-                    {socialItems.map((social) => {
-                      const Icon =
-                        ICON_MAP[social.icon?.toLowerCase() || ""] || null;
-                      return (
-                        <IconButton
-                          key={social.href}
-                          className={styles["about__social-btn"]}
-                          href={social.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={social.label}
-                          size="large"
-                          onClick={() => {
-                            trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, {
-                              platform: social.label,
-                              href: social.href,
-                            });
-                          }}
-                        >
-                          {Icon ? (
-                            <Icon fontSize="large" />
-                          ) : (
-                            <Typography
-                              variant="caption"
-                              sx={{ fontWeight: "bold" }}
-                            >
-                              {social.label.substring(0, 2).toUpperCase()}
-                            </Typography>
-                          )}
-                        </IconButton>
-                      );
-                    })}
-                  </div>
+                  <AboutSocialLinks socialItems={socialItems} containerClassName={styles["about__social-links"]} btnClassName={styles["about__social-btn"]} />
                 </Stack>
               </Grid>
             </Grid>

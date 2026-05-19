@@ -1,18 +1,16 @@
-"use client";
-
 import clsx from "clsx";
-import Carousel from "@/components/Carousel";
 import styles from "./styles.module.scss";
-import ExperienceCard from "@/components/ExperienceCard";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
-import { usePortfolioContext } from "@/context/PortfolioContext";
+import { type ExperienceConfig } from "@/features/portfolio";
+import ExperienceCarousel from "./ExperienceCarousel";
 
-export default function ExperienceSection() {
-  const config = usePortfolioContext();
-  const items = config?.experience || [];
+interface ExperienceProps {
+  items?: ExperienceConfig[];
+}
 
+export default function ExperienceSection({ items = [] }: ExperienceProps) {
   return (
     <FluidContainer
       as="section"
@@ -28,11 +26,7 @@ export default function ExperienceSection() {
           icon: <ArrowOutwardIcon />
         }}
       />
-      <Carousel
-        items={items}
-        progressLabelPrefix="Role"
-        renderItem={(item) => <ExperienceCard experience={item} />}
-      />
+      <ExperienceCarousel items={items} />
     </FluidContainer>
   );
 }

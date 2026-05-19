@@ -1,0 +1,16 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.actions {
+  display: flex;
+  flex-flow: column wrap; // Column by default (Mobile)
+  gap: $t-spacing-5;
+  justify-content: center;
+
+  width: 100%;
+  max-width: 28rem;
+
+  @media (min-width: $t-breakpoint-mobile) {
+    flex-direction: row; // Row on larger screens
+  }
+}

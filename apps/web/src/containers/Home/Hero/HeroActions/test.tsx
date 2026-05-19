@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Hero from "./index";
+import HeroActions from "./index";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 
 // Mock utilities
@@ -12,22 +12,14 @@ jest.mock("@/utils/analytics", () => {
   };
 });
 
-// Mock decorative backgrounds
-jest.mock("@/components/BackgroundPattern", () => function MockBackgroundPattern() { return <div data-testid="bg-pattern" />; });
-jest.mock("@/components/ParticlesBackground", () => function MockParticlesBackground() { return <div data-testid="particles-bg" />; });
-
-describe("Hero Container", () => {
+describe("HeroActions Component", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it("renders with default fallback text when data is empty", () => {
-    render(<Hero />);
+    render(<HeroActions />);
     
-    expect(screen.getByText("Dival Sehgal")).toBeInTheDocument();
-    expect(screen.getByText("Full-Stack Engineer")).toBeInTheDocument();
-    
-    // Default Buttons
     expect(screen.getByText("View Projects")).toBeInTheDocument();
     expect(screen.getByText("Contact")).toBeInTheDocument();
     expect(screen.getByText("Resume")).toBeInTheDocument();
@@ -35,22 +27,27 @@ describe("Hero Container", () => {
 
   it("renders with dynamic data passed as props", () => {
     const mockData = {
-      title: "Test Title",
-      subtitle: "Test Subtitle",
-      badge: { enabled: true, label: "Available for Hire" },
-      primaryCtaLabel: "Custom CTA",
+      primaryCtaLabel: "Custom primary",
+      primaryCtaHref: "/primary-link",
+      secondaryCtaLabel: "Custom secondary",
+      secondaryCtaHref: "/secondary-link",
+      resumeLabel: "Custom Resume",
+      resumeUrl: "/resume-link",
     };
 
-    render(<Hero data={mockData} />);
+    render(<HeroActions data={mockData} />);
     
-    expect(screen.getByText("Available for Hire")).toBeInTheDocument();
-    expect(screen.getByText("Test Title")).toBeInTheDocument();
-    expect(screen.getByText("Test Subtitle")).toBeInTheDocument();
-    expect(screen.getByText("Custom CTA")).toBeInTheDocument();
+    expect(screen.getByText("Custom primary")).toBeInTheDocument();
+    expect(screen.getByText("Custom secondary")).toBeInTheDocument();
+    expect(screen.getByText("Custom Resume")).toBeInTheDocument();
+
+    expect(screen.getByText("Custom primary")).toHaveAttribute("href", "/primary-link");
+    expect(screen.getByText("Custom secondary")).toHaveAttribute("href", "/secondary-link");
+    expect(screen.getByText("Custom Resume")).toHaveAttribute("href", "/resume-link");
   });
 
   it("calls trackInteraction properly on Resume click", () => {
-    render(<Hero />);
+    render(<HeroActions />);
     
     const resumeBtn = screen.getByText("Resume");
     fireEvent.click(resumeBtn);
@@ -59,7 +56,7 @@ describe("Hero Container", () => {
   });
 
   it("calls trackInteraction properly on other button clicks", () => {
-    render(<Hero />);
+    render(<HeroActions />);
     
     const viewProjectsBtn = screen.getByText("View Projects");
     fireEvent.click(viewProjectsBtn);
@@ -73,13 +70,11 @@ describe("Hero Container", () => {
 
   it("handles missing href in trackInteraction (fallback to empty string)", () => {
     const mockData = {
-      title: "Test Title",
-      subtitle: "Test Subtitle",
       primaryCtaLabel: "No Href",
       primaryCtaHref: "", // empty string to trigger fallback
     };
 
-    render(<Hero data={mockData} />);
+    render(<HeroActions data={mockData} />);
     
     const btn = screen.getByText("No Href");
     fireEvent.click(btn);
