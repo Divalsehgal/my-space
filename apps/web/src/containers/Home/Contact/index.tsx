@@ -20,6 +20,7 @@ const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
 type ContactData = {
   title?: string;
   subtitle?: string;
+  email?: string;
 };
 
 type SocialItem = {
@@ -27,7 +28,6 @@ type SocialItem = {
   href: string;
   icon?: string;
 };
-
 
 function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   return (
@@ -51,9 +51,19 @@ function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   );
 }
 
-export default async function Contact({data,socialItems}: { socialItems: SocialItem[], data: ContactData }) {
+export default async function Contact({
+  data,
+  socialItems,
+}: {
+  socialItems: SocialItem[];
+  data?: ContactData;
+}) {
   return (
-    <FluidContainer as="section" id="contact" className={clsx(styles.contact, "section")}>
+    <FluidContainer
+      as="section"
+      id="contact"
+      className={clsx(styles.contact, "section")}
+    >
       <SectionHeader
         title={
           <div className={styles["contact__title-wrapper"]}>
@@ -61,11 +71,14 @@ export default async function Contact({data,socialItems}: { socialItems: SocialI
             <SocialLinks socialItems={socialItems} />
           </div>
         }
-        subtitle={data?.subtitle || "Feel free to reach out for collaborations or just a friendly hello!"}
+        subtitle={
+          data?.subtitle ||
+          "Feel free to reach out for collaborations or just a friendly hello!"
+        }
         align="left"
       />
       <div className={styles["contact__container"]}>
-        <ContactForm  />
+        <ContactForm />
       </div>
     </FluidContainer>
   );
