@@ -87,9 +87,9 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
     const filteredPosts = useMemo(() => {
         const query = deferredQuery.toLowerCase();
         return posts.filter((post) => {
-            const matchesSearch = post.title.toLowerCase().includes(query) ||
-                post.description?.toLowerCase().includes(query) ||
-                post.tags.some(tag => tag.toLowerCase().includes(query));
+            const matchesSearch = (post.title?.toLowerCase() || "").includes(query) ||
+                (post.description?.toLowerCase() || "").includes(query) ||
+                (post.tags || []).some(tag => (tag?.toLowerCase() || "").includes(query));
 
             return matchesSearch;
         });

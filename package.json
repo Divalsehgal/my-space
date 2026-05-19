@@ -14,7 +14,6 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
-    "generate:tokens": "turbo generate:tokens",
     "prepare": "husky"
   },
   "dependencies": {

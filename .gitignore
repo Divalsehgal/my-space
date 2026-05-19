@@ -45,4 +45,10 @@ src/styles/dist/
 
 # local debug scripts
 apps/web/notion_debug.js
+
+# turborepo
 .turbo
+.turbo/
+**/.turbo/
+turbo-*.log
+**/turbo-build.log

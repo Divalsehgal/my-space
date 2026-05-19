@@ -9,8 +9,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:style": "stylelint 'src/**/*.scss'",
     "test": "jest",
-    "test:coverage": "jest --coverage",
-    "generate:tokens": "cd ../../packages/design-tokens && npm run build"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^16.2.1",
