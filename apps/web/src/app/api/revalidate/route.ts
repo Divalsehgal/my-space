@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const { secret, tag = "portfolio" } = await request.json();
 
-    if (secret !== process.env.REVALIDATION_SECRET) {
+    if (!process.env.REVALIDATION_SECRET || secret !== process.env.REVALIDATION_SECRET) {
       return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
     }
 

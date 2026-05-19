@@ -24,8 +24,6 @@ export const client = new GraphQLClient(endpoint, {
     next: { 
       // Tags allow us to clear the cache instantly via webhooks
       tags: ['contentful'], 
-      // 1-hour fallback revalidation (Safety net)
-      revalidate: 3600 
     } 
   }),
 });
