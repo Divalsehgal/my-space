@@ -54,7 +54,7 @@ export function useChat() {
       const response = await fetch(`${BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: content }),
+        body: JSON.stringify({ message: content, pagePath: window.location.pathname }),
         credentials: 'include',
       });
 

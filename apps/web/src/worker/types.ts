@@ -9,11 +9,13 @@ export interface Env {
     AI: { run: (model: string, options: unknown) => Promise<unknown> };
     VECTORIZE: { 
         upsert: (vecs: unknown[]) => Promise<void>;
+        deleteByIds: (ids: string[]) => Promise<void>;
         query: (vector: number[], options: unknown) => Promise<{ matches: unknown[] }>;
     };
     CHAT_SESSIONS: KVNamespace;
     CHAT_CONTEXT_URL?: string;
     CONTACT_API_URL?: string;
+    SEED_SECRET?: string;
 }
 
 export interface ChatMessage {

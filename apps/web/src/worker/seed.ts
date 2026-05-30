@@ -2,11 +2,14 @@ import { Env } from "./types";
 
 export const getCorsHeaders = (req: Request) => {
     const origin = req.headers.get('Origin') || '*';
+    const configuredOrigins = ['https://divalsehgal.vercel.app', 'http://localhost:3000'];
+    const allowedOrigins = configuredOrigins.includes(origin) ? origin : configuredOrigins[0];
+
     return {
-        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Origin': allowedOrigins,
         'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 };
 
@@ -39,32 +42,58 @@ interface Blog {
   tags: string[];
 }
 
-async function getContextUrl(req: Request, env: Env): Promise<string> {
-    const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
+const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
+const maxBlogChunks = 8;
+const maxSeededItems = 50;
 
-    try {
-        const body = await req.clone().json() as { contextUrl?: string };
-        if (body.contextUrl) {
-            return body.contextUrl;
-        }
-    } catch {
-        /* POST /api/seed does not require a JSON body */
+function isAuthorizedSeedRequest(req: Request, env: Env): boolean {
+    if (!env.SEED_SECRET) {
+        return false;
     }
 
-    return env.CHAT_CONTEXT_URL || `${fallbackSiteUrl}/api/chat-context`;
+    return req.headers.get('Authorization') === `Bearer ${env.SEED_SECRET}`;
+}
+
+function sanitizeContent(value: string | undefined, maxLength = 1400): string {
+    return (value || '').replace(/\s+/g, ' ').trim().slice(0, maxLength);
+}
+
+function chunkBlogContent(blog: Blog): string[] {
+    const content = sanitizeContent(blog.content, maxBlogChunks * 1400);
+    const chunks = content.match(/.{1,1400}(?:\s|$)/g)?.map((chunk) => chunk.trim()) || [];
+    return chunks.length ? chunks.slice(0, maxBlogChunks) : [sanitizeContent(blog.description)];
+}
+
+function getManagedVectorIds(): string[] {
+    return [
+        'info-general',
+        'info-experience-summary',
+        'info-contact',
+        ...Array.from({ length: maxSeededItems }, (_, i) => `exp-${i}`),
+        ...Array.from({ length: maxSeededItems }, (_, i) => `proj-${i}`),
+        ...Array.from({ length: maxSeededItems }, (_, i) => `blog-${i}`),
+        ...Array.from(
+            { length: maxSeededItems * maxBlogChunks },
+            (_, i) => `blog-${Math.floor(i / maxBlogChunks)}-${i % maxBlogChunks}`
+        )
+    ];
 }
 
 export async function seed(req: Request, env: Env): Promise<Response> {
     if (req.method !== 'POST') {
         return new Response('Method not allowed', { status: 405, headers: getCorsHeaders(req) });
     }
-    
-    const CONTEXT_URL = await getContextUrl(req, env);
+
+    if (!isAuthorizedSeedRequest(req, env)) {
+        return json({ error: 'Unauthorized' }, 401, {}, req);
+    }
+
+    const contextUrl = env.CHAT_CONTEXT_URL || `${fallbackSiteUrl}/api/chat-context`;
     
     try {
-        const res = await fetch(CONTEXT_URL);
+        const res = await fetch(contextUrl);
         if (!res.ok) {
-            throw new Error(`Failed to fetch chat context from ${CONTEXT_URL}`);
+            throw new Error(`Failed to fetch chat context from ${contextUrl}`);
         }
         const data = await res.json() as { portfolio: Portfolio; blogs: Blog[] };
         const { portfolio, blogs } = data;
@@ -84,7 +113,7 @@ export async function seed(req: Request, env: Env): Promise<Response> {
             metadata: { type: 'experience_summary' }
         });
 
-        portfolio.experience.forEach((e, i) => {
+        portfolio.experience.slice(0, maxSeededItems).forEach((e, i) => {
             chunks.push({
                 id: `exp-${i}`,
                 content: `At ${e.company}, Dival served as ${e.role} from ${e.period}. Highlights: ${e.description.map((d) => d.text).join(' ')} Tech Stack: ${e.techStack?.join(', ')}.`,
@@ -92,7 +121,7 @@ export async function seed(req: Request, env: Env): Promise<Response> {
             });
         });
 
-        portfolio.projects.forEach((p, i) => {
+        portfolio.projects.slice(0, maxSeededItems).forEach((p, i) => {
             chunks.push({
                 id: `proj-${i}`,
                 content: `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ')}.`,
@@ -100,11 +129,13 @@ export async function seed(req: Request, env: Env): Promise<Response> {
             });
         });
 
-        blogs.forEach((b, i) => {
-            chunks.push({
-                id: `blog-${i}`,
-                content: `Blog Post: ${b.title}. Content: ${b.content}. Published on: ${b.date}. URL: /blogs/${b.slug}`,
-                metadata: { type: 'blog', title: b.title, slug: b.slug }
+        blogs.slice(0, maxSeededItems).forEach((b, i) => {
+            chunkBlogContent(b).forEach((content, chunkIndex) => {
+                chunks.push({
+                    id: `blog-${i}-${chunkIndex}`,
+                    content: `Blog Post: ${sanitizeContent(b.title, 180)}. Summary: ${sanitizeContent(b.description, 320)}. Content excerpt: ${content}. Published on: ${sanitizeContent(b.date, 80)}. URL: /blogs/${sanitizeContent(b.slug, 180)}`,
+                    metadata: { type: 'blog', title: b.title, slug: b.slug, chunk: chunkIndex }
+                });
             });
         });
 
@@ -115,10 +146,12 @@ export async function seed(req: Request, env: Env): Promise<Response> {
         });
 
         const vecs = await Promise.all(chunks.map(async (c) => {
-            const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [c.content] }) as { data?: number[][] };
-            return { id: c.id, values: e.data?.[0] || [], metadata: { ...c.metadata, text: c.content } };
+            const content = sanitizeContent(c.content, 1600);
+            const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [content] }) as { data?: number[][] };
+            return { id: c.id, values: e.data?.[0] || [], metadata: { ...c.metadata, text: content } };
         }));
         
+        await env.VECTORIZE.deleteByIds(getManagedVectorIds());
         await env.VECTORIZE.upsert(vecs);
         
         return json({ success: true, count: chunks.length }, 200, {}, req);
