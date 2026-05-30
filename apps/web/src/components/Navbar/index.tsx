@@ -10,6 +10,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { useState, useEffect, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
@@ -28,9 +29,13 @@ export default function Navbar({ brand }: NavbarProps) {
   const isDesktop = useMediaQuery(`(min-width: ${TBreakpointTablet})`);
   const navRef = useRef<HTMLElement>(null);
 
+  // SAFE RENDER-PHASE UPDATE: Adjusts state directly when screen resizes to desktop
+  if (isDesktop && open) {
+    setOpen(false);
+  }
+
   useEffect(() => {
     let ticking = false;
-
     const updateProgress = () => {
       const winScroll = window.scrollY || document.documentElement.scrollTop;
       const height =
@@ -52,17 +57,12 @@ export default function Navbar({ brand }: NavbarProps) {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+
     // Initialize
     updateProgress();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (isDesktop && open) {
-      setTimeout(() => setOpen(false), 0);
-    }
-  }, [isDesktop, open]);
 
   useEffect(() => {
     const mainContent = document.getElementById("main-content");
@@ -135,7 +135,11 @@ export default function Navbar({ brand }: NavbarProps) {
           aria-hidden="true"
         />
       )}
-      <nav className={styles.navbar} ref={navRef}>
+
+      <nav
+        className={clsx(styles.navbar, open && styles["navbar--open"])}
+        ref={navRef}
+      >
         <FluidContainer className={styles["navbar__container"]}>
           {/* Brand */}
           <Link
@@ -169,7 +173,6 @@ export default function Navbar({ brand }: NavbarProps) {
                 {l.label}
               </Link>
             ))}
-
             <IconButton
               onClick={toggleTheme}
               sx={{ color: "text.primary", ml: 1 }}

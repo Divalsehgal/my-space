@@ -6,271 +6,287 @@
 
 // Card Styles
 @mixin card-glass {
-    overflow: hidden;
+  overflow: hidden;
 
-    border: 1px solid $t-colors-border-muted;
-    border-radius: $t-spacing-3; // rounded-xl
+  border: 1px solid $t-colors-border-muted;
+  border-radius: $t-spacing-3; // rounded-xl
 
-    background-color: $t-colors-surface-neutral-subtle;
-    backdrop-filter: blur(4px); // backdrop-blur-sm
+  background-color: $t-colors-surface-neutral-subtle;
+  backdrop-filter: blur(4px); // backdrop-blur-sm
 }
 
 @mixin card-hover-lift {
-    transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 
-    &:hover {
-        transform: translateY(-4px);
-        background-color: $t-colors-surface-neutral-muted;
-    }
+  &:hover {
+    transform: translateY(-4px);
+    background-color: $t-colors-surface-neutral-muted;
+  }
 }
 
 @mixin glass-input {
-    width: 100%;
-    padding: $t-spacing-3 $t-spacing-4;
-    border: 1px solid $t-colors-surface-brand-strong;
-    border-radius: $t-spacing-full;
+  width: 100%;
+  padding: $t-spacing-3 $t-spacing-4;
+  border: 1px solid $t-colors-surface-brand-strong;
+  border-radius: $t-spacing-full;
 
-    font-size: $t-font-size-sm;
-    color: $t-colors-text-primary;
+  font-size: $t-font-size-sm;
+  color: $t-colors-text-primary;
 
-    background: $t-colors-surface-glass;
-    backdrop-filter: blur(10px);
+  background: $t-colors-surface-glass;
+  backdrop-filter: blur(10px);
 
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 
-    &::placeholder {
-        color: $t-colors-text-tertiary;
-    }
+  &::placeholder {
+    color: $t-colors-text-tertiary;
+  }
 
-    &:focus {
-        border-color: $t-colors-primary-default;
-        background: $t-colors-surface-glass-hover;
-        outline: none;
-        box-shadow: 0 0 0 2px $t-colors-surface-brand-muted;
-    }
+  &:focus {
+    border-color: $t-colors-primary-default;
+    background: $t-colors-surface-glass-hover;
+    outline: none;
+    box-shadow: 0 0 0 2px $t-colors-surface-brand-muted;
+  }
 }
 
 @mixin glass-button-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    width: 44px;
-    height: 44px;
-    border: 1px solid $t-colors-border-primary;
-    border-radius: $t-spacing-2;
+  width: 44px;
+  height: 44px;
+  border: 1px solid $t-colors-border-primary;
+  border-radius: $t-spacing-2;
 
-    color: $t-colors-text-primary !important;
+  color: $t-colors-text-primary !important;
 
-    background-color: transparent;
-    backdrop-filter: blur(8px);
+  background-color: transparent;
+  backdrop-filter: blur(8px);
 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    &:hover {
-        border-color: $t-colors-scrollbar-thumb-hover;
-        background-color: $t-colors-surface-brand-subtle;
-        box-shadow: 0 0 20px $t-colors-surface-brand-strong;
-
-        svg {
-            color: $t-colors-primary-default;
-        }
-    }
-
-    &:active {
-        transform: scale(0.92);
-    }
+  &:hover {
+    border-color: $t-colors-scrollbar-thumb-hover;
+    background-color: $t-colors-surface-brand-subtle;
+    box-shadow: 0 0 20px $t-colors-surface-brand-strong;
 
     svg {
-        font-size: 24px;
-        transition: transform 0.3s ease, color 0.3s ease;
+      color: $t-colors-primary-default;
     }
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  svg {
+    font-size: 24px;
+    transition:
+      transform 0.3s ease,
+      color 0.3s ease;
+  }
 }
 
 // Typography
 @mixin role-title {
-    margin-bottom: $t-spacing-2;
-    margin-top: $t-spacing-0;
+  margin-bottom: $t-spacing-2;
+  margin-top: $t-spacing-0;
 
-    font-size: 1.5rem;
-    font-weight: $t-font-weight-bold;
-    color: $t-colors-text-primary;
-    letter-spacing: -0.025em;
+  font-size: 1.5rem;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-text-primary;
+  letter-spacing: -0.025em;
 }
 
 @mixin heading-xl {
-    font-size: 3.75rem;
-    font-weight: $t-font-weight-bold;
-    line-height: 1.1;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
+  font-size: 2.5rem;
+  font-weight: $t-font-weight-bold;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
 
-    @media (min-width: $t-breakpoint-tablet) {
-        font-size: 6rem;
-    }
+  @media (min-width: $t-breakpoint-tablet) {
+    font-size: 3.75rem;
+  }
+
+  @media (min-width: $t-breakpoint-desktop) {
+    font-size: 6rem;
+  }
 }
 
 @mixin heading-md {
-    font-size: $t-font-size-2xl;
-    font-weight: $t-font-weight-semibold;
-    line-height: $t-font-line-height-tight;
-    color: $t-colors-text-primary;
-    letter-spacing: -0.025em;
+  font-size: $t-font-size-2xl;
+  font-weight: $t-font-weight-semibold;
+  line-height: $t-font-line-height-tight;
+  color: $t-colors-text-primary;
+  letter-spacing: -0.025em;
 
-    @media (min-width: $t-breakpoint-tablet) {
-        font-size: $t-font-size-3xl;
-    }
+  @media (min-width: $t-breakpoint-tablet) {
+    font-size: $t-font-size-3xl;
+  }
 }
 
 @mixin label-lg {
-    font-size: $t-font-size-lg;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-text-secondary;
+  font-size: $t-font-size-lg;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
 }
 
 @mixin label-md {
-    font-size: $t-font-size-base;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-text-secondary;
+  font-size: $t-font-size-base;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
 }
 
 @mixin label-sm {
-    font-size: $t-font-size-sm;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-text-secondary;
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
 }
 
 @mixin label-xs {
-    font-size: $t-font-size-xs;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-text-tertiary;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 @mixin body-base {
-    font-size: $t-font-size-base;
-    line-height: $t-font-line-height-relaxed;
-    color: $t-colors-text-primary;
+  font-size: $t-font-size-base;
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-primary;
 }
 
 @mixin body-md {
-    font-size: $t-font-size-base; // Typically base and md are similar in many systems, or md is slightly larger.
-    line-height: $t-font-line-height-relaxed;
-    color: $t-colors-text-primary;
+  font-size: $t-font-size-base; // Typically base and md are similar in many systems, or md is slightly larger.
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-primary;
 }
 
 @mixin body-lg {
-    font-size: $t-font-size-lg;
-    line-height: $t-font-line-height-relaxed;
-    color: $t-colors-text-primary;
+  font-size: $t-font-size-lg;
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-primary;
 }
 
 @mixin body-sm {
-    font-size: $t-font-size-sm;
-    line-height: $t-font-line-height-relaxed;
-    color: $t-colors-text-secondary;
+  font-size: $t-font-size-sm;
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-secondary;
 }
 
 // Gradients & Effects
 @mixin title-gradient {
-    display: inline-block;
-    background: linear-gradient(135deg, $t-colors-primary-default 0%, $t-colors-text-primary 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
+  display: inline-block;
+  background: linear-gradient(
+    135deg,
+    $t-colors-primary-default 0%,
+    $t-colors-text-primary 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
 
-    -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 @mixin text-gradient-primary {
-    background: linear-gradient(to right, $t-colors-primary-default, $t-colors-primary-hover);
-    -webkit-background-clip: text;
-    background-clip: text;
+  background: linear-gradient(
+    to right,
+    $t-colors-primary-default,
+    $t-colors-primary-hover
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
 
-    -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 @mixin text-link {
-    cursor: pointer;
-    color: $t-colors-primary-default;
-    text-decoration: none;
+  cursor: pointer;
+  color: $t-colors-primary-default;
+  text-decoration: none;
 
-    &:hover {
-        color: $t-colors-link-hover;
-        text-decoration: underline;
-    }
+  &:hover {
+    color: $t-colors-link-hover;
+    text-decoration: underline;
+  }
 }
 
 // Layout Utilities
 @mixin section-padding {
-    padding-top: $t-spacing-20;
-    padding-bottom: $t-spacing-20;
+  padding-top: $t-spacing-20;
+  padding-bottom: $t-spacing-20;
 
-    @media (min-width: $t-breakpoint-desktop) {
-        padding-top: calc($t-spacing-16 * 2);
-        padding-bottom: calc($t-spacing-16 * 2);
-    }
+  @media (min-width: $t-breakpoint-desktop) {
+    padding-top: calc($t-spacing-16 * 2);
+    padding-bottom: calc($t-spacing-16 * 2);
+  }
 }
 
 @mixin max-container {
-    width: 100%;
-    max-width: $t-breakpoint-desktop;
-    margin-right: auto;
-    margin-left: auto;
-    padding-right: $t-spacing-6;
-    padding-left: $t-spacing-6;
+  width: 100%;
+  max-width: $t-breakpoint-desktop;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: $t-spacing-6;
+  padding-left: $t-spacing-6;
 }
 
 // Tags
 @mixin pill-tag {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    height: $t-spacing-8;
-    padding: 0 $t-spacing-4;
-    border: 1px solid $t-colors-scrollbar-thumb;
-    border-radius: 9999px; // Full pill
+  height: $t-spacing-8;
+  padding: 0 $t-spacing-4;
+  border: 1px solid $t-colors-scrollbar-thumb;
+  border-radius: 9999px; // Full pill
 
-    // Default variant (Primary)
-    background-color: $t-colors-surface-brand-strong;
+  // Default variant (Primary)
+  background-color: $t-colors-surface-brand-strong;
 
-    span {
-        font-size: $t-font-size-xs;
-        font-weight: $t-font-weight-bold;
-        color: $t-colors-primary-default;
-        text-shadow: 0 0 10px $t-colors-surface-brand-muted;
-    }
+  span {
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-primary-default;
+    text-shadow: 0 0 10px $t-colors-surface-brand-muted;
+  }
 }
 
 // Visual Utilities
 @mixin image-overlay-gradient {
-    background: linear-gradient(to top, $t-colors-surface-page-fade, transparent);
+  background: linear-gradient(to top, $t-colors-surface-page-fade, transparent);
 }
 
 @mixin flex-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 // Ellipsis (Single & Multi-line)
 @mixin ellipsis($lines: 1) {
-    overflow: hidden;
-    word-break: break-word;
+  overflow: hidden;
+  word-break: break-word;
 
-    @if $lines == 1 {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    } @else {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: $lines;
-        white-space: normal;
-    }
+  @if $lines == 1 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $lines;
+    white-space: normal;
+  }
 }
 
 // Deprecated: use ellipsis($lines) instead
 @mixin line-clamp($lines: 2) {
-    @include ellipsis($lines);
+  @include ellipsis($lines);
 }

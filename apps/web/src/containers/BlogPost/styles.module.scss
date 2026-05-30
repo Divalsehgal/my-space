@@ -5,9 +5,12 @@
   min-height: 100vh;
   font-size: $t-font-size-base;
   padding: $t-spacing-0 0 $t-spacing-24;
-  background: radial-gradient(circle at top right,
+  background:
+    radial-gradient(
+      circle at top right,
       $t-colors-surface-brand-subtle,
-      transparent 40%),
+      transparent 40%
+    ),
     $t-colors-background-primary;
   color: $t-colors-text-primary;
 
@@ -44,9 +47,16 @@
     scrollbar-width: none;
 
     @media (max-width: 1024px) {
-      position: static;
-      max-height: none;
-      order: -1; // Keep TOC on top for mobile if it's an accordion/list
+      display: none;
+    }
+  }
+
+  &__mobile-toc {
+    display: none;
+    margin-bottom: $t-spacing-8;
+
+    @media (max-width: 1024px) {
+      display: block;
     }
   }
 
@@ -60,6 +70,7 @@
     padding-bottom: $t-spacing-4;
     border-bottom: 1px solid $t-colors-border-muted;
     position: relative;
+    overflow-wrap: break-word;
 
     &::after {
       content: "";

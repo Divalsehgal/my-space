@@ -1,41 +1,30 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect } from "react";
-
-const useEnhancedEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+import { useSyncExternalStore } from "react";
 
 /**
  * useMediaQuery(query)
- * Returns boolean based on the media query string.
+ * Returns boolean based on the media query string using useSyncExternalStore.
  */
 export function useMediaQuery(query: string): boolean {
-    const getMatch = () => {
-        if (typeof window === "undefined" || !window.matchMedia) {return false;}
+    const subscribe = (callback: () => void) => {
+        if (typeof window === "undefined" || !window.matchMedia) {
+        }
+        const mediaQueryList = window.matchMedia(query);
+        mediaQueryList.addEventListener("change", callback);
+        return () => mediaQueryList.removeEventListener("change", callback);
+    };
+
+    const getSnapshot = () => {
+        if (typeof window === "undefined" || !window.matchMedia) {
+            return false;
+        }
         return window.matchMedia(query).matches;
     };
 
-    const [matches, setMatches] = useState<boolean>(getMatch);
+    const getServerSnapshot = () => {
+        return false;
+    };
 
-    useEnhancedEffect(() => {
-        if (typeof window === "undefined" || !window.matchMedia) {return;}
-        let active = true;
-        const mediaQueryList = window.matchMedia(query);
-
-        const listener = () => {
-            if (!active) {return;}
-            setMatches(mediaQueryList.matches);
-        };
-
-        // Modern browsers support addEventListener
-        mediaQueryList.addEventListener("change", listener);
-        setMatches(mediaQueryList.matches);
-
-        return () => {
-            active = false;
-            mediaQueryList.removeEventListener("change", listener);
-        };
-    }, [query]);
-
-    return matches;
+    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

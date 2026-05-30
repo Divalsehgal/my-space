@@ -8,15 +8,9 @@ import clsx from "clsx";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const { messages, isTyping, sendMessage } = useChat();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -32,9 +26,8 @@ export default function Chatbot() {
     }
   };
 
-  if (mounted) {
-    return (
-      <div className={styles["chatbot"]}>
+  return (
+    <div className={styles["chatbot"]}>
         {/* Toggle Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -221,9 +214,6 @@ export default function Chatbot() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }

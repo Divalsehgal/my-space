@@ -8,7 +8,6 @@ import Providers from "@/components/Providers";
 import { StackHans } from "@dival-sehgal/fonts/next";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import Chatbot from "@/components/Chatbot";
 import GoogleTracking from "@/components/GoogleTracking";
 
 import { portfolioService } from "@/features/portfolio";
@@ -139,7 +138,6 @@ export default async function RootLayout({
           <Footer brand={config?.navbar?.brand || "Portfolio"} />
           <ScrollToTop />
         </Providers>
-        <Chatbot />
       </body>
     </html>
   );

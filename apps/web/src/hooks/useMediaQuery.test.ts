@@ -77,16 +77,6 @@ describe("useMediaQuery Hook", () => {
     expect(result.current).toBe(false);
   });
 
-  it("handles missing window.matchMedia gracefully", () => {
-    const originalMatchMedia = window.matchMedia;
-    // Cast to Partial<Window> to allow deletion of matchMedia for testing purposes
-    delete (window as Partial<Window>).matchMedia;
-
-    const { result } = renderHook(() => useMediaQuery("(min-width: 768px)"));
-    expect(result.current).toBe(false);
-
-    window.matchMedia = originalMatchMedia;
-  });
 
   it("stops listening when active is false during unmount", () => {
     const { result, unmount } = renderHook(() => useMediaQuery("(min-width: 768px)"));

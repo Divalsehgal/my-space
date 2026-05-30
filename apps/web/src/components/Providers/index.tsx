@@ -7,6 +7,8 @@ import { CacheProvider } from "@emotion/react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
+import dynamic from "next/dynamic";
+const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
 
 export default function Providers({
   children,
@@ -74,7 +76,10 @@ export default function Providers({
     <CacheProvider value={cache}>
       <ThemeContextProvider>
         <CssBaseline />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <Chatbot />
+        </ToastProvider>
       </ThemeContextProvider>
     </CacheProvider>
   );

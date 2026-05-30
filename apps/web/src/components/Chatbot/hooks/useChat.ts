@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -23,23 +23,23 @@ export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
 
-  const fetchHistory = useCallback(async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/history`, { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.messages?.length) {
-          setMessages(data.messages);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch chat history:', error);
-    }
-  }, []);
-
   useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/history`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.messages?.length) {
+            setMessages(data.messages);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch chat history:', error);
+      }
+    };
+
     fetchHistory();
-  }, [fetchHistory]);
+  }, []);
 
   const sendMessage = async (content: string) => {
     if (!content.trim() || isTyping) {

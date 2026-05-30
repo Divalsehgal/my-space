@@ -21,6 +21,10 @@
   border-bottom-left-radius: 50% $t-spacing-8;
   overflow: hidden;
 
+  &--open {
+    overflow: visible;
+  }
+
   text-shadow: 4px 4px 4px $t-colors-scrollbar-thumb;
 
   // Glass effect
@@ -81,7 +85,7 @@
   &__nav-desktop {
     display: none;
 
-    @media ( width >= 850px) {
+    @media (width >= $t-breakpoint-tablet) {
       display: flex;
       gap: $t-spacing-5;
       align-items: center;
@@ -113,7 +117,7 @@
     display: flex !important;
     color: $t-colors-text-primary !important;
 
-    @media (width >= 850px) {
+    @media (width >= $t-breakpoint-tablet) {
       display: none !important;
     }
   }
@@ -123,7 +127,7 @@
     align-items: center;
     gap: $t-spacing-1;
 
-    @media (width >= 850px) {
+    @media (width >= $t-breakpoint-tablet) {
       display: none;
     }
   }

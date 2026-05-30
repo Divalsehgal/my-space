@@ -6,7 +6,6 @@
   padding: $t-spacing-8 0 $t-spacing-20;
   background-color: $t-colors-background-secondary;
 
-
   &__header {
     margin-bottom: $t-spacing-8;
     text-align: center;
@@ -14,11 +13,19 @@
 
   &__title {
     @include heading-xl;
-    text-overflow: ellipsis;
-    overflow-wrap: normal;
-    overflow: hidden;
+    @include ellipsis;
+    width: 100%;
     margin-bottom: $t-spacing-4;
     color: $t-colors-text-primary;
+    font-size: 1.875rem;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      font-size: 3.75rem;
+    }
+
+    @media (min-width: $t-breakpoint-desktop) {
+      font-size: 6rem;
+    }
   }
 
   &__description {
