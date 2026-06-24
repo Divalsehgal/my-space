@@ -169,10 +169,16 @@
     }
   }
 
-  ul,
+  ul {
+    margin: $t-spacing-0;
+    padding-left: $t-spacing-8;
+    list-style-type: disc;
+  }
+
   ol {
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
+    list-style-type: decimal;
   }
 
   li {

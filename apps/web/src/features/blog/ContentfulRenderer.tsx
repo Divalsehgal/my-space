@@ -11,8 +11,7 @@ import {
   Text,
 } from "@contentful/rich-text-types";
 import { ReactNode } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { AnimatedImageBlock } from "./AnimatedImageBlock";
 import { CodeBlock } from "@/components/CodeBlock";
 import type { ContentfulRichText, ContentfulAsset } from "@/types";
 
@@ -180,21 +179,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           return null;
         }
 
-        return (
-          <motion.figure
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src={asset.url}
-              alt={asset.title || "Blog image"}
-              width={asset.width || 800}
-              height={asset.height || 450}
-            />
-            {asset.title && <figcaption>{asset.title}</figcaption>}
-          </motion.figure>
-        );
+        return <AnimatedImageBlock asset={asset} />;
       },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => (
         <a
