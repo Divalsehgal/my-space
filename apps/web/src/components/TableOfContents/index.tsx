@@ -28,9 +28,12 @@ export default function TableOfContents({
         {items.map((item) => (
           <li
             key={item.id}
-            className={`${styles.toc__item} ${item.level === 3 ? styles["toc__item--h3"] : styles["toc__item--h2"]}`}
+            className={`${styles.toc__item} ${item.level === 3 ? styles["toc__item--h3"] : styles["toc__item--h1"]}`}
           >
-            <a href={`#${item.id}`} className={styles.toc__link}>
+            <a 
+              href={`#${item.id}`} 
+              className={styles.toc__link}
+            >
               {item.text}
             </a>
           </li>

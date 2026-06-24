@@ -35,10 +35,11 @@ export function extractToc(content: ContentfulRichText) {
   }
 
   const headers: { id: string; text: string; level: number }[] = [];
+  const seenIds = new Map<string, number>();
 
   content.json.content.forEach((node) => {
     if (
-      node.nodeType === BLOCKS.HEADING_2 ||
+      node.nodeType === BLOCKS.HEADING_1 ||
       node.nodeType === BLOCKS.HEADING_3
     ) {
       const text = node.content
@@ -47,10 +48,15 @@ export function extractToc(content: ContentfulRichText) {
         .join("");
 
       if (text) {
+        const baseId = slugify(text);
+        const count = seenIds.get(baseId) || 0;
+        seenIds.set(baseId, count + 1);
+        const id = count === 0 ? baseId : `${baseId}-${count}`;
+
         headers.push({
-          id: slugify(text),
+          id,
           text,
-          level: node.nodeType === BLOCKS.HEADING_2 ? 2 : 3,
+          level: node.nodeType === BLOCKS.HEADING_1 ? 1 : 3,
         });
       }
     }
@@ -70,6 +76,15 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       assetMap.set(asset.sys.id, asset);
     }
   }
+
+  const seenIds = new Map<string, number>();
+
+  const getUniqueId = (text: string) => {
+    const baseId = slugify(text);
+    const count = seenIds.get(baseId) || 0;
+    seenIds.set(baseId, count + 1);
+    return count === 0 ? baseId : `${baseId}-${count}`;
+  };
 
   const options: Options = {
     renderMark: {
@@ -101,14 +116,23 @@ export function renderContentfulRichText(content: ContentfulRichText) {
 
         return <p>{children}</p>;
       },
-      [BLOCKS.HEADING_1]: (_node: Block | Inline, children: ReactNode) => (
-        <h1>{children}</h1>
-      ),
+      [BLOCKS.HEADING_1]: (node: Block | Inline, children: ReactNode) => {
+        const text = (node as Block).content
+          .filter((c): c is Text => c.nodeType === "text")
+          .map((c) => c.value)
+          .join("");
+        const id = getUniqueId(text);
+        return <h1 id={id}>{children}</h1>;
+      },
       [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
+        // H2 is not in TOC anymore, but if it has duplicate text we just give it normal slugify
+        // to avoid desyncing the seenIds count (which only tracks TOC items).
+        // Wait, does HEADING_2 affect the count? extractToc only looks at H1 and H3.
+        // So we should NOT increment the counter for H2 to keep it perfectly synced!
         const id = slugify(text);
         return <h2 id={id}>{children}</h2>;
       },
@@ -117,7 +141,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
-        const id = slugify(text);
+        const id = getUniqueId(text);
         return <h3 id={id}>{children}</h3>;
       },
       [BLOCKS.UL_LIST]: (_node: Block | Inline, children: ReactNode) => (

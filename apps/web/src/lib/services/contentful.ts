@@ -19,12 +19,12 @@ export const client = new GraphQLClient(endpoint, {
     Authorization: `Bearer ${accessToken}`,
   },
   // Custom fetch allows Next.js to track GraphQL requests for caching
-  fetch: (url, options) => fetch(url, { 
-    ...options, 
-    next: { 
+  fetch: (url, options) => fetch(url, {
+    ...options,
+    next: {
       // Tags allow us to clear the cache instantly via webhooks
-      tags: ['contentful'], 
-    } 
+      tags: ['contentful'],
+    }
   }),
 });
 
@@ -36,12 +36,12 @@ export const previewClient = new GraphQLClient(endpoint, {
     Authorization: `Bearer ${previewToken}`,
   },
   // Preview API bypasses caching to show draft content immediately
-  fetch: (url, options) => fetch(url, { 
-    ...options, 
-    next: { 
-      tags: ['contentful-preview'], 
+  fetch: (url, options) => fetch(url, {
+    ...options,
+    next: {
+      tags: ['contentful-preview'],
       revalidate: 0 // No cache for preview
-    } 
+    }
   }),
 });
 
@@ -49,9 +49,10 @@ export const previewClient = new GraphQLClient(endpoint, {
  * Raw item structure from Contentful GraphQL API
  */
 export interface ContentfulPostItem {
-  sys: { 
+  sys: {
     id: string;
     firstPublishedAt: string;
+    publishedAt?: string;
   };
   title: string;
   slug: string;
@@ -81,6 +82,7 @@ export function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
     title: item.title,
     cover: item.image?.url || null,
     date: item.sys.firstPublishedAt,
+    publishedAt: item.sys.publishedAt,
     slug: item.slug,
     description: item.excerpt || "",
     tags: [],
@@ -113,7 +115,7 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
 
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { limit, preview }, preview);
-    
+
     if (!data?.blogPageCollection?.items) {
       return [];
     }
@@ -130,36 +132,46 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
  * Fetches a single blog post by slug from Contentful
  */
 export async function getContentfulPostBySlug(slug: string, preview = false): Promise<ContentfulPost | null> {
-  const query = `
-    query GetBlogPostBySlug($slug: String, $preview: Boolean) {
-      blogPageCollection(where: { slug: $slug }, limit: 1, preview: $preview) {
-        items {
-          sys { id, firstPublishedAt }
-          title
-          slug
-          image { url }
-          body { 
-            json
-            links {
-              assets {
-                block {
-                  sys { id }
-                  url
-                  title
-                  width
-                  height
-                }
+  const query = `query GetBlogPostBySlug($slug: String!, $preview: Boolean = false) {
+  blogPageCollection(where: {slug: $slug}, limit: 1, preview: $preview) {
+    items {
+      sys {
+        id
+        firstPublishedAt
+        publishedAt
+      }
+      title
+      slug
+      image {
+        url
+        title
+        width
+        height
+      }
+      body {
+        json
+        links {
+          assets {
+            block {
+              sys {
+                id
               }
+              url
+              title
+              width
+              height
             }
           }
         }
       }
     }
-  `;
+  }
+}`
+
 
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { slug, preview }, preview);
-    
+
     if (!data?.blogPageCollection?.items) {
       return null;
     }

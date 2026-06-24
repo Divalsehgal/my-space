@@ -22,6 +22,7 @@ export interface ContentfulPost {
   title: string;
   cover: string | null;
   date: string;
+  publishedAt?: string;
   slug: string;
   description: string;
   tags: string[];

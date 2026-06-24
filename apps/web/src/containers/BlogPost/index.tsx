@@ -1,10 +1,8 @@
 import FluidContainer from "@/components/FluidContainer";
 import type { ContentfulPost } from "@/types";
-import {
-  renderContentfulRichText,
-  extractToc,
-} from "@/features/blog/ContentfulRenderer";
+import { extractToc, renderContentfulRichText } from "@/features/blog/ContentfulRenderer";
 import TableOfContents from "@/components/TableOfContents";
+import { formatDate } from "@/utils/date";
 import styles from "./styles.module.scss";
 
 type BlogPostProps = {
@@ -14,6 +12,8 @@ type BlogPostProps = {
 export default function BlogPost({ post }: Readonly<BlogPostProps>) {
   const content = renderContentfulRichText(post.content);
   const tocItems = extractToc(post.content);
+
+  const formattedDate = formatDate(post.publishedAt || post.date);
 
   return (
     <article className={styles["blog-post"]}>
@@ -27,14 +27,8 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
             <header className={styles["blog-post__header"]}>
               <h1 className={styles["blog-post__title"]}>{post.title}</h1>
               <div className={styles["blog-post__meta"]}>
-                {post.date && (
-                  <p className={styles["blog-post__date"]}>
-                    {new Date(post.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
+                {formattedDate && (
+                  <p className={styles["blog-post__date"]}>Last updated at : {formattedDate}</p>
                 )}
                 {post.tags && (
                   <ul className={styles["blog-post__tags"]}>
