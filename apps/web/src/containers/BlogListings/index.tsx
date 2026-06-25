@@ -110,7 +110,7 @@ export default function BlogPageContent({ posts }: Readonly<BlogPageContentProps
                 ) : (
                     <>
                         <div className={styles["blogs__header"]}>
-                            <h1 className={styles["blogs__title"]}>Our Blog</h1>
+                            <h1 className={styles["blogs__title"]}>Tech Blogs</h1>
                             <p className={styles["blogs__description"]}>
                                 Insights, and stories from the world of technology.
                             </p>

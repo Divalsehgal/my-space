@@ -24,7 +24,7 @@ const contentfulLoader = ({
   return `${secureSrc}?w=${width}&q=${quality || 75}`;
 };
 
-export function AnimatedImageBlock({ asset }: AnimatedImageBlockProps) {
+export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>) {
   return (
     <motion.figure
       style={{

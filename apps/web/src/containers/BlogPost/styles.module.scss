@@ -173,16 +173,19 @@
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
     list-style-type: disc;
+    list-style-position: outside;
   }
 
   ol {
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
     list-style-type: decimal;
+    list-style-position: outside;
   }
 
   li {
     margin-bottom: $t-spacing-3;
+    color: $t-colors-text-primary-muted;
 
     &::marker {
       color: $t-colors-primary-default;
