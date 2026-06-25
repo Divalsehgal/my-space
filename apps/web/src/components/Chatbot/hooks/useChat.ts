@@ -5,9 +5,9 @@ export interface Message {
   content: string;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL || 
-  (process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:8787' 
+const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL ||
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8787'
     : 'https://ai-chatbot-widget.sehgaldival.workers.dev');
 
 function parseChunk(data: string): string | null {
@@ -17,6 +17,59 @@ function parseChunk(data: string): string | null {
   } catch {
     return null;
   }
+}
+
+async function processStreamLine(
+  line: string,
+  assistantContent: string,
+  setMessages: (fn: (prev: Message[]) => Message[]) => void
+): Promise<string> {
+  if (!line.startsWith('data: ')) {
+    return assistantContent;
+  }
+
+  const data = line.slice(6);
+  if (data === '[DONE]') {
+    return assistantContent;
+  }
+
+  const part = parseChunk(data);
+  if (!part) {
+    return assistantContent;
+  }
+
+  const updatedContent = assistantContent + part;
+  setMessages(prev => {
+    const updated = [...prev];
+    updated[updated.length - 1] = { role: 'assistant', content: updatedContent };
+    return updated;
+  });
+
+  return updatedContent;
+}
+
+async function processStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  setMessages: (fn: (prev: Message[]) => Message[]) => void
+): Promise<string> {
+  const decoder = new TextDecoder();
+  let assistantContent = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    const chunk = decoder.decode(value, { stream: true });
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      assistantContent = await processStreamLine(line, assistantContent, setMessages);
+    }
+  }
+
+  return assistantContent;
 }
 
 export function useChat() {
@@ -54,7 +107,7 @@ export function useChat() {
       const response = await fetch(`${BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: content, pagePath: window.location.pathname }),
+        body: JSON.stringify({ message: content, pagePath: globalThis.location?.pathname || '/' }),
         credentials: 'include',
       });
 
@@ -67,41 +120,8 @@ export function useChat() {
         throw new Error('No reader available');
       }
 
-      const decoder = new TextDecoder();
-      let assistantContent = '';
-      
-      // Add empty assistant message to be updated
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) {
-            continue;
-          }
-          const data = line.slice(6);
-          if (data === '[DONE]') {
-            continue;
-          }
-
-          const part = parseChunk(data);
-          if (part) {
-            assistantContent += part;
-            setMessages(prev => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
-              return updated;
-            });
-          }
-        }
-      }
+      await processStream(reader, setMessages);
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);

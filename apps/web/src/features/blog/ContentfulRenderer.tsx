@@ -29,7 +29,7 @@ function slugify(text: string) {
 }
 
 export function extractToc(content: ContentfulRichText) {
-  if (!content || !content.json) {
+  if (!content?.json) {
     return [];
   }
 
@@ -64,7 +64,7 @@ export function extractToc(content: ContentfulRichText) {
   return headers;
 }
 export function renderContentfulRichText(content: ContentfulRichText) {
-  if (!content || !content.json) {
+  if (!content?.json) {
     return null;
   }
 
@@ -90,10 +90,10 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       [MARKS.BOLD]: (text: ReactNode) => <strong>{text}</strong>,
       [MARKS.ITALIC]: (text: ReactNode) => <em>{text}</em>,
       [MARKS.CODE]: (text: ReactNode) => {
-        const contentStr = text?.toString() || "";
+        const contentStr = typeof text === "string" ? text : String(text);
         // If it's multiline, wrap in our CodeBlock component
-        if (contentStr.includes("\n")) {
-          return <CodeBlock content={contentStr}>{text}</CodeBlock>;
+        if (contentStr?.includes("\n")) {
+          return <CodeBlock content={contentStr}>{contentStr}</CodeBlock>;
         }
         return <code>{text}</code>;
       },
@@ -103,10 +103,10 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         // Check if this paragraph contains a multiline code block
         // We use a div instead of a p tag if it does, because p cannot contain pre
         const hasCodeBlock = node.content.some(
-          (c) =>
+          (c): c is Text =>
             c.nodeType === "text" &&
-            (c as Text).marks?.some((m) => m.type === "code") &&
-            (c as Text).value?.includes("\n"),
+            c.marks?.some((m) => m.type === "code") &&
+            c.value?.includes("\n"),
         );
 
         if (hasCodeBlock) {
@@ -116,7 +116,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         return <p>{children}</p>;
       },
       [BLOCKS.HEADING_1]: (node: Block | Inline, children: ReactNode) => {
-        const text = (node as Block).content
+        const text = (node as unknown as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
@@ -124,7 +124,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         return <h1 id={id}>{children}</h1>;
       },
       [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
-        const text = (node as Block).content
+        const text = (node as unknown as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
@@ -136,7 +136,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         return <h2 id={id}>{children}</h2>;
       },
       [BLOCKS.HEADING_3]: (node: Block | Inline, children: ReactNode) => {
-        const text = (node as Block).content
+        const text = (node as unknown as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");

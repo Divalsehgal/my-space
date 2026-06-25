@@ -40,7 +40,7 @@ const portfolioTerms = [
     'full stack', 'next', 'react', 'typescript', 'cloudflare', 'contentful'
 ];
 
-const greetingTerms = ['hi', 'hello', 'hey', 'thanks', 'thank you', 'what can you do', 'help'];
+const greetingTerms = new Set(['hi', 'hello', 'hey', 'thanks', 'thank you', 'what can you do', 'help']);
 const followUpTerms = ['it', 'that', 'this', 'more', 'explain', 'summarize', 'summary', 'why', 'how'];
 const privateDataPatterns = [
     /system\s+prompt/i,
@@ -77,12 +77,13 @@ function isInPortfolioScope(message: string | undefined, hasRecentPortfolioConve
         return true;
     }
     return portfolioTerms.some(term => msg.includes(term))
-        || greetingTerms.includes(msg)
+        || greetingTerms.has(msg)
         || (hasRecentPortfolioConversation && followUpTerms.some(term => msg.includes(term)));
 }
 
 function stripContactToken(text: string): { cleaned: string; contact?: { name: string; email: string; message: string } } {
-    const contactMatch = text.match(/\[SUBMIT_CONTACT:\s*(\{.*?\})\]/);
+    const contactRegex = /\[SUBMIT_CONTACT:\s*(\{.*?\})/;
+    const contactMatch = contactRegex.exec(text);
     if (!contactMatch) {
         return { cleaned: text.trim() };
     }
@@ -136,7 +137,7 @@ async function trackRequest(env: Env) {
     try {
         const key = `stats:chat:${new Date().toISOString().slice(0, 10)}`;
         const current = await env.CHAT_SESSIONS.get(key) as string | null;
-        const count = current ? parseInt(current) + 1 : 1;
+        const count = current ? Number.parseInt(current, 10) + 1 : 1;
         await env.CHAT_SESSIONS.put(key, count.toString());
     } catch {
         /* ignore stats errors */
@@ -149,7 +150,7 @@ async function isRateLimited(req: Request, env: Env): Promise<boolean> {
         const bucket = Math.floor(Date.now() / (RATE_LIMIT_WINDOW_SECONDS * 1000));
         const key = `rate:${ip}:${bucket}`;
         const current = await env.CHAT_SESSIONS.get(key) as string | null;
-        const count = current ? parseInt(current) + 1 : 1;
+        const count = current ? Number.parseInt(current, 10) + 1 : 1;
         await env.CHAT_SESSIONS.put(key, count.toString(), { expirationTtl: RATE_LIMIT_WINDOW_SECONDS * 2 });
         return count > RATE_LIMIT_MAX;
     } catch {

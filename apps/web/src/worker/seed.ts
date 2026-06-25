@@ -1,9 +1,15 @@
 import { Env } from "./types";
 
 export const getCorsHeaders = (req: Request) => {
-    const origin = req.headers.get('Origin') || '*';
-    const configuredOrigins = ['https://divalsehgal.vercel.app', 'http://localhost:3000'];
-    const allowedOrigins = configuredOrigins.includes(origin) ? origin : configuredOrigins[0];
+    const origin = req.headers.get('Origin');
+    const configuredOrigins = [
+        'https://divalsehgal.vercel.app',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:8787',
+        'http://127.0.0.1:8787',
+    ];
+    const allowedOrigins = origin && configuredOrigins.includes(origin) ? origin : configuredOrigins[0];
 
     return {
         'Access-Control-Allow-Origin': allowedOrigins,
@@ -15,31 +21,31 @@ export const getCorsHeaders = (req: Request) => {
 
 export const json = (d: unknown, s = 200, h: Record<string, string> = {}, req?: Request) => {
     const corsHeaders = req ? getCorsHeaders(req) : { 'Access-Control-Allow-Origin': '*' };
-    return new Response(JSON.stringify(d), { 
-        status: s, 
-        headers: { 
-            'Content-Type': 'application/json', 
-            ...corsHeaders, 
-            ...h 
-        } 
+    return new Response(JSON.stringify(d), {
+        status: s,
+        headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+            ...h
+        }
     });
 };
 
 interface Portfolio {
-  hero: { title: string; subtitle: string };
-  about: { facts: string[] };
-  experience: { company: string; role: string; period: string; description: { text: string }[]; techStack: string[] }[];
-  projects: { name: string; description: string; techStack: string[] }[];
-  contact: { email: string; subtitle: string };
+    hero: { title: string; subtitle: string };
+    about: { facts: string[] };
+    experience: { company: string; role: string; period: string; description: { text: string }[]; techStack: string[] }[];
+    projects: { name: string; description: string; techStack: string[] }[];
+    contact: { email: string; subtitle: string };
 }
 
 interface Blog {
-  title: string;
-  description: string;
-  content: string;
-  slug: string;
-  date: string;
-  tags: string[];
+    title: string;
+    description: string;
+    content: string;
+    slug: string;
+    date: string;
+    tags: string[];
 }
 
 const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
@@ -89,7 +95,7 @@ export async function seed(req: Request, env: Env): Promise<Response> {
     }
 
     const contextUrl = env.CHAT_CONTEXT_URL || `${fallbackSiteUrl}/api/chat-context`;
-    
+
     try {
         const res = await fetch(contextUrl);
         if (!res.ok) {
@@ -97,9 +103,9 @@ export async function seed(req: Request, env: Env): Promise<Response> {
         }
         const data = await res.json() as { portfolio: Portfolio; blogs: Blog[] };
         const { portfolio, blogs } = data;
-        
+
         const chunks: { id: string; content: string; metadata: Record<string, unknown> }[] = [];
-        
+
         chunks.push({
             id: 'info-general',
             content: `Dival Sehgal is a ${portfolio.hero.title}. ${portfolio.hero.subtitle} He is based in ${portfolio.about.facts?.[0] || 'Bengaluru, India'}.`,
@@ -150,14 +156,14 @@ export async function seed(req: Request, env: Env): Promise<Response> {
             const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: [content] }) as { data?: number[][] };
             return { id: c.id, values: e.data?.[0] || [], metadata: { ...c.metadata, text: content } };
         }));
-        
+
         await env.VECTORIZE.deleteByIds(getManagedVectorIds());
         await env.VECTORIZE.upsert(vecs);
-        
+
         return json({ success: true, count: chunks.length }, 200, {}, req);
-    } catch (err: unknown) { 
+    } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         console.error('Seed error:', message);
-        return json({ error: 'Seed failed', details: message }, 500, {}, req); 
+        return json({ error: 'Seed failed', details: message }, 500, {}, req);
     }
 }

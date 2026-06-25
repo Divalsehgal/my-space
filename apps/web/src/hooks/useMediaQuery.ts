@@ -1,30 +1,32 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * useMediaQuery(query)
- * Returns boolean based on the media query string using useSyncExternalStore.
+ * Returns boolean based on the media query string, with a server-safe initial state.
  */
 export function useMediaQuery(query: string): boolean {
-    const subscribe = (callback: () => void) => {
-        if (typeof window === "undefined" || !window.matchMedia) {
+    const [matches, setMatches] = useState(false);
+
+    useEffect(() => {
+        if (globalThis.window === undefined || !globalThis.matchMedia) {
+            return;
         }
-        const mediaQueryList = window.matchMedia(query);
-        mediaQueryList.addEventListener("change", callback);
-        return () => mediaQueryList.removeEventListener("change", callback);
-    };
 
-    const getSnapshot = () => {
-        if (typeof window === "undefined" || !window.matchMedia) {
-            return false;
-        }
-        return window.matchMedia(query).matches;
-    };
+        const mediaQueryList = globalThis.matchMedia(query);
 
-    const getServerSnapshot = () => {
-        return false;
-    };
+        const updateMatch = () => {
+            setMatches(mediaQueryList.matches);
+        };
 
-    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+        updateMatch();
+        mediaQueryList.addEventListener("change", updateMatch);
+
+        return () => {
+            mediaQueryList.removeEventListener("change", updateMatch);
+        };
+    }, [query]);
+
+    return matches;
 }
