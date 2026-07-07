@@ -19,11 +19,30 @@ type BlogPageContentProps = {
     posts: ContentfulPost[];
 };
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-});
+function getRelativeTimeLabel(dateString?: string | null, isUpdated = false): string | null {
+    if (!dateString) {
+        return null;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    const diffInMs = Date.now() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const prefix = isUpdated ? "Last updated" : "Published";
+
+    if (diffInDays <= 0) {
+        return `${prefix} today`;
+    }
+
+    if (diffInDays === 1) {
+        return `${prefix} 1 day ago`;
+    }
+
+    return `${prefix} ${diffInDays} days ago`;
+}
 
 type BlogCardCoverStyle = CSSProperties & {
     "--blog-card-cover"?: string;
@@ -36,16 +55,20 @@ function getBlogCardCoverStyle(cover: string): BlogCardCoverStyle {
 }
 
 function BlogCard({ post }: Readonly<{ post: ContentfulPost }>) {
+    const isUpdatedPost = Boolean(post.publishedAt && post.publishedAt !== post.date);
+    const relativeTimeLabel = getRelativeTimeLabel(
+        isUpdatedPost ? post.publishedAt : post.date,
+        isUpdatedPost,
+    );
+
     return (
         <Link href={`/blogs/${post.slug}`} className={styles["blogs__card"]}>
             {post.cover && (
                 <div className={styles["blogs__card-image"]} style={getBlogCardCoverStyle(post.cover)} />
             )}
             <div className={styles["blogs__card-content"]}>
-                {post.date && (
-                    <p className={styles["blogs__card-date"]}>
-                        {dateFormatter.format(new Date(post.date))}
-                    </p>
+                {relativeTimeLabel && (
+                    <p className={styles["blogs__card-date"]}>{relativeTimeLabel}</p>
                 )}
                 <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
                 {post.description && <p className={styles["blogs__card-excerpt"]}>{post.description}</p>}

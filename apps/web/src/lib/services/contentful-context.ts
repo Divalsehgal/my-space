@@ -46,7 +46,6 @@ export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ 
           sys { firstPublishedAt }
           title
           slug
-          excerpt
           body { 
             json 
           }
@@ -65,7 +64,7 @@ export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ 
     return data.blogPageCollection.items.map(item => ({
       title: item.title,
       slug: item.slug,
-      description: item.excerpt || "",
+      description: contentfulToPlainText(item.body).slice(0, 180),
       date: item.sys.firstPublishedAt,
       tags: [], // Contentful schema might need tags added, leaving empty for now
       content: contentfulToPlainText(item.body)

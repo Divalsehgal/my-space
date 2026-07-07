@@ -84,7 +84,7 @@ export function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
     date: item.sys.firstPublishedAt,
     publishedAt: item.sys.publishedAt,
     slug: item.slug,
-    description: item.excerpt || "",
+    description: getPostDescription(item.body),
     tags: [],
     content: item.body,
   };
@@ -96,6 +96,37 @@ export interface ContentfulCollectionResponse<T> {
   };
 }
 
+function getPostDescription(body?: ContentfulRichText): string {
+  if (!body?.json?.content) {
+    return "";
+  }
+
+  interface RichTextNode {
+    nodeType: string;
+    value?: string;
+    content?: RichTextNode[];
+  }
+
+  const extractText = (nodes: RichTextNode[]): string => {
+    return nodes
+      .map((node) => {
+        if (node.nodeType === "text") {
+          return node.value || "";
+        }
+        if (node.content) {
+          return extractText(node.content);
+        }
+        return "";
+      })
+      .join(" ");
+  };
+
+  return extractText(body.json.content as unknown as RichTextNode[])
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 180);
+}
+
 /**
  * Fetches all blog posts from Contentful
  */
@@ -104,10 +135,28 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
     query GetBlogPosts($limit: Int, $preview: Boolean) {
       blogPageCollection(limit: $limit, preview: $preview) {
         items {
-          sys { id, firstPublishedAt }
+          sys {
+            id
+            firstPublishedAt
+            publishedAt
+          }
           title
           slug
           image { url }
+          body {
+            json
+            links {
+              assets {
+                block {
+                  sys { id }
+                  url
+                  title
+                  width
+                  height
+                }
+              }
+            }
+          }
         }
       }
     }
