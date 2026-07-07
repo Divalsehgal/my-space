@@ -55,12 +55,14 @@ describe("BlogListings container", () => {
 
     expect(screen.getByText(/graphql caching basics/i)).toBeInTheDocument();
     expect(
-      screen.queryByText(/react performance patterns/i)
+      screen.queryByText(/react performance patterns/i),
     ).not.toBeInTheDocument();
   });
 
   it("shows a relative last-updated label on each blog card", () => {
-    jest.spyOn(Date, "now").mockReturnValue(new Date("2026-07-07T00:00:00.000Z").getTime());
+    jest
+      .spyOn(Date, "now")
+      .mockReturnValue(new Date("2026-07-07T00:00:00.000Z").getTime());
 
     render(
       <BlogPageContent
@@ -70,14 +72,16 @@ describe("BlogListings container", () => {
             publishedAt: "2026-07-04T00:00:00.000Z",
           },
         ]}
-      />
+      />,
     );
 
     expect(screen.getByText(/last updated 3 days ago/i)).toBeInTheDocument();
   });
 
   it("shows a published label for first-published posts", () => {
-    jest.spyOn(Date, "now").mockReturnValue(new Date("2026-07-07T00:00:00.000Z").getTime());
+    jest
+      .spyOn(Date, "now")
+      .mockReturnValue(new Date("2026-07-07T00:00:00.000Z").getTime());
 
     render(
       <BlogPageContent
@@ -88,7 +92,7 @@ describe("BlogListings container", () => {
             publishedAt: "2026-07-04T00:00:00.000Z",
           },
         ]}
-      />
+      />,
     );
 
     expect(screen.getByText(/published 3 days ago/i)).toBeInTheDocument();

@@ -56,7 +56,7 @@ export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ 
 
   try {
     const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem & { excerpt?: string }>>(query, { limit });
-    
+
     if (!data?.blogPageCollection?.items) {
       return [];
     }
