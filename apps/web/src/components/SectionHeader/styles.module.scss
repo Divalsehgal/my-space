@@ -5,9 +5,9 @@
 .section-header {
   display: flex;
   flex-direction: row; // Changed to row to allow action on the right
-  justify-content: space-between;
-  align-items: flex-end; // Align bottom by default
   gap: $t-spacing-3;
+  align-items: flex-end; // Align bottom by default
+  justify-content: space-between;
 
   width: 100%;
   margin-top: $t-spacing-8;
@@ -25,17 +25,19 @@
   }
 
   &__action-button {
-    color: $t-colors-primary-default;
-    font-weight: $t-font-weight-bold;
-    text-transform: none;
-    letter-spacing: $t-font-letter-spacing-tight-1;
     padding: $t-spacing-2 $t-spacing-4;
     border-radius: $t-spacing-2;
+
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-primary-default;
+    text-transform: none;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+
     transition: all 0.3s ease;
 
     &:hover {
-      background: $t-colors-surface-brand-subtle;
       transform: translateX($t-spacing-1);
+      background: $t-colors-surface-brand-subtle;
     }
   }
 

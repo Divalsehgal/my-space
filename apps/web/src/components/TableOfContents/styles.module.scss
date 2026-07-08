@@ -7,14 +7,17 @@
 
   &__title {
     @include label-xs;
-    margin-bottom: $t-spacing-6;
-    color: $t-colors-primary-default;
-    font-weight: $t-font-weight-bold;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+
     display: flex;
-    align-items: center;
     gap: $t-spacing-2;
+    align-items: center;
+
+    margin-bottom: $t-spacing-6;
+
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-primary-default;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 
     &::after {
       content: "";
@@ -25,12 +28,14 @@
   }
 
   &__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
     display: flex;
     flex-direction: column;
+
+    margin: 0;
+    padding: 0;
     border-left: 1px solid $t-colors-border-subtle;
+
+    list-style: none;
   }
 
   &__item {
@@ -54,34 +59,40 @@
   }
 
   &__link {
+    position: relative;
+
+    display: block;
+
+    margin-left: -1px; // overlap border
+    padding: $t-spacing-2 $t-spacing-4;
+    border-left: 2px solid transparent;
+
+    line-height: 1.4;
     color: $t-colors-text-secondary;
     text-decoration: none;
+
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: block;
-    padding: $t-spacing-2 $t-spacing-4;
-    position: relative;
-    margin-left: -1px; // overlap border
-    border-left: 2px solid transparent;
-    line-height: 1.4;
 
     &::first-letter {
-      text-transform: uppercase;
       font-weight: $t-font-weight-bold;
+      text-transform: uppercase;
     }
 
     &:hover {
-      color: $t-colors-primary-default;
-      background: $t-colors-surface-brand-subtle;
       border-left-color: $t-colors-focus-ring;
+
+      color: $t-colors-primary-default;
       text-decoration: underline;
       text-underline-offset: 4px;
+
+      background: $t-colors-surface-brand-subtle;
     }
 
     &[data-active="true"] {
-      color: $t-colors-primary-default;
-      background: $t-colors-surface-brand-muted;
       border-left-color: $t-colors-primary-default;
       font-weight: $t-font-weight-medium;
+      color: $t-colors-primary-default;
+      background: $t-colors-surface-brand-muted;
     }
   }
 }

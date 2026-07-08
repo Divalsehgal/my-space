@@ -3,48 +3,58 @@
 
 .pre {
   position: relative;
+
+  overflow-x: auto;
+
   margin: $t-spacing-6 0;
   padding: $t-spacing-6;
-  background: $t-colors-background-secondary;
   border: 1px solid $t-colors-border-muted;
   border-radius: $t-spacing-4;
-  overflow-x: auto;
+
+  background: $t-colors-background-secondary;
 
 
   code {
     display: block;
-    background: none;
+
     padding: $t-spacing-0;
-    color: $t-colors-text-secondary;
+    border: none;
+
     font-size: $t-font-size-sm;
     line-height: $t-font-line-height-normal;
-    border: none;
+    color: $t-colors-text-secondary;
+
+    background: none;
   }
 }
 
 .copyButtonWrapper {
   position: absolute;
+  z-index: 10;
   top: $t-spacing-2;
   right: $t-spacing-2;
-  z-index: 10;
+
   opacity: 0;
+
   transition: opacity 0.2s ease;
 }
 
 .copyButton {
-  background: $t-colors-surface-glass-hover;
-  border: 1px solid $t-colors-border-muted;
-  color: $t-colors-text-secondary;
-  backdrop-filter: blur(4px);
   padding: $t-spacing-1;
+  border: 1px solid $t-colors-border-muted;
+
+  color: $t-colors-text-secondary;
+
+  background: $t-colors-surface-glass-hover;
+  backdrop-filter: blur(4px);
 
 
 
   &.copied {
-    background: $t-colors-primary-default;
-    color: $t-colors-button-primary-text;
     border-color: $t-colors-primary-default;
+    color: $t-colors-button-primary-text;
     opacity: 1;
+    background: $t-colors-primary-default;
   }
 }
 

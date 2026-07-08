@@ -96,7 +96,13 @@ export default function Chatbot() {
               </div>
 
               {/* Messages Area */}
-              <div ref={scrollRef} className={styles["chatbot__messages"]}>
+              <div
+                ref={scrollRef}
+                className={styles["chatbot__messages"]}
+                role="log"
+                aria-live="polite"
+                aria-relevant="additions text"
+              >
                 {messages.length === 0 && !isTyping && (
                   <div className={styles["chatbot__empty-state"]}>
                     <div className={styles["chatbot__empty-icon"]}>
@@ -192,12 +198,14 @@ export default function Chatbot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Ask a question about Dival..."
+                    aria-label="Message Portfolio Assistant"
                     className={styles["chatbot__input"]}
                   />
                   <button
                     type="submit"
                     disabled={!input.trim() || isTyping}
                     className={styles["chatbot__send"]}
+                    aria-label="Send message"
                   >
                     <svg
                       style={{ width: "20px", height: "20px" }}

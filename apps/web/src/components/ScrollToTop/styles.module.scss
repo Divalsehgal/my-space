@@ -11,8 +11,8 @@
 
   @media (max-width: 450px) {
     right: auto;
-    left: $t-spacing-4;
     bottom: calc($t-spacing-4 + env(safe-area-inset-bottom, 0px));
+    left: $t-spacing-4;
   }
 }
 

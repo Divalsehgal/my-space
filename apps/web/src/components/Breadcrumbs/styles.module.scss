@@ -9,9 +9,9 @@
 
   &__list {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
     gap: $t-spacing-1 $t-spacing-2;
+    align-items: center;
 
     margin: 0;
     padding: 0;
@@ -28,6 +28,7 @@
   &__link {
     display: flex;
     align-items: center;
+
     min-width: 0;
     border-radius: $t-spacing-1;
 
@@ -54,10 +55,10 @@
   }
 
   &__separator {
+    flex-shrink: 0;
     margin: 0 $t-spacing-1;
     font-size: $t-font-size-md;
     color: $t-colors-text-tertiary;
-    flex-shrink: 0;
   }
 
   &__current {
@@ -70,11 +71,12 @@
   }
 
   &__disabled {
+    cursor: not-allowed;
+
     min-width: 0;
 
     font-size: $t-font-size-xs;
     color: $t-colors-text-disabled;
     overflow-wrap: anywhere;
-    cursor: not-allowed;
   }
 }

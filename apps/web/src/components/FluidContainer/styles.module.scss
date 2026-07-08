@@ -3,11 +3,9 @@
 
 // CSS Modules are UNLAYERED by default in Next.js, which means they always
 // take precedence over @layer styles in globals.scss. This is intentional!
-//
 // PRODUCTION GUARANTEE:
 // This component will ALWAYS override .section padding from global base layer.
 // Even though .section is in globals.scss with @layer base, CSS Modules win.
-//
 // Reference:
 // - .section vertical padding (top/bottom) is in globals.scss @layer base
 // - This file (FluidContainer) handles HORIZONTAL padding exclusively

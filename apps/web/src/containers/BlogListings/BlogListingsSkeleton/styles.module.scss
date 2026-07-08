@@ -6,8 +6,8 @@
 }
 
 .blogs {
-  background-color: $t-colors-background-secondary;
   padding: $t-spacing-8 0 $t-spacing-20;
+  background-color: $t-colors-background-secondary;
 
   &__header {
     margin-bottom: $t-spacing-8;
@@ -15,12 +15,13 @@
   }
 
   &__search-container {
-    margin-bottom: $t-spacing-8;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     flex-wrap: wrap;
     gap: $t-spacing-4;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: $t-spacing-8;
   }
 
   &__grid {
@@ -39,18 +40,20 @@
   }
 
   &__card {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+
     height: 100%;
-    background: $t-colors-background-secondary;
     border-radius: $t-spacing-4;
-    overflow: hidden;
+
+    background: $t-colors-background-secondary;
   }
 
   &__card-content {
-    padding: $t-spacing-6;
     display: flex;
     flex-direction: column;
     gap: $t-spacing-3;
+    padding: $t-spacing-6;
   }
 }

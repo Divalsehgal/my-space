@@ -6,6 +6,7 @@
   z-index: $t-layer-level-positive-9;
   right: $t-spacing-24;
   bottom: calc($t-spacing-6 + env(safe-area-inset-bottom, 0px));
+
   font-family: var(--font-body);
 
   @media (max-width: $t-breakpoint-tablet) {
@@ -19,17 +20,22 @@
 }
 
 .chatbot__toggle {
-  width: $t-spacing-14;
-  height: $t-spacing-14;
-  background-color: $t-colors-primary-default;
-  border-radius: 50%;
-  box-shadow: 0 10px 25px -5px $t-colors-border-primary;
+  cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+
+  width: $t-spacing-14;
+  height: $t-spacing-14;
   border: none;
+  border-radius: 50%;
+
   color: $t-colors-button-primary-text;
+
+  background-color: $t-colors-primary-default;
+  box-shadow: 0 10px 25px -5px $t-colors-border-primary;
+
   transition: transform 0.2s ease-in-out, background-color 0.2s;
 
   &:hover {
@@ -44,19 +50,22 @@
 
 .chatbot__window {
   position: absolute;
-  bottom: $t-spacing-20;
   right: 0;
+  bottom: $t-spacing-20;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
   width: 400px;
   height: min(520px, calc(100vh - 120px));
   min-height: 380px;
-  background-color: $t-colors-background-primary;
-  border-radius: $t-spacing-2;
-  box-shadow: 0 20px 50px $t-colors-surface-brand-strong;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   border: 1px solid $t-colors-border-muted;
+  border-radius: $t-spacing-2;
+
+  background-color: $t-colors-background-primary;
   backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px $t-colors-surface-brand-strong;
 
   @media (max-width: 450px) {
     width: calc(100vw - #{$t-spacing-8});
@@ -70,42 +79,47 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: $t-spacing-4 $t-spacing-5;
   border-bottom: 1px solid $t-colors-border-subtle;
+
   background-color: $t-colors-surface-page-fade;
 }
 
 .chatbot__header-info {
   display: flex;
-  align-items: center;
   gap: $t-spacing-3;
+  align-items: center;
   min-width: 0;
 }
 
 .chatbot__avatar {
-  width: $t-spacing-10;
-  height: $t-spacing-10;
-  background-color: $t-colors-primary-default;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $t-colors-button-primary-text;
-  font-weight: bold;
+
+  width: $t-spacing-10;
+  height: $t-spacing-10;
+  border-radius: 50%;
+
   font-size: $t-spacing-5;
+  font-weight: bold;
+  color: $t-colors-button-primary-text;
+
+  background-color: $t-colors-primary-default;
 }
 
 .chatbot__title {
+  margin: 0;
+  font-size: $t-spacing-4;
   font-weight: 600;
   color: $t-colors-text-primary;
-  font-size: $t-spacing-4;
-  margin: 0;
 }
 
 .chatbot__status {
   display: flex;
-  align-items: center;
   gap: $t-spacing-1;
+  align-items: center;
 }
 
 .chatbot__status-dot {
@@ -117,26 +131,29 @@
 
 .chatbot__status-text {
   font-size: 10px;
+  font-weight: 500;
   color: $t-colors-text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 500;
 }
 
 .chatbot__messages {
-  flex: 1;
+  scroll-behavior: smooth;
+
   overflow-y: auto;
-  padding: $t-spacing-6 $t-spacing-5;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: $t-spacing-3;
+
+  padding: $t-spacing-6 $t-spacing-5;
+
   background-color: $t-colors-surface-glass;
-  scroll-behavior: smooth;
 }
 
 .chatbot__empty-state {
-  text-align: center;
   padding: $t-spacing-8 $t-spacing-4;
+  text-align: center;
 }
 
 .chatbot__empty-title {
@@ -151,15 +168,18 @@
 }
 
 .chatbot__empty-icon {
-  width: $t-spacing-16;
-  height: $t-spacing-16;
-  background-color: $t-colors-surface-brand-muted;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  width: $t-spacing-16;
+  height: $t-spacing-16;
   margin: 0 auto $t-spacing-4;
+  border-radius: 50%;
+
   color: $t-colors-primary-default;
+
+  background-color: $t-colors-surface-brand-muted;
 }
 
 .chatbot__suggestions {
@@ -170,21 +190,25 @@
 }
 
 .chatbot__suggestion-btn {
-  background-color: $t-colors-surface-glass;
-  border: 1px solid $t-colors-border-muted;
-  color: $t-colors-text-primary;
-  padding: $t-spacing-2 $t-spacing-4;
-  border-radius: 9999px;
-  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+
+  padding: $t-spacing-2 $t-spacing-4;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: 9999px;
+
+  font-size: 12px;
+  color: $t-colors-text-primary;
   white-space: nowrap;
 
+  background-color: $t-colors-surface-glass;
+
+  transition: all 0.2s ease-in-out;
+
   &:hover {
-    background-color: $t-colors-primary-default;
-    color: $t-colors-button-primary-text;
-    border-color: $t-colors-primary-default;
     transform: translateY(-2px);
+    border-color: $t-colors-primary-default;
+    color: $t-colors-button-primary-text;
+    background-color: $t-colors-primary-default;
   }
 
   &:active {
@@ -206,20 +230,22 @@
 }
 
 .chatbot__message {
+  position: relative;
+
   max-width: 85%;
-  border-radius: $t-spacing-4;
   padding: $t-spacing-3 $t-spacing-4;
+  border-radius: $t-spacing-4;
+
   font-size: 14px;
   line-height: 1.5;
-  position: relative;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
 .chatbot__message-meta {
   display: flex;
-  align-items: center;
   gap: 6px;
+  align-items: center;
   margin-bottom: 6px;
 }
 
@@ -232,48 +258,53 @@
   height: 18px;
   border-radius: 50%;
 
-  background-color: $t-colors-primary-default;
-  color: $t-colors-button-primary-text;
   font-size: 9px;
   font-weight: $t-font-weight-bold;
+  color: $t-colors-button-primary-text;
+
+  background-color: $t-colors-primary-default;
 }
 
 .chatbot__message-author {
-  color: $t-colors-primary-default;
   font-size: 9px;
   font-weight: $t-font-weight-bold;
-  letter-spacing: $t-font-letter-spacing-wide-1;
+  color: $t-colors-primary-default;
   text-transform: uppercase;
+  letter-spacing: $t-font-letter-spacing-wide-1;
 }
 
 .chatbot__message--user {
-  background-color: $t-colors-primary-default;
-  color: $t-colors-button-primary-text;
   border-bottom-right-radius: 4px;
+  color: $t-colors-button-primary-text;
+  background-color: $t-colors-primary-default;
 }
 
 .chatbot__message--assistant {
-  background-color: $t-colors-background-primary;
-  color: $t-colors-text-primary;
   border: 1px solid $t-colors-border-muted;
   border-bottom-left-radius: 4px;
+  color: $t-colors-text-primary;
+  background-color: $t-colors-background-primary;
 }
 
 .chatbot__typing {
   display: flex;
   gap: $t-spacing-1;
+
+  width: fit-content;
   padding: $t-spacing-3 $t-spacing-4;
-  background-color: $t-colors-background-primary;
+  border: 1px solid $t-colors-border-muted;
   border-radius: $t-spacing-4;
   border-bottom-left-radius: 4px;
-  width: fit-content;
-  border: 1px solid $t-colors-border-muted;
+
+  background-color: $t-colors-background-primary;
 
   span {
     width: 6px;
     height: 6px;
-    background-color: $t-colors-primary-default;
     border-radius: 50%;
+
+    background-color: $t-colors-primary-default;
+
     animation: bounce 1.4s infinite ease-in-out both;
 
     &:nth-child(1) { animation-delay: -0.32s; }
@@ -283,18 +314,21 @@
 
 .chatbot__input-area {
   padding: $t-spacing-4;
-  background-color: $t-colors-background-primary;
   border-top: 1px solid $t-colors-border-subtle;
+  background-color: $t-colors-background-primary;
 }
 
 .chatbot__input-wrapper {
   display: flex;
-  align-items: center;
   gap: $t-spacing-2;
-  background-color: $t-colors-background-secondary;
-  border-radius: 9999px;
+  align-items: center;
+
   padding: $t-spacing-1 $t-spacing-4;
   border: 1px solid $t-colors-border-muted;
+  border-radius: 9999px;
+
+  background-color: $t-colors-background-secondary;
+
   transition: border-color 0.2s;
 
   &:focus-within {
@@ -303,13 +337,16 @@
 }
 
 .chatbot__input {
-  min-width: 0;
   flex: 1;
-  background: transparent;
-  border: none;
+
+  min-width: 0;
   padding: $t-spacing-3 0;
+  border: none;
+
   font-size: 14px;
   color: $t-colors-text-primary;
+
+  background: transparent;
   outline: none;
 
   &::placeholder {
@@ -319,15 +356,20 @@
 }
 
 .chatbot__send {
-  padding: $t-spacing-2;
-  color: $t-colors-primary-default;
-  background: transparent;
-  border: none;
   cursor: pointer;
-  border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  padding: $t-spacing-2;
+  border: none;
+  border-radius: 50%;
+
+  color: $t-colors-primary-default;
+
+  background: transparent;
+
   transition: background-color 0.2s;
 
   &:hover:not(:disabled) {
@@ -335,8 +377,8 @@
   }
 
   &:disabled {
-    opacity: 0.3;
     cursor: not-allowed;
+    opacity: 0.3;
   }
 }
 

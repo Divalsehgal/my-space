@@ -1,43 +1,42 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
+$document-color-scheme-light: light;
+$document-color-scheme-dark: dark;
+
 // ---------------------------------------------------------------------------
 // PRODUCTION CSS ARCHITECTURE
 // ---------------------------------------------------------------------------
-//
 // CSS LAYER ORDER (MUST be declared first):
 // 1. base       — Resets, element defaults, global layout rules
 // 2. utilities  — Single-purpose utility classes (scroll snapping, etc.)
 // 3. components — Global component baseline styles (only if needed)
-//
 // UNLAYERED STYLES (CSS Modules) always win over ANY layered style.
 // This ensures component .module.scss files maintain full control over styling.
-//
 // CRITICAL RULES:
 // ✓ Never set padding-left/padding-right in .section — reserved for FluidContainer
 // ✓ Base layer ONLY sets vertical (top/bottom) padding
 // ✓ Horizontal padding flows from component CSS Modules only
 // ✓ Development ≠ Production: minification changes specificity
 //   Use cascade priority (layers) instead of relying on order of appearance
-//
 // ---------------------------------------------------------------------------
 @layer base, utilities, components;
 
 * {
-  box-sizing: border-box;
-  font-family: var(--font-body);
   scrollbar-color: $t-colors-scrollbar-thumb $t-colors-background-primary;
   scrollbar-width: thin;
+  box-sizing: border-box;
+  font-family: var(--font-body);
 }
 
 html {
-  color-scheme: light;
-  scroll-padding-top: $t-spacing-16;
   scroll-behavior: smooth;
+  scroll-padding-top: $t-spacing-16;
+  color-scheme: $document-color-scheme-light;
 }
 
 [data-theme="dark"] {
-  color-scheme: dark;
+  color-scheme: $document-color-scheme-dark;
 }
 
 @layer utilities {
@@ -74,8 +73,10 @@ html {
     min-height: 100%;
     margin: 0;
     padding: 0;
-    background-color: var(--t-colors-surface-brand-subtle);
+
     color: var(--t-colors-text-secondary);
+
+    background-color: var(--t-colors-surface-brand-subtle);
   }
 
   /* --- reusable section class for ALL sections --- */

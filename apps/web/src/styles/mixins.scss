@@ -93,8 +93,8 @@
 
 // Typography
 @mixin role-title {
-  margin-bottom: $t-spacing-2;
   margin-top: $t-spacing-0;
+  margin-bottom: $t-spacing-2;
 
   font-size: 1.5rem;
   font-weight: $t-font-weight-bold;
@@ -188,7 +188,6 @@
     $t-colors-primary-default 0%,
     $t-colors-text-primary 100%
   );
-  -webkit-background-clip: text;
   background-clip: text;
 
   -webkit-text-fill-color: transparent;
@@ -200,7 +199,6 @@
     $t-colors-primary-default,
     $t-colors-primary-hover
   );
-  -webkit-background-clip: text;
   background-clip: text;
 
   -webkit-text-fill-color: transparent;
@@ -273,12 +271,14 @@
 // Ellipsis (Single & Multi-line)
 @mixin ellipsis($lines: 1) {
   overflow: hidden;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 
   @if $lines == 1 {
-    white-space: nowrap;
     text-overflow: ellipsis;
-  } @else {
+    white-space: nowrap;
+  }
+
+  @if $lines != 1 {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: $lines;
