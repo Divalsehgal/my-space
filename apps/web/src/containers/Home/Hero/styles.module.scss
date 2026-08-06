@@ -12,7 +12,7 @@
   justify-content: center;
 
   min-height: calc(100vh - $t-spacing-16);
-  margin-top: $t-spacing-16;
+  margin-top: $t-spacing-16 !important;
 
   background-color: $t-colors-background-primary;
 
