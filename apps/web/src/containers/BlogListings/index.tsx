@@ -10,9 +10,11 @@ import {
   type CSSProperties,
 } from "react";
 import Link from "next/link";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
 import type { ContentfulPost } from "@/types";
+import { useViewCounts } from "@/hooks/useViewCounts";
 import styles from "./styles.module.scss";
 
 type BlogPageContentProps = {
@@ -57,7 +59,11 @@ function getBlogCardCoverStyle(cover: string): BlogCardCoverStyle {
   };
 }
 
-function BlogCard({ post }: Readonly<{ post: ContentfulPost }>) {
+function BlogCard({
+  post,
+  views,
+}: Readonly<{ post: ContentfulPost; views?: number }>) {
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const isUpdatedPost = Boolean(
     post.publishedAt && post.publishedAt !== post.date,
   );
@@ -75,9 +81,51 @@ function BlogCard({ post }: Readonly<{ post: ContentfulPost }>) {
         />
       )}
       <div className={styles["blogs__card-content"]}>
-        {relativeTimeLabel && (
-          <p className={styles["blogs__card-date"]}>{relativeTimeLabel}</p>
-        )}
+        <div className={styles["blogs__card-meta"]}>
+          {relativeTimeLabel && (
+            <p className={styles["blogs__card-date"]}>{relativeTimeLabel}</p>
+          )}
+          {views !== undefined && (
+            <span className={styles["blogs__card-views"]}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {views.toLocaleString()}
+              <span
+                className={styles["blogs__card-views-info-wrapper"]}
+                onMouseEnter={() => setShowInfoTooltip(true)}
+                onMouseLeave={() => setShowInfoTooltip(false)}
+                onFocus={() => setShowInfoTooltip(true)}
+                onBlur={() => setShowInfoTooltip(false)}
+              >
+                <span
+                  className={styles["blogs__card-views-info"]}
+                  aria-label="How view count is calculated"
+                  aria-hidden={false}
+                >
+                  <InfoOutlinedIcon fontSize="inherit" />
+                </span>
+                {showInfoTooltip && (
+                  <span className={styles["blogs__card-views-info-tooltip"]}>
+                    This count reflects views from readers who stayed on the post for at least 5 seconds while the page was visible.
+                  </span>
+                )}
+              </span>
+            </span>
+          )}
+        </div>
         <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
         {post.description && (
           <p className={styles["blogs__card-excerpt"]}>{post.description}</p>
@@ -136,9 +184,13 @@ export default function BlogPageContent({
     });
   }, [posts, deferredQuery]);
 
+  // Batch-fetch view counts for all posts in a single request
+  const allSlugs = useMemo(() => posts.map((p) => p.slug), [posts]);
+  const viewCounts = useViewCounts(allSlugs);
+
   const renderCarouselItem = useCallback(
-    (post: ContentfulPost) => <BlogCard post={post} />,
-    [],
+    (post: ContentfulPost) => <BlogCard post={post} views={viewCounts[post.slug]} />,
+    [viewCounts],
   );
 
   return (
@@ -190,7 +242,11 @@ export default function BlogPageContent({
             <div className={styles["blogs__grid"]}>
               {filteredPosts.length > 0 ? (
                 filteredPosts.map((post) => (
-                  <BlogCard key={post.id} post={post} />
+                  <BlogCard
+                    key={post.id}
+                    post={post}
+                    views={viewCounts[post.slug]}
+                  />
                 ))
               ) : (
                 <p className={styles["blogs__no-results"]}>

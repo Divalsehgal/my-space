@@ -74,6 +74,7 @@
   &__nav-btn {
     @include glass-button-nav;
 
+    padding: 0;
     border: 1px solid $t-colors-border-primary !important; // Override if needed but mixin covers it
 
     &:hover {
@@ -118,9 +119,11 @@
 
   &__dot {
     cursor: pointer;
-
-    width: 10px;
-    height: 10px;
+    /* compact dot size to reduce visual footprint */
+    width: $t-dimensions-3;
+    height: $t-dimensions-3;
+    min-width: $t-dimensions-3;
+    min-height: $t-dimensions-3;
     padding: 0;
     border: none;
     border-radius: 50%;
@@ -130,9 +133,11 @@
     transition: all 0.3s ease;
 
     &--active {
-      width: 24px;
-      border-radius: 9999px; // Pill shape
+      width: $t-dimensions-4;
+      height: $t-dimensions-4;
+      border-radius: 50%;
       background-color: $t-colors-primary-default;
+      box-shadow: 0 2px 6px $t-colors-shadow-default;
     }
 
     &:hover:not(&--active) {

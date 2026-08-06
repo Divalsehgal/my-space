@@ -3,6 +3,7 @@ import type { ContentfulPost } from "@/types";
 import { extractToc, renderContentfulRichText } from "@/features/blog/ContentfulRenderer";
 import TableOfContents from "@/components/TableOfContents";
 import { formatDate } from "@/utils/date";
+import BlogViewTracker from "@/components/BlogViewTracker";
 import styles from "./styles.module.scss";
 
 type BlogPostProps = {
@@ -30,6 +31,7 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
                 {formattedDate && (
                   <p className={styles["blog-post__date"]}>Last updated at : {formattedDate}</p>
                 )}
+                <BlogViewTracker slug={post.slug} />
                 {post.tags && (
                   <ul className={styles["blog-post__tags"]}>
                     {post.tags.map((tag: string) => (

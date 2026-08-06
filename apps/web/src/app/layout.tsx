@@ -11,6 +11,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import GoogleTracking from "@/components/GoogleTracking";
 
 import { portfolioService } from "@/features/portfolio";
+import Script from "next/script";
 
 import GTMNoScript from "@/components/GTMNoScript";
 
@@ -127,7 +128,7 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning={true}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
+        <Script id="theme-bootstrap" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
         <GoogleTracking gaId={GA_ID} adsId={ADS_ID} gtmId={GTM_ID} />
       </head>
       <body className={StackHans.variable} suppressHydrationWarning={true}>
@@ -135,7 +136,7 @@ export default async function RootLayout({
         <Providers>
           <Navbar brand={config?.navbar?.brand || "Portfolio"} />
           <main id="main-content">{children}</main>
-          <Footer brand={config?.navbar?.brand || "Portfolio"} />
+          <Footer brand={config?.navbar?.brand || "Portfolio"} socialItems={config?.socials || []} />
           <ScrollToTop />
         </Providers>
       </body>

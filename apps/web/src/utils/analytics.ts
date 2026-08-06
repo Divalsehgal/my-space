@@ -123,6 +123,11 @@ export function trackEvent(
     return;
   }
 
+  // Owner mode: never send analytics events
+  try {
+    if (localStorage.getItem('owner_mode') === 'true') {return;}
+  } catch { /* ignore */ }
+
   let label: string | undefined;
   let payload: Record<string, unknown> = { ...extraPayload };
 

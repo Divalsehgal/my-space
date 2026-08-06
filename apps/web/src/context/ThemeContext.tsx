@@ -49,20 +49,7 @@ export function ThemeContextProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [mode, setMode] = useState<ThemeMode>("light");
-
-  useEffect(() => {
-    const timer = globalThis.setTimeout(() => {
-      const initialMode = getInitialThemeMode();
-      setMode((currentMode) =>
-        currentMode === initialMode ? currentMode : initialMode,
-      );
-    }, 0);
-
-    return () => {
-      globalThis.clearTimeout(timer);
-    };
-  }, []);
+  const [mode, setMode] = useState<ThemeMode>(getInitialThemeMode);
 
   useEffect(() => {
     document.documentElement.dataset.theme = mode;

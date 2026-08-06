@@ -27,8 +27,10 @@
     "@mui/system": "^7.3.5",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@tsparticles/engine": "^3.0.2",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "@upstash/redis": "^1.38.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "framer-motion": "^12.36.0",
@@ -41,7 +43,6 @@
     "react-hook-form": "^7.66.0",
     "sass": "^1.77.8",
     "three": "^0.183.2",
-    "@tsparticles/engine": "^3.0.2",
     "wrangler": "^4.87.0",
     "zod": "^4.1.12"
   },
@@ -52,16 +53,16 @@
     "@next/bundle-analyzer": "^16.2.6",
     "@types/three": "^0.183.1",
     "babel-plugin-react-compiler": "1.0.0",
+    "postcss": "^8.4.29",
     "purgecss": "^8.0.0",
     "stylelint": "^17.0.0",
     "stylelint-config-clean-order": "^8.0.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-declaration-strict-value": "^1.11.1",
-    "stylelint-selector-bem-pattern": "^4.0.1",
     "stylelint-order": ">=6",
-    "postcss": "^8.4.29",
-    "webpack": "^5.91.0",
+    "stylelint-selector-bem-pattern": "^4.0.1",
+    "tslib": "^2.6.2",
     "turbo": "^2.9.12",
-    "tslib": "^2.6.2"
+    "webpack": "^5.91.0"
   }
 }

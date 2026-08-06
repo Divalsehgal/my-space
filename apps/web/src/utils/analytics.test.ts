@@ -93,7 +93,7 @@ describe('Analytics Utility', () => {
   });
 
   it('should correctly format project_click interaction', () => {
-    trackInteraction('project_click', { projectName: 'MyApp', linkType: 'details' });
+    trackInteraction('project_click', { projectName: 'MyApp', linkType: 'live' });
     expect(window.dataLayer).toContainEqual(
       expect.objectContaining({
         event: 'project_click',

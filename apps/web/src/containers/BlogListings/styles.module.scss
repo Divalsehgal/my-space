@@ -42,6 +42,8 @@
     grid-template-columns: repeat(1, 1fr);
     gap: $t-spacing-8;
     margin-top: $t-spacing-12;
+    /* Allow tooltips to overflow grid cells */
+    overflow: visible;
 
     @media (min-width: $t-breakpoint-tablet) {
       grid-template-columns: repeat(2, 1fr);
@@ -58,6 +60,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    /* Prevent tooltip from being clipped by the card */
+    overflow: visible !important;
     transition: transform 0.3s ease;
 
     &:hover {
@@ -89,6 +93,80 @@
 
     margin-bottom: $t-spacing-2;
     color: $t-colors-text-tertiary;
+  }
+
+  &__card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $t-spacing-2;
+  }
+
+  &__card-views {
+    @include label-sm;
+
+    display: inline-flex;
+    gap: $t-spacing-4;
+    align-items: center;
+    color: $t-colors-text-tertiary;
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+  }
+
+  &__card-views-info-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: $t-spacing-1;
+    cursor: pointer;
+  }
+
+  &__card-views-info {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+  }
+
+  &__card-views-info-tooltip {
+  position: absolute;
+  top: calc(100% + #{$t-spacing-2});
+  left: 50%;
+  z-index: 50;
+
+  width: max-content;
+  max-width: 200px;
+  padding: $t-spacing-1 $t-spacing-2;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-spacing-2;
+
+  color: $t-colors-text-primary;
+  white-space: normal;
+  word-break: break-word;
+
+  background: $t-colors-background-secondary;
+  box-shadow: 0 8px 20px $t-colors-shadow-default;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+    /* arrow */
+    &::after {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      background: inherit;
+      border-top: 1px solid $t-colors-border-subtle;
+      border-left: 1px solid $t-colors-border-subtle;
+      transform: translateX(-50%) rotate(45deg);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    }
   }
 
   &__card-title {

@@ -2,7 +2,6 @@ import clsx from "clsx";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import BackgroundPattern from "@/components/BackgroundPattern";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import HeroActions from "./HeroActions";
 
@@ -32,7 +31,6 @@ export default function Hero({ data }: HeroProps) {
 
   return (
     <FluidContainer as="section" className={clsx("section", styles.hero)} id="home">
-      <BackgroundPattern />
       <ParticlesBackground />
       <div className={styles["hero__container"]}>
         {badge?.enabled && (

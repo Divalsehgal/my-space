@@ -90,8 +90,61 @@
       }
     }
 
+    &--scrollable {
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: $t-spacing-2;
+
+      // Smooth custom glass scrollbar
+      &::-webkit-scrollbar {
+        width: $t-dimensions-1;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: $t-colors-surface-page-fade;
+        border-radius: $t-dimensions-1;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $t-colors-scrollbar-thumb;
+        border-radius: $t-dimensions-1;
+
+        &:hover {
+          background: $t-colors-scrollbar-thumb-hover;
+        }
+      }
+    }
+
     @media (min-width: $t-breakpoint-tablet) {
       font-size: $t-font-size-base;
+    }
+  }
+
+  &__accordion-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: $t-spacing-1;
+
+    margin-top: $t-spacing-2;
+    padding: $t-spacing-1 0;
+    border: none;
+    background: transparent;
+
+    color: $t-colors-primary-default;
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-bold;
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
     }
   }
 
@@ -110,11 +163,11 @@
     button,
     a {
       height: $t-spacing-12;
-      padding-right: $t-spacing-8 !important;
-      padding-left: $t-spacing-8 !important;
-      border-radius: 9999px !important;
+        padding-right: $t-spacing-8;
+        padding-left: $t-spacing-8;
+        border-radius: $t-spacing-full;
 
-      font-weight: $t-font-weight-bold !important;
+        font-weight: $t-font-weight-bold;
       text-transform: none;
     }
   }

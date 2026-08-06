@@ -15,6 +15,7 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
   return (
     <nav className={clsx(styles.breadcrumbs, className)} aria-label="breadcrumb">
       <FluidContainer>
+
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>
             <Link href="/" className={styles["breadcrumbs__link"]}>

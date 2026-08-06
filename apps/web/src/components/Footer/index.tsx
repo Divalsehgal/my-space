@@ -5,12 +5,12 @@ import Typography from "@mui/material/Typography";
 
 import TerminalIcon from "@mui/icons-material/Terminal";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import FacebookIcon from "@mui/icons-material/Facebook";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+
 const footerLinks = [
     { label: "Home", href: "/#home" },
     { label: "About", href: "/#about" },
@@ -20,18 +20,24 @@ const footerLinks = [
     { label: "Contact", href: "/#contact" },
 ];
 
-const socialLinks = [
-    { icon: <InstagramIcon />, href: "https://instagram.com", label: "Instagram" },
-    { icon: <FacebookIcon />, href: "https://facebook.com", label: "Facebook" },
-    { icon: <LinkedInIcon />, href: "https://linkedin.com", label: "LinkedIn" },
-    { icon: <GitHubIcon />, href: "https://github.com", label: "GitHub" },
-];
+type SocialItem = {
+    label: string;
+    href: string;
+    icon?: string;
+};
 
 type FooterProps = {
     readonly brand?: string;
+    readonly socialItems?: SocialItem[];
 };
 
-export default function Footer({ brand }: FooterProps) {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+    github: GitHubIcon,
+    linkedin: LinkedInIcon,
+    instagram: InstagramIcon,
+};
+
+export default function Footer({ brand, socialItems = [] }: FooterProps) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -53,7 +59,7 @@ export default function Footer({ brand }: FooterProps) {
 
                     {/* Navigation */}
                     <div className={styles["footer__links-section"]}>
-                        <Typography variant="h6" className={styles["footer__section-title"]}>
+                        <Typography variant="h2" className={styles["footer__section-title"]}>
                             Navigation
                         </Typography>
                         <ul className={styles["footer__links-list"]}>
@@ -75,25 +81,28 @@ export default function Footer({ brand }: FooterProps) {
 
                     {/* Social */}
                     <div className={styles["footer__social-section"]}>
-                        <Typography variant="h6" className={styles["footer__section-title"]}>
+                        <Typography variant="h2" className={styles["footer__section-title"]}>
                             Connect
                         </Typography>
                         <div className={styles["footer__social-links"]}>
-                            {socialLinks.map((social) => (
-                                <a
-                                    key={social.label}
-                                    href={social.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles["footer__social-icon"]}
-                                    aria-label={social.label}
-                                    onClick={() => {
-                                        trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, { platform: social.label, href: social.href });
-                                    }}
-                                >
-                                    {social.icon}
-                                </a>
-                            ))}
+                            {socialItems.map((social) => {
+                                const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
+                                return (
+                                    <a
+                                        key={social.label}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles["footer__social-icon"]}
+                                        aria-label={social.label}
+                                        onClick={() => {
+                                            trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, { platform: social.label, href: social.href });
+                                        }}
+                                    >
+                                        {Icon ? <Icon /> : social.label.substring(0, 2).toUpperCase()}
+                                    </a>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

@@ -48,12 +48,14 @@ export default function Carousel<T>({
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+    const t = e.targetTouches && e.targetTouches[0];
+    if (t) {setTouchStart(t.clientX);}
     setIsAutoPlayActive(false);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    const t = e.targetTouches && e.targetTouches[0];
+    if (t) {setTouchEnd(t.clientX);}
   };
 
   const onTouchEnd = () => {
@@ -71,11 +73,11 @@ export default function Carousel<T>({
   useEffect(() => {
     if (!isAutoPlayActive || items.length <= 1) {return;}
 
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       handleNext();
     }, autoPlayInterval);
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, [isAutoPlayActive, autoPlayInterval, handleNext, items.length]);
 
   if (!items || items.length === 0) {
@@ -118,6 +120,7 @@ export default function Carousel<T>({
                 setIsAutoPlayActive(false);
               }}
               aria-label="Previous"
+              size="small"
             >
               <ChevronLeftIcon className={styles["carousel__nav-icon"]} />
             </IconButton>
@@ -128,6 +131,7 @@ export default function Carousel<T>({
                 setIsAutoPlayActive(false);
               }}
               aria-label="Next"
+              size="small"
             >
               <ChevronRightIcon className={styles["carousel__nav-icon"]} />
             </IconButton>

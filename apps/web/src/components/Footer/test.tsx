@@ -54,12 +54,18 @@ describe("Footer Component", () => {
     expect(projectsLink).toBeInTheDocument();
   });
 
-  it("renders social links", () => {
-    renderWithTheme(<Footer />);
+  it("renders social links from provided social items", () => {
+    const socialItems = [
+      { label: "GitHub", href: "https://github.com/divalsehgal", icon: "github" },
+      { label: "LinkedIn", href: "https://linkedin.com/in/divalsehgal", icon: "linkedin" },
+    ];
+
+    renderWithTheme(<Footer socialItems={socialItems} />);
+
     const githubLink = screen.getByLabelText("GitHub");
-    expect(githubLink).toHaveAttribute("href", "https://github.com");
+    expect(githubLink).toHaveAttribute("href", "https://github.com/divalsehgal");
 
     const linkedinLink = screen.getByLabelText("LinkedIn");
-    expect(linkedinLink).toHaveAttribute("href", "https://linkedin.com");
+    expect(linkedinLink).toHaveAttribute("href", "https://linkedin.com/in/divalsehgal");
   });
 });
