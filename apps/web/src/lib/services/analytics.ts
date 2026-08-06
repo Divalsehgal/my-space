@@ -171,6 +171,31 @@ export async function getViews(slug: string): Promise<number> {
 }
 
 /**
+ * Retrieves totals for a set of posts in one Redis pipeline request.
+ */
+export async function getViewCounts(slugs: string[]): Promise<Record<string, number>> {
+  const uniqueSlugs = [...new Set(slugs.filter(Boolean))];
+  if (uniqueSlugs.length === 0) {
+    return {};
+  }
+
+  try {
+    const pipeline = redis.pipeline();
+    for (const slug of uniqueSlugs) {
+      pipeline.get(`views:total:${slug}`);
+    }
+
+    const counts = await pipeline.exec();
+    return Object.fromEntries(
+      uniqueSlugs.map((slug, index) => [slug, Number(counts[index]) || 0]),
+    );
+  } catch (error) {
+    console.error('Error getting view counts from Redis:', error);
+    return Object.fromEntries(uniqueSlugs.map((slug) => [slug, 0]));
+  }
+}
+
+/**
  * Retrieves full analytics data for a blog post.
  * Includes total views, unique visitors, daily/monthly breakdown,
  * top referrers, and country distribution.

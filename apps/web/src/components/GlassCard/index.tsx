@@ -28,11 +28,11 @@ export default function GlassCard({
     const [isExpanded, setIsExpanded] = useState(false);
 
     const isArrayDescription = Array.isArray(description);
-    const hasMoreThanThree = isArrayDescription && description.length > 3;
+    const hasMoreThanThree = isArrayDescription && description.length > 2;
 
     let visibleItems: Array<{ id?: string; text: string }> = [];
     if (isArrayDescription) {
-        visibleItems = isExpanded ? description : description.slice(0, 3);
+        visibleItems = isExpanded ? description : description.slice(0, 2);
     }
 
     return (

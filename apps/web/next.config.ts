@@ -59,7 +59,9 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   ...config,
-  turbopack: {},
+  turbopack: {
+    root: path.resolve(__dirname, "../.."),
+  },
   poweredByHeader: false,
   compress: true,
   generateBuildId: async () => "portfolio-blog-build",

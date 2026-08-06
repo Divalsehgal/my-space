@@ -20,12 +20,10 @@ interface BlogViewTrackerProps {
  * Drop this anywhere inside a blog post page.
  */
 export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
-  const [showInfoTooltip, setShowInfoTooltip] = useState(true);
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const { views } = useBlogViews(slug);
 
-  if (views === null || views === 0) {
-    return null;
-  }
+  const displayedViews = views ?? 0;
 
   return (
     <Box
@@ -35,10 +33,11 @@ export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
         gap: 0.5,
         color: 'text.secondary',
       }}
+      aria-live="polite"
     >
       <VisibilityIcon fontSize="small" />
       <Typography variant="body2">
-        {views.toLocaleString()} {views === 1 ? 'view' : 'views'}
+        {displayedViews.toLocaleString()} {displayedViews === 1 ? 'view' : 'views'}
       </Typography>
       <Box
         component="span"

@@ -25,6 +25,12 @@ jest.mock("../FluidContainer", () => {
   };
 });
 
+jest.mock("../ParticlesBackground", () => {
+  return function MockParticlesBackground({ className }: { className?: string }) {
+    return <div data-testid="breadcrumbs-particles" className={className} />;
+  };
+});
+
 describe("Breadcrumbs Component", () => {
   const mockItems = [
     { label: "Blog", href: "/blog" },
@@ -75,5 +81,11 @@ describe("Breadcrumbs Component", () => {
 
     const nav = container.querySelector("nav");
     expect(nav).toHaveClass("custom-breadcrumbs");
+  });
+
+  it("scopes the particle background to the breadcrumb area", () => {
+    render(<Breadcrumbs items={[]} />);
+
+    expect(screen.getByTestId("breadcrumbs-particles")).toBeInTheDocument();
   });
 });

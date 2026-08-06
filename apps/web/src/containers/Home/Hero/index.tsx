@@ -31,7 +31,7 @@ export default function Hero({ data }: HeroProps) {
 
   return (
     <FluidContainer as="section" className={clsx("section", styles.hero)} id="home">
-      <ParticlesBackground />
+      <ParticlesBackground id="hero-particles" />
       <div className={styles["hero__container"]}>
         {badge?.enabled && (
           <div className={styles["hero__badge"]}>
@@ -52,4 +52,3 @@ export default function Hero({ data }: HeroProps) {
     </FluidContainer>
   );
 }
-

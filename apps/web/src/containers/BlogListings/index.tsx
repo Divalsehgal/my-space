@@ -14,11 +14,11 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
 import type { ContentfulPost } from "@/types";
-import { useViewCounts } from "@/hooks/useViewCounts";
 import styles from "./styles.module.scss";
 
 type BlogPageContentProps = {
   posts: ContentfulPost[];
+  initialViewCounts?: Record<string, number>;
 };
 
 function getRelativeTimeLabel(
@@ -62,8 +62,7 @@ function getBlogCardCoverStyle(cover: string): BlogCardCoverStyle {
 function BlogCard({
   post,
   views,
-}: Readonly<{ post: ContentfulPost; views?: number }>) {
-  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
+}: Readonly<{ post: ContentfulPost; views: number }>) {
   const isUpdatedPost = Boolean(
     post.publishedAt && post.publishedAt !== post.date,
   );
@@ -85,46 +84,28 @@ function BlogCard({
           {relativeTimeLabel && (
             <p className={styles["blogs__card-date"]}>{relativeTimeLabel}</p>
           )}
-          {views !== undefined && (
-            <span className={styles["blogs__card-views"]}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              {views.toLocaleString()}
-              <span
-                className={styles["blogs__card-views-info-wrapper"]}
-                onMouseEnter={() => setShowInfoTooltip(true)}
-                onMouseLeave={() => setShowInfoTooltip(false)}
-                onFocus={() => setShowInfoTooltip(true)}
-                onBlur={() => setShowInfoTooltip(false)}
-              >
-                <span
-                  className={styles["blogs__card-views-info"]}
-                  aria-label="How view count is calculated"
-                  aria-hidden={false}
-                >
-                  <InfoOutlinedIcon fontSize="inherit" />
-                </span>
-                {showInfoTooltip && (
-                  <span className={styles["blogs__card-views-info-tooltip"]}>
-                    This count reflects views from readers who stayed on the post for at least 5 seconds while the page was visible.
-                  </span>
-                )}
-              </span>
-            </span>
-          )}
+          <span
+            className={styles["blogs__card-views"]}
+            title="Views are counted after at least 5 seconds of active reading."
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {views.toLocaleString()}
+            <InfoOutlinedIcon fontSize="inherit" aria-hidden="true" />
+          </span>
         </div>
         <h2 className={styles["blogs__card-title"]}>{post.title}</h2>
         {post.description && (
@@ -140,6 +121,7 @@ function BlogCard({
 
 export default function BlogPageContent({
   posts,
+  initialViewCounts = {},
 }: Readonly<BlogPageContentProps>) {
   const [inputValue, setInputValue] = useState("");
   const [deferredQuery, setDeferredQuery] = useState("");
@@ -184,13 +166,11 @@ export default function BlogPageContent({
     });
   }, [posts, deferredQuery]);
 
-  // Batch-fetch view counts for all posts in a single request
-  const allSlugs = useMemo(() => posts.map((p) => p.slug), [posts]);
-  const viewCounts = useViewCounts(allSlugs);
-
   const renderCarouselItem = useCallback(
-    (post: ContentfulPost) => <BlogCard post={post} views={viewCounts[post.slug]} />,
-    [viewCounts],
+    (post: ContentfulPost) => (
+      <BlogCard post={post} views={initialViewCounts[post.slug] ?? 0} />
+    ),
+    [initialViewCounts],
   );
 
   return (
@@ -245,7 +225,7 @@ export default function BlogPageContent({
                   <BlogCard
                     key={post.id}
                     post={post}
-                    views={viewCounts[post.slug]}
+                    views={initialViewCounts[post.slug] ?? 0}
                   />
                 ))
               ) : (

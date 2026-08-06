@@ -5,6 +5,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FluidContainer from "../FluidContainer";
 import styles from "./styles.module.scss";
 import type { BreadcrumbItem } from "@/types";
+import ParticlesBackground from "../ParticlesBackground";
 
 interface BreadcrumbsProps {
   items: readonly BreadcrumbItem[];
@@ -14,8 +15,14 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsProps>) {
   return (
     <nav className={clsx(styles.breadcrumbs, className)} aria-label="breadcrumb">
-      <FluidContainer>
-
+      <div className={styles["breadcrumbs__particles"]} aria-hidden="true">
+        <ParticlesBackground
+          id="breadcrumbs-particles"
+          className={styles["breadcrumbs__particles-canvas"]}
+          fullScreen={false}
+        />
+      </div>
+      <FluidContainer className={styles["breadcrumbs__content"]}>
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>
             <Link href="/" className={styles["breadcrumbs__link"]}>

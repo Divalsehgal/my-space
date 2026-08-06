@@ -47,6 +47,37 @@ describe("BlogListings container", () => {
     expect(screen.getByText(/no posts found/i)).toBeInTheDocument();
   });
 
+  it("does not request view counts for blog listings", () => {
+    const fetchDescriptor = Object.getOwnPropertyDescriptor(global, "fetch");
+    const fetchMock = jest.fn();
+    Object.defineProperty(global, "fetch", {
+      configurable: true,
+      value: fetchMock,
+    });
+
+    try {
+      render(<BlogPageContent posts={posts} />);
+      expect(fetchMock).not.toHaveBeenCalled();
+    } finally {
+      if (fetchDescriptor) {
+        Object.defineProperty(global, "fetch", fetchDescriptor);
+      } else {
+        delete (global as Partial<typeof global>).fetch;
+      }
+    }
+  });
+
+  it("renders server-provided view counts without a client request", () => {
+    render(
+      <BlogPageContent
+        posts={posts}
+        initialViewCounts={{ "react-performance-patterns": 42 }}
+      />,
+    );
+
+    expect(screen.getAllByText("42").length).toBeGreaterThan(0);
+  });
+
   it("filters posts by search query", () => {
     render(<BlogPageContent posts={posts} />);
 

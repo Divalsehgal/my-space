@@ -2,6 +2,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+This repository uses Node.js 22.13.0 (or a supported LTS release). Node 23 is
+not supported by the ESLint toolchain. With nvm installed, run:
+
+```bash
+nvm use
+```
+
 First, run the development server:
 
 ```bash

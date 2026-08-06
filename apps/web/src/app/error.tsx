@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -16,10 +15,7 @@ interface ErrorPageProps {
 }
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
-  useEffect(() => {
-    // Log the error to an error reporting service
-    console.error("Global Error Boundary caught:", error);
-  }, [error]);
+
 
   return (
     <Container maxWidth="md">

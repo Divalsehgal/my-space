@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState, type CSSProperties } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import type { RecursivePartial, IOptions } from "@tsparticles/engine";
@@ -8,8 +8,22 @@ import * as LightTokens from "@dival-sehgal/design-tokens/light";
 import * as DarkTokens from "@dival-sehgal/design-tokens/dark";
 import { useThemeContext } from "@/context/ThemeContext";
 
-export default function ParticlesBackground() {
+type ParticlesBackgroundProps = {
+  className?: string;
+  style?: CSSProperties;
+  id?: string;
+  /** Set false when particles must remain inside the parent element. */
+  fullScreen?: boolean;
+};
+
+export default function ParticlesBackground({
+  className,
+  style,
+  id,
+  fullScreen = true,
+}: Readonly<ParticlesBackgroundProps>) {
   const [init, setInit] = useState(false);
+  const generatedId = useId().replace(/:/g, "");
   const { mode } = useThemeContext();
   const Tokens = mode === "light" ? LightTokens : DarkTokens;
 
@@ -30,6 +44,9 @@ export default function ParticlesBackground() {
   }, []);
 
   const options: RecursivePartial<IOptions> = {
+    // Full-screen preserves the Hero's existing behavior. Nested uses can
+    // opt out so their parent controls the canvas bounds.
+    fullScreen: { enable: fullScreen },
     background: {
       color: { value: "transparent" },
     },
@@ -79,7 +96,7 @@ export default function ParticlesBackground() {
   if (init) {
     return (
       <Particles
-        id="tsparticles"
+        id={id ?? `particles-${generatedId}`}
         options={options}
         style={{
           position: "absolute",
@@ -89,7 +106,9 @@ export default function ParticlesBackground() {
           height: "100%",
           zIndex: 2,
           pointerEvents: "none",
+          ...style,
         }}
+        className={className}
       />
     );
   }

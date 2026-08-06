@@ -23,7 +23,6 @@
     grid-template-columns: 280px 1fr;
     gap: $t-spacing-12;
     align-items: start;
-    margin-top: $t-spacing-8;
     padding-top: $t-spacing-4;
 
     @media (max-width: 1024px) {
@@ -93,6 +92,7 @@
   &__meta {
     display: flex;
     gap: $t-spacing-6;
+    align-items: center;
     color: $t-colors-text-secondary;
 
     p {

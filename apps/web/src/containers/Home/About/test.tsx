@@ -52,6 +52,19 @@ describe("About Container", () => {
     expect(githubBtn).toHaveAttribute("href", "https://github.com");
   });
 
+  it("splits a long description into readable paragraphs", () => {
+    const longDescription = [
+      "I build thoughtful products that solve practical problems for real people.",
+      "My work combines careful engineering, strong collaboration, and an eye for the details that shape a great user experience.",
+      "I enjoy turning ambiguous ideas into focused, maintainable software that teams can confidently evolve.",
+      "Outside delivery work, I keep learning through experiments, writing, and conversations with other builders.",
+    ].join(" ");
+
+    render(<About data={{ title: "About", paragraphs: [longDescription], facts: [] }} />);
+
+    expect(screen.getAllByText(/I build thoughtful products|I enjoy turning ambiguous ideas/)).toHaveLength(2);
+  });
+
   it("triggers trackEvent on social click", () => {
     const mockSocials = [
       { label: "Github", href: "https://github.com", icon: "github" },

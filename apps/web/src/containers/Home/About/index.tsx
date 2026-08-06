@@ -29,10 +29,41 @@ interface AboutProps {
   socials?: SocialItem[];
 }
 
+const MAX_PARAGRAPH_LENGTH = 260;
+
+function splitIntoReadableParagraphs(paragraphs: string[]): string[] {
+  return paragraphs.flatMap((paragraph) => {
+    const sentences = paragraph.trim().match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g);
+
+    if (!sentences || paragraph.length <= MAX_PARAGRAPH_LENGTH) {
+      return paragraph.trim() ? [paragraph.trim()] : [];
+    }
+
+    const groups: string[] = [];
+    let current = "";
+
+    for (const sentence of sentences) {
+      const next = `${current}${sentence}`.trim();
+      if (current && next.length > MAX_PARAGRAPH_LENGTH) {
+        groups.push(current.trim());
+        current = sentence;
+      } else {
+        current = next;
+      }
+    }
+
+    if (current.trim()) {
+      groups.push(current.trim());
+    }
+
+    return groups;
+  });
+}
+
 export default function About({ data, socials }: AboutProps) {
 
   const title = data?.title || "About Me";
-  const paragraphs = data?.paragraphs || [];
+  const paragraphs = splitIntoReadableParagraphs(data?.paragraphs || []);
   const facts = data?.facts || [];
   const socialItems = socials || [];
 
@@ -71,17 +102,20 @@ export default function About({ data, socials }: AboutProps) {
           <Stack spacing={2}>
             <SectionHeader title={title} align="left" />
 
-            <Stack spacing={1}>
-              {paragraphs.map((text: string) => (
+            <div className={styles["about__copy"]}>
+              {paragraphs.map((text, index) => (
                 <Typography
-                  key={text}
+                  key={`${text}-${index}`}
                   variant="body1"
-                  className={styles["about__description"]}
+                  className={clsx(
+                    styles["about__description"],
+                    index === 0 && styles["about__description--lead"],
+                  )}
                 >
                   {text}
                 </Typography>
               ))}
-            </Stack>
+            </div>
 
             {/* Facts Section */}
             <Grid container spacing={4}>

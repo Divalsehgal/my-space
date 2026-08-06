@@ -242,7 +242,7 @@
   height: $t-spacing-8;
   padding: 0 $t-spacing-4;
   border: 1px solid $t-colors-scrollbar-thumb;
-  border-radius: $t-spacing-full; // Full pill
+  border-radius: 9999px; // Full pill
 
   // Default variant (Primary)
   background-color: $t-colors-surface-brand-strong;

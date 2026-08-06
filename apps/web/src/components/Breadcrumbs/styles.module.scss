@@ -3,9 +3,31 @@
 
 .breadcrumbs {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   z-index: $t-layer-level-positive-1;
-  padding-block: $t-spacing-6 $t-spacing-2;
+  padding-block: $t-spacing-6;
   color: $t-colors-text-secondary;
+
+  &__particles {
+    pointer-events: none;
+
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+  }
+
+  &__particles-canvas {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0.35;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+  }
 
   &__list {
     display: flex;
