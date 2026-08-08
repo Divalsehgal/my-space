@@ -250,7 +250,10 @@
   span {
     font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
-    color: $t-colors-primary-default;
+    // Theme-inverting token: light navy on light theme, near-white on dark
+    // theme. Ensures WCAG AA contrast (>=4.5:1) against the translucent
+    // brand pill background in both themes.
+    color: $t-colors-primary-dark;
     text-shadow: 0 0 $t-spacing-3 $t-colors-surface-brand-muted;
   }
 }

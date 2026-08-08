@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "cd ../../packages/design-tokens && node build-tokens.js",
     "dev": "next dev",
     "prebuild": "cd ../../packages/design-tokens && node build-tokens.js",
     "build": "next build",
@@ -10,13 +11,15 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:style": "stylelint 'src/**/*.scss'",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "worker:deploy": "wrangler deploy",
+    "worker:tail": "wrangler tail --format pretty",
+    "seed": "node scripts/seed-chatbot.mjs"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^16.2.1",
     "@dival-sehgal/design-tokens": "*",
     "@dival-sehgal/next-config": "*",
-    "@ducanh2912/next-pwa": "^10.2.9",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -64,5 +67,12 @@
     "tslib": "^2.6.2",
     "turbo": "^2.9.12",
     "webpack": "^5.91.0"
-  }
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4",
+    "not dead"
+  ]
 }

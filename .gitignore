@@ -46,9 +46,15 @@ src/styles/dist/
 # local debug scripts
 apps/web/notion_debug.js
 
+# tooling / debug artifacts
+.playwright-mcp/
+chatbot-open.png
+
 # turborepo
 .turbo
 .turbo/
 **/.turbo/
 turbo-*.log
 **/turbo-build.log
+
+.next/

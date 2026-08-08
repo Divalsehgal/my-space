@@ -21,3 +21,55 @@ export function formatDate(
     return null;
   }
 }
+
+function pluralize(value: number, unit: string): string {
+  return `${value} ${unit}${value === 1 ? "" : "s"} ago`;
+}
+
+/**
+ * Formats a date into a human-friendly relative label that scales its unit
+ * (days → weeks → months → years) based on how long ago the date was.
+ *
+ * Examples: "Last updated today", "Published 3 days ago",
+ * "Last updated 2 weeks ago", "Published 5 months ago", "Last updated 1 year ago".
+ *
+ * @param dateString The ISO date string to describe
+ * @param isUpdated When true, prefixes with "Last updated"; otherwise "Published"
+ * @returns The relative label or null if the date is missing/invalid
+ */
+export function getRelativeTimeLabel(
+  dateString?: string | null,
+  isUpdated = false,
+): string | null {
+  if (!dateString) {
+    return null;
+  }
+
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const diffInDays = Math.floor(
+    (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const prefix = isUpdated ? "Last updated" : "Published";
+
+  if (diffInDays <= 0) {
+    return `${prefix} today`;
+  }
+
+  if (diffInDays < 7) {
+    return `${prefix} ${pluralize(diffInDays, "day")}`;
+  }
+
+  if (diffInDays < 30) {
+    return `${prefix} ${pluralize(Math.floor(diffInDays / 7), "week")}`;
+  }
+
+  if (diffInDays < 365) {
+    return `${prefix} ${pluralize(Math.floor(diffInDays / 30), "month")}`;
+  }
+
+  return `${prefix} ${pluralize(Math.floor(diffInDays / 365), "year")}`;
+}

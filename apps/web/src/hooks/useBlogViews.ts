@@ -6,7 +6,14 @@ import { isOwnerMode } from '@/utils/ownerMode';
 interface UseBlogViewsOptions {
   /** Minimum milliseconds the article must be visible before recording a view */
   thresholdMs?: number;
-  /** Intersection ratio required to consider the element "visible" */
+  /**
+   * Intersection ratio required to consider the element "visible".
+   *
+   * Defaults to `0` (any pixel visible). A non-zero ratio must NOT be used with
+   * the full `<article>` element: a long post is taller than the viewport, so its
+   * visible ratio can never reach e.g. 0.3, leaving `isIntersecting` permanently
+   * false and preventing the view from ever being recorded.
+   */
   intersectionThreshold?: number;
 }
 
@@ -28,7 +35,7 @@ interface UseBlogViewsReturn {
  */
 export function useBlogViews(
   slug: string,
-  { thresholdMs = 5000, intersectionThreshold = 0.3 }: UseBlogViewsOptions = {}
+  { thresholdMs = 5000, intersectionThreshold = 0 }: UseBlogViewsOptions = {}
 ): UseBlogViewsReturn {
   const [views, setViews] = useState<number | null>(null);
   const [isTracked, setIsTracked] = useState(false);

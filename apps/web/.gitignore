@@ -46,3 +46,5 @@ src/styles/dist/
 # wrangler
 .wrangler/
 *.sqlite*
+
+.next/

@@ -5,6 +5,7 @@ import { useBlogViews } from '@/hooks/useBlogViews';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 
 interface BlogViewTrackerProps {
@@ -23,7 +24,7 @@ export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const { views } = useBlogViews(slug);
 
-  const displayedViews = views ?? 0;
+  const isLoading = views === null;
 
   return (
     <Box
@@ -36,9 +37,18 @@ export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
       aria-live="polite"
     >
       <VisibilityIcon fontSize="small" />
-      <Typography variant="body2">
-        {displayedViews.toLocaleString()} {displayedViews === 1 ? 'view' : 'views'}
-      </Typography>
+      {isLoading ? (
+        <CircularProgress
+          size={14}
+          thickness={5}
+          aria-label="Loading view count"
+          sx={{ color: 'text.secondary' }}
+        />
+      ) : (
+        <Typography variant="body2">
+          {views.toLocaleString()} {views === 1 ? 'view' : 'views'}
+        </Typography>
+      )}
       <Box
         component="span"
         sx={{

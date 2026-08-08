@@ -1,18 +1,35 @@
 import path from "node:path";
 import config from "@dival-sehgal/next-config";
 import type { NextConfig } from "next";
-import withPWAInit from "@ducanh2912/next-pwa";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
-const getSecurityHeaders = (environment: "development" | "production" = process.env.NODE_ENV === "production" ? "production" : "development") => {
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+// Security headers are defined inline rather than imported from a sibling module
+// on purpose. `next.config.ts` is transpiled and evaluated as a standalone
+// CommonJS module (Next compiles only this file, not its imports), so a relative
+// import like `./src/lib/security` is resolved against `process.cwd()` and fails
+// with "Cannot find module" whenever the config is loaded from outside
+// `apps/web` — e.g. from the monorepo root during a husky/lint-staged pre-commit
+// run. Keeping the logic here makes the config self-contained (a single source
+// of truth) and removes that cwd-dependent fragility.
+type RuntimeEnvironment = "development" | "production" | "test";
+
+function getSecurityHeaders(
+  environment: RuntimeEnvironment = "production",
+): Array<{ key: string; value: string }> {
   const isProduction = environment === "production";
 
   const headers = [
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "X-Frame-Options", value: "DENY" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-    { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-    { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+    {
+      key: "Permissions-Policy",
+      value: "camera=(), microphone=(), geolocation=()",
+    },
   ];
 
   if (isProduction) {
@@ -41,21 +58,7 @@ const getSecurityHeaders = (environment: "development" | "production" = process.
   }
 
   return headers;
-};
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV !== "production",
-  register: true,
-  workboxOptions: {
-    skipWaiting: true,
-    clientsClaim: true,
-  },
-});
+}
 
 const nextConfig: NextConfig = {
   ...config,
@@ -77,13 +80,44 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
+    const securityHeaders = getSecurityHeaders(
+      process.env.NODE_ENV === "production" ? "production" : "development",
+    );
+
     return [
       {
+        // Content-hashed build assets never change for a given URL, so they can
+        // be cached forever without revalidation round-trips.
+        source: '/_next/static/(.*)',
+        headers: [
+          ...securityHeaders,
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Public assets (avatar, icons, local fonts, manifest, etc.) served
+        // from the site root. The negative lookahead keeps this rule from also
+        // matching `/_next/*` paths — those are content-hashed and handled by
+        // the immutable rule above. Without it, the shorter TTL here would
+        // override the immutable one and cap hashed fonts at a 1-day lifetime.
+        // These files are stable between deploys, so a long max-age with
+        // stale-while-revalidate maximises cache hits on repeat visits while
+        // still allowing background refresh.
+        source: String.raw`/:file((?!_next/).*\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|ttf|woff|woff2|json))`,
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
         source: '/(.*)',
-        headers: getSecurityHeaders(process.env.NODE_ENV === "production" ? "production" : "development"),
+        headers: securityHeaders,
       },
     ];
   },
 };
 
-export default withBundleAnalyzer(withPWA(nextConfig));
+export default withBundleAnalyzer(nextConfig);

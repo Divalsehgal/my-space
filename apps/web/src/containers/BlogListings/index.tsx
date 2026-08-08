@@ -14,40 +14,13 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import FluidContainer from "@/components/FluidContainer";
 import Carousel from "@/components/Carousel";
 import type { ContentfulPost } from "@/types";
+import { getRelativeTimeLabel } from "@/utils/date";
 import styles from "./styles.module.scss";
 
 type BlogPageContentProps = {
   posts: ContentfulPost[];
   initialViewCounts?: Record<string, number>;
 };
-
-function getRelativeTimeLabel(
-  dateString?: string | null,
-  isUpdated = false,
-): string | null {
-  if (!dateString) {
-    return null;
-  }
-
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  const diffInMs = Date.now() - date.getTime();
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  const prefix = isUpdated ? "Last updated" : "Published";
-
-  if (diffInDays <= 0) {
-    return `${prefix} today`;
-  }
-
-  if (diffInDays === 1) {
-    return `${prefix} 1 day ago`;
-  }
-
-  return `${prefix} ${diffInDays} days ago`;
-}
 
 type BlogCardCoverStyle = CSSProperties & {
   "--blog-card-cover"?: string;
@@ -62,7 +35,7 @@ function getBlogCardCoverStyle(cover: string): BlogCardCoverStyle {
 function BlogCard({
   post,
   views,
-}: Readonly<{ post: ContentfulPost; views: number }>) {
+}: Readonly<{ post: ContentfulPost; views?: number | null }>) {
   const isUpdatedPost = Boolean(
     post.publishedAt && post.publishedAt !== post.date,
   );
@@ -70,6 +43,7 @@ function BlogCard({
     isUpdatedPost ? post.publishedAt : post.date,
     isUpdatedPost,
   );
+  const isViewsLoading = views === null || views === undefined;
 
   return (
     <Link href={`/blogs/${post.slug}`} className={styles["blogs__card"]}>
@@ -103,7 +77,15 @@ function BlogCard({
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-            {views.toLocaleString()}
+            {isViewsLoading ? (
+              <span
+                className={styles["blogs__card-views-loader"]}
+                role="status"
+                aria-label="Loading view count"
+              />
+            ) : (
+              views.toLocaleString()
+            )}
             <InfoOutlinedIcon fontSize="inherit" aria-hidden="true" />
           </span>
         </div>
@@ -168,7 +150,7 @@ export default function BlogPageContent({
 
   const renderCarouselItem = useCallback(
     (post: ContentfulPost) => (
-      <BlogCard post={post} views={initialViewCounts[post.slug] ?? 0} />
+      <BlogCard post={post} views={initialViewCounts[post.slug]} />
     ),
     [initialViewCounts],
   );
@@ -225,7 +207,7 @@ export default function BlogPageContent({
                   <BlogCard
                     key={post.id}
                     post={post}
-                    views={initialViewCounts[post.slug] ?? 0}
+                    views={initialViewCounts[post.slug]}
                   />
                 ))
               ) : (

@@ -114,6 +114,18 @@
     }
   }
 
+  &__card-views-loader {
+    display: inline-block;
+
+    width: 12px;
+    height: 12px;
+    border: 2px solid $t-colors-border-muted;
+    border-top-color: $t-colors-primary-default;
+    border-radius: 50%;
+
+    animation: blogs-views-spin 0.6s linear infinite;
+  }
+
   &__card-title {
     @include heading-md;
     @include ellipsis(2);
@@ -219,4 +231,16 @@
   font-size: $t-font-size-lg;
   line-height: 1.6;
   color: $t-colors-text-secondary;
+}
+
+@keyframes blogs-views-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blogs__card-views-loader {
+    animation-duration: 1.5s;
+  }
 }

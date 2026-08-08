@@ -1,0 +1,73 @@
+flowchart TB
+    subgraph Client["Browser / PWA Client"]
+        UI["Next.js UI (React 19)<br/>Home · Blog · BlogPost"]
+        SW["Service Worker<br/>(Workbox precache + NetworkFirst /api)"]
+        Hook["useBlogViews hook<br/>IntersectionObserver + Visibility"]
+        Owner["Owner Mode<br/>localStorage + admin cookie"]
+        GA["GoogleTracking<br/>GA4 / GTM"]
+    end
+
+    subgraph Vercel["Vercel — Next.js App (apps/web)"]
+        direction TB
+        subgraph Pages["Server Components / Pages"]
+            PBlogs["/blogs (listing)<br/>getViewCounts (cached 60s)"]
+            PPost["/blogs/[slug]<br/>BlogPost + Tracker"]
+            PHome["/ (Home)"]
+        end
+        subgraph API["Route Handlers (/api)"]
+            RView["blogs/[slug]/view<br/>GET count · POST record"]
+            RAnalytics["blogs/[slug]/analytics<br/>(admin only)"]
+            RPopular["blogs/popular"]
+            RContact["contact (POST)"]
+            RCtx["chat-context (GET)"]
+            RReval["revalidate (POST webhook)"]
+        end
+        subgraph Svc["Service Layer (lib/services)"]
+            SAnalytics["analytics.ts<br/>recordView · getViews · getAnalytics"]
+            SContentful["contentful.ts<br/>GraphQL client"]
+            SNotion["notion.ts"]
+            SRedis["lib/redis.ts<br/>isRedisConfigured"]
+        end
+    end
+
+    subgraph External["External Services"]
+        Redis[("Upstash Redis<br/>views:total / daily / monthly<br/>HLL visitors · referrers · geo")]
+        CMS[("Contentful CMS<br/>Blog content")]
+        Notion[("Notion DB<br/>Contact submissions")]
+        Worker["Cloudflare Worker<br/>AI Chatbot (RAG + Vectorize)"]
+        Google[("Google Analytics / GTM")]
+    end
+
+    subgraph Pkgs["Monorepo packages/ (Turborepo)"]
+        Tokens["design-tokens"]
+        Fonts["fonts"]
+        ESLint["eslint-config"]
+        Jest["jest-config"]
+        NextCfg["next-config"]
+    end
+
+    UI --> Pages
+    Hook -->|GET/POST| RView
+    Owner -.cookie.-> RView
+    GA --> Google
+    UI <-->|chat widget| Worker
+
+    PBlogs --> SAnalytics
+    PPost --> SContentful
+    PHome --> SContentful
+
+    RView --> SAnalytics
+    RAnalytics --> SAnalytics
+    RPopular --> SAnalytics
+    RContact --> SNotion
+    RCtx --> SContentful
+    RReval -->|revalidateTag| Pages
+    RReval -.seed.-> Worker
+
+    SAnalytics --> SRedis --> Redis
+    SContentful --> CMS
+    SNotion --> Notion
+    Worker -->|reads context| RCtx
+
+    CMS -->|publish webhook| RReval
+    Pages -.builds with.-> Pkgs

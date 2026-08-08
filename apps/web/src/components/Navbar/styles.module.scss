@@ -17,8 +17,6 @@
 
   height: $t-spacing-16; // 64px
   border-bottom: 1px solid $t-colors-border-subtle;
-  border-bottom-right-radius: 50% $t-spacing-8;
-  border-bottom-left-radius: 50% $t-spacing-8;
   overflow: hidden;
 
   &--open {

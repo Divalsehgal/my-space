@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { recordView, getViews } from '@/lib/services/analytics';
-import { redis } from '@/lib/redis';
-import crypto from 'crypto';
+import { redis, isRedisConfigured } from '@/lib/redis';
+import crypto from 'node:crypto';
+
+// View recording depends on request cookies/headers and must never be cached
+// or statically optimized.
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const ADMIN_VIEW_SECRET = process.env.ADMIN_VIEW_SECRET;
 
@@ -67,6 +72,15 @@ export async function POST(
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
+    // Fail fast with a clear signal when analytics storage isn't configured,
+    // instead of silently pretending the view was recorded.
+    if (!isRedisConfigured) {
+      return NextResponse.json(
+        { success: false, views: 0, recorded: false, reason: 'analytics-not-configured' },
+        { status: 200 },
+      );
+    }
+
     // ── Server-side owner check ──────────────────────────────────────
     // If the admin_view_secret cookie matches the env var, this is the
     // site owner — return the count without recording the view.
@@ -95,7 +109,7 @@ export async function POST(
       newVisitorId = true;
     }
 
-    await recordView({
+    const recorded = await recordView({
       slug,
       ip,
       userAgent,
@@ -104,9 +118,9 @@ export async function POST(
       country,
     });
 
-    // 4. Fetch updated total and return it
+    // Fetch updated total and return it
     const views = await getViews(slug);
-    const response = NextResponse.json({ success: true, views }, { status: 202 });
+    const response = NextResponse.json({ success: true, views, recorded }, { status: 200 });
 
     // 5. Set the visitor_id cookie if it was just generated
     if (newVisitorId) {

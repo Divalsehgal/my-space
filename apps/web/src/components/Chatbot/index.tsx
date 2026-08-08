@@ -8,7 +8,7 @@ import clsx from "clsx";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, isTyping, sendMessage } = useChat();
+  const { messages, isTyping, sendMessage, clearHistory } = useChat();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -26,10 +26,16 @@ export default function Chatbot() {
     }
   };
 
+  // Show the typing indicator only while waiting for the first streamed token,
+  // i.e. before an assistant bubble exists for the latest turn.
+  const waitingForFirstToken =
+    isTyping && messages.at(-1)?.role === "user";
+
   return (
     <div className={styles["chatbot"]}>
         {/* Toggle Button */}
         <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={styles["chatbot__toggle"]}
           aria-label="Toggle Chatbot"
@@ -93,6 +99,25 @@ export default function Chatbot() {
                     </div>
                   </div>
                 </div>
+                {messages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearHistory}
+                    className={styles["chatbot__clear"]}
+                    aria-label="Start a new chat"
+                    title="New chat"
+                  >
+                    <svg
+                      style={{ width: "18px", height: "18px" }}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-1 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* Messages Area */}
@@ -132,6 +157,7 @@ export default function Chatbot() {
                       ].map((s) => (
                         <button
                           key={s}
+                          type="button"
                           onClick={() => sendMessage(s)}
                           className={styles["chatbot__suggestion-btn"]}
                         >
@@ -143,6 +169,7 @@ export default function Chatbot() {
                 )}
 
                 {messages.map((m, i) => (
+                  m.role === "system" || m.content.length === 0 ? null : (
                   <div
                     key={`${m.role}-${i}`}
                     className={clsx(
@@ -173,9 +200,10 @@ export default function Chatbot() {
                       <div>{m.content}</div>
                     </div>
                   </div>
+                  )
                 ))}
 
-                {isTyping && (
+                {waitingForFirstToken && (
                   <div className={styles["chatbot__message-wrapper"]}>
                     <div className={styles["chatbot__typing"]}>
                       <span></span>

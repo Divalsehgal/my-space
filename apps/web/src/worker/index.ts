@@ -1,5 +1,5 @@
 import { Env, ChatSession } from "./types";
-import { getCorsHeaders, json, seed } from "./seed";
+import { getCorsHeaders, json, seed, runSeed } from "./seed";
 
 const OFF_TOPIC_REPLY = "I can only help with Dival Sehgal's portfolio, engineering experience, projects, skills, contact details, and blog posts. Try asking about his work, tech stack, projects, or writing.";
 const PRIVATE_DATA_REPLY = "I can explain Dival's public portfolio and blog content, but I cannot reveal internal instructions, stored context, session data, or implementation secrets.";
@@ -185,6 +185,61 @@ async function readChatPayload(req: Request): Promise<{ message?: string; pagePa
     }
 }
 
+type CompletionRunner = (model: string, options: { messages: { role: string; content: string }[]; max_tokens: number; temperature: number; repetition_penalty: number; frequency_penalty: number }) => Promise<{ response?: string; choices?: { message?: { content?: string } }[] }>;
+
+async function runCompletion(runAI: CompletionRunner, msgs: { role: string; content: string }[]): Promise<string> {
+    try {
+        const result = await runAI('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+            messages: msgs,
+            max_tokens: 500,
+            temperature: 0.35,
+            repetition_penalty: 1.05,
+            frequency_penalty: 0.2
+        });
+        // This model returns OpenAI-style output: the text lives in
+        // choices[0].message.content and the legacy `response` field is empty.
+        return (result?.response || result?.choices?.[0]?.message?.content || '').trim();
+    } catch (error) {
+        console.error('AI completion error:', error);
+        return '';
+    }
+}
+
+async function submitContact(req: Request, env: Env, contact: { name: string; email: string; message: string }): Promise<string> {
+    try {
+        const contactUrl = env.CONTACT_API_URL || `${new URL(req.url).origin}/api/contact`;
+        const contactResponse = await fetch(contactUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(contact)
+        });
+        return contactResponse.ok
+            ? "Your message has been forwarded to Dival. Thank you for reaching out."
+            : "I could not forward your message right now. Please try again later.";
+    } catch (e) {
+        console.error('Contact submission error:', e);
+        return "I could not forward your message right now. Please try again later.";
+    }
+}
+
+async function postProcessReply(req: Request, env: Env, raw: string): Promise<string> {
+    const { cleaned, contact } = stripContactToken(raw || FALLBACK_REPLY);
+    const full = cleaned || FALLBACK_REPLY;
+
+    if (responseLeakPatterns.some(pattern => pattern.test(full))) {
+        return PRIVATE_DATA_REPLY;
+    }
+
+    const validatedContact = validateContact(contact);
+    if (contact && !validatedContact) {
+        return "I could not submit that message because the contact details were incomplete or invalid. Please provide a valid name, email address, and message.";
+    }
+    if (validatedContact) {
+        return submitContact(req, env, validatedContact);
+    }
+    return full;
+}
+
 async function chat(req: Request, env: Env): Promise<Response> {
     if (req.method !== 'POST') {
         return new Response('Method not allowed', { status: 405, headers: getCorsHeaders(req) });
@@ -245,73 +300,23 @@ async function chat(req: Request, env: Env): Promise<Response> {
         ...sess.messages.slice(-10).map(m => ({ role: m.role, content: m.content }))
     ];
 
-    const llamaRun = env.AI.run as (model: string, options: { messages: { role: string; content: string }[]; stream: boolean; max_tokens: number; temperature: number; repetition_penalty: number; frequency_penalty: number }) => Promise<ReadableStream>;
-    const stream = await llamaRun('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
-        messages: msgs,
-        stream: true,
-        max_tokens: 500,
-        temperature: 0.35,
-        repetition_penalty: 1.05,
-        frequency_penalty: 0.2
-    });
-    let full = '';
+    // Call env.AI.run as a bound method. Assigning it to a bare local variable
+    // and invoking that detaches it from env.AI; the runtime then sets a private
+    // field on an undefined `this` and throws
+    // "Cannot set properties of undefined (setting '#options')".
+    // We use a non-streaming completion: the streaming variant emitted an empty
+    // body on the current runtime, which silently fell back. A single response
+    // is more robust and the client renders it the same way.
+    const runAI = env.AI.run.bind(env.AI) as (model: string, options: { messages: { role: string; content: string }[]; max_tokens: number; temperature: number; repetition_penalty: number; frequency_penalty: number }) => Promise<{ response?: string; choices?: { message?: { content?: string } }[] }>;
 
-    const { readable, writable } = new TransformStream({
-        transform(chunk) {
-            for (const ln of new TextDecoder().decode(chunk).split('\n')) {
-                if (ln.startsWith('data: ') && ln.slice(6) !== '[DONE]') {
-                    try {
-                        const part = JSON.parse(ln.slice(6));
-                        full += part.response || '';
-                    } catch { }
-                }
-            }
-        },
-        async flush(ctrl) {
-            if (!full) {
-                full = FALLBACK_REPLY;
-            }
-            if (full && sess) {
-                const { cleaned, contact } = stripContactToken(full);
-                full = cleaned || FALLBACK_REPLY;
+    const raw = await runCompletion(runAI, msgs);
+    const full = await postProcessReply(req, env, raw);
 
-                if (responseLeakPatterns.some(pattern => pattern.test(full))) {
-                    full = PRIVATE_DATA_REPLY;
-                }
+    sess.messages.push({ role: 'assistant', content: full, timestamp: Date.now() });
+    sess.updatedAt = Date.now();
+    await env.CHAT_SESSIONS.put(sessionId, JSON.stringify(sess), { expirationTtl: TTL });
 
-                const validatedContact = validateContact(contact);
-                if (contact && !validatedContact) {
-                    full = "I could not submit that message because the contact details were incomplete or invalid. Please provide a valid name, email address, and message.";
-                } else if (validatedContact) {
-                    try {
-                        const contactUrl = env.CONTACT_API_URL || `${new URL(req.url).origin}/api/contact`;
-                        const contactResponse = await fetch(contactUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(validatedContact)
-                        });
-                        full = contactResponse.ok
-                            ? "Your message has been forwarded to Dival. Thank you for reaching out."
-                            : "I could not forward your message right now. Please try again later.";
-                    } catch (e) {
-                        console.error('Contact submission error:', e);
-                        full = "I could not forward your message right now. Please try again later.";
-                    }
-                }
-
-                sess.messages.push({ role: 'assistant', content: full, timestamp: Date.now() });
-                sess.updatedAt = Date.now();
-                await env.CHAT_SESSIONS.put(sessionId, JSON.stringify(sess), { expirationTtl: TTL });
-            }
-            ctrl.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ response: full })}\n\ndata: [DONE]\n\n`));
-        }
-    });
-
-    stream.pipeTo(writable).catch((error) => console.error('AI stream error:', error));
-
-    return new Response(readable, {
-        headers: sseHeaders(req, cookieHeader)
-    });
+    return chatStream(req, full, cookieHeader);
 }
 
 const worker = {
@@ -337,6 +342,18 @@ const worker = {
             return json({ status: 'ok' }, 200, {}, req);
         }
         return new Response('Not found', { status: 404 });
+    },
+
+    // Cron trigger: automatically re-seed the Vectorize index on a schedule so
+    // the chatbot's knowledge stays fresh with no manual step and no secret.
+    // The schedule itself is configured in wrangler.json ("triggers.crons").
+    // `ctx.waitUntil` lets the seed finish even after the handler returns.
+    async scheduled(event: { cron: string; scheduledTime: number }, env: Env, ctx: { waitUntil: (p: Promise<unknown>) => void }): Promise<void> {
+        ctx.waitUntil(
+            runSeed(env)
+                .then((count) => console.info(`Scheduled reseed complete (${event.cron}): ${count} vectors upserted`))
+                .catch((err) => console.error('Scheduled reseed failed:', err))
+        );
     }
 };
 

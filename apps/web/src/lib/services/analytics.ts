@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { redis } from '../redis';
 
 export type ViewStats = {
@@ -60,7 +60,7 @@ function normalizeReferrer(rawReferrer: string | null, siteHost?: string): strin
     const host = url.hostname.replace(/^www\./, '');
 
     // Filter out self-referrals
-    if (siteHost && host === siteHost.replace(/^www\./, '')) {
+    if (host === siteHost?.replace(/^www\./, '')) {
       return null;
     }
 
