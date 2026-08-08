@@ -19,7 +19,7 @@ type Props = {
     readonly className?: string;
 };
 
-const VISIBLE_COUNT = 3;
+const VISIBLE_COUNT = 2;
 
 function ListDescription({ items }: { readonly items: readonly DescriptionItem[] }) {
     const [isExpanded, setIsExpanded] = useState(false);

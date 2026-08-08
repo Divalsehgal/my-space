@@ -53,7 +53,7 @@ export default function Footer({ brand, socialItems = [] }: FooterProps) {
                             </Typography>
                         </Link>
                         <p className={styles["footer__description"]}>
-                            Frontend Developer focused on building beautiful, interactive, and high-performance web applications.
+                            Software Developer focused on building beautiful, interactive, and high-performance applications.
                         </p>
                     </div>
 

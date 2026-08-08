@@ -16,7 +16,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
  * background only needs a light sprinkle, so we keep this deliberately small
  * and let the `density` option scale it down further on smaller viewports.
  */
-const PARTICLE_COUNT = 90;
+const PARTICLE_COUNT = 4000;
 
 type ParticlesBackgroundProps = {
   className?: string;

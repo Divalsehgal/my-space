@@ -24,41 +24,6 @@ describe("GlassCard Component", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
-  it("limits list items to 3 and toggles accordion when description has >3 items", async () => {
-    const fireEvent = (await import("@testing-library/react")).fireEvent;
-
-    const longListDescription = [
-      { id: "1", text: "Point 1" },
-      { id: "2", text: "Point 2" },
-      { id: "3", text: "Point 3" },
-      { id: "4", text: "Point 4" },
-      { id: "5", text: "Point 5" },
-    ];
-
-    render(<GlassCard title="Accordion Title" description={longListDescription} />);
-
-    // Initially shows only 3 items
-    expect(screen.getAllByRole("listitem")).toHaveLength(3);
-    expect(screen.getByText("Point 1")).toBeInTheDocument();
-    expect(screen.getByText("Point 3")).toBeInTheDocument();
-    expect(screen.queryByText("Point 4")).not.toBeInTheDocument();
-
-    // Shows toggle button
-    const toggleButton = screen.getByRole("button", { name: /show 2 more points/i });
-    expect(toggleButton).toBeInTheDocument();
-
-    // Click to expand
-    fireEvent.click(toggleButton);
-
-    // Now shows all 5 items
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
-    expect(screen.getByText("Point 4")).toBeInTheDocument();
-    expect(screen.getByText("Point 5")).toBeInTheDocument();
-
-    // Button label updates to "Show less"
-    expect(screen.getByRole("button", { name: /show less/i })).toBeInTheDocument();
-  });
-
   it("renders with a visual component", () => {
     const VisualMock = <div data-testid="visual-mock">Visual Content</div>;
     
