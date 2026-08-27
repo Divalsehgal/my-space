@@ -29,41 +29,10 @@ interface AboutProps {
   socials?: SocialItem[];
 }
 
-const MAX_PARAGRAPH_LENGTH = 260;
-
-function splitIntoReadableParagraphs(paragraphs: string[]): string[] {
-  return paragraphs.flatMap((paragraph) => {
-    const sentences = paragraph.trim().match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g);
-
-    if (!sentences || paragraph.length <= MAX_PARAGRAPH_LENGTH) {
-      return paragraph.trim() ? [paragraph.trim()] : [];
-    }
-
-    const groups: string[] = [];
-    let current = "";
-
-    for (const sentence of sentences) {
-      const next = `${current}${sentence}`.trim();
-      if (current && next.length > MAX_PARAGRAPH_LENGTH) {
-        groups.push(current.trim());
-        current = sentence;
-      } else {
-        current = next;
-      }
-    }
-
-    if (current.trim()) {
-      groups.push(current.trim());
-    }
-
-    return groups;
-  });
-}
-
 export default function About({ data, socials }: AboutProps) {
 
   const title = data?.title || "About Me";
-  const paragraphs = splitIntoReadableParagraphs(data?.paragraphs || []);
+  const paragraphs = data?.paragraphs || [];
   const facts = data?.facts || [];
   const socialItems = socials || [];
 

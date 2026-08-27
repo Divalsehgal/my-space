@@ -60,7 +60,7 @@ function BlogCard({
           )}
           <span
             className={styles["blogs__card-views"]}
-            title="Views are counted after at least 5 seconds of active reading."
+            title="Views are counted after at least 30 seconds of active reading."
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

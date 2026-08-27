@@ -52,17 +52,16 @@ describe("About Container", () => {
     expect(githubBtn).toHaveAttribute("href", "https://github.com");
   });
 
-  it("splits a long description into readable paragraphs", () => {
-    const longDescription = [
-      "I build thoughtful products that solve practical problems for real people.",
-      "My work combines careful engineering, strong collaboration, and an eye for the details that shape a great user experience.",
-      "I enjoy turning ambiguous ideas into focused, maintainable software that teams can confidently evolve.",
-      "Outside delivery work, I keep learning through experiments, writing, and conversations with other builders.",
-    ].join(" ");
+  it("renders all paragraphs directly from props without mangling content", () => {
+    const paragraphs = [
+      "First paragraph containing details about software engineering.",
+      "Second paragraph containing details about frontend and backend work.",
+    ];
 
-    render(<About data={{ title: "About", paragraphs: [longDescription], facts: [] }} />);
+    render(<About data={{ title: "About", paragraphs, facts: [] }} />);
 
-    expect(screen.getAllByText(/I build thoughtful products|I enjoy turning ambiguous ideas/)).toHaveLength(2);
+    expect(screen.getByText(paragraphs[0])).toBeInTheDocument();
+    expect(screen.getByText(paragraphs[1])).toBeInTheDocument();
   });
 
   it("triggers trackEvent on social click", () => {

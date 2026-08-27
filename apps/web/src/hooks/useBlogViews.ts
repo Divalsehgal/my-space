@@ -35,7 +35,7 @@ interface UseBlogViewsReturn {
  */
 export function useBlogViews(
   slug: string,
-  { thresholdMs = 5000, intersectionThreshold = 0 }: UseBlogViewsOptions = {}
+  { thresholdMs = 30000, intersectionThreshold = 0 }: UseBlogViewsOptions = {}
 ): UseBlogViewsReturn {
   const [views, setViews] = useState<number | null>(null);
   const [isTracked, setIsTracked] = useState(false);

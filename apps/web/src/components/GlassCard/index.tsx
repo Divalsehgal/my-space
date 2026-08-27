@@ -11,6 +11,7 @@ import styles from "./styles.module.scss";
 type DescriptionItem = { id?: string; text: string };
 
 type Props = {
+    readonly id?: string;
     readonly visual?: ReactNode;
     readonly title: ReactNode;
     readonly description: string | Array<DescriptionItem>;
@@ -21,8 +22,18 @@ type Props = {
 
 const VISIBLE_COUNT = 2;
 
-function ListDescription({ items }: { readonly items: readonly DescriptionItem[] }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+function ListDescription({ cardId, items }: { readonly cardId?: string; readonly items: readonly DescriptionItem[] }) {
+    const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
+
+    const cardKey = (cardId ? `${cardId}::` : "") + items.map((item, idx) => item.id ?? item.text ?? idx).join("::");
+    const isExpanded = Boolean(expandedMap[cardKey]);
+
+    const toggle = () => {
+        setExpandedMap((prev) => ({
+            ...prev,
+            [cardKey]: !prev[cardKey],
+        }));
+    };
 
     const hiddenCount = items.length - VISIBLE_COUNT;
     const hasHiddenItems = hiddenCount > 0;
@@ -48,7 +59,7 @@ function ListDescription({ items }: { readonly items: readonly DescriptionItem[]
                 <button
                     type="button"
                     className={styles["glass-card__accordion-toggle"]}
-                    onClick={() => setIsExpanded((prev) => !prev)}
+                    onClick={toggle}
                     aria-expanded={isExpanded}
                 >
                     <span>{toggleLabel}</span>
@@ -64,6 +75,7 @@ function ListDescription({ items }: { readonly items: readonly DescriptionItem[]
 }
 
 export default function GlassCard({
+    id,
     visual,
     title,
     description,
@@ -71,6 +83,9 @@ export default function GlassCard({
     action,
     className = "",
 }: Props) {
+    const fallbackId = typeof title === "string" ? title : undefined;
+    const cardId = id ?? fallbackId;
+
     return (
         <div className={clsx(styles["glass-card"], { [styles["glass-card--no-visual"]]: !visual }, className)}>
             {visual && <div className={styles["glass-card__visual"]}>
@@ -86,7 +101,7 @@ export default function GlassCard({
                             <Typography>{description}</Typography>
                         </div>
                     ) : (
-                        <ListDescription items={description} />
+                        <ListDescription cardId={cardId} items={description} />
                     )}
                 </div>
 

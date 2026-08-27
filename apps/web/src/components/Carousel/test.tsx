@@ -2,6 +2,7 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Carousel from "./index";
+import GlassCard from "../GlassCard";
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -157,5 +158,57 @@ describe("Carousel Component", () => {
     
     // 10th item of 11 -> "10 / 11"
     expect(screen.getByText("Slide 10 / 11")).toBeInTheDocument();
+  });
+
+  it("maintains independent expansion state per GlassCard and retains state when navigating back and forth", () => {
+    const cardItems = [
+      {
+        id: "card-1",
+        title: "Role 1",
+        description: [
+          { text: "Point 1" },
+          { text: "Point 2" },
+          { text: "Point 3" },
+        ],
+      },
+      {
+        id: "card-2",
+        title: "Role 2",
+        description: [
+          { text: "Point A" },
+          { text: "Point B" },
+          { text: "Point C" },
+        ],
+      },
+    ];
+
+    render(
+      <Carousel
+        items={cardItems}
+        renderItem={(item) => (
+          <GlassCard title={item.title} description={item.description} />
+        )}
+      />
+    );
+
+    // Expand Card 1
+    const expandBtn1 = screen.getByRole("button", { name: /Show 1 more point/i });
+    fireEvent.click(expandBtn1);
+    expect(screen.getByText("Point 3")).toBeInTheDocument();
+
+    // Navigate to Card 2
+    const nextButton = screen.getByLabelText("Next");
+    fireEvent.click(nextButton);
+
+    // Card 2 is rendered collapsed
+    expect(screen.getByText("Point A")).toBeInTheDocument();
+    expect(screen.queryByText("Point C")).not.toBeInTheDocument();
+
+    // Navigate back to Card 1
+    const prevButton = screen.getByLabelText("Previous");
+    fireEvent.click(prevButton);
+
+    // Card 1 REMAINS expanded!
+    expect(screen.getByText("Point 3")).toBeInTheDocument();
   });
 });

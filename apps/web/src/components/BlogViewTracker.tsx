@@ -15,7 +15,7 @@ interface BlogViewTrackerProps {
 /**
  * BlogViewTracker — Client component that:
  * 1. Fires a POST to /api/blogs/[slug]/view once the user has actively
- *    read the article for 5 seconds (uses IntersectionObserver + Page Visibility API).
+ *    read the article for 30 seconds (uses IntersectionObserver + Page Visibility API).
  * 2. Displays the current total view count fetched from the same API (GET).
  *
  * Drop this anywhere inside a blog post page.
@@ -98,7 +98,7 @@ export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
               pointerEvents: 'none',
             }}
           >
-            This count increases when a reader spends at least 5 seconds actively viewing the post while the page is visible.
+            This count increases when a reader spends at least 30 seconds actively viewing the post while the page is visible.
           </Box>
         )}
       </Box>

@@ -46,10 +46,10 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { config } = await portfolioService.getConfig();
-  const title = config.metadata?.title || "Dival Sehgal | Senior Frontend Engineer";
-  const tagline = config.hero?.subtitle || "Frontend Engineer specializing in Next.js and high-performance UI architecture.";
+  const title = config.metadata?.title || "Dival Sehgal | Senior Software Engineer";
+  const tagline = config.hero?.subtitle || "Software Engineer specializing in Next.js and high-performance UI architecture.";
   const description = config.metadata?.description || `Portfolio of Dival Sehgal. ${tagline}`;
-  const keywords = config.metadata?.keywords || ["Dival Sehgal", "Frontend Engineer", "Next.js", "React", "TypeScript", "Bangalore"];
+  const keywords = config.metadata?.keywords || ["Dival Sehgal", "Software Engineer", "Python", "Next.js", "Node.js", "TypeScript", "AWS", "Bangalore"];
 
   return {
     metadataBase: new URL(BASE_URL),
