@@ -3,7 +3,8 @@ node_modules
 out
 build
 dist
-.env*.local
+.env*
+!.env.example
 .vercel
 .git
 .github
