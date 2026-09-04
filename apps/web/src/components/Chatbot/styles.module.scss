@@ -314,6 +314,72 @@
   background-color: $t-colors-background-primary;
 }
 
+.chatbot__message--error {
+  border-color: $t-colors-secondary-default;
+  background-color: $t-colors-surface-neutral-subtle;
+}
+
+.chatbot__retry-btn {
+  cursor: pointer;
+
+  margin-top: $t-spacing-2;
+  padding: $t-spacing-1 $t-spacing-3;
+  border: 1px solid $t-colors-secondary-default;
+  border-radius: 9999px;
+
+  font-size: $t-font-size-xxs;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-secondary-default;
+
+  background: transparent;
+
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
+    color: $t-colors-button-primary-text;
+    background-color: $t-colors-secondary-default;
+  }
+}
+
+.chatbot__markdown {
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin: 0 0 $t-spacing-2;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 $t-spacing-2;
+    padding-left: $t-spacing-5;
+  }
+
+  li {
+    margin-bottom: $t-spacing-1;
+  }
+
+  a {
+    color: $t-colors-primary-default;
+    text-decoration: underline;
+  }
+
+  strong {
+    font-weight: $t-font-weight-bold;
+  }
+
+  code {
+    padding: 0 4px;
+    border-radius: 4px;
+    background-color: $t-colors-surface-page-fade;
+  }
+}
+
 .chatbot__typing {
   display: flex;
   gap: $t-spacing-1;

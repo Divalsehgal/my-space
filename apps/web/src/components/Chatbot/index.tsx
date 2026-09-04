@@ -3,12 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "./hooks/useChat";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import styles from "./styles.module.scss";
 import clsx from "clsx";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, isTyping, sendMessage, clearHistory } = useChat();
+  const { messages, isTyping, sendMessage, retryLastMessage, clearHistory } = useChat();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -185,6 +186,7 @@ export default function Chatbot() {
                         m.role === "user"
                           ? styles["chatbot__message--user"]
                           : styles["chatbot__message--assistant"],
+                        m.isError && styles["chatbot__message--error"],
                       )}
                     >
                       {m.role === "assistant" && (
@@ -197,7 +199,22 @@ export default function Chatbot() {
                           </span>
                         </div>
                       )}
-                      <div>{m.content}</div>
+                      {m.role === "assistant" ? (
+                        <div className={styles["chatbot__markdown"]}>
+                          <ReactMarkdown>{m.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <div>{m.content}</div>
+                      )}
+                      {m.isError && (
+                        <button
+                          type="button"
+                          onClick={() => retryLastMessage()}
+                          className={styles["chatbot__retry-btn"]}
+                        >
+                          Retry
+                        </button>
+                      )}
                     </div>
                   </div>
                   )

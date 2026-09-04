@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
+  isError?: boolean;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL ||
@@ -138,6 +139,49 @@ export function useChat() {
     return () => controller.abort();
   }, []);
 
+  const requestReply = useCallback(async (text: string) => {
+    // Cancel any in-flight request before starting a new one.
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          pagePath: globalThis.location?.pathname || '/',
+        }),
+        credentials: 'include',
+        signal: controller.signal,
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error(`Chat request failed with status ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const received = await processStream(reader, setMessages);
+
+      if (!received) {
+        setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR, isError: true }]);
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
+      console.error('Chat error:', error);
+      setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR, isError: true }]);
+    } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setIsTyping(false);
+      }
+    }
+  }, []);
+
   const sendMessage = useCallback(
     async (content: string) => {
       const text = content.trim();
@@ -145,51 +189,31 @@ export function useChat() {
         return;
       }
 
-      // Cancel any in-flight request before starting a new one.
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
       setMessages(prev => [...prev, { role: 'user', content: text }]);
-      setIsTyping(true);
-
-      try {
-        const response = await fetch(`${BASE_URL}/api/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            pagePath: globalThis.location?.pathname || '/',
-          }),
-          credentials: 'include',
-          signal: controller.signal,
-        });
-
-        if (!response.ok || !response.body) {
-          throw new Error(`Chat request failed with status ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        const received = await processStream(reader, setMessages);
-
-        if (!received) {
-          setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR }]);
-        }
-      } catch (error) {
-        if (isAbortError(error)) {
-          return;
-        }
-        console.error('Chat error:', error);
-        setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR }]);
-      } finally {
-        if (abortRef.current === controller) {
-          abortRef.current = null;
-          setIsTyping(false);
-        }
-      }
+      await requestReply(text);
     },
-    [isTyping]
+    [isTyping, requestReply]
   );
+
+  // Re-sends the last user message after a failed reply, without duplicating
+  // the user bubble. Drops the trailing error bubble(s) so retries don't pile up.
+  const retryLastMessage = useCallback(async () => {
+    if (isTyping) {
+      return;
+    }
+
+    const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+    if (!lastUserMessage) {
+      return;
+    }
+
+    setMessages(prev => {
+      const lastUserIndex = prev.map(m => m.role).lastIndexOf('user');
+      return lastUserIndex === -1 ? prev : prev.slice(0, lastUserIndex + 1);
+    });
+
+    await requestReply(lastUserMessage.content);
+  }, [isTyping, messages, requestReply]);
 
   const clearHistory = useCallback(() => {
     abortRef.current?.abort();
@@ -204,6 +228,7 @@ export function useChat() {
     messages,
     isTyping,
     sendMessage,
+    retryLastMessage,
     clearHistory,
   };
 }

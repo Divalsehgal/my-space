@@ -10,12 +10,14 @@ jest.mock('./hooks/useChat', () => ({
 describe('Chatbot Component', () => {
   const mockSendMessage = jest.fn();
   const mockClearHistory = jest.fn();
+  const mockRetryLastMessage = jest.fn();
 
   const mockUseChat = (overrides = {}) => {
     (useChat as jest.Mock).mockReturnValue({
       messages: [],
       isTyping: false,
       sendMessage: mockSendMessage,
+      retryLastMessage: mockRetryLastMessage,
       clearHistory: mockClearHistory,
       ...overrides,
     });
@@ -82,6 +84,19 @@ describe('Chatbot Component', () => {
     fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
     expect(screen.getByText('Hello there!')).toBeInTheDocument();
     expect(screen.queryByText('internal')).not.toBeInTheDocument();
+  });
+
+  it('renders a retry button for error messages and calls retryLastMessage', () => {
+    mockUseChat({
+      messages: [
+        { role: 'user', content: 'Hi' },
+        { role: 'assistant', content: 'Sorry, I ran into a problem. Please try again.', isError: true },
+      ],
+    });
+    render(<Chatbot />);
+    fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
+    fireEvent.click(screen.getByRole('button', { name: /retry/i }));
+    expect(mockRetryLastMessage).toHaveBeenCalledTimes(1);
   });
 
   it('clears the conversation when the new chat button is clicked', () => {

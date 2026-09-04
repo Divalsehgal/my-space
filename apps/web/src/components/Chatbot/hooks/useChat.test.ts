@@ -105,7 +105,43 @@ describe('useChat', () => {
     expect(result.current.messages.at(-1)).toEqual({
       role: 'assistant',
       content: 'Sorry, I ran into a problem. Please try again.',
+      isError: true,
     });
+    consoleError.mockRestore();
+  });
+
+  it('retries the last user message without duplicating it', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ messages: [] })) // history on mount
+      .mockResolvedValueOnce({ ok: false, status: 500 } as Response) // failed send
+      .mockResolvedValueOnce({
+        ok: true,
+        body: sseStream(['data: {"response":"Hi there"}\n\ndata: [DONE]\n\n']),
+      } as unknown as Response); // successful retry
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      await result.current.sendMessage('Hi');
+    });
+    expect(result.current.messages).toEqual([
+      { role: 'user', content: 'Hi' },
+      { role: 'assistant', content: 'Sorry, I ran into a problem. Please try again.', isError: true },
+    ]);
+
+    await act(async () => {
+      await result.current.retryLastMessage();
+    });
+
+    expect(result.current.messages).toEqual([
+      { role: 'user', content: 'Hi' },
+      { role: 'assistant', content: 'Hi there' },
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     consoleError.mockRestore();
   });
 

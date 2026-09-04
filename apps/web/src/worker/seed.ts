@@ -64,9 +64,37 @@ function sanitizeContent(value: string | undefined, maxLength = 1400): string {
     return (value || '').replace(/\s+/g, ' ').trim().slice(0, maxLength);
 }
 
+const maxChunkLength = 1400;
+
+function splitIntoSentences(text: string): string[] {
+    return text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) || [text];
+}
+
+// Packs sentences greedily up to maxChunkLength instead of slicing at fixed
+// character offsets, so a chunk (and its embedding) never starts or ends
+// mid-sentence.
 function chunkBlogContent(blog: Blog): string[] {
-    const content = sanitizeContent(blog.content, maxBlogChunks * 1400);
-    const chunks = content.match(/.{1,1400}(?:\s|$)/g)?.map((chunk) => chunk.trim()) || [];
+    const content = sanitizeContent(blog.content, maxBlogChunks * maxChunkLength);
+    if (!content) {
+        return [sanitizeContent(blog.description)];
+    }
+
+    const sentences = splitIntoSentences(content);
+    const chunks: string[] = [];
+    let current = '';
+    for (const sentence of sentences) {
+        const candidate = current ? `${current} ${sentence}` : sentence;
+        if (candidate.length > maxChunkLength && current) {
+            chunks.push(current.trim());
+            current = sentence;
+        } else {
+            current = candidate;
+        }
+    }
+    if (current) {
+        chunks.push(current.trim());
+    }
+
     return chunks.length ? chunks.slice(0, maxBlogChunks) : [sanitizeContent(blog.description)];
 }
 
