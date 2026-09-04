@@ -1,0 +1,98 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.shimmerContainer {
+  pointer-events: none;
+
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-3;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      90deg,
+      $t-colors-surface-brand-subtle 0%,
+      $t-colors-surface-brand-muted 50%,
+      $t-colors-surface-brand-subtle 100%
+    );
+  background-size: 200% 100%;
+
+  transition: opacity 0.4s ease;
+  animation: shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.shimmerHidden {
+    pointer-events: none;
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.spinnerOrb {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+}
+
+.spinnerRing {
+  width: 100%;
+  height: 100%;
+  border: 3px solid $t-colors-border-muted;
+  border-top-color: $t-colors-primary-default;
+  border-radius: 50%;
+
+  animation: spin 1s linear infinite;
+}
+
+.spinnerIcon {
+  position: absolute;
+  font-size: $t-font-size-sm;
+  color: $t-colors-primary-default;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loadingLabel {
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: $t-font-letter-spacing-wide-2;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}

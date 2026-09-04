@@ -3,8 +3,11 @@
 
 .blog-post {
   min-height: 100vh;
-  font-size: $t-font-size-base;
   padding: $t-spacing-0 0 $t-spacing-24;
+
+  font-size: $t-font-size-base;
+  color: $t-colors-text-primary;
+
   background:
     radial-gradient(
       circle at top right,
@@ -12,7 +15,6 @@
       transparent 40%
     ),
     $t-colors-background-primary;
-  color: $t-colors-text-primary;
 
   &__container {
     max-width: 1400px !important; // Wider for doc-style
@@ -23,29 +25,34 @@
     grid-template-columns: 280px 1fr;
     gap: $t-spacing-12;
     align-items: start;
+
     padding-top: $t-spacing-4;
 
-    @media (max-width: 1024px) {
+    @media (width <= 1024px) {
       grid-template-columns: 1fr;
       gap: $t-spacing-8;
     }
   }
 
   &__sidebar {
+    scrollbar-width: none;
+
     position: sticky;
     top: $t-spacing-24;
-    max-height: calc(100vh - ($t-spacing-16 * 2));
+
     overflow-y: auto;
+
+    max-height: calc(100vh - ($t-spacing-16 * 2));
     padding-right: $t-spacing-4;
+
+    -ms-overflow-style: none;
 
     // Hide scrollbar for a cleaner look
     &::-webkit-scrollbar {
       display: none;
     }
-    -ms-overflow-style: none;
-    scrollbar-width: none;
 
-    @media (max-width: 1024px) {
+    @media (width <= 1024px) {
       display: none;
     }
   }
@@ -54,7 +61,7 @@
     display: none;
     margin-bottom: $t-spacing-8;
 
-    @media (max-width: 1024px) {
+    @media (width <= 1024px) {
       display: block;
     }
   }
@@ -64,28 +71,34 @@
   }
 
   &__header {
+    position: relative;
+
     max-width: 800px;
     margin-bottom: $t-spacing-8;
     padding-bottom: $t-spacing-4;
     border-bottom: 1px solid $t-colors-border-muted;
-    position: relative;
+
     overflow-wrap: break-word;
 
     &::after {
       content: "";
+
       position: absolute;
       bottom: -1px;
       left: 0;
+
       width: $t-spacing-full;
       height: $t-spacing-1;
+
       background: $t-colors-primary-default;
     }
   }
 
   &__title {
     @include heading-xl;
-    font-size: $t-font-size-5xl;
+
     margin: $t-spacing-0;
+    font-size: $t-font-size-5xl;
     color: $t-colors-text-primary;
   }
 
@@ -108,8 +121,9 @@
 
   &__tag {
     @include pill-tag;
-    background: $t-colors-surface-brand-muted;
+
     color: $t-colors-primary-default;
+    background: $t-colors-surface-brand-muted;
   }
 }
 
@@ -130,11 +144,12 @@
   h2,
   h3,
   h4 {
-    color: $t-colors-text-primary;
     margin-top: $t-spacing-8;
     margin-bottom: $t-spacing-4;
+
     font-weight: $t-font-weight-bold;
     line-height: $t-font-line-height-tight;
+    color: $t-colors-text-primary;
 
     &:first-child {
       margin-top: $t-spacing-0;
@@ -159,9 +174,11 @@
     margin: $t-spacing-12 0;
     padding: $t-spacing-6 $t-spacing-8;
     border-left: $t-spacing-1 solid $t-colors-primary-default;
-    background: $t-colors-surface-brand-subtle;
     border-radius: 0 $t-spacing-2 $t-spacing-2 0;
+
     font-style: italic;
+
+    background: $t-colors-surface-brand-subtle;
 
     p {
       margin-bottom: $t-spacing-0;
@@ -172,15 +189,15 @@
   ul {
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
-    list-style-type: disc;
     list-style-position: outside;
+    list-style-type: disc;
   }
 
   ol {
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
-    list-style-type: decimal;
     list-style-position: outside;
+    list-style-type: decimal;
   }
 
   li {
@@ -188,8 +205,8 @@
     color: $t-colors-text-primary-muted;
 
     &::marker {
-      color: $t-colors-primary-default;
       font-weight: $t-font-weight-bold;
+      color: $t-colors-primary-default;
     }
 
     p {
@@ -216,32 +233,40 @@
   }
 
   code:not(pre code) {
-    background: $t-colors-surface-brand-muted;
-    color: $t-colors-primary-default;
     padding: 0.2em 0.4em;
-    border-radius: $t-spacing-1;
-    font-family: ui-monospace, monospace;
-    font-size: 0.9em;
     border: 1px solid $t-colors-surface-brand-strong;
+    border-radius: $t-spacing-1;
+
+    font-family: ui-monospace, monospace;
+    // stylelint-disable-next-line scale-unlimited/declaration-strict-value -- relative to surrounding text size (h2/p/li all differ), not a fixed scale pick
+    font-size: 0.9em;
+    color: $t-colors-primary-default;
+
+    background: $t-colors-surface-brand-muted;
   }
 
   table,
   :global(table) {
-    width: $t-spacing-full;
-    border-collapse: collapse;
-    margin: $t-spacing-12 0;
-    background: $t-colors-surface-glass;
-    border: 1px solid $t-colors-border-subtle;
-    border-radius: $t-spacing-2;
     overflow: hidden;
+    border-spacing: 0;
+    border-collapse: collapse;
+
+    width: $t-spacing-full;
+    margin: $t-spacing-12 0;
+    border: 1px solid $t-colors-border-subtle;
+    border-style: hidden;
+    border-radius: $t-spacing-2;
+
+    background: $t-colors-surface-glass;
+    box-shadow: 0 0 0 1px $t-colors-border-subtle;
 
     th,
     td,
     :global(th),
     :global(td) {
-      text-align: left;
       padding: $t-spacing-4 $t-spacing-6;
       border-bottom: 1px solid $t-colors-border-subtle;
+      text-align: left;
       vertical-align: top !important;
 
       p,
@@ -257,25 +282,19 @@
 
     th,
     :global(th) {
-      background: $t-colors-surface-brand-subtle;
       font-weight: $t-font-weight-bold;
       color: $t-colors-text-primary;
-      @include label-md;
       text-transform: uppercase;
       letter-spacing: $t-font-letter-spacing-wide-2;
+
+      background: $t-colors-surface-brand-subtle;
+
+      @include label-md;
     }
 
     tr:hover td,
     tr:hover :global(td) {
       background: $t-colors-surface-brand-subtle;
-    }
-
-    border-spacing: 0;
-
-    & {
-      border-radius: $t-spacing-2;
-      border-style: hidden;
-      box-shadow: 0 0 0 1px $t-colors-border-subtle;
     }
   }
 }

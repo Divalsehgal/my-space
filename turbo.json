@@ -32,6 +32,10 @@
     "lint:style": {
       "cache": false
     },
+    "typecheck": {
+      "outputs": [],
+      "dependsOn": ["^build"]
+    },
     "generate:graphql": {
       "outputs": [],
       "cache": true

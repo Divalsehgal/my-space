@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
-import type { ContentfulPost, ContentfulRichText } from '@/types/contentful';
+import type { ContentfulPost, ContentfulQuiz, ContentfulRichText } from '@/types/contentful';
 
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -57,8 +57,22 @@ export interface ContentfulPostItem {
   title: string;
   slug: string;
   excerpt?: string;
-  image?: { url: string };
   body: ContentfulRichText;
+  quiz?: {
+    sys: { id: string };
+    title: string;
+    questionEntriesCollection?: {
+      items: Array<{
+        sys: { id: string };
+        questionText: ContentfulRichText;
+        explanation: ContentfulRichText;
+        correctAnswer: { sys: { id: string } };
+        optionsCollection?: {
+          items: Array<{ sys: { id: string }; text: ContentfulRichText } | null>;
+        };
+      } | null>;
+    };
+  } | null;
 }
 
 /**
@@ -80,13 +94,41 @@ export function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
   return {
     id: item.sys.id,
     title: item.title,
-    cover: item.image?.url || null,
+    // BlogPage does not define a cover-image field in the Contentful model.
+    cover: null,
     date: item.sys.firstPublishedAt,
     publishedAt: item.sys.publishedAt,
     slug: item.slug,
     description: getPostDescription(item.body),
     tags: [],
     content: item.body,
+    quiz: mapContentfulQuiz(item.quiz),
+  };
+}
+
+function mapContentfulQuiz(quiz?: ContentfulPostItem['quiz']): ContentfulQuiz | null {
+  if (!quiz) {
+    return null;
+  }
+
+  return {
+    id: quiz.sys.id,
+    title: quiz.title,
+    questions: (quiz.questionEntriesCollection?.items || []).flatMap((question) => {
+      if (!question || !question.questionText || !question.explanation || !question.correctAnswer) {
+        return [];
+      }
+      return [{
+        id: question.sys.id,
+        questionText: question.questionText,
+        explanation: question.explanation,
+        correctAnswerId: question.correctAnswer.sys.id,
+        options: (question.optionsCollection?.items || []).flatMap((option) => option ? [{
+          id: option.sys.id,
+          text: option.text,
+        }] : []),
+      }];
+    }),
   };
 }
 
@@ -142,7 +184,6 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
           }
           title
           slug
-          image { url }
           body {
             json
             links {
@@ -191,12 +232,6 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
       }
       title
       slug
-      image {
-        url
-        title
-        width
-        height
-      }
       body {
         json
         links {
@@ -209,6 +244,21 @@ export async function getContentfulPostBySlug(slug: string, preview = false): Pr
               title
               width
               height
+            }
+          }
+        }
+      }
+      quiz {
+        sys { id }
+        title
+        questionEntriesCollection(limit: 50) {
+          items {
+            sys { id }
+            questionText { json }
+            explanation { json }
+            correctAnswer { sys { id } }
+            optionsCollection(limit: 4) {
+              items { sys { id } text { json } }
             }
           }
         }

@@ -13,7 +13,7 @@
     right: $t-spacing-6;
   }
 
-  @media (max-width: 450px) {
+  @media (width <= 450px) {
     right: $t-spacing-4;
     bottom: calc($t-spacing-4 + env(safe-area-inset-bottom, 0px));
   }
@@ -67,11 +67,10 @@
   backdrop-filter: blur(12px);
   box-shadow: 0 20px 50px $t-colors-surface-brand-strong;
 
-  @media (max-width: 450px) {
+  @media (width <= 450px) {
     width: calc(100vw - #{$t-spacing-8});
     height: min(560px, calc(100dvh - 112px - env(safe-area-inset-bottom, 0px)));
     min-height: 360px;
-    right: 0;
   }
 }
 
@@ -97,10 +96,10 @@
   cursor: pointer;
 
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
   padding: $t-spacing-2;
   border: none;
   border-radius: 50%;
@@ -159,11 +158,11 @@
 }
 
 .chatbot__status-text {
-  font-size: 10px;
+  font-size: $t-font-size-xxs;
   font-weight: 500;
   color: $t-colors-text-secondary;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: $t-font-letter-spacing-wide-2;
 }
 
 .chatbot__messages {
@@ -192,7 +191,7 @@
 
 .chatbot__empty-copy {
   margin: 0 0 $t-spacing-4;
-  font-size: 13px;
+  font-size: $t-font-size-xs;
   color: $t-colors-text-secondary;
 }
 
@@ -225,7 +224,7 @@
   border: 1px solid $t-colors-border-muted;
   border-radius: 9999px;
 
-  font-size: 12px;
+  font-size: $t-font-size-xxs;
   color: $t-colors-text-primary;
   white-space: nowrap;
 
@@ -265,7 +264,7 @@
   padding: $t-spacing-3 $t-spacing-4;
   border-radius: $t-spacing-4;
 
-  font-size: 14px;
+  font-size: $t-font-size-xs;
   line-height: 1.5;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -287,7 +286,7 @@
   height: 18px;
   border-radius: 50%;
 
-  font-size: 9px;
+  font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-bold;
   color: $t-colors-button-primary-text;
 
@@ -295,7 +294,7 @@
 }
 
 .chatbot__message-author {
-  font-size: 9px;
+  font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-bold;
   color: $t-colors-primary-default;
   text-transform: uppercase;
@@ -372,7 +371,7 @@
   padding: $t-spacing-3 0;
   border: none;
 
-  font-size: 14px;
+  font-size: $t-font-size-xs;
   color: $t-colors-text-primary;
 
   background: transparent;

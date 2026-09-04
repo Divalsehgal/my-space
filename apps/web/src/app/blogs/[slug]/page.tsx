@@ -55,19 +55,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       authors: ["Dival Sehgal"],
       tags: post.tags,
       images: [
-        {
-          url: post.cover || "/og-image.png",
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
+        post.cover
+          ? { url: post.cover, width: 1200, height: 630, alt: post.title }
+          : { url: "/og-image.jpg", width: 640, height: 640, alt: post.title },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description,
-      images: [post.cover || "/og-image.png"],
+      images: [post.cover || "/og-image.jpg"],
     },
   };
 }

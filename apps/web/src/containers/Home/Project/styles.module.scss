@@ -22,10 +22,10 @@
   &__title {
     margin-bottom: $t-spacing-2;
 
-    font-size: 1.5rem;
+    font-size: $t-font-size-lg;
     font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
-    letter-spacing: -0.025em;
+    letter-spacing: $t-font-letter-spacing-tight-1;
   }
 
   &__description {

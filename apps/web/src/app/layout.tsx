@@ -70,9 +70,9 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: title,
       images: [
         {
-          url: "/og-image.png",
-          width: 1200,
-          height: 630,
+          url: "/og-image.jpg",
+          width: 640,
+          height: 640,
           alt: title,
         },
       ],
@@ -82,7 +82,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       creator: "@divalsehgal",
-      images: ["/og-image.png"],
+      images: ["/og-image.jpg"],
     },
     robots: {
       index: true,

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/naming-convention, no-console */
 /**
  * Env-driven chatbot seeding script.
  *

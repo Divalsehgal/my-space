@@ -16,7 +16,7 @@ describe('contentful service', () => {
         expect(request).toHaveBeenCalled();
         const query = request.mock.calls[0][0] as string;
         expect(query).not.toContain('excerpt');
-        expect(query).toContain('image');
         expect(query).toContain('body');
+        expect(query).not.toContain('image');
     });
 });

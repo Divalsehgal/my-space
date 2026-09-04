@@ -4,6 +4,7 @@ import { extractToc, renderContentfulRichText } from "@/features/blog/Contentful
 import TableOfContents from "@/components/TableOfContents";
 import { formatDate } from "@/utils/date";
 import BlogViewTracker from "@/components/BlogViewTracker";
+import BlogQuiz from "@/components/BlogQuiz";
 import styles from "./styles.module.scss";
 
 type BlogPostProps = {
@@ -48,6 +49,7 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
             </aside>
             <section className={styles["blog-post__content"]}>
               {content}
+              {post.quiz && <BlogQuiz quiz={post.quiz} />}
             </section>
           </main>
         </div>

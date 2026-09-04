@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:style": "stylelint 'src/**/*.scss'",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "worker:deploy": "wrangler deploy",

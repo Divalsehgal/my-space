@@ -3,6 +3,9 @@
     "eslint --fix --config apps/web/eslint.config.mjs",
     "jest --config apps/web/jest.config.mjs --findRelatedTests --passWithNoTests"
   ],
+  "apps/web/**/*.scss": [
+    "stylelint --fix --config apps/web/.stylelintrc.json"
+  ],
   "packages/**/*.{ts,tsx}": [
     "eslint --fix"
   ]

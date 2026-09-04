@@ -2,16 +2,18 @@
 @use "mixins" as *;
 
 .breadcrumbs {
-  position: relative;
   isolation: isolate;
-  overflow: hidden;
+  position: relative;
   z-index: $t-layer-level-positive-1;
+
+  overflow: hidden;
+
   padding-block: $t-spacing-6;
+
   color: $t-colors-text-secondary;
 
   &__particles {
     pointer-events: none;
-
     position: absolute;
     z-index: 0;
     inset: 0;
@@ -20,7 +22,6 @@
   &__particles-canvas {
     position: absolute;
     inset: 0;
-
     opacity: 0.35;
   }
 

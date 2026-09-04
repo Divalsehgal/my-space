@@ -59,7 +59,7 @@
     font-size: $t-font-size-md !important;
     font-weight: $t-font-weight-bold !important;
     color: $t-colors-text-primary;
-    letter-spacing: -0.025em;
+    letter-spacing: $t-font-letter-spacing-tight-1;
   }
 
   &__description {
@@ -75,7 +75,7 @@
     font-weight: $t-font-weight-bold !important;
     color: $t-colors-text-primary;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: $t-font-letter-spacing-wide-3;
   }
 
   &__links-list {

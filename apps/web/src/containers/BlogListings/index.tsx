@@ -162,8 +162,7 @@ export default function BlogPageContent({
           <div className={styles["blogs-empty-state"]}>
             <h1 className={styles["blogs-title"]}>Blog</h1>
             <p className={styles["blogs-empty-message"]}>
-              No posts found. Make sure your Contentful space is connected and
-              has published posts.
+              No posts found. We are facing some issues, will be back soon with more exciting content!
             </p>
           </div>
         ) : (

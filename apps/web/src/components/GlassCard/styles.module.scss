@@ -73,6 +73,14 @@
 
   &__title {
     @include role-title;
+
+    // Mobile First: role-title's 2xl (40px) wraps long "Role @ Company" titles
+    // into 5-6 lines on small screens. Scale down until tablet.
+    font-size: $t-font-size-lg;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      font-size: $t-font-size-2xl;
+    }
   }
 
   &__description {
@@ -91,8 +99,8 @@
     }
 
     &--scrollable {
-      max-height: 200px;
       overflow-y: auto;
+      max-height: 200px;
       padding-right: $t-spacing-2;
 
       // Smooth custom glass scrollbar
@@ -101,13 +109,13 @@
       }
 
       &::-webkit-scrollbar-track {
-        background: $t-colors-surface-page-fade;
         border-radius: $t-dimensions-1;
+        background: $t-colors-surface-page-fade;
       }
 
       &::-webkit-scrollbar-thumb {
-        background: $t-colors-scrollbar-thumb;
         border-radius: $t-dimensions-1;
+        background: $t-colors-scrollbar-thumb;
 
         &:hover {
           background: $t-colors-scrollbar-thumb-hover;
@@ -121,25 +129,27 @@
   }
 
   &__accordion-toggle {
+    cursor: pointer;
+
     display: inline-flex;
-    align-items: center;
     gap: $t-spacing-1;
+    align-items: center;
 
     margin-top: $t-spacing-2;
     padding: $t-spacing-1 0;
     border: none;
-    background: transparent;
 
-    color: $t-colors-primary-default;
     font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
-    cursor: pointer;
+    color: $t-colors-primary-default;
+
+    background: transparent;
 
     transition: opacity 0.2s ease;
 
     &:hover {
-      opacity: 0.8;
       text-decoration: underline;
+      opacity: 0.8;
     }
 
     &:focus-visible {

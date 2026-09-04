@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn lint
+      - run: yarn lint:style
+      - run: yarn typecheck
+      - run: yarn test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      # Requires CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN and
+      # CONTENTFUL_PREVIEW_ACCESS_TOKEN set as repo secrets (Settings ->
+      # Secrets and variables -> Actions) — pages are statically generated
+      # from live Contentful data at build time.
+      - run: yarn build
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+          CONTENTFUL_PREVIEW_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_ACCESS_TOKEN }}

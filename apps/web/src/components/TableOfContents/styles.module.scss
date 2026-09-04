@@ -17,7 +17,7 @@
     font-weight: $t-font-weight-bold;
     color: $t-colors-primary-default;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: $t-font-letter-spacing-wide-3;
 
     &::after {
       content: "";

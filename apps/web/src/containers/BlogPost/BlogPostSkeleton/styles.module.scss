@@ -20,7 +20,7 @@
 
     margin-top: $t-spacing-8;
 
-    @media (max-width: 1024px) {
+    @media (width <= 1024px) {
       grid-template-columns: 1fr;
       gap: $t-spacing-8;
     }
@@ -29,7 +29,7 @@
   &__sidebar {
     padding-right: $t-spacing-4;
 
-    @media (max-width: 1024px) {
+    @media (width <= 1024px) {
       display: none;
     }
   }

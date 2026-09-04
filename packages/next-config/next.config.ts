@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ["@mui/material", "@mui/icons-material"],
     },
     images: {
+        qualities: [75, 80],
         remotePatterns: [
             {
                 protocol: "https",

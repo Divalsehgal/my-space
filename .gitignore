@@ -58,3 +58,7 @@ turbo-*.log
 **/turbo-build.log
 
 .next/
+
+
+contentful-mcp-server
+.vscode

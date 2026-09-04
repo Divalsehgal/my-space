@@ -1,0 +1,230 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// NOTE: The following colors are approximations using existing design tokens.
+// Proper success/error colors should be added to the design token system.
+// $color-white: #fff; → $t-colors-background-primary
+// $color-success: #10b981; → $t-colors-secondary-default (approximation)
+// $color-error: #f43f5e; → $t-colors-surface-brand-strong (approximation)
+// $color-accent-glow: rgb(99 102 241 / 35%); → rgba($t-colors-primary-default, 0.35)
+// $color-shadow-lg: rgb(0 0 0 / 30%); → rgba($t-colors-neutral-900, 0.3)
+
+.resultsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  margin-top: $t-spacing-8;
+  padding: 24px 28px;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: 16px;
+
+  background: $t-colors-surface-glass;
+  box-shadow: 0 12px 35px rgba($t-foundation-colors-neutral-900, 0.3);
+}
+
+.resultsHeroRow {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  justify-content: space-around;
+
+  padding-bottom: 24px;
+  border-bottom: 1px solid $t-colors-border-muted;
+
+  @media (max-width: $t-breakpoint-tablet) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.radialGaugeWrapper {
+  position: relative;
+
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  width: 130px;
+  height: 130px;
+}
+
+.radialGaugeSvg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.radialGaugeTrack {
+  fill: none;
+  stroke: $t-colors-surface-brand-muted;
+  stroke-width: 8;
+}
+
+.radialGaugeProgress {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 8;
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radialGaugeCenter {
+  position: absolute;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.percentageBig {
+  font-size: $t-font-size-xl;
+  font-weight: $t-font-weight-black;
+  line-height: 1;
+  color: $t-colors-text-primary;
+}
+
+.fractionSmall {
+  margin-top: 3px;
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-semibold;
+  color: $t-colors-text-secondary;
+}
+
+.resultsHeroText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tierPill {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+
+  width: fit-content;
+  padding: 4px 14px;
+  border-radius: $t-spacing-2;
+
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-bold;
+
+  @media (max-width: $t-breakpoint-tablet) {
+    margin: 0 auto;
+  }
+}
+
+.resultsHeading {
+  margin: 0;
+  font-size: $t-font-size-xl;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-text-primary;
+}
+
+.resultsDescription {
+  margin: 0;
+  font-size: $t-font-size-sm;
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-secondary;
+}
+
+/* 4-Column Metric Cards */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  @media (max-width: $t-breakpoint-tablet) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metricCard {
+  padding: 14px 16px;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: 10px;
+
+  text-align: center;
+
+  background: $t-colors-surface-brand-subtle;
+}
+
+.metricNumber {
+  font-size: $t-font-size-xl;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-text-primary;
+}
+
+.metricTitle {
+  margin-top: 3px;
+  font-size: $t-font-size-xxs;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
+}
+
+/* Results Action Buttons */
+.resultsActionRow {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+
+  @media (max-width: $t-breakpoint-tablet) {
+    flex-direction: column;
+  }
+}
+
+.retakeQuizBtn {
+  cursor: pointer;
+
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 24px;
+  border: 1.5px solid $t-colors-primary-default;
+  border-radius: $t-spacing-2;
+
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-primary-default;
+
+  appearance: none;
+  background: transparent;
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    color: $t-colors-background-primary;
+    background: $t-colors-primary-default;
+    box-shadow: 0 4px 15px rgba($t-colors-primary-default, 0.35);
+  }
+}
+
+.reviewAllBtn {
+  cursor: pointer;
+
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 24px;
+  border: 1px solid $t-colors-border-primary;
+  border-radius: $t-spacing-2;
+
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-semibold;
+  color: $t-colors-text-primary;
+
+  appearance: none;
+  background: $t-colors-surface-glass;
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $t-colors-surface-brand-muted;
+  }
+}

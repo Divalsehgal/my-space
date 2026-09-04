@@ -48,7 +48,7 @@
     font-weight: $t-font-weight-bold;
     color: $t-colors-primary-default;
     text-transform: uppercase;
-    letter-spacing: 0.2em; // Extra wide tracking for premium feel
+    letter-spacing: $t-font-letter-spacing-wide-3; // Extra wide tracking for premium feel
   }
 
   &__title {

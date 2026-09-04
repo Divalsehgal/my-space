@@ -76,9 +76,6 @@
     border-radius: $t-spacing-3;
 
     background-color: $t-colors-background-primary;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
     box-shadow: $t-colors-shadow-default;
 
     @media (min-width: $t-breakpoint-desktop) {
@@ -97,27 +94,27 @@
     font-weight: $t-font-weight-bold !important;
     color: $t-colors-primary-default;
     text-transform: uppercase;
-    letter-spacing: 0.15em !important;
+    letter-spacing: $t-font-letter-spacing-wide-3 !important;
   }
 
   &__description {
     max-width: 68ch;
     margin: 0;
-    color: $t-colors-text-secondary;
     line-height: 1.8;
+    color: $t-colors-text-secondary;
 
     &--lead {
       padding-left: $t-spacing-4;
       border-left: 2px solid $t-colors-primary-default;
-      color: $t-colors-text-primary;
-      font-size: 1.08rem;
+
+      font-size: $t-font-size-sm;
       line-height: 1.75;
+      color: $t-colors-text-primary;
     }
 
     @media (max-width: $t-breakpoint-tablet) {
       &--lead {
         padding-left: $t-spacing-3;
-        font-size: 1rem;
       }
     }
   }
@@ -132,7 +129,7 @@
     font-weight: $t-font-weight-medium !important;
     color: $t-colors-text-secondary-muted;
     text-transform: uppercase;
-    letter-spacing: 0.05em !important;
+    letter-spacing: $t-font-letter-spacing-wide-2 !important;
   }
 
   &__fact-value {

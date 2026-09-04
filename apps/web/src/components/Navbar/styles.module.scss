@@ -11,17 +11,13 @@
   right: 0;
   left: 0;
 
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 
   height: $t-spacing-16; // 64px
   border-bottom: 1px solid $t-colors-border-subtle;
-  overflow: hidden;
-
-  &--open {
-    overflow: visible;
-  }
 
   text-shadow: 4px 4px 4px $t-colors-scrollbar-thumb;
 
@@ -36,13 +32,18 @@
     right: 0;
     bottom: 0;
     left: 0;
+    transform-origin: left center;
+    transform: scaleX(var(--scroll-scale));
 
     height: $t-spacing-1;
 
     background: $t-colors-surface-brand-strong;
-    transform: scaleX(var(--scroll-scale));
-    transform-origin: left center;
+
     transition: transform 0.1s ease-out;
+  }
+
+  &--open {
+    overflow: visible;
   }
 
   &__container {
@@ -77,7 +78,7 @@
     font-size: $t-font-size-md !important; // 20px
     font-weight: $t-font-weight-bold !important;
     color: $t-colors-text-primary;
-    letter-spacing: -0.025em;
+    letter-spacing: $t-font-letter-spacing-tight-1;
   }
 
   &__nav-desktop {
@@ -122,8 +123,8 @@
 
   &__mobile-actions {
     display: flex;
-    align-items: center;
     gap: $t-spacing-1;
+    align-items: center;
 
     @media (width >= $t-breakpoint-tablet) {
       display: none;

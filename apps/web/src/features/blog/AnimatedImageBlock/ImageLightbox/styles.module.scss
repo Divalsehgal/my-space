@@ -1,0 +1,91 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Replaced hardcoded colors with design token equivalents
+// $color-white: #fff; → $t-colors-background-primary
+// $color-light-gray: #e5e5e5; → $t-colors-neutral-300
+// $color-overlay-bg: rgb(0 0 0 / 85%); → rgba($t-colors-neutral-900, 0.85)
+// $color-overlay-shadow: rgb(0 0 0 / 50%); → rgba($t-colors-neutral-900, 0.5)
+// $color-overlay-border: rgb(255 255 255 / 15%); → rgba($t-colors-background-primary, 0.15)
+
+.lightboxOverlay {
+  cursor: zoom-out;
+
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: $t-spacing-6;
+
+  background: rgba($t-foundation-colors-neutral-900, 0.85);
+  backdrop-filter: blur(16px);
+}
+
+.lightboxContent {
+  cursor: default;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  max-width: 90vw;
+  max-height: 85vh;
+}
+
+.lightboxImage {
+  width: auto;
+  max-width: 90vw;
+  height: auto;
+  max-height: 80vh;
+  border: 1px solid rgba($t-colors-background-primary, 0.15);
+  border-radius: $t-spacing-3;
+
+  object-fit: contain;
+  box-shadow: 0 20px 50px rgba($t-foundation-colors-neutral-900, 0.5);
+}
+
+.lightboxClose {
+  cursor: pointer;
+
+  position: absolute;
+  top: -45px;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  border: 1px solid $t-colors-border-primary;
+  border-radius: $t-spacing-2;
+
+  font-size: $t-font-size-md;
+  color: $t-colors-background-primary;
+
+  background: $t-colors-surface-glass;
+  backdrop-filter: blur(10px);
+
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    background: $t-colors-surface-brand-strong;
+  }
+}
+
+.lightboxCaption {
+  margin-top: $t-spacing-3;
+  font-size: $t-font-size-sm;
+  color: $t-foundation-colors-neutral-300;
+  text-align: center;
+}

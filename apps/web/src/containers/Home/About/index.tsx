@@ -1,5 +1,6 @@
 
 import clsx from "clsx";
+import Image from "next/image";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import Typography from "@mui/material/Typography";
@@ -52,10 +53,14 @@ export default function About({ data, socials }: AboutProps) {
         >
           <div className={styles["about__avatar-group"]}>
             <div className={styles["about__avatar-frame"]} />
-            <div
-              className={styles["about__avatar-image"]}
-              style={{ backgroundImage: `url(./me.avif)` }}
-            >
+            <div className={styles["about__avatar-image"]}>
+              <Image
+                src="/me.avif"
+                alt="Dival Sehgal"
+                fill
+                sizes="(min-width: 1024px) 300px, 150px"
+                style={{ objectFit: "cover" }}
+              />
               <div className={styles["about__avatar-overlay"]} />
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Document } from '@contentful/rich-text-types';
+import type { Document, Node } from '@contentful/rich-text-types';
 
 export interface ContentfulAsset {
   sys: { id: string };
@@ -17,6 +17,12 @@ export interface ContentfulRichText {
   };
 }
 
+export type ContentfulRichTextNode = Node & {
+  nodeType?: string;
+  value?: string;
+  content?: Node[];
+};
+
 export interface ContentfulPost {
   id: string;
   title: string;
@@ -27,4 +33,24 @@ export interface ContentfulPost {
   description: string;
   tags: string[];
   content: ContentfulRichText;
+  quiz?: ContentfulQuiz | null;
+}
+
+export interface ContentfulQuizOption {
+  id: string;
+  text: ContentfulRichText;
+}
+
+export interface ContentfulQuizQuestion {
+  id: string;
+  questionText: ContentfulRichText;
+  explanation: ContentfulRichText;
+  correctAnswerId: string;
+  options: ContentfulQuizOption[];
+}
+
+export interface ContentfulQuiz {
+  id: string;
+  title: string;
+  questions: ContentfulQuizQuestion[];
 }

@@ -27,9 +27,13 @@
       }
     ],
     "scale-unlimited/declaration-strict-value": [
-      ["/color/", "background-color", "border-color"],
+      ["/color/", "background-color", "border-color", "font-size", "letter-spacing"],
       {
-        "ignoreValues": ["transparent", "inherit", "currentColor", "initial", "none", "unset"]
+        "ignoreValues": {
+          "": ["transparent", "inherit", "currentColor", "initial", "none", "unset"],
+          "font-size": ["inherit", "0"],
+          "letter-spacing": ["inherit", "normal", "0"]
+        }
       }
     ],
     "selector-class-pattern": null,
