@@ -43,14 +43,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description =
     post.description || `Read ${post.title} on Dival Sehgal's blog`;
+  const url = `/blogs/${slug}`;
 
   return {
-    title: `${post.title} - Dival Sehgal's Blog`,
+    title: post.title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: post.title,
       description,
       type: "article",
+      url,
       publishedTime: post.date || undefined,
       authors: ["Dival Sehgal"],
       tags: post.tags,
@@ -77,6 +82,8 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const postUrl = `https://divalsehgal.vercel.app/blogs/${slug}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -84,6 +91,12 @@ export default async function BlogPostPage({ params }: Props) {
     description: post.description || undefined,
     image: post.cover || undefined,
     datePublished: post.date || undefined,
+    dateModified: post.date || undefined,
+    url: postUrl,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
     author: [
       {
         "@type": "Person",

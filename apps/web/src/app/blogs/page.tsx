@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Blog",
   description:
     "Read the latest articles and insights on web development and AI from Dival Sehgal.",
+  alternates: {
+    canonical: "/blogs",
+  },
 };
 
 const getCachedViewCounts = unstable_cache(
