@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -12,6 +12,16 @@ export async function POST(request: Request) {
     // Standard Next.js on-demand revalidation
     // Clears the cache for the specified tag (e.g., 'contentful' or 'portfolio')
     revalidateTag(tag, "page");
+
+    // revalidateTag only busts the underlying fetch/data cache. A dynamic
+    // blog path that previously rendered notFound() (e.g. published after the
+    // last build, or unpublished then republished) has its 404 result cached
+    // in the Full Route Cache, which tag-based revalidation does not reliably
+    // clear. revalidatePath forces those routes to re-render on next request.
+    if (tag === "contentful") {
+      revalidatePath("/blogs", "page");
+      revalidatePath("/blogs/[slug]", "page");
+    }
 
     // NEW: If we are updating Contentful content, also trigger the AI to re-seed its memory
     if (tag === "contentful") {

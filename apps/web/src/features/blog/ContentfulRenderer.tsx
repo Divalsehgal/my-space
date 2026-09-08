@@ -115,13 +115,16 @@ export function renderContentfulRichText(content: ContentfulRichText) {
 
         return <p>{children}</p>;
       },
+      // The page's own <h1> is the post title (see BlogPost/index.tsx). Contentful's
+      // heading levels are shifted down one HTML level here (H1->h2, H2->h3, H3->h4)
+      // so the body never emits a second <h1> — a page should have exactly one.
       [BLOCKS.HEADING_1]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
         const id = getUniqueId(text);
-        return <h1 id={id}>{children}</h1>;
+        return <h2 id={id}>{children}</h2>;
       },
       [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
@@ -133,7 +136,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         // Wait, does HEADING_2 affect the count? extractToc only looks at H1 and H3.
         // So we should NOT increment the counter for H2 to keep it perfectly synced!
         const id = slugify(text);
-        return <h2 id={id}>{children}</h2>;
+        return <h3 id={id}>{children}</h3>;
       },
       [BLOCKS.HEADING_3]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
@@ -141,7 +144,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           .map((c) => c.value)
           .join("");
         const id = getUniqueId(text);
-        return <h3 id={id}>{children}</h3>;
+        return <h4 id={id}>{children}</h4>;
       },
       [BLOCKS.UL_LIST]: (_node: Block | Inline, children: ReactNode) => (
         <ul>{children}</ul>
