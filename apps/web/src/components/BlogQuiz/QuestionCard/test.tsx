@@ -19,13 +19,11 @@ describe('QuestionCard', () => {
       <QuestionCard
         question={mockQuestion}
         index={0}
-        totalQuestions={1}
         isOpen={true}
         selectedOptionId={undefined}
         submitted={false}
         onToggle={handleToggle}
         onSelectOption={jest.fn()}
-        onJumpToQuestion={jest.fn()}
       />,
     );
 
@@ -43,13 +41,11 @@ describe('QuestionCard', () => {
       <QuestionCard
         question={mockQuestion}
         index={0}
-        totalQuestions={1}
         isOpen={true}
         selectedOptionId="opt-a"
         submitted={false}
         onToggle={jest.fn()}
         onSelectOption={handleSelect}
-        onJumpToQuestion={jest.fn()}
       />,
     );
 
@@ -63,13 +59,11 @@ describe('QuestionCard', () => {
       <QuestionCard
         question={mockQuestion}
         index={0}
-        totalQuestions={1}
         isOpen={true}
         selectedOptionId="opt-a"
         submitted={true}
         onToggle={jest.fn()}
         onSelectOption={jest.fn()}
-        onJumpToQuestion={jest.fn()}
       />,
     );
 

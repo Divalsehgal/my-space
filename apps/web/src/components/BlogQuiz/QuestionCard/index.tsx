@@ -6,13 +6,11 @@ import styles from './styles.module.scss';
 interface QuestionCardProps {
   question: ContentfulQuizQuestion;
   index: number;
-  totalQuestions: number;
   isOpen: boolean;
   selectedOptionId: string | undefined;
   submitted: boolean;
   onToggle: () => void;
   onSelectOption: (optionId: string) => void;
-  onJumpToQuestion: (index: number) => void;
 }
 
 function getCardClass(isOpen: boolean, submitted: boolean, isCorrect: boolean): string {
@@ -73,13 +71,11 @@ function renderStatusIndicator(submitted: boolean, isCorrect: boolean, isAnswere
 export default function QuestionCard({
   question,
   index,
-  totalQuestions,
   isOpen,
   selectedOptionId,
   submitted,
   onToggle,
   onSelectOption,
-  onJumpToQuestion,
 }: Readonly<QuestionCardProps>) {
   const isAnswered = Boolean(selectedOptionId);
   const isCorrect = selectedOptionId === question.correctAnswerId;
@@ -132,8 +128,6 @@ export default function QuestionCard({
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <div className={styles.accordionBody}>
-              <p className={styles.fullPromptText}>{questionPrompt}</p>
-
               {/* Vertical Stack of Options */}
               <div
                 className={styles.optionsGroup}
@@ -205,26 +199,6 @@ export default function QuestionCard({
                   <p>{plainText(question.explanation)}</p>
                 </div>
               )}
-
-              {/* In-Card Step Navigation */}
-              <div className={styles.questionNavRow}>
-                <button
-                  type="button"
-                  className={styles.stepButton}
-                  disabled={index === 0}
-                  onClick={() => onJumpToQuestion(index - 1)}
-                >
-                  ← Previous
-                </button>
-                <button
-                  type="button"
-                  className={styles.stepButton}
-                  disabled={index === totalQuestions - 1}
-                  onClick={() => onJumpToQuestion(index + 1)}
-                >
-                  Next →
-                </button>
-              </div>
             </div>
           </motion.div>
         )}

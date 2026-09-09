@@ -111,13 +111,11 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
             key={question.id}
             question={question}
             index={index}
-            totalQuestions={totalQuestions}
             isOpen={Boolean(openQuestions[index])}
             selectedOptionId={answers[question.id]}
             submitted={submitted}
             onToggle={() => toggleAccordion(index)}
             onSelectOption={(optId) => handleOptionSelect(question.id, optId)}
-            onJumpToQuestion={jumpToQuestion}
           />
         ))}
       </div>
