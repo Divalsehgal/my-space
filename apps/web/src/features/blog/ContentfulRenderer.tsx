@@ -38,7 +38,7 @@ export function extractToc(content: ContentfulRichText) {
 
   content.json.content.forEach((node) => {
     if (
-      node.nodeType === BLOCKS.HEADING_1 ||
+      node.nodeType === BLOCKS.HEADING_2 ||
       node.nodeType === BLOCKS.HEADING_3
     ) {
       const text = node.content
@@ -55,7 +55,7 @@ export function extractToc(content: ContentfulRichText) {
         headers.push({
           id,
           text,
-          level: node.nodeType === BLOCKS.HEADING_1 ? 1 : 3,
+          level: node.nodeType === BLOCKS.HEADING_2 ? 1 : 3,
         });
       }
     }
@@ -131,11 +131,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
-        // H2 is not in TOC anymore, but if it has duplicate text we just give it normal slugify
-        // to avoid desyncing the seenIds count (which only tracks TOC items).
-        // Wait, does HEADING_2 affect the count? extractToc only looks at H1 and H3.
-        // So we should NOT increment the counter for H2 to keep it perfectly synced!
-        const id = slugify(text);
+        const id = getUniqueId(text);
         return <h3 id={id}>{children}</h3>;
       },
       [BLOCKS.HEADING_3]: (node: Block | Inline, children: ReactNode) => {
