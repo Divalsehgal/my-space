@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,30 @@ const createEntryLink = (id) => ({
 
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
 
+const shortId = () => crypto.randomUUID().slice(0, 8);
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Contentful's Management API allows ~7 requests/second on this space. Every
+// request is funneled through this chain so calls never fire in parallel
+// bursts, which is what was triggering "too many requests" errors whenever
+// more than one question was generated at a time.
+const MIN_REQUEST_INTERVAL_MS = 200;
+let requestChain = Promise.resolve();
+
+function paced(fn) {
+  const run = requestChain.then(async () => {
+    try {
+      return await fn();
+    } finally {
+      await sleep(MIN_REQUEST_INTERVAL_MS);
+    }
+  });
+  // Keep the chain alive even if this call fails, so later calls still pace correctly.
+  requestChain = run.then(() => undefined, () => undefined);
+  return run;
+}
+
 function validateQuestions(questions) {
   if (!Array.isArray(questions) || questions.length === 0) {
     return ['Add at least one question.'];
@@ -69,25 +94,53 @@ function validateQuestions(questions) {
   return errors;
 }
 
+const MAX_RETRIES = 5;
+
 async function contentfulRequest(config, urlPath, options = {}) {
-  const response = await fetch(
-    `https://api.contentful.com/spaces/${config.spaceId}/environments/${config.environmentId}${urlPath}`,
-    {
-      ...options,
-      headers: {
-        Authorization: `Bearer ${config.accessToken}`,
-        'Content-Type': 'application/vnd.contentful.management.v1+json',
-        ...options.headers,
-      },
+  return paced(async () => {
+    for (let attempt = 0; ; attempt += 1) {
+      let response;
+      try {
+        response = await fetch(
+          `https://api.contentful.com/spaces/${config.spaceId}/environments/${config.environmentId}${urlPath}`,
+          {
+            ...options,
+            headers: {
+              Authorization: `Bearer ${config.accessToken}`,
+              'Content-Type': 'application/vnd.contentful.management.v1+json',
+              ...options.headers,
+            },
+          }
+        );
+      } catch (networkError) {
+        // Transient DNS/connection blips, not Contentful errors - retry the same way.
+        if (attempt < MAX_RETRIES) {
+          await sleep(500 * 2 ** attempt);
+          continue;
+        }
+        throw networkError;
+      }
+
+      const isRetryable = response.status === 429 || response.status >= 500;
+      if (isRetryable && attempt < MAX_RETRIES) {
+        const retryAfterHeader = response.headers.get('x-contentful-ratelimit-reset') || response.headers.get('retry-after');
+        const retryAfterSeconds = retryAfterHeader ? Number(retryAfterHeader) : NaN;
+        const delayMs = Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0
+          ? retryAfterSeconds * 1000 + 100
+          : 500 * 2 ** attempt;
+        await sleep(delayMs);
+        continue;
+      }
+
+      const body = await response.text();
+      const data = body ? JSON.parse(body) : null;
+      if (!response.ok) {
+        const detail = data?.message || body || response.statusText;
+        throw new Error(`Contentful request failed (${response.status}): ${detail}`);
+      }
+      return data;
     }
-  );
-  const body = await response.text();
-  const data = body ? JSON.parse(body) : null;
-  if (!response.ok) {
-    const detail = data?.message || body || response.statusText;
-    throw new Error(`Contentful request failed (${response.status}): ${detail}`);
-  }
-  return data;
+  });
 }
 
 async function createEntry(config, contentTypeId, fields) {
@@ -117,7 +170,7 @@ app.post('/api/contentful/create-quiz-questions', async (req, res) => {
     }
 
     const config = getContentfulConfig();
-    const quiz = await contentfulRequest(config, `/entries/${quizId}`);
+    let quiz = await contentfulRequest(config, `/entries/${quizId}`);
     if (quiz.sys?.contentType?.sys?.id !== 'quizComponent') {
       return res.status(400).json({ error: 'Open a Component - Quiz entry before importing questions.' });
     }
@@ -131,50 +184,82 @@ app.post('/api/contentful/create-quiz-questions', async (req, res) => {
     }
 
     const createdQuestionIds = [];
+    let failure = null;
+
     for (const [questionIndex, question] of questions.entries()) {
-      const optionEntries = await Promise.all(question.options.map((option, optionIndex) =>
-        {
+      try {
+        // A random suffix keeps the (unique) option `key` field collision-free across
+        // re-runs and duplicate question text, so a retry after a transient failure
+        // never trips the "key already exists" validation error.
+        const optionEntries = await Promise.all(question.options.map((option, optionIndex) => {
           const optionLabel = `Option ${String.fromCharCode(65 + optionIndex)}`;
           return createEntry(config, 'quizOption', {
-            key: { [locale]: `${question.questionText.trim()} — ${optionLabel}` },
+            key: { [locale]: `${question.questionText.trim()} — ${optionLabel} — ${shortId()}` },
             text: { [locale]: createRichText(option.text.trim()) },
           });
-        }
-      ));
+        }));
 
-      const readyOptionEntries = publish
-        ? await Promise.all(optionEntries.map((entry) => publishEntry(config, entry)))
-        : optionEntries;
+        const readyOptionEntries = publish
+          ? await Promise.all(optionEntries.map((entry) => publishEntry(config, entry)))
+          : optionEntries;
 
-      const correctIndex = question.options.findIndex((option) => option.isCorrect);
-      const questionEntry = await createEntry(config, 'questionComponent', {
-        title: { [locale]: `Question ${existingQuestionLinks.length + questionIndex + 1}: ${question.questionText.trim().slice(0, 80)}` },
-        questionText: { [locale]: createRichText(question.questionText.trim()) },
-        options: { [locale]: readyOptionEntries.map((entry) => createEntryLink(entry.sys.id)) },
-        correctAnswer: { [locale]: createEntryLink(readyOptionEntries[correctIndex].sys.id) },
-        explanation: { [locale]: createRichText(question.explanation.trim()) },
-      });
-      const readyQuestion = publish ? await publishEntry(config, questionEntry) : questionEntry;
-      createdQuestionIds.push(readyQuestion.sys.id);
+        const correctIndex = question.options.findIndex((option) => option.isCorrect);
+        const questionEntry = await createEntry(config, 'questionComponent', {
+          title: { [locale]: `Question ${existingQuestionLinks.length + createdQuestionIds.length + 1}: ${question.questionText.trim().slice(0, 80)}` },
+          questionText: { [locale]: createRichText(question.questionText.trim()) },
+          options: { [locale]: readyOptionEntries.map((entry) => createEntryLink(entry.sys.id)) },
+          correctAnswer: { [locale]: createEntryLink(readyOptionEntries[correctIndex].sys.id) },
+          explanation: { [locale]: createRichText(question.explanation.trim()) },
+        });
+        const readyQuestion = publish ? await publishEntry(config, questionEntry) : questionEntry;
+        createdQuestionIds.push(readyQuestion.sys.id);
+
+        // Attach to the quiz right away (draft only) so a later question failing
+        // doesn't strand this one as an unlinked orphan entry.
+        quiz = await contentfulRequest(config, `/entries/${quizId}`, {
+          method: 'PUT',
+          headers: { 'X-Contentful-Version': String(quiz.sys.version) },
+          body: JSON.stringify({
+            fields: {
+              ...quiz.fields,
+              questionEntries: {
+                [locale]: [...existingQuestionLinks, ...createdQuestionIds.map(createEntryLink)],
+              },
+            },
+          }),
+        });
+      } catch (error) {
+        failure = {
+          questionIndex,
+          message: error instanceof Error ? error.message : 'Unknown error creating this question.',
+        };
+        break;
+      }
     }
 
-    const updatedQuiz = await contentfulRequest(config, `/entries/${quizId}`, {
-      method: 'PUT',
-      headers: { 'X-Contentful-Version': String(quiz.sys.version) },
-      body: JSON.stringify({
-        fields: {
-          ...quiz.fields,
-          questionEntries: {
-            [locale]: [
-              ...existingQuestionLinks,
-              ...createdQuestionIds.map(createEntryLink),
-            ],
-          },
-        },
-      }),
-    });
+    let quizPublishError = null;
+    if (publish && createdQuestionIds.length) {
+      try {
+        quiz = await publishEntry(config, quiz);
+      } catch (error) {
+        quizPublishError = error instanceof Error ? error.message : 'Unknown error publishing the quiz.';
+      }
+    }
 
-    if (publish) await publishEntry(config, updatedQuiz);
+    if (failure || quizPublishError) {
+      const messages = [
+        failure ? `Failed while creating question ${failure.questionIndex + 1} of ${questions.length}: ${failure.message}` : null,
+        quizPublishError ? `Failed to publish the quiz after attaching questions: ${quizPublishError}` : null,
+      ].filter(Boolean);
+
+      return res.status(502).json({
+        error: messages.join(' '),
+        createdQuestionIds,
+        hint: createdQuestionIds.length
+          ? `The first ${createdQuestionIds.length} question(s) were created${quizPublishError ? ' and saved to the quiz in draft (quiz publish failed - open the quiz entry in Contentful and publish it manually, or re-run once the connection issue clears)' : ', attached, and published successfully'}. ${failure ? `Re-run the import with only the remaining question(s) from question ${failure.questionIndex + 1} onward.` : ''}`.trim()
+          : 'No questions were created. Re-run the import.',
+      });
+    }
 
     return res.status(201).json({
       success: true,
