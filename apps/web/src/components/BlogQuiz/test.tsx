@@ -33,7 +33,7 @@ describe('BlogQuiz Component', () => {
   it('renders quiz header, questions accordion, and progress tracker', () => {
     render(<BlogQuiz quiz={mockQuiz} />);
 
-    expect(screen.getByText('React Architecture Quiz')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'React Architecture Quiz' })).toBeInTheDocument();
     expect(screen.getByText('Quiz Progress')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /reset quiz/i })).toBeInTheDocument();
   });

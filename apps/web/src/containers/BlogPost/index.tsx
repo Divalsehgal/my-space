@@ -33,15 +33,6 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
                   <p className={styles["blog-post__date"]}>Last updated at : {formattedDate}</p>
                 )}
                 <BlogViewTracker slug={post.slug} />
-                {post.tags && (
-                  <ul className={styles["blog-post__tags"]}>
-                    {post.tags.map((tag: string) => (
-                      <li key={tag} className={styles["blog-post__tag"]}>
-                        <span>{tag}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
             </header>
             <aside className={styles["blog-post__mobile-toc"]}>

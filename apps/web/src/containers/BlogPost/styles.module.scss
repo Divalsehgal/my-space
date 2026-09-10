@@ -98,18 +98,31 @@
     @include heading-xl;
 
     margin: $t-spacing-0;
-    font-size: $t-font-size-5xl;
     color: $t-colors-text-primary;
+
+    @media (min-width: $t-breakpoint-desktop) {
+      font-size: $t-font-size-5xl;
+    }
   }
 
   &__meta {
     display: flex;
-    gap: $t-spacing-6;
+    flex-wrap: wrap;
+    gap: $t-spacing-3 $t-spacing-6;
     align-items: center;
+
+    margin-top: $t-spacing-2;
+
     color: $t-colors-text-secondary;
 
     p {
       margin: 0;
+    }
+
+    @media (max-width: $t-breakpoint-tablet) {
+      flex-direction: column;
+      gap: $t-spacing-2;
+      align-items: flex-start;
     }
   }
 

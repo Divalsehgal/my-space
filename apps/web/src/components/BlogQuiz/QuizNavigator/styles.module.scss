@@ -1,17 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// NOTE: The following colors are approximations using existing design tokens.
-// Proper success/error colors should be added to the design token system.
-// $color-success: #10b981; → $t-colors-secondary-default (approximation)
-// $color-success-bg: rgb(16 185 129 / 12%); → rgba($t-colors-secondary-default, 0.12)
-// $color-error: #f43f5e; → $t-colors-surface-brand-strong (approximation)
-// $color-error-bg: rgb(244 63 94 / 12%); → $t-colors-surface-brand-muted
-// $color-accent: #6366f1; → $t-colors-primary-default
-// $color-accent-purple: #8b5cf6; → $t-colors-primary-hover
-// $color-accent-glow: rgb(99 102 241 / 35%); → rgba($t-colors-primary-default, 0.35)
-// $color-accent-bg: rgb(99 102 241 / 10%); → rgba($t-colors-primary-default, 0.1)
-
 .navigatorStrip {
   padding: $t-spacing-4 $t-spacing-5;
   border: 1px solid $t-colors-border-subtle;

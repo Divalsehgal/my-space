@@ -84,25 +84,18 @@ export default function QuizResults({
           <div className={styles.metricTitle}>Total Questions</div>
         </div>
         <div className={styles.metricCard}>
-          <div className={styles.metricNumber} style={{ color: '#10b981' }}>
+          <div className={`${styles.metricNumber} ${styles.metricNumberSuccess}`}>
             {score}
           </div>
           <div className={styles.metricTitle}>Correct Answers</div>
         </div>
         <div className={styles.metricCard}>
           <div
-            className={styles.metricNumber}
-            style={{ color: mistakes > 0 ? '#f43f5e' : 'inherit' }}
+            className={`${styles.metricNumber} ${mistakes > 0 ? styles.metricNumberError : ''}`}
           >
             {mistakes}
           </div>
           <div className={styles.metricTitle}>Mistakes</div>
-        </div>
-        <div className={styles.metricCard}>
-          <div className={styles.metricNumber} style={{ color: tier.color }}>
-            {percentage}%
-          </div>
-          <div className={styles.metricTitle}>Accuracy Rate</div>
         </div>
       </div>
 

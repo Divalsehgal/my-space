@@ -89,7 +89,7 @@ html {
     overflow: visible;
     display: flex;
     flex-direction: column;
-    gap: $t-spacing-6;
+    gap: $t-spacing-4;
     align-items: center;
     justify-content: flex-start;
 
@@ -165,14 +165,6 @@ html {
 }
 
 // Firefox support
-
-/* --- Global Heading Text Shadows --- */
-// These heading styles are unlayered — they're safe defaults that don't
-// conflict with component-specific heading styles (which are CSS Modules)
-h1,
-h2 {
-  text-shadow: $t-spacing-1 $t-spacing-1 $t-spacing-1 $t-colors-scrollbar-thumb;
-}
 
 a {
   text-decoration: none;

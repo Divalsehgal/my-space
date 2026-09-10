@@ -1,9 +1,17 @@
 import clsx from "clsx";
+import { Unbounded } from "next/font/google";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ParticlesBackground from "@/components/ParticlesBackground";
 import HeroActions from "./HeroActions";
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-hero-heading",
+  display: "swap",
+});
 
 export type HeroData = {
   title: string;
@@ -38,7 +46,8 @@ export default function Hero({ data }: HeroProps) {
             {badge.label}
           </div>
         )}
-        <h1 className={clsx(styles["hero__heading"], "MuiTypography-root", "MuiTypography-h1")}>
+        <h4 className={styles["hero__greeting"]}>Hi, I&apos;m</h4>
+        <h1 className={clsx(styles["hero__heading"], unbounded.variable, "MuiTypography-root", "MuiTypography-h1")}>
           {title}
         </h1>
         <h2 className={clsx(styles["hero__subheading"], "MuiTypography-root", "MuiTypography-h2")}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useId } from 'react';
+import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import QuizNavigator from './QuizNavigator';
 import QuestionCard from './QuestionCard';
@@ -12,8 +12,6 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [openQuestions, setOpenQuestions] = useState<Record<number, boolean>>({ 0: true });
-
-  const headingId = useId();
 
   if (!quiz || !quiz.questions || quiz.questions.length === 0) {
     return null;
@@ -60,20 +58,14 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
     <section
       id={`quiz-${quiz.id}`}
       className={styles.quizContainer}
-      aria-labelledby={headingId}
+      aria-label={quiz.title}
     >
       <div className={styles.ambientGlow} aria-hidden="true" />
 
       {/* Quiz Header */}
       <div className={styles.header}>
         <div className={styles.headerMain}>
-          <span className={styles.headerBadge}>Interactive Assessment</span>
-          <h2 id={headingId} className={styles.title}>
-            {quiz.title}
-          </h2>
-          <p className={styles.subtitle}>
-            Test your comprehension of the concepts covered in this article.
-          </p>
+          <span className={styles.headerBadge}>Assessment</span>
         </div>
 
         <button
@@ -118,10 +110,7 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
         <div className={styles.submitSection}>
           <button
             className={styles.submitActionBtn}
-            onClick={() => {
-              setSubmitted(true);
-              expandAll();
-            }}
+            onClick={() => setSubmitted(true)}
             disabled={answeredCount !== totalQuestions}
             type="button"
           >

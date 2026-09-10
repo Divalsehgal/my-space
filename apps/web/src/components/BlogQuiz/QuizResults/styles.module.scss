@@ -1,14 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// NOTE: The following colors are approximations using existing design tokens.
-// Proper success/error colors should be added to the design token system.
-// $color-white: #fff; → $t-colors-background-primary
-// $color-success: #10b981; → $t-colors-secondary-default (approximation)
-// $color-error: #f43f5e; → $t-colors-surface-brand-strong (approximation)
-// $color-accent-glow: rgb(99 102 241 / 35%); → rgba($t-colors-primary-default, 0.35)
-// $color-shadow-lg: rgb(0 0 0 / 30%); → rgba($t-colors-neutral-900, 0.3)
-
 .resultsSection {
   display: flex;
   flex-direction: column;
@@ -129,15 +121,11 @@
   color: $t-colors-text-secondary;
 }
 
-/* 4-Column Metric Cards */
+/* 3-Column Metric Cards */
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-
-  @media (max-width: $t-breakpoint-tablet) {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .metricCard {
@@ -154,6 +142,14 @@
   font-size: $t-font-size-xl;
   font-weight: $t-font-weight-bold;
   color: $t-colors-text-primary;
+
+  &.metricNumberSuccess {
+    color: $t-colors-secondary-default;
+  }
+
+  &.metricNumberError {
+    color: $t-colors-surface-brand-strong;
+  }
 }
 
 .metricTitle {

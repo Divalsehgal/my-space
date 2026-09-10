@@ -1,15 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// Replaced hardcoded colors with design token equivalents
-// $color-white: #fff; → $t-colors-background-primary
-// $color-accent: #6366f1; → $t-colors-primary-default
-// $color-accent-purple: #8b5cf6; → $t-colors-primary-hover
-// $color-accent-glow: rgb(99 102 241 / 35%); → rgba($t-colors-primary-default, 0.35)
-// $color-accent-bg: rgb(99 102 241 / 10%); → rgba($t-colors-primary-default, 0.1)
-// $color-card-border: rgb(255 255 255 / 8%); → rgba($t-colors-background-primary, 0.08)
-// $color-shadow-lg: rgb(0 0 0 / 30%); → rgba($t-colors-neutral-900, 0.3)
-
 .quizContainer {
   position: relative;
 
@@ -59,10 +50,8 @@
   justify-content: space-between;
 
   padding-bottom: $t-spacing-6;
-  border-bottom: 1px solid $t-colors-border-subtle;
 
   @media (max-width: $t-breakpoint-tablet) {
-    flex-direction: column;
     gap: $t-spacing-3;
     align-items: stretch;
   }
@@ -80,7 +69,6 @@
   align-items: center;
 
   width: fit-content;
-  padding: $t-spacing-1 $t-spacing-3;
   border: 1px solid rgba($t-colors-background-primary, 0.08);
   border-radius: $t-spacing-2;
 
@@ -93,25 +81,6 @@
   background: rgba($t-colors-primary-default, 0.1);
 }
 
-.title {
-  margin: $t-spacing-1 0 0;
-
-  font-size: $t-font-size-2xl;
-  font-weight: $t-font-weight-bold;
-  line-height: $t-font-line-height-tight;
-  color: $t-colors-text-primary;
-  letter-spacing: $t-font-letter-spacing-tight-1;
-
-  @media (max-width: $t-breakpoint-tablet) {
-    font-size: $t-font-size-xl;
-  }
-}
-
-.subtitle {
-  margin: $t-spacing-1 0 0;
-  font-size: $t-font-size-sm;
-  color: $t-colors-text-secondary;
-}
 
 .resetButton {
   cursor: pointer;

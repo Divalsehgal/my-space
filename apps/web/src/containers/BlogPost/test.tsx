@@ -27,8 +27,6 @@ describe("BlogPost container", () => {
     expect(
       screen.getByRole("heading", { name: post.title, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByText("testing")).toBeInTheDocument();
-    expect(screen.getByText("nextjs")).toBeInTheDocument();
     expect(screen.getByTestId("rich-content")).toBeInTheDocument();
   });
 });

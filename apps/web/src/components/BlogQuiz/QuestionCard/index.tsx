@@ -13,11 +13,8 @@ interface QuestionCardProps {
   onSelectOption: (optionId: string) => void;
 }
 
-function getCardClass(isOpen: boolean, submitted: boolean, isCorrect: boolean): string {
+function getCardClass(submitted: boolean, isCorrect: boolean): string {
   let cardClass = styles.questionCard;
-  if (isOpen) {
-    cardClass += ` ${styles.questionCardActive}`;
-  }
   if (submitted) {
     cardClass += isCorrect
       ? ` ${styles.questionCardCorrect}`
@@ -80,7 +77,7 @@ export default function QuestionCard({
   const isAnswered = Boolean(selectedOptionId);
   const isCorrect = selectedOptionId === question.correctAnswerId;
   const questionPrompt = plainText(question.questionText);
-  const cardClass = getCardClass(isOpen, submitted, isCorrect);
+  const cardClass = getCardClass(submitted, isCorrect);
 
   return (
     <article

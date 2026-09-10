@@ -25,9 +25,7 @@ describe('QuizResults', () => {
       />,
     );
 
-    // "100%" renders twice by design: the radial gauge center and the
-    // "Accuracy Rate" metric card both display the percentage.
-    expect(screen.getAllByText('100%')).toHaveLength(2);
+    expect(screen.getByText('100%')).toBeInTheDocument();
     expect(screen.getByText('3 / 3')).toBeInTheDocument();
     expect(screen.getByText('🏆 Flawless Mastery')).toBeInTheDocument();
 

@@ -1,26 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// NOTE: The following colors are approximations using existing design tokens.
-// Proper success/error colors should be added to the design token system.
-// $color-white: #fff; → $t-colors-background-primary
-// $color-success: #10b981; → $t-colors-secondary-default (approximation)
-// $color-success-bg: rgb(16 185 129 / 12%); → rgba($t-colors-secondary-default, 0.12)
-// $color-success-bg-subtle: rgb(16 185 129 / 8%); → rgba($t-colors-secondary-default, 0.08)
-// $color-success-border: rgb(16 185 129 / 40%); → rgba($t-colors-secondary-default, 0.4)
-
-// $color-error: #f43f5e; → $t-colors-surface-brand-strong (approximation)
-// $color-error-bg: rgb(244 63 94 / 12%); → $t-colors-surface-brand-muted
-// $color-error-bg-subtle: rgb(244 63 94 / 8%); → rgba($t-colors-surface-brand-muted, 0.5)
-// $color-error-border: rgb(244 63 94 / 40%); → $t-colors-surface-brand-strong
-
-// Replaced hardcoded colors with design token equivalents
-// $color-accent: #6366f1; → $t-colors-primary-default
-// $color-accent-glow: rgb(99 102 241 / 35%); → rgba($t-colors-primary-default, 0.35)
-// $color-accent-bg: rgb(99 102 241 / 10%); → rgba($t-colors-primary-default, 0.1)
-// $color-card-bg: rgb(255 255 255 / 3%); → rgba($t-colors-background-primary, 0.03)
-// $color-card-bg-hover: rgb(255 255 255 / 6%); → rgba($t-colors-background-primary, 0.06)
-
 .questionCard {
   overflow: hidden;
 
@@ -37,11 +17,6 @@
     border-color: $t-colors-border-primary;
   }
 
-  &.questionCardActive {
-    border-color: $t-colors-primary-default;
-    box-shadow: 0 8px 25px -5px rgba($t-colors-primary-default, 0.35);
-  }
-
   &.questionCardCorrect {
     border-color: rgba($t-colors-secondary-default, 0.4);
   }
@@ -55,6 +30,7 @@
   cursor: pointer;
 
   display: flex;
+  flex-direction: column-reverse;
   gap: $t-spacing-3;
   align-items: flex-start;
   justify-content: space-between;
@@ -118,7 +94,9 @@
   flex-shrink: 0;
   gap: 10px;
   align-items: center;
+  justify-content: flex-end;
 
+  width: 100%;
   padding-top: 4px;
 }
 
@@ -128,7 +106,7 @@
   align-items: center;
 
   padding: 4px 10px;
-  border-radius: $t-spacing-4;
+  border-radius: $t-spacing-2;
 
   font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-semibold;
