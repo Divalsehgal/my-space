@@ -47,10 +47,6 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
     setOpenQuestions(allOpen);
   };
 
-  const jumpToQuestion = (index: number) => {
-    setOpenQuestions((prev) => ({ ...prev, [index]: true }));
-  };
-
   const handleOptionSelect = (questionId: string, optionId: string) => {
     if (submitted) {
       return;
@@ -91,17 +87,14 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
         </button>
       </div>
 
-      {/* Quiz Table of Contents & Progress Stepper */}
+      {/* Quiz Progress Stepper */}
       <QuizNavigator
-        questions={quiz.questions}
         answers={answers}
-        openQuestions={openQuestions}
         submitted={submitted}
         score={score}
         totalQuestions={totalQuestions}
         percentage={percentage}
         tierColor={tier.color}
-        onJumpToQuestion={jumpToQuestion}
       />
 
       {/* Accordion Questions List */}
@@ -132,7 +125,6 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
             disabled={answeredCount !== totalQuestions}
             type="button"
           >
-            <span>📊</span>
             <span>
               {answeredCount === totalQuestions
                 ? 'See Your Learning Score'

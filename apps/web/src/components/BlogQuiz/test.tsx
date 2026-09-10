@@ -30,14 +30,12 @@ const mockQuiz: ContentfulQuiz = {
 };
 
 describe('BlogQuiz Component', () => {
-  it('renders quiz header, questions accordion, and quiz navigator', () => {
+  it('renders quiz header, questions accordion, and progress tracker', () => {
     render(<BlogQuiz quiz={mockQuiz} />);
 
     expect(screen.getByText('React Architecture Quiz')).toBeInTheDocument();
-    expect(screen.getByText('Quiz Navigator')).toBeInTheDocument();
+    expect(screen.getByText('Quiz Progress')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /reset quiz/i })).toBeInTheDocument();
-    expect(screen.getByText('Q1')).toBeInTheDocument();
-    expect(screen.getByText('Q2')).toBeInTheDocument();
   });
 
   it('allows expanding and collapsing question accordions', () => {
@@ -111,16 +109,6 @@ describe('BlogQuiz Component', () => {
     expect(
       screen.getByRole('button', { name: /answer all questions \(0\/2\)/i }),
     ).toBeDisabled();
-  });
-
-  it('supports jumpToQuestion navigation via Quiz Navigator pills', () => {
-    render(<BlogQuiz quiz={mockQuiz} />);
-
-    const q2Pill = screen.getByRole('button', { name: /jump to question 2/i });
-    fireEvent.click(q2Pill);
-
-    // Q2 should now be open
-    expect(screen.getByText('useMemo')).toBeInTheDocument();
   });
 
   it('returns null if quiz is empty', () => {

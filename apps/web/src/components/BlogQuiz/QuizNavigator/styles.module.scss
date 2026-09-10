@@ -44,66 +44,6 @@
   color: $t-colors-primary-default;
 }
 
-.navGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: $t-spacing-3;
-}
-
-.navPill {
-  cursor: pointer;
-
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 44px;
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid $t-colors-border-muted;
-  border-radius: $t-spacing-2;
-
-  font-size: $t-font-size-xs;
-  font-weight: $t-font-weight-bold;
-  color: $t-colors-text-secondary;
-
-  appearance: none;
-  background: $t-colors-surface-glass;
-
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: $t-colors-primary-default;
-    color: $t-colors-text-primary;
-  }
-
-  &.navPillActive {
-    border-color: $t-colors-primary-default;
-    box-shadow: 0 0 0 2px rgba($t-colors-primary-default, 0.35);
-  }
-
-  &.navPillAnswered {
-    border-color: $t-colors-primary-default;
-    color: $t-colors-primary-default;
-    background: rgba($t-colors-primary-default, 0.1);
-  }
-
-  &.navPillCorrect {
-    border-color: $t-colors-secondary-default;
-    color: $t-colors-secondary-default;
-    background: rgba($t-colors-secondary-default, 0.12);
-  }
-
-  &.navPillIncorrect {
-    border-color: $t-colors-surface-brand-strong;
-    color: $t-colors-surface-brand-strong;
-    background: $t-colors-surface-brand-muted;
-  }
-}
-
 .trackBar {
   overflow: hidden;
 

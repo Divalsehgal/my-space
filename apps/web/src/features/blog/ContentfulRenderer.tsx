@@ -156,9 +156,11 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       ),
       [BLOCKS.HR]: () => <hr />,
       [BLOCKS.TABLE]: (_node: Block | Inline, children: ReactNode) => (
-        <table>
-          <tbody>{children}</tbody>
-        </table>
+        <div style={{ overflowX: "auto", maxWidth: "100%", WebkitOverflowScrolling: "touch" }}>
+          <table>
+            <tbody>{children}</tbody>
+          </table>
+        </div>
       ),
       [BLOCKS.TABLE_ROW]: (_node: Block | Inline, children: ReactNode) => (
         <tr>{children}</tr>
