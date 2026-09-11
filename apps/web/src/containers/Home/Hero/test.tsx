@@ -37,13 +37,11 @@ describe("Hero Container", () => {
     const mockData = {
       title: "Test Title",
       subtitle: "Test Subtitle",
-      badge: { enabled: true, label: "Available for Hire" },
       primaryCtaLabel: "Custom CTA",
     };
 
     render(<Hero data={mockData} />);
-    
-    expect(screen.getByText("Available for Hire")).toBeInTheDocument();
+
     expect(screen.getByText("Test Title")).toBeInTheDocument();
     expect(screen.getByText("Test Subtitle")).toBeInTheDocument();
     expect(screen.getByText("Custom CTA")).toBeInTheDocument();

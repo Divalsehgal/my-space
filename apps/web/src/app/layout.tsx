@@ -71,8 +71,8 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [
         {
           url: "/og-image.jpg",
-          width: 640,
-          height: 640,
+          width: 1200,
+          height: 630,
           alt: title,
         },
       ],
@@ -128,7 +128,7 @@ export default async function RootLayout({
       <body className={StackHans.variable} suppressHydrationWarning={true}>
         <GTMNoScript gtmId={GTM_ID} />
         <Providers>
-          <Navbar brand={config?.navbar?.brand || "Portfolio"} />
+          <Navbar brand={config?.navbar?.brand || "Dival Sehgal"} />
           <main id="main-content">{children}</main>
           <Footer brand={config?.navbar?.brand || "Portfolio"} socialItems={config?.socials || []} />
           <ScrollToTop />

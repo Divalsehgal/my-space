@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [
         post.cover
           ? { url: post.cover, width: 1200, height: 630, alt: post.title }
-          : { url: "/og-image.jpg", width: 640, height: 640, alt: post.title },
+          : { url: "/og-image.jpg", width: 1200, height: 630, alt: post.title },
       ],
     },
     twitter: {

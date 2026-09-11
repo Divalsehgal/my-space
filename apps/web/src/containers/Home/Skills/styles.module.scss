@@ -1,0 +1,74 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// The one fill color used by every skill level — only its opacity here
+// controls how visible the fill reads against the pill's own light track.
+$t-skill-fill-color: color-mix(in srgb, #{$t-colors-primary-default} 55%, transparent);
+
+.skills {
+  &__groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-8;
+    align-items: flex-start;
+
+    margin-top: $t-spacing-8;
+  }
+
+  &__group {
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
+
+  &__group-title {
+    @include label-lg;
+
+    margin: 0 0 $t-spacing-3;
+  }
+
+  &__subgroups {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-4;
+  }
+
+  &__subgroup-title {
+    margin: 0 0 $t-spacing-2;
+    font-size: $t-font-size-sm;
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-text-secondary;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+  }
+
+  // One fill color at a fixed, clearly-visible opacity — only the WIDTH
+  // changes between levels (beginner a quarter, expert the whole pill).
+  // No hover state: the fill is information, not an affordance.
+  &__tag {
+    @include pill-tag;
+
+    position: relative;
+    overflow: hidden;
+    background-color: $t-colors-surface-brand-muted;
+
+    &--expert {
+      background-image: linear-gradient(to right, $t-skill-fill-color 100%, transparent 100%);
+    }
+
+    &--advanced {
+      background-image: linear-gradient(to right, $t-skill-fill-color 75%, transparent 75%);
+    }
+
+    &--intermediate {
+      background-image: linear-gradient(to right, $t-skill-fill-color 50%, transparent 50%);
+    }
+
+    &--beginner {
+      background-image: linear-gradient(to right, $t-skill-fill-color 25%, transparent 25%);
+    }
+  }
+}

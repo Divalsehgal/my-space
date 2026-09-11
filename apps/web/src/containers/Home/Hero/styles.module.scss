@@ -12,7 +12,7 @@
   justify-content: center;
 
   min-height: calc(100vh - $t-spacing-16);
-  margin-top: $t-spacing-16 !important;
+  margin-top: $t-spacing-16 !important; // Clears the fixed navbar
 
   background-color: $t-colors-background-primary;
 
@@ -40,6 +40,7 @@
 
     display: flex;
     flex-direction: column;
+    gap: $t-spacing-2;
     align-items: center;
 
     width: 100%;
@@ -48,45 +49,28 @@
     text-align: center;
   }
 
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: $t-spacing-2 $t-spacing-4;
-    border: 1px solid $t-colors-surface-brand-strong;
-    border-radius: 9999px;
-
-    font-size: $t-font-size-sm;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-primary-default;
-
-    background-color: $t-colors-surface-brand-muted;
-  }
-
   &__greeting {
-    @include title-gradient;
+    margin: $t-spacing-0 !important;
 
-    margin-bottom: -$t-spacing-4 !important;
     font-size: $t-font-size-xl !important;
-    font-weight: $t-font-weight-medium;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-3;
 
-    @media (min-width: $t-breakpoint-tablet) {
-      font-size: $t-font-size-xl !important;
-    }
   }
 
   &__heading {
     @include title-gradient;
 
     // Mobile First Sizing
-    margin-top: $t-spacing-2 !important;
-    margin-bottom: $t-spacing-6 !important;
+    margin-top: -$t-spacing-6 !important;
+    margin-bottom: $t-spacing-0 !important;
 
     font-family: var(--font-hero-heading), var(--font-body);
     font-size: $t-font-size-4xl !important;
-    text-transform: uppercase;
-    letter-spacing: $t-font-letter-spacing-normal;
+    font-weight: $t-font-weight-bold;
+    letter-spacing: $t-font-letter-spacing-tight-2;
 
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
 

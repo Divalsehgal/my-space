@@ -15,6 +15,7 @@ const footerLinks = [
     { label: "Home", href: "/#home" },
     { label: "About", href: "/#about" },
     { label: "Blogs", href: "/blogs" },
+    { label: "Skills", href: "/#skills" },
     { label: "Projects", href: "/#projects" },
     { label: "Experience", href: "/#experience" },
     { label: "Contact", href: "/#contact" },
@@ -49,7 +50,7 @@ export default function Footer({ brand, socialItems = [] }: FooterProps) {
                         <Link href="/" className={styles["footer__brand-link"]}>
                             <TerminalIcon className={styles["footer__brand-icon"]} />
                             <Typography variant="h3" className={styles["footer__brand-text"]}>
-                                {brand || "Dival Sehgal"}
+                                {brand || "Dival"}
                             </Typography>
                         </Link>
                         <p className={styles["footer__description"]}>

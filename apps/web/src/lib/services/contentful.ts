@@ -219,6 +219,38 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
 
 
 /**
+ * Fetches the most recently published blog post, for surfacing "new post"
+ * notifications. Ordered server-side so we don't depend on collection
+ * response order matching publish date.
+ */
+export async function getLatestContentfulPost(preview = false): Promise<ContentfulPost | null> {
+  const query = `
+    query GetLatestBlogPost($preview: Boolean) {
+      blogPageCollection(limit: 1, order: [sys_firstPublishedAt_DESC], preview: $preview) {
+        items {
+          sys {
+            id
+            firstPublishedAt
+            publishedAt
+          }
+          title
+          slug
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { preview }, preview);
+    const item = data?.blogPageCollection?.items?.[0];
+    return item ? mapContentfulPost(item) : null;
+  } catch (error) {
+    console.error('Error fetching latest Contentful post:', error);
+    return null;
+  }
+}
+
+/**
  * Fetches a single blog post by slug from Contentful
  */
 export async function getContentfulPostBySlug(slug: string, preview = false): Promise<ContentfulPost | null> {

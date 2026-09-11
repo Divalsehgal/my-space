@@ -26,9 +26,9 @@ const renderWithTheme = (component: React.ReactElement) => {
 describe("Footer Component", () => {
   it("renders the default brand when no brand prop is provided", () => {
     renderWithTheme(<Footer />);
-    // Brand appears in link and copyright
-    const brandTexts = screen.getAllByText("Dival Sehgal");
-    expect(brandTexts.length).toBeGreaterThan(0);
+    // Brand wordmark in the link, full name in the copyright
+    expect(screen.getByText("Dival")).toBeInTheDocument();
+    expect(screen.getByText(/Dival Sehgal/)).toBeInTheDocument();
   });
 
   it("renders the custom brand prop", () => {

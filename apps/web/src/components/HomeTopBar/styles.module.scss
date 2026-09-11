@@ -1,0 +1,91 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Keep in sync with $home-top-bar-height in globals.scss, which pads
+// #main-content and extends scroll-padding-top by this same amount.
+$home-top-bar-height: 48px;
+
+.home-top-bar {
+  // Not sticky — it scrolls away with the page like normal content, only
+  // ever visible at the top of the home section. Absolute (not the default
+  // static/relative flow), so it doesn't shift Hero/etc: #main-content is
+  // padded in globals.scss so page content clears it without any section
+  // knowing this bar exists.
+  position: absolute;
+  z-index: $t-layer-level-positive-8;
+  top: $t-spacing-16; // Clears the fixed navbar
+  right: 0;
+  left: 0;
+
+  height: $home-top-bar-height;
+  border-bottom: 1px solid $t-colors-border-subtle;
+
+  background-color: $t-colors-surface-brand-muted;
+
+  &__container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  &__announcement {
+    overflow: hidden;
+    display: flex;
+    flex: 1 1 auto;
+    gap: $t-spacing-2;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+
+    color: $t-colors-text-primary;
+    text-decoration: none;
+
+    &:hover {
+      .home-top-bar__title {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__tag {
+    flex-shrink: 0;
+
+    padding: 2px $t-spacing-2;
+    border-radius: 9999px;
+
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-button-primary-text;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-2;
+
+    background-color: $t-colors-primary-default;
+  }
+
+  &__title {
+    overflow: hidden;
+
+    font-size: $t-font-size-sm;
+    font-weight: $t-font-weight-medium;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: none;
+    flex-shrink: 0;
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+
+    @media (min-width: $t-breakpoint-tablet) {
+      display: inline;
+    }
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    font-size: $t-font-size-sm !important;
+    color: $t-colors-primary-default;
+  }
+}

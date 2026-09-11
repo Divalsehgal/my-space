@@ -1,0 +1,52 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.node {
+  display: inline-flex;
+  gap: $t-spacing-2;
+  align-items: center;
+
+  padding: $t-spacing-2 $t-spacing-4;
+  border: 1px solid $t-colors-border-primary;
+  border-radius: 9999px;
+
+  color: $t-colors-text-primary;
+
+  background-color: $t-colors-surface-brand-subtle;
+
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &[data-type="external"] {
+    border-color: $t-colors-border-strong;
+    background-color: $t-colors-surface-neutral-muted;
+  }
+
+  &[data-type="backend"] {
+    border-color: $t-colors-primary-hover;
+    background-color: $t-colors-surface-brand-muted;
+  }
+
+  &[data-type="data"] {
+    border-color: $t-colors-primary-default;
+    background-color: $t-colors-surface-brand-muted;
+  }
+
+  &[data-selected="true"] {
+    border-color: $t-colors-primary-default;
+    box-shadow: 0 0 0 2px $t-colors-surface-brand-muted;
+  }
+}
+
+.icon {
+  color: $t-colors-primary-default;
+}
+
+.label {
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-medium;
+  white-space: nowrap;
+}
+
+.handle {
+  background-color: $t-colors-border-strong;
+}

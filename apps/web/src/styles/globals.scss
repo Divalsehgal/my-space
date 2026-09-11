@@ -29,10 +29,23 @@ $document-color-scheme-dark: dark;
   font-family: var(--font-body);
 }
 
+// Height of the fixed HomeTopBar — keep in sync with HomeTopBar's own
+// $home-top-bar-height (apps/web/src/components/HomeTopBar/styles.module.scss).
+$home-top-bar-height: 48px;
+
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: $t-spacing-16;
+  scroll-padding-top: $t-spacing-16; // Clears the fixed navbar
   color-scheme: $document-color-scheme-light;
+
+  // The Home page marks its scroll root with data-has-top-bar when it renders
+  // <HomeTopBar>. Read server-side (no client JS), so this is correct on the
+  // very first paint — no post-hydration layout shift for the scroll-snap
+  // engine to correct for (that shift was what pushed the initial scroll
+  // position down and made the fixed top bar flicker while snapping).
+  &:has(.page-scroll[data-has-top-bar="true"]) {
+    scroll-padding-top: calc(#{$t-spacing-16} + #{$home-top-bar-height});
+  }
 }
 
 [data-theme="dark"] {
@@ -77,6 +90,18 @@ html {
     color: var(--t-colors-text-secondary);
 
     background-color: var(--t-colors-surface-brand-subtle);
+  }
+
+  // Slices the fixed HomeTopBar's height off the top of the content area so
+  // page content clears both the navbar and the top bar without any section
+  // (e.g. Hero) needing to know the bar exists. Resolved server-side via the
+  // data attribute above — see the html:has() rule for why that matters.
+  #main-content {
+    padding-top: 0;
+
+    &:has(> .page-scroll[data-has-top-bar="true"]) {
+      padding-top: $home-top-bar-height;
+    }
   }
 
   /* --- reusable section class for ALL sections --- */

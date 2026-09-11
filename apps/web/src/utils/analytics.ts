@@ -39,6 +39,7 @@ export const ANALYTICS_EVENTS = {
 
   // Contact
   CONTACT_SUBMIT: "contact_submit",
+  CONTACT_TEMPLATE_SELECT: "contact_template_select",
 
   // Engagement
   PAGE_END_REACHED: "page_end_reached",
@@ -60,6 +61,7 @@ export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
   [ANALYTICS_EVENTS.PROJECT_VIEW]:    "Projects",
   [ANALYTICS_EVENTS.PROJECT_CLICK]:   "Projects",
   [ANALYTICS_EVENTS.CONTACT_SUBMIT]:  "Contact",
+  [ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT]: "Contact",
   [ANALYTICS_EVENTS.PAGE_END_REACHED]:"Engagement",
   [ANALYTICS_EVENTS.BLOG_VIEW]:       "Blog",
 };
@@ -69,13 +71,14 @@ export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
 //    If you call trackInteraction with wrong params, it's a compile error.
 // ---------------------------------------------------------------------------
 export interface AnalyticsEventPayloads {
-  [ANALYTICS_EVENTS.NAV_CLICK]:       { label: string; href: string; location: "navbar" | "footer" };
+  [ANALYTICS_EVENTS.NAV_CLICK]:       { label: string; href: string; location: "navbar" | "footer" | "home-top-bar" };
   [ANALYTICS_EVENTS.SOCIAL_CLICK]:    { platform: string; href: string };
   [ANALYTICS_EVENTS.RESUME_VIEW]:     { label?: string };
   [ANALYTICS_EVENTS.RESUME_DOWNLOAD]: { label?: string };
   [ANALYTICS_EVENTS.PROJECT_VIEW]:    { projectName: string };
   [ANALYTICS_EVENTS.PROJECT_CLICK]:   { projectName: string; linkType: "live" | "repo" };
   [ANALYTICS_EVENTS.CONTACT_SUBMIT]:  { status: "success" | "error"; message?: string };
+  [ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT]: { template: string };
   [ANALYTICS_EVENTS.PAGE_END_REACHED]:{ label?: string };
   [ANALYTICS_EVENTS.BLOG_VIEW]:       { title: string; slug: string; tags?: string[] };
 }
@@ -101,6 +104,8 @@ const resolveLabel = (
       return payload.projectName as string;
     case ANALYTICS_EVENTS.CONTACT_SUBMIT:
       return payload.status as string;
+    case ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT:
+      return payload.template as string;
     case ANALYTICS_EVENTS.PAGE_END_REACHED:
       return (payload.label as string) ?? "Reached Footer";
     case ANALYTICS_EVENTS.BLOG_VIEW:
