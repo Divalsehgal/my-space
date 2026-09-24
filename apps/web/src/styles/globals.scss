@@ -29,7 +29,7 @@ $document-color-scheme-dark: dark;
   font-family: var(--font-body);
 }
 
-// Height of the fixed HomeTopBar — keep in sync with HomeTopBar's own
+// Height of the HomeTopBar — keep in sync with HomeTopBar's own
 // $home-top-bar-height (apps/web/src/components/HomeTopBar/styles.module.scss).
 $home-top-bar-height: 48px;
 
@@ -38,14 +38,19 @@ html {
   scroll-padding-top: $t-spacing-16; // Clears the fixed navbar
   color-scheme: $document-color-scheme-light;
 
-  // The Home page marks its scroll root with data-has-top-bar when it renders
-  // <HomeTopBar>. Read server-side (no client JS), so this is correct on the
-  // very first paint — no post-hydration layout shift for the scroll-snap
-  // engine to correct for (that shift was what pushed the initial scroll
-  // position down and made the fixed top bar flicker while snapping).
-  &:has(.page-scroll[data-has-top-bar="true"]) {
-    scroll-padding-top: calc(#{$t-spacing-16} + #{$home-top-bar-height});
-  }
+}
+
+// The HomeTopBar scrolls away with the page (it is NOT fixed), so it must not
+// widen the global scroll-padding-top — doing so offset EVERY snap point by the
+// bar's height and left a strip of the previous section (e.g. Hero particles)
+// visible under the navbar. Only the first section needs to account for it:
+// extending Hero's snap area upward keeps the bar in view at scroll 0, and
+// shrinking Hero by the same amount keeps navbar + bar + Hero at exactly one
+// viewport (otherwise the oversized snap area adds a stray resting point).
+// Resolved server-side via data-has-top-bar, so it's correct on first paint.
+.page-scroll[data-has-top-bar="true"] > #home {
+  scroll-margin-top: $home-top-bar-height;
+  min-height: calc(100vh - #{$t-spacing-16} - #{$home-top-bar-height});
 }
 
 [data-theme="dark"] {
@@ -92,7 +97,7 @@ html {
     background-color: var(--t-colors-surface-brand-subtle);
   }
 
-  // Slices the fixed HomeTopBar's height off the top of the content area so
+  // Slices the HomeTopBar's height off the top of the content area so
   // page content clears both the navbar and the top bar without any section
   // (e.g. Hero) needing to know the bar exists. Resolved server-side via the
   // data attribute above — see the html:has() rule for why that matters.
