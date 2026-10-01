@@ -1,0 +1,45 @@
+@use "variables.scss" as *;
+
+.related-posts {
+  margin-top: $t-spacing-12;
+
+  &__heading {
+    margin: 0 0 $t-spacing-4;
+    font-size: $t-font-size-xl;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-primary;
+  }
+
+  &__list {
+    display: grid;
+    gap: $t-spacing-4;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+  }
+
+  &__item {
+    padding: $t-spacing-4;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: 12px;
+  }
+
+  &__link {
+    font-size: $t-font-size-lg;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-primary;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__description {
+    margin: $t-spacing-1 0 0;
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-secondary;
+  }
+}

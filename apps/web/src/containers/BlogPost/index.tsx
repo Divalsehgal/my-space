@@ -6,13 +6,15 @@ import { formatDate } from "@/utils/date";
 import BlogViewTracker from "@/components/BlogViewTracker";
 import BlogQuiz from "@/components/BlogQuiz";
 import AuthorBio from "@/components/AuthorBio";
+import RelatedPosts from "@/components/RelatedPosts";
 import styles from "./styles.module.scss";
 
 type BlogPostProps = {
   post: ContentfulPost;
+  relatedPosts?: readonly ContentfulPost[];
 };
 
-export default function BlogPost({ post }: Readonly<BlogPostProps>) {
+export default function BlogPost({ post, relatedPosts = [] }: Readonly<BlogPostProps>) {
   const content = renderContentfulRichText(post.content);
   const tocItems = extractToc(post.content);
 
@@ -44,6 +46,7 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
               {post.quiz && <BlogQuiz quiz={post.quiz} />}
             </section>
             <AuthorBio />
+            <RelatedPosts posts={relatedPosts} />
           </div>
         </div>
       </FluidContainer>

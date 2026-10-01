@@ -149,24 +149,33 @@ function getPostDescription(body?: ContentfulRichText): string {
     content?: RichTextNode[];
   }
 
-  const extractText = (nodes: RichTextNode[]): string => {
-    return nodes
-      .map((node) => {
-        if (node.nodeType === "text") {
-          return node.value || "";
-        }
-        if (node.content) {
-          return extractText(node.content);
-        }
-        return "";
-      })
-      .join(" ");
-  };
+  const extractText = (nodes: RichTextNode[]): string =>
+    nodes
+      .map((node) => (node.nodeType === "text" ? node.value || "" : extractText(node.content || [])))
+      .join("");
 
-  return extractText(body.json.content as unknown as RichTextNode[])
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 180);
+  // Each block (paragraph, heading, list item) becomes its own sentence so the
+  // snippet reads naturally instead of running list items together.
+  const blocks: string[] = [];
+  const collectBlocks = (nodes: RichTextNode[]) => {
+    for (const node of nodes) {
+      if (node.nodeType === "paragraph" || node.nodeType.startsWith("heading")) {
+        const text = extractText(node.content || []).replace(/\s+/g, " ").trim();
+        if (text) {blocks.push(/[.!?:]$/.test(text) ? text : `${text}.`);}
+      } else if (node.content) {
+        collectBlocks(node.content);
+      }
+    }
+  };
+  collectBlocks(body.json.content as unknown as RichTextNode[]);
+
+  const text = blocks.join(" ");
+  const maxLength = 155;
+  if (text.length <= maxLength) {
+    return text;
+  }
+  const cut = text.slice(0, maxLength);
+  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.]$/, "")}…`;
 }
 
 /**

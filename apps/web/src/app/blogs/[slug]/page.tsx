@@ -99,6 +99,12 @@ export default async function BlogPostPage({ params }: Props) {
       "@type": "WebPage",
       "@id": postUrl,
     },
+    inLanguage: "en",
+    publisher: {
+      "@type": "Person",
+      name: AUTHOR.name,
+      url: SITE_URL,
+    },
     author: [
       {
         "@type": "Person",
@@ -128,6 +134,8 @@ export default async function BlogPostPage({ params }: Props) {
   );
 }
 
-function BlogPostContent({ post }: Readonly<{ post: ContentfulPost }>) {
-  return <BlogPostContainer post={post} />;
+async function BlogPostContent({ post }: Readonly<{ post: ContentfulPost }>) {
+  const posts = await getContentfulPosts();
+  const relatedPosts = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  return <BlogPostContainer post={post} relatedPosts={relatedPosts} />;
 }
