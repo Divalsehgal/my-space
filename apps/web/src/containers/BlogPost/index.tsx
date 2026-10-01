@@ -5,6 +5,7 @@ import TableOfContents from "@/components/TableOfContents";
 import { formatDate } from "@/utils/date";
 import BlogViewTracker from "@/components/BlogViewTracker";
 import BlogQuiz from "@/components/BlogQuiz";
+import AuthorBio from "@/components/AuthorBio";
 import styles from "./styles.module.scss";
 
 type BlogPostProps = {
@@ -25,7 +26,7 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
             <TableOfContents items={tocItems} />
           </aside>
 
-          <main className={styles["blog-post__main"]}>
+          <div className={styles["blog-post__main"]}>
             <header className={styles["blog-post__header"]}>
               <h1 className={styles["blog-post__title"]}>{post.title}</h1>
               <div className={styles["blog-post__meta"]}>
@@ -42,7 +43,8 @@ export default function BlogPost({ post }: Readonly<BlogPostProps>) {
               {content}
               {post.quiz && <BlogQuiz quiz={post.quiz} />}
             </section>
-          </main>
+            <AuthorBio />
+          </div>
         </div>
       </FluidContainer>
     </article>

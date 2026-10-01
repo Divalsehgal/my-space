@@ -61,7 +61,7 @@ export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSk
             </aside>
 
             {/* Main Content Skeleton */}
-            <main className={styles["blog-post__main"]}>
+            <div className={styles["blog-post__main"]}>
               <Box sx={{ mb: TSpacing12, mt: TSpacing8 }}>
                 <Skeleton
                   variant="text"
@@ -209,7 +209,7 @@ export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSk
                   />
                 </Box>
               </section>
-            </main>
+            </div>
           </div>
         </FluidContainer>
       </article>

@@ -26,7 +26,7 @@ const contentfulLoader = ({
   quality?: number;
 }) => {
   const secureSrc = src.startsWith("//") ? `https:${src}` : src;
-  return `${secureSrc}?w=${width}&q=${quality || 75}`;
+  return `${secureSrc}?w=${width}&q=${quality || 75}&fm=webp`;
 };
 
 export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>) {

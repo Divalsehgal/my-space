@@ -6,6 +6,8 @@ import FluidContainer from "../FluidContainer";
 import styles from "./styles.module.scss";
 import type { BreadcrumbItem } from "@/types";
 import ParticlesBackground from "../ParticlesBackground";
+import JsonLd from "../JsonLd";
+import { SITE_URL } from "@/lib/config/site";
 
 interface BreadcrumbsProps {
   items: readonly BreadcrumbItem[];
@@ -13,6 +15,17 @@ interface BreadcrumbsProps {
 }
 
 export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsProps>) {
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [{ label: "Home", href: "/" }, ...items].map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: `${SITE_URL}${item.href === "/" ? "" : item.href}`,
+    })),
+  };
+
   return (
     <nav className={clsx(styles.breadcrumbs, className)} aria-label="breadcrumb">
       <div className={styles["breadcrumbs__particles"]} aria-hidden="true">
@@ -22,6 +35,7 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
           fullScreen={false}
         />
       </div>
+      <JsonLd data={breadcrumbJsonLd} />
       <FluidContainer className={styles["breadcrumbs__content"]}>
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>

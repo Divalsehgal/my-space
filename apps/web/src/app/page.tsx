@@ -11,6 +11,14 @@ import JsonLd from "@/components/JsonLd";
 import HomeTopBar from "@/components/HomeTopBar";
 import { getLatestContentfulPost } from "@/lib/services/contentful";
 import { getRelativeTimeLabel } from "@/utils/date";
+import { SITE_URL, AUTHOR } from "@/lib/config/site";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 // TEMP: local preview fixture describing this repo's actual architecture, so
 // the Architecture section can be visually verified before this same JSON is
@@ -162,9 +170,10 @@ export default async function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Dival Sehgal",
-    url: "https://divalsehgal.vercel.app",
-    jobTitle: "Senior Software Engineer",
+    name: AUTHOR.name,
+    url: SITE_URL,
+    image: `${SITE_URL}${AUTHOR.image}`,
+    jobTitle: AUTHOR.jobTitle,
     sameAs: config.socials.map((s) => s.href),
     description: config.about.paragraphs.join(" "),
   };

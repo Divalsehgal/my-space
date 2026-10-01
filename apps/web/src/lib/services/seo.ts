@@ -1,15 +1,13 @@
 import { MetadataRoute } from "next";
 import { getContentfulPosts } from "@/lib/services/contentful";
-
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
+import { SITE_URL as BASE_URL } from "@/lib/config/site";
 
 export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic routes (Blogs)
   const posts = await getContentfulPosts();
   const blogUrls = posts.map((post) => ({
     url: `${BASE_URL}/blogs/${post.slug}`,
-    lastModified: new Date(post.date || Date.now()),
+    lastModified: new Date(post.publishedAt || post.date || Date.now()),
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));

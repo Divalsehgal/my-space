@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import BlogPostContainer from "@/containers/BlogPost";
 import BlogPostSkeleton from "@/containers/BlogPost/BlogPostSkeleton";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { SITE_URL, AUTHOR } from "@/lib/config/site";
 import styles from "../styles.module.scss";
 
 type Props = {
@@ -57,6 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       url,
       publishedTime: post.date || undefined,
+      modifiedTime: post.publishedAt || undefined,
       authors: ["Dival Sehgal"],
       tags: post.tags,
       images: [
@@ -82,7 +84,7 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
-  const postUrl = `https://divalsehgal.vercel.app/blogs/${slug}`;
+  const postUrl = `${SITE_URL}/blogs/${slug}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -91,7 +93,7 @@ export default async function BlogPostPage({ params }: Props) {
     description: post.description || undefined,
     image: post.cover || undefined,
     datePublished: post.date || undefined,
-    dateModified: post.date || undefined,
+    dateModified: post.publishedAt || post.date || undefined,
     url: postUrl,
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -100,8 +102,9 @@ export default async function BlogPostPage({ params }: Props) {
     author: [
       {
         "@type": "Person",
-        name: "Dival Sehgal",
-        url: "https://divalsehgal.vercel.app",
+        name: AUTHOR.name,
+        url: SITE_URL,
+        jobTitle: AUTHOR.jobTitle,
       },
     ],
   };

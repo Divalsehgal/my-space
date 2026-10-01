@@ -15,7 +15,7 @@ import Script from "next/script";
 
 import GTMNoScript from "@/components/GTMNoScript";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://divalsehgal.vercel.app";
+import { SITE_URL as BASE_URL } from "@/lib/config/site";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const ADS_ID = process.env.NEXT_PUBLIC_ADS_ID;
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
@@ -94,9 +94,6 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-image-preview": "large",
         "max-snippet": -1,
       },
-    },
-    alternates: {
-      canonical: BASE_URL,
     },
     verification: {
       google: "wfB-Js_bQOmrLPlJupTds42zuCnMd-mQJO2Ebs_z558",
