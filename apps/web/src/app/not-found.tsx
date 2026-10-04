@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import NotFoundComponent from "@/components/NotFound";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Page Not Found",
-  robots: { index: false, follow: true },
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: getT()("meta.notFoundTitle"),
+    robots: { index: false, follow: true },
+  };
+}
 
 export default function NotFound() {
   return <NotFoundComponent />;

@@ -1,0 +1,61 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Full-screen mobile menu under the navbar pill: big display-type links,
+// staggered in (each link sets --i to its position).
+.mobile-menu {
+  pointer-events: auto;
+
+  position: fixed;
+  z-index: $t-layer-navbar;
+  top: calc(#{$t-spacing-16} + #{$t-spacing-10});
+  right: 0;
+  left: 0;
+
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-1;
+
+  padding: $t-spacing-4 $t-spacing-6;
+
+  &__link {
+    display: flex;
+    align-items: center;
+
+    min-height: $t-spacing-11; // 44px touch target
+    padding: $t-spacing-2 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+    text-decoration: none;
+    letter-spacing: $t-font-letter-spacing-tight-2;
+
+    animation: mobile-menu-link-in 0.7s $t-motion-easing-emphasized both;
+    animation-delay: calc(var(--i, 0) * 50ms + 80ms);
+
+    &:focus-visible {
+      border-radius: $t-radius-full;
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
+    }
+
+    @include reduced-motion {
+      animation: none;
+    }
+  }
+}
+
+@keyframes mobile-menu-link-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

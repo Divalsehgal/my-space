@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPopularPosts } from '@/lib/services/analytics';
 
+const DEFAULT_LIMIT = 5;
+const DECIMAL = 10;
+
 const MAX_LIMIT = 20;
 
 /**
@@ -16,7 +19,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limitParam = searchParams.get('limit');
     const limit = Math.min(
-      Math.max(1, parseInt(limitParam || '5', 10) || 5),
+      Math.max(1, Number.parseInt(limitParam ?? '', DECIMAL) || DEFAULT_LIMIT),
       MAX_LIMIT
     );
 

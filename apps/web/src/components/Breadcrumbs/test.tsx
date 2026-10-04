@@ -40,7 +40,7 @@ describe("Breadcrumbs Component", () => {
   it("always renders the Home link", () => {
     render(<Breadcrumbs items={[]} />);
 
-    expect(screen.getByRole("navigation", { name: "breadcrumb" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
 
     const homeLink = screen.getByTestId("link-/");
     expect(homeLink).toBeInTheDocument();

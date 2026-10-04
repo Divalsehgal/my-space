@@ -192,3 +192,35 @@ describe('Analytics Utility', () => {
     );
   });
 });
+
+describe("declarative click tracking", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { trackAttrs, readTrackedClick, ANALYTICS_EVENTS } = require("./analytics");
+
+  it("round-trips an event through data attributes", () => {
+    const button = document.createElement("button");
+    const attrs = trackAttrs(ANALYTICS_EVENTS.PROJECT_CLICK, { projectName: "TripDoc", linkType: "live" });
+    for (const [name, value] of Object.entries(attrs)) {button.setAttribute(name, value as string);}
+    const icon = document.createElement("span");
+    button.appendChild(icon);
+
+    expect(readTrackedClick(icon)).toEqual({
+      eventName: "project_click",
+      payload: { projectName: "TripDoc", linkType: "live" },
+    });
+  });
+
+  it("ignores untracked elements, unknown events and malformed payloads", () => {
+    const plain = document.createElement("div");
+    const unknown = document.createElement("div");
+    unknown.dataset.track = "made_up_event";
+    const broken = document.createElement("div");
+    broken.dataset.track = "nav_click";
+    broken.dataset.trackPayload = "{not json";
+
+    expect(readTrackedClick(plain)).toBeNull();
+    expect(readTrackedClick(unknown)).toBeNull();
+    expect(readTrackedClick(broken)).toBeNull();
+    expect(readTrackedClick(null)).toBeNull();
+  });
+});

@@ -3,10 +3,23 @@
     "eslint --fix --config apps/web/eslint.config.mjs",
     "jest --config apps/web/jest.config.mjs --findRelatedTests --passWithNoTests"
   ],
-  "apps/web/**/*.scss": [
-    "stylelint --fix --config apps/web/.stylelintrc.json"
+  "packages/ui/**/*.{ts,tsx}": [
+    "eslint --fix --config packages/ui/eslint.config.mjs",
+    "jest --config packages/ui/jest.config.js --findRelatedTests --passWithNoTests"
   ],
-  "packages/**/*.{ts,tsx}": [
-    "eslint --fix"
+  "packages/utils/**/*.{ts,tsx}": [
+    "eslint --fix --config packages/utils/eslint.config.mjs",
+    "jest --config packages/utils/jest.config.js --findRelatedTests --passWithNoTests"
+  ],
+  "{apps,packages}/**/*.scss": [
+    "stylelint --fix"
+  ],
+  "packages/quiz/**/*.{js,ts}": [
+    "eslint --fix --config packages/quiz/eslint.config.mjs",
+    "jest --config packages/quiz/jest.config.cjs --findRelatedTests --passWithNoTests"
+  ],
+  "apps/contentful-quiz-app/{src,server,scripts}/**/*.{js,mjs,ts,tsx}": [
+    "eslint --fix --config apps/contentful-quiz-app/eslint.config.mjs",
+    "jest --config apps/contentful-quiz-app/jest.config.cjs --findRelatedTests --passWithNoTests"
   ]
 }

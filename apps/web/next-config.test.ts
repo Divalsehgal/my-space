@@ -9,6 +9,17 @@ jest.mock("@next/bundle-analyzer", () => ({
 
 
 
+const env = process.env as Record<string, string | undefined>;
+const withNodeEnv = async <T,>(value: string, run: () => T | Promise<T>): Promise<T> => {
+    const previous = env.NODE_ENV;
+    env.NODE_ENV = value;
+    try {
+        return await run();
+    } finally {
+        env.NODE_ENV = previous;
+    }
+};
+
 describe("next.config", () => {
     it("loads and exposes headers", async () => {
         expect(nextConfig).toBeDefined();
@@ -20,10 +31,10 @@ describe("next.config", () => {
         }
     });
 
-    it("caches content-hashed _next/static assets as immutable for a year", async () => {
+    it("caches content-hashed _next/static assets as immutable for a year in production", async () => {
         if (typeof nextConfig.headers !== "function") {return;}
 
-        const headers = await nextConfig.headers();
+        const headers = await withNodeEnv("production", () => nextConfig.headers!());
         const staticRule = headers.find((rule) =>
             rule.source.includes("/_next/static"),
         );
@@ -40,7 +51,7 @@ describe("next.config", () => {
     it("does not let the public-asset rule downgrade hashed font caching", async () => {
         if (typeof nextConfig.headers !== "function") {return;}
 
-        const headers = await nextConfig.headers();
+        const headers = await withNodeEnv("production", () => nextConfig.headers!());
         const publicRule = headers.find(
             (rule) =>
                 rule.source.includes("ttf") &&
@@ -78,5 +89,13 @@ describe("next.config", () => {
         );
         expect(cacheControl).toBeUndefined();
     });
-});
 
+    it("sends no long-lived Cache-Control in development (dev chunk URLs are reused)", async () => {
+        if (typeof nextConfig.headers !== "function") {return;}
+
+        const headers = await withNodeEnv("development", () => nextConfig.headers!());
+        const cacheHeaders = headers.flatMap((rule) => rule.headers).filter((header) => header.key === "Cache-Control");
+
+        expect(cacheHeaders).toEqual([]);
+    });
+});

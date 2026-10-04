@@ -1,0 +1,10 @@
+{
+  "shadow": {
+    "type": "shadow",
+    "sm": { "value": "0 4px 12px var(--t-colors-shadow-default)" },
+    "md": { "value": "0 12px 32px var(--t-colors-shadow-default)" },
+    "lg": { "value": "0 20px 50px -10px var(--t-colors-shadow-default)" },
+    "xl": { "value": "0 40px 120px -20px var(--t-colors-shadow-default)" },
+    "brand": { "value": "0 6px 24px -4px var(--t-colors-shadow-primary)", "comment": "Glow under primary CTAs" }
+  }
+}

@@ -1,0 +1,29 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.architecture {
+  width: 100%;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-2;
+  }
+
+  &__title {
+    margin: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: $t-font-weight-bold;
+    line-height: $line-height-snug;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-2;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-secondary;
+  }
+}

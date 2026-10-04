@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createContactSubmission } from '@/lib/services/notion';
 
+/** Shortest plausible email domain, e.g. "a.b". */
+const MIN_DOMAIN_LENGTH = 3;
 export const runtime = 'nodejs';
+
 
 // Linear (non-backtracking) email shape check. Kept intentionally permissive:
 // we only guard against obviously malformed values, not deliverability.
@@ -10,7 +13,7 @@ function isValidEmail(email: string): boolean {
     const at = email.indexOf('@');
     if (at <= 0 || at !== email.lastIndexOf('@')) { return false; }
     const domain = email.slice(at + 1);
-    return domain.length >= 3 && domain.includes('.') && !domain.startsWith('.') && !domain.endsWith('.');
+    return domain.length >= MIN_DOMAIN_LENGTH && domain.includes('.') && !domain.startsWith('.') && !domain.endsWith('.');
 }
 
 const LIMITS = {

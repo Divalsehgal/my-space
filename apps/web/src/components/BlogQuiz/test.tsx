@@ -34,7 +34,7 @@ describe('BlogQuiz Component', () => {
     render(<BlogQuiz quiz={mockQuiz} />);
 
     expect(screen.getByRole('region', { name: 'React Architecture Quiz' })).toBeInTheDocument();
-    expect(screen.getByText('Quiz Progress')).toBeInTheDocument();
+    expect(screen.getByText('Quiz progress')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /reset quiz/i })).toBeInTheDocument();
   });
 
@@ -87,7 +87,7 @@ describe('BlogQuiz Component', () => {
     expect(screen.getByText('1 / 2')).toBeInTheDocument();
     expect(screen.getByText('Total Questions')).toBeInTheDocument();
     expect(screen.getByText('Mistakes')).toBeInTheDocument();
-    expect(screen.getByText('Retake Quiz')).toBeInTheDocument();
+    expect(screen.getByText('Retake quiz')).toBeInTheDocument();
 
     // Verify explanation callouts appear
     expect(screen.getByText(/server components reduce client bundle size/i)).toBeInTheDocument();

@@ -1,0 +1,52 @@
+@use "variables.scss" as *;
+
+// Shared motion helpers. Keyframes are emitted per module (CSS Modules scope
+// animation names), so include the one you need next to the rule using it.
+
+// Wrap decorative animation so it switches off for users who ask for less motion.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin keyframes-fade-in($name: fade-in) {
+  @keyframes #{$name} {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+@mixin keyframes-shimmer($name: shimmer) {
+  @keyframes #{$name} {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@mixin keyframes-pulse($name: pulse) {
+  @keyframes #{$name} {
+    0%,
+    100% {
+      transform: scale(0.85);
+      opacity: 0.6;
+    }
+
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+}

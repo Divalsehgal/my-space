@@ -27,6 +27,12 @@ export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
+    {
+      url: `${BASE_URL}/architecture`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
   ];
 
   return [...staticUrls, ...blogUrls];

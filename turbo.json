@@ -4,42 +4,140 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "build": {
-      "outputs": [".next/**", "dist/**", "build/**"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        "build/**"
+      ],
       "cache": true,
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.turbo/**"
+      ],
+      "env": [
+        "CONTENTFUL_SPACE_ID",
+        "CONTENTFUL_ENVIRONMENT",
+            "CONTENTFUL_ACCESS_TOKEN",
+        "CONTENTFUL_PREVIEW_ACCESS_TOKEN",
+        "NEXT_PUBLIC_*",
+        "VITE_*",
+        "ANALYZE"
+      ],
+      "passThroughEnv": [
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "NOTION_API_KEY",
+        "NOTION_CONTACT_DB_ID",
+        "REVALIDATION_SECRET",
+        "CHATBOT_SEED_SECRET",
+        "ADMIN_VIEW_SECRET",
+        "VERCEL_*"
+      ]
     },
     "build:report": {
-      "outputs": ["coverage/**"],
+      "outputs": [
+        "coverage/**"
+      ],
       "cache": false,
-      "dependsOn": ["build"]
+      "dependsOn": [
+        "build"
+      ]
     },
     "test": {
-      "outputs": ["coverage/**"],
-      "cache": false
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!coverage/**",
+        "!.turbo/**"
+      ],
+      "outputs": [],
+      "cache": true
     },
     "test:coverage": {
-      "outputs": ["coverage/**"],
-      "cache": false
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!coverage/**",
+        "!.turbo/**"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": true
     },
     "lint": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!coverage/**",
+        "!.next/**",
+        "!.turbo/**"
+      ],
       "outputs": [],
-      "cache": false
+      "cache": true
     },
     "lint:style": {
-      "cache": false
+      "inputs": [
+        "src/**/*.scss"
+      ],
+      "outputs": [],
+      "cache": true
     },
     "typecheck": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!coverage/**",
+        "!.next/**",
+        "!.turbo/**"
+      ],
       "outputs": [],
-      "dependsOn": ["^build"]
+      "cache": true
+    },
+    "test:e2e": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false,
+      "passThroughEnv": [
+        "CI",
+        "E2E_*",
+        "CONTENTFUL_*",
+        "NEXT_PUBLIC_*",
+        "UPSTASH_REDIS_*",
+        "NOTION_*"
+      ]
     },
     "generate:graphql": {
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.turbo/**"
+      ]
     }
   },
-  "globalDependencies": [".env.local", ".env"]
+  "globalDependencies": [
+    ".env",
+    ".env.local",
+    ".stylelintrc.json"
+  ]
 }

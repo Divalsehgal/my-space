@@ -1,45 +1,45 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useChat } from "./hooks/useChat";
+import { useCallback, useEffect, useState } from "react";
+import { SITE_EVENTS } from "@/lib/site-events";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown";
 import styles from "./styles.module.scss";
-import clsx from "clsx";
+import { useT } from "@/i18n/client";
+
+const ChatPanel = dynamic(() => import("./ChatPanel"), { ssr: false });
 
 export default function Chatbot() {
+  const t = useT();
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, isTyping, sendMessage, retryLastMessage, clearHistory } = useChat();
-  const [input, setInput] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Fetched on first open only; then kept mounted (see ChatPanel).
+  const [hasOpened, setHasOpened] = useState(false);
+  const [pending, setPending] = useState<string | null>(null);
+  const clearPending = useCallback(() => setPending(null), []);
 
+  // The command palette and terminal can open the chat, optionally with a question.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
-
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (input.trim()) {
-      sendMessage(input);
-      setInput("");
-    }
-  };
-
-  // Show the typing indicator only while waiting for the first streamed token,
-  // i.e. before an assistant bubble exists for the latest turn.
-  const waitingForFirstToken =
-    isTyping && messages.at(-1)?.role === "user";
+    const onOpen = (event: Event) => {
+      const message = (event as CustomEvent<{ message?: string } | undefined>).detail?.message;
+      setHasOpened(true);
+      setIsOpen(true);
+      if (message) {setPending(message);}
+    };
+    window.addEventListener(SITE_EVENTS.openChat, onOpen);
+    return () => window.removeEventListener(SITE_EVENTS.openChat, onOpen);
+  }, []);
 
   return (
     <div className={styles["chatbot"]}>
         {/* Toggle Button */}
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            setHasOpened(true);
+            setIsOpen(!isOpen);
+          }}
           className={styles["chatbot__toggle"]}
-          aria-label="Toggle Chatbot"
+          aria-label={t("chat.toggle")}
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -74,199 +74,7 @@ export default function Chatbot() {
           </AnimatePresence>
         </button>
 
-        {/* Chat Window */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              key="chatbot-window"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={styles["chatbot__window"]}
-            >
-              {/* Header */}
-              <div className={styles["chatbot__header"]}>
-                <div className={styles["chatbot__header-info"]}>
-                  <div className={styles["chatbot__avatar"]}>D</div>
-                  <div>
-                    <h3 className={styles["chatbot__title"]}>
-                      Portfolio Assistant
-                    </h3>
-                    <div className={styles["chatbot__status"]}>
-                      <span className={styles["chatbot__status-dot"]}></span>
-                      <span className={styles["chatbot__status-text"]}>
-                        Online
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {messages.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={clearHistory}
-                    className={styles["chatbot__clear"]}
-                    aria-label="Start a new chat"
-                    title="New chat"
-                  >
-                    <svg
-                      style={{ width: "18px", height: "18px" }}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-1 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-
-              {/* Messages Area */}
-              <div
-                ref={scrollRef}
-                className={styles["chatbot__messages"]}
-                role="log"
-                aria-live="polite"
-                aria-relevant="additions text"
-              >
-                {messages.length === 0 && !isTyping && (
-                  <div className={styles["chatbot__empty-state"]}>
-                    <div className={styles["chatbot__empty-icon"]}>
-                      <svg
-                        style={{ width: "32px", height: "32px" }}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-                      </svg>
-                    </div>
-                    <h4 className={styles["chatbot__empty-title"]}>
-                      How can I help?
-                    </h4>
-                    <p className={styles["chatbot__empty-copy"]}>
-                      Ask about Dival&apos;s portfolio, blogs, projects, or
-                      experience.
-                    </p>
-                    <div className={styles["chatbot__suggestions"]}>
-                      {[
-                        "Tell me about Dival",
-                        "Show me Dival's projects",
-                        "How can I contact him?",
-                        "Send a message to Dival",
-                      ].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => sendMessage(s)}
-                          className={styles["chatbot__suggestion-btn"]}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {messages.map((m, i) => (
-                  m.role === "system" || m.content.length === 0 ? null : (
-                  <div
-                    key={`${m.role}-${i}`}
-                    className={clsx(
-                      styles["chatbot__message-wrapper"],
-                      m.role === "user"
-                        ? styles["chatbot__message-wrapper--user"]
-                        : styles["chatbot__message-wrapper--assistant"],
-                    )}
-                  >
-                    <div
-                      className={clsx(
-                        styles["chatbot__message"],
-                        m.role === "user"
-                          ? styles["chatbot__message--user"]
-                          : styles["chatbot__message--assistant"],
-                        m.isError && styles["chatbot__message--error"],
-                      )}
-                    >
-                      {m.role === "assistant" && (
-                        <div className={styles["chatbot__message-meta"]}>
-                          <div className={styles["chatbot__message-avatar"]}>
-                            D
-                          </div>
-                          <span className={styles["chatbot__message-author"]}>
-                            Portfolio Assistant
-                          </span>
-                        </div>
-                      )}
-                      {m.role === "assistant" ? (
-                        <div className={styles["chatbot__markdown"]}>
-                          <ReactMarkdown>{m.content}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        <div>{m.content}</div>
-                      )}
-                      {m.isError && (
-                        <button
-                          type="button"
-                          onClick={() => retryLastMessage()}
-                          className={styles["chatbot__retry-btn"]}
-                        >
-                          Retry
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  )
-                ))}
-
-                {waitingForFirstToken && (
-                  <div className={styles["chatbot__message-wrapper"]}>
-                    <div className={styles["chatbot__typing"]}>
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Input Area */}
-              <form
-                onSubmit={handleSubmit}
-                className={styles["chatbot__input-area"]}
-                aria-label="Chat input"
-              >
-                <div className={styles["chatbot__input-wrapper"]}>
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask a question about Dival..."
-                    aria-label="Message Portfolio Assistant"
-                    className={styles["chatbot__input"]}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isTyping}
-                    className={styles["chatbot__send"]}
-                    aria-label="Send message"
-                  >
-                    <svg
-                      style={{ width: "20px", height: "20px" }}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" />
-                    </svg>
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {hasOpened && <ChatPanel open={isOpen} pendingMessage={pending} onPendingSent={clearPending} />}
     </div>
   );
 }

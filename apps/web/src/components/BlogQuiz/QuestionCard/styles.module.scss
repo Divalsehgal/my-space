@@ -5,24 +5,24 @@
   overflow: hidden;
 
   border: 1px solid $t-colors-border-muted;
-  border-radius: $t-spacing-3;
+  border-radius: $t-radius-md;
 
   background: $t-colors-surface-glass;
 
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color $t-motion-duration-slow $t-motion-easing-standard,
+    box-shadow $t-motion-duration-slow $t-motion-easing-standard;
 
   &:hover {
     border-color: $t-colors-border-primary;
   }
 
   &.questionCardCorrect {
-    border-color: rgba($t-colors-secondary-default, 0.4);
+    border-color: $t-colors-feedback-success-border;
   }
 
   &.questionCardIncorrect {
-    border-color: $t-colors-surface-brand-strong;
+    border-color: $t-colors-feedback-error-border;
   }
 }
 
@@ -36,7 +36,7 @@
   justify-content: space-between;
 
   width: 100%;
-  padding: 16px 20px;
+  padding: $t-spacing-4 $t-spacing-5;
   border: none;
 
   font: inherit;
@@ -47,7 +47,12 @@
   background: transparent;
   outline: none;
 
-  transition: background-color 0.2s ease;
+  transition: background-color $t-motion-duration-base $t-motion-easing-standard;
+
+  &:focus-visible {
+    outline: 2px solid $t-colors-primary-default;
+    outline-offset: 2px;
+  }
 
   &:hover {
     background-color: $t-colors-surface-brand-subtle;
@@ -56,7 +61,7 @@
 
 .accordionHeaderLeft {
   display: flex;
-  gap: 12px;
+  gap: $t-spacing-3;
   align-items: flex-start;
   min-width: 0;
 }
@@ -69,13 +74,13 @@
 
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-bold;
   color: $t-colors-primary-default;
 
-  background: rgba($t-colors-primary-default, 0.1);
+  background: color-mix(in srgb, #{$t-colors-primary-default} 10%, transparent);
 }
 
 .questionPromptSnippet {
@@ -84,7 +89,7 @@
   line-height: $t-font-line-height-relaxed;
   color: $t-colors-text-primary;
 
-  @media (max-width: $t-breakpoint-tablet) {
+  @media (width <= $t-breakpoint-tablet) {
     font-size: $t-font-size-sm;
   }
 }
@@ -92,21 +97,21 @@
 .accordionHeaderRight {
   display: flex;
   flex-shrink: 0;
-  gap: 10px;
+  gap: $t-spacing-3;
   align-items: center;
   justify-content: flex-end;
 
   width: 100%;
-  padding-top: 4px;
+  padding-top: $t-spacing-1;
 }
 
 .statusIndicator {
   display: inline-flex;
-  gap: 4px;
+  gap: $t-spacing-1;
   align-items: center;
 
-  padding: 4px 10px;
-  border-radius: $t-spacing-2;
+  padding: $t-spacing-1 $t-spacing-3;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-semibold;
@@ -118,17 +123,17 @@
 
   &.statusAnswered {
     color: $t-colors-primary-default;
-    background: rgba($t-colors-primary-default, 0.1);
+    background: color-mix(in srgb, #{$t-colors-primary-default} 10%, transparent);
   }
 
   &.statusCorrect {
-    color: $t-colors-secondary-default;
-    background: rgba($t-colors-secondary-default, 0.12);
+    color: $t-colors-feedback-success-text;
+    background: $t-colors-feedback-success-surface;
   }
 
   &.statusIncorrect {
-    color: $t-colors-surface-brand-strong;
-    background: $t-colors-surface-brand-muted;
+    color: $t-colors-feedback-error-text;
+    background: $t-colors-feedback-error-surface;
   }
 }
 
@@ -143,7 +148,7 @@
   font-size: $t-font-size-xxs;
   color: $t-colors-text-secondary;
 
-  transition: transform 0.25s ease;
+  transition: transform $t-motion-duration-slow $t-motion-easing-standard;
 
   &.chevronIconRotated {
     transform: rotate(180deg);
@@ -151,171 +156,6 @@
 }
 
 .accordionBody {
-  padding: 16px 20px 20px;
+  padding: $t-spacing-4 $t-spacing-5 $t-spacing-5;
   border-top: 1px solid $t-colors-border-subtle;
 }
-
-.optionsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-}
-
-.optionTile {
-  cursor: pointer;
-  user-select: none;
-
-  position: relative;
-
-  display: flex;
-  gap: 14px;
-  align-items: center;
-
-  width: 100%;
-  padding: 14px 18px;
-  border: 1.5px solid $t-colors-border-muted;
-  border-radius: 12px;
-
-  color: $t-colors-text-primary;
-
-  background: rgba($t-colors-background-primary, 0.03);
-
-  transition:
-    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover:not(.optionTileDisabled) {
-    transform: translateY(-1px);
-    border-color: $t-colors-primary-default;
-    background: rgba($t-colors-background-primary, 0.06);
-  }
-
-  &.optionTileSelected {
-    border-color: $t-colors-primary-default;
-    background: rgba($t-colors-primary-default, 0.1);
-    box-shadow: 0 0 0 1px $t-colors-primary-default;
-  }
-
-  &.optionTileDisabled {
-    cursor: default;
-  }
-
-  &.optionTileCorrect {
-    border-color: $t-colors-secondary-default;
-    color: $t-colors-secondary-default;
-    background: rgba($t-colors-secondary-default, 0.12);
-  }
-
-  &.optionTileIncorrect {
-    border-color: $t-colors-surface-brand-strong;
-    color: $t-colors-surface-brand-strong;
-    background: $t-colors-surface-brand-muted;
-  }
-}
-
-.hiddenRadioInput {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-}
-
-.optionLetterBadge {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-
-  width: 30px;
-  height: 30px;
-  border: 1px solid $t-colors-border-primary;
-  border-radius: 50%;
-
-  font-size: $t-font-size-xxs;
-  font-weight: $t-font-weight-bold;
-  color: $t-colors-text-secondary;
-
-  background: $t-colors-surface-glass;
-
-  transition: all 0.2s ease;
-
-  .optionTileSelected & {
-    border-color: $t-colors-primary-default;
-    color: $t-colors-background-primary;
-    background: $t-colors-primary-default;
-  }
-
-  .optionTileCorrect & {
-    border-color: $t-colors-secondary-default;
-    color: $t-colors-background-primary;
-    background: $t-colors-secondary-default;
-  }
-
-  .optionTileIncorrect & {
-    border-color: $t-colors-surface-brand-strong;
-    color: $t-colors-background-primary;
-    background: $t-colors-surface-brand-strong;
-  }
-}
-
-.optionContentText {
-  flex-grow: 1;
-  font-size: $t-font-size-sm;
-  font-weight: $t-font-weight-medium;
-  line-height: $t-font-line-height-normal;
-}
-
-.verdictBadge {
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: 6px;
-
-  font-size: $t-font-size-xxs;
-  font-weight: $t-font-weight-bold;
-  white-space: nowrap;
-
-  &.verdictCorrect {
-    color: $t-colors-background-primary;
-    background: $t-colors-secondary-default;
-  }
-
-  &.verdictIncorrect {
-    color: $t-colors-background-primary;
-    background: $t-colors-surface-brand-strong;
-  }
-}
-
-.explanationCard {
-  margin-top: 16px;
-  padding: 14px 18px;
-  border-radius: 10px;
-
-  font-size: $t-font-size-sm;
-  line-height: $t-font-line-height-relaxed;
-
-  &.explanationCorrect {
-    border-left: 4px solid $t-colors-secondary-default;
-    color: $t-colors-secondary-default;
-    background: rgba($t-colors-secondary-default, 0.08);
-  }
-
-  &.explanationIncorrect {
-    border-left: 4px solid $t-colors-surface-brand-strong;
-    color: $t-colors-surface-brand-strong;
-    background: rgba($t-colors-surface-brand-muted, 0.5);
-  }
-}
-
-.explanationTitle {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-
-  margin-bottom: 6px;
-
-  font-weight: $t-font-weight-bold;
-}
-

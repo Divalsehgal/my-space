@@ -22,17 +22,9 @@ export const StackHans = localFont({
             path: "../assets/StackSans-SemiBold.woff2",
             weight: "600",
             style: "normal"
-        },
-        {
-            path: "../assets/StackSans-Light.woff2",
-            weight: "300",
-            style: "normal"
-        },
-        {
-            path: "../assets/StackSans-ExtraLight.woff2",
-            weight: "200",
-            style: "normal"
         }
+        // Light (300) and ExtraLight (200) were dropped: no style uses them,
+        // and every listed weight is preloaded on every page.
 
     ],
     variable: "--font-body",

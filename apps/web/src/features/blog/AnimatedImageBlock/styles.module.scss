@@ -19,14 +19,16 @@
 
   width: 100%;
   border: 1px solid $t-colors-border-muted;
-  border-radius: $t-spacing-4;
+  border-radius: $t-radius-lg;
 
   background: $t-colors-surface-brand-subtle;
 
   transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+    transform $t-motion-duration-slow $t-motion-easing-standard,
+    border-color $t-motion-duration-slow $t-motion-easing-standard,
+    box-shadow $t-motion-duration-slow $t-motion-easing-standard;
+
+  @include focus-ring;
 
   &:hover {
     border-color: $t-colors-primary-default;
@@ -48,15 +50,15 @@
   object-fit: contain;
 
   transition:
-    opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity $t-motion-duration-slower $t-motion-easing-standard,
+    transform $t-motion-duration-slower $t-motion-easing-standard,
+    filter $t-motion-duration-slower $t-motion-easing-standard;
 }
 
 .imageLoading {
   transform: scale(0.98);
   opacity: 0;
-  filter: blur(8px);
+  filter: blur($t-blur-md);
 }
 
 .imageLoaded {
@@ -80,18 +82,18 @@
 
   padding: $t-spacing-1 $t-spacing-3;
   border: 1px solid $t-colors-border-primary;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-xs;
   color: $t-colors-text-primary;
 
   opacity: 0;
   background: $t-colors-surface-glass;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur($t-blur-lg);
 
   transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
+    opacity $t-motion-duration-slow $t-motion-easing-standard,
+    transform $t-motion-duration-slow $t-motion-easing-standard;
 }
 
 .caption {

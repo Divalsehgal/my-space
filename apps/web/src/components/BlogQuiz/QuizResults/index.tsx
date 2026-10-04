@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import type { QuizTierInfo } from '../types';
 import styles from './styles.module.scss';
+import { useT } from "@/i18n/client";
 
 interface QuizResultsProps {
   score: number;
@@ -19,6 +20,7 @@ export default function QuizResults({
   onReset,
   onExpandAll,
 }: Readonly<QuizResultsProps>) {
+  const t = useT();
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -48,7 +50,7 @@ export default function QuizResults({
               cx="60"
               cy="60"
               r={radius}
-              stroke={tier.color}
+              style={{ stroke: tier.color }}
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
             />
@@ -81,13 +83,13 @@ export default function QuizResults({
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
           <div className={styles.metricNumber}>{totalQuestions}</div>
-          <div className={styles.metricTitle}>Total Questions</div>
+          <div className={styles.metricTitle}>{t("quiz.results.total")}</div>
         </div>
         <div className={styles.metricCard}>
           <div className={`${styles.metricNumber} ${styles.metricNumberSuccess}`}>
             {score}
           </div>
-          <div className={styles.metricTitle}>Correct Answers</div>
+          <div className={styles.metricTitle}>{t("quiz.results.correct")}</div>
         </div>
         <div className={styles.metricCard}>
           <div
@@ -95,7 +97,7 @@ export default function QuizResults({
           >
             {mistakes}
           </div>
-          <div className={styles.metricTitle}>Mistakes</div>
+          <div className={styles.metricTitle}>{t("quiz.results.mistakes")}</div>
         </div>
       </div>
 
@@ -107,7 +109,7 @@ export default function QuizResults({
           onClick={onReset}
         >
           <span>↺</span>
-          <span>Retake Quiz</span>
+          <span>{t("quiz.results.retake")}</span>
         </button>
         <button
           type="button"
@@ -115,7 +117,7 @@ export default function QuizResults({
           onClick={onExpandAll}
         >
           <span>📖</span>
-          <span>Review All Answers</span>
+          <span>{t("quiz.results.review")}</span>
         </button>
       </div>
     </motion.section>

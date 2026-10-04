@@ -4,13 +4,51 @@
 .actions {
   display: flex;
   flex-flow: column wrap; // Column by default (Mobile)
-  gap: $t-spacing-5;
-  justify-content: center;
+  gap: $t-spacing-3;
+  justify-content: flex-start;
 
   width: 100%;
-  max-width: 28rem;
 
-  @media (min-width: $t-breakpoint-mobile) {
+  @media (width >= $t-breakpoint-mobile) {
     flex-direction: row; // Row on larger screens
   }
+
+  // Centred under the centred hero copy on phones.
+  @media (width <= $t-breakpoint-tablet) {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Oversized, tactile hero CTAs.
+.actions .cta {
+  height: $t-spacing-14;
+  padding-inline: $t-spacing-8;
+  border-radius: $t-radius-sm;
+
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-semibold;
+  text-transform: none;
+  letter-spacing: $t-font-letter-spacing-normal;
+
+  transition: transform $t-motion-duration-base $t-motion-easing-expressive, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard;
+
+  &:active {
+    transform: translateY(1px) scale(0.97);
+  }
+}
+
+.actions .cta--contained {
+  box-shadow: 0 10px 30px -10px $t-colors-primary-default;
+
+  @include focus-ring;
+
+  &:hover {
+    box-shadow: 0 16px 40px -12px $t-colors-primary-default;
+  }
+}
+
+.actions .cta--outlined {
+  border-color: $t-colors-border-default;
+  background-color: color-mix(in srgb, #{$t-colors-background-primary} 60%, transparent);
 }

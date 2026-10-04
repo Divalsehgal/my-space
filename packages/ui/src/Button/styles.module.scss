@@ -1,0 +1,127 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .button {
+    cursor: pointer;
+
+    display: inline-flex;
+    gap: $t-spacing-2;
+    align-items: center;
+    justify-content: center;
+
+    height: $t-spacing-10;
+    padding: 0 $t-spacing-4;
+    border: 1px solid transparent;
+    border-radius: $t-radius-xs;
+
+    font-family: inherit;
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-medium;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition: background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, color $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard;
+
+    &:active:not(:disabled) {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &--small {
+      height: $t-spacing-8;
+      padding: 0 $t-spacing-3;
+    }
+
+    &--large {
+      height: $t-spacing-12;
+      padding: 0 $t-spacing-6;
+      font-size: $t-font-size-sm;
+    }
+
+    &--full {
+      width: 100%;
+    }
+
+    &--contained {
+      border-color: $t-colors-button-primary-border;
+      color: $t-colors-button-primary-text;
+      background-color: $t-colors-button-primary-background;
+
+      &:hover:not(:disabled) {
+        background-color: $t-colors-button-primary-background-hover;
+      }
+
+      &:active:not(:disabled) {
+        background-color: $t-colors-button-primary-background-active;
+      }
+
+      &:disabled:not([aria-busy="true"]) {
+        color: $t-colors-text-disabled;
+        background-color: $t-colors-button-primary-background-disabled;
+      }
+    }
+
+    &--outlined {
+      border-color: $t-colors-primary-default;
+      color: $t-colors-primary-default;
+      background-color: transparent;
+
+      &:hover:not(:disabled) {
+        background-color: $t-colors-surface-brand-subtle;
+      }
+
+      &:active:not(:disabled) {
+        background-color: $t-colors-surface-brand-muted;
+      }
+
+      &:disabled:not([aria-busy="true"]) {
+        border-color: $t-colors-border-subtle;
+        color: $t-colors-text-disabled;
+      }
+    }
+
+    &--text {
+      color: $t-colors-primary-default;
+      background-color: transparent;
+
+      &:hover:not(:disabled) {
+        background-color: $t-colors-surface-brand-subtle;
+      }
+
+      &:active:not(:disabled) {
+        background-color: $t-colors-surface-brand-muted;
+      }
+
+      &:disabled:not([aria-busy="true"]) {
+        color: $t-colors-text-disabled;
+      }
+    }
+
+    // Loading keeps the variant's colours: it is busy, not unavailable.
+    &--loading {
+      cursor: progress;
+    }
+
+    &__spinner {
+      border-color: currentcolor;
+      border-top-color: transparent;
+    }
+
+    &__icon {
+      display: inline-flex;
+      font-size: $t-font-size-md;
+    }
+  }
+}

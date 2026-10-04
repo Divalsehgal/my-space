@@ -1,0 +1,134 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+
+.terminal {
+  position: fixed;
+  z-index: $t-layer-modal;
+  inset: $overlay-inset;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid $t-colors-terminal-line;
+  border-radius: $t-radius-lg;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: $t-font-size-xs;
+  color: $t-colors-terminal-text;
+
+  background-color: $t-colors-terminal-bg;
+  box-shadow: $t-shadow-xl;
+
+  animation: terminal-in $t-motion-duration-slow $t-motion-easing-emphasized;
+
+  &__bar {
+    display: flex;
+    gap: $t-spacing-3;
+    align-items: center;
+
+    padding: $t-spacing-2 $t-spacing-3;
+    border-bottom: 1px solid $t-colors-terminal-line;
+
+    color: $t-colors-terminal-muted;
+
+    background-color: $t-colors-terminal-bar;
+  }
+
+  &__dots {
+    display: inline-flex;
+    gap: $t-spacing-2;
+
+    i {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background-color: $t-colors-terminal-red;
+
+      &:nth-child(2) { background-color: $t-colors-terminal-amber; }
+      &:nth-child(3) { background-color: $t-colors-terminal-green; }
+    }
+  }
+
+  &__close {
+    cursor: pointer;
+
+    margin-left: auto;
+    padding: $micro-space $t-spacing-2;
+    border: 1px solid $t-colors-terminal-line-strong;
+    border-radius: $t-radius-xs;
+
+    font: inherit;
+    color: $t-colors-terminal-muted;
+
+    background: none;
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-terminal-focus;
+    }
+  }
+
+  &__screen {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+    padding: $t-spacing-4;
+
+    pre {
+      margin: 0 0 $micro-space;
+      font: inherit;
+      white-space: pre-wrap;
+    }
+  }
+
+  &__line--in {
+    color: $t-colors-terminal-input;
+  }
+
+  &__prompt {
+    display: flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    label {
+      color: $t-colors-terminal-green;
+    }
+
+    input {
+      flex: 1;
+
+      border: none;
+
+      font: inherit;
+      color: inherit;
+
+      background: transparent;
+      outline: none; // the blinking caret is the focus indicator inside the terminal
+      caret-color: $t-colors-terminal-green;
+    }
+  }
+
+  @media (width <= $t-breakpoint-tablet) {
+    inset: 0;
+    border-radius: 0;
+  }
+}
+
+@keyframes terminal-in {
+  from {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@include reduced-motion {
+  .terminal {
+    animation: none;
+  }
+}

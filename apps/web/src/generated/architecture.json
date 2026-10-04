@@ -1,0 +1,226 @@
+{
+  "title": "Architecture",
+  "subtitle": "Generated from this site's own code on every build.",
+  "nodes": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "tier": "client",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "Browser (Client)",
+        "description": "React 19.2.0 client components: navigation, contact form, games and the chat widget, which calls the chatbot worker directly."
+      }
+    },
+    {
+      "id": "nextjs-server",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": -260,
+        "y": 200
+      },
+      "data": {
+        "label": "Next.js 16.3.8",
+        "description": "App Router with Server Components and Server Actions. API routes: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/revalidate."
+      }
+    },
+    {
+      "id": "chatbot-worker",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 200
+      },
+      "data": {
+        "label": "AI Chatbot Worker",
+        "description": "Cloudflare Worker \"ai-chatbot-widget\": retrieval-augmented chat, re-indexed on a schedule (0 3 * * *)."
+      }
+    },
+    {
+      "id": "google-analytics",
+      "type": "external",
+      "tier": "compute",
+      "position": {
+        "x": 260,
+        "y": 200
+      },
+      "data": {
+        "label": "Google Analytics / GTM",
+        "description": "GA4 via gtag/GTM, client-side only; skipped in owner mode."
+      }
+    },
+    {
+      "id": "contentful",
+      "type": "external",
+      "tier": "data",
+      "position": {
+        "x": -780,
+        "y": 400
+      },
+      "data": {
+        "label": "Contentful CMS",
+        "description": "Blog content over GraphQL; a publish webhook busts the cache by tag."
+      }
+    },
+    {
+      "id": "portfolio-config",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": -520,
+        "y": 400
+      },
+      "data": {
+        "label": "Portfolio Config",
+        "description": "JSON in a GitHub repo, validated with Zod, refreshed every 120s."
+      }
+    },
+    {
+      "id": "notion",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": -260,
+        "y": 400
+      },
+      "data": {
+        "label": "Notion",
+        "description": "Contact submissions are stored as database rows."
+      }
+    },
+    {
+      "id": "redis",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": 0,
+        "y": 400
+      },
+      "data": {
+        "label": "Upstash Redis",
+        "description": "Blog view counts, visitor stats and rate limiting."
+      }
+    },
+    {
+      "id": "workers-ai",
+      "type": "external",
+      "tier": "data",
+      "position": {
+        "x": 260,
+        "y": 400
+      },
+      "data": {
+        "label": "Workers AI",
+        "description": "Hosted models: @cf/meta/llama-3.3-70b-instruct-fp8-fast (chat), @cf/baai/bge-base-en-v1.5 (embeddings)."
+      }
+    },
+    {
+      "id": "vectorize",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": 520,
+        "y": 400
+      },
+      "data": {
+        "label": "Vectorize Index",
+        "description": "Embeddings index \"faq-vectors\" used for retrieval."
+      }
+    },
+    {
+      "id": "chat-sessions-kv",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": 780,
+        "y": 400
+      },
+      "data": {
+        "label": "Workers KV",
+        "description": "Namespaces: CHAT_SESSIONS (chat sessions, rate limits)."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-browser-nextjs-server",
+      "source": "browser",
+      "target": "nextjs-server",
+      "label": "contact + view requests"
+    },
+    {
+      "id": "e-browser-chatbot-worker",
+      "source": "browser",
+      "target": "chatbot-worker",
+      "label": "chat queries",
+      "animated": true
+    },
+    {
+      "id": "e-browser-google-analytics",
+      "source": "browser",
+      "target": "google-analytics",
+      "label": "page views"
+    },
+    {
+      "id": "e-nextjs-server-contentful",
+      "source": "nextjs-server",
+      "target": "contentful",
+      "label": "GraphQL query"
+    },
+    {
+      "id": "e-nextjs-server-portfolio-config",
+      "source": "nextjs-server",
+      "target": "portfolio-config",
+      "label": "fetches JSON"
+    },
+    {
+      "id": "e-nextjs-server-notion",
+      "source": "nextjs-server",
+      "target": "notion",
+      "label": "creates entry"
+    },
+    {
+      "id": "e-nextjs-server-redis",
+      "source": "nextjs-server",
+      "target": "redis",
+      "label": "views + rate limit"
+    },
+    {
+      "id": "e-chatbot-worker-workers-ai",
+      "source": "chatbot-worker",
+      "target": "workers-ai",
+      "label": "LLM + embeddings"
+    },
+    {
+      "id": "e-chatbot-worker-vectorize",
+      "source": "chatbot-worker",
+      "target": "vectorize",
+      "label": "RAG lookup"
+    },
+    {
+      "id": "e-chatbot-worker-chat-sessions-kv",
+      "source": "chatbot-worker",
+      "target": "chat-sessions-kv",
+      "label": "sessions"
+    },
+    {
+      "id": "e-chatbot-worker-nextjs-server",
+      "source": "chatbot-worker",
+      "target": "nextjs-server",
+      "label": "submits contact",
+      "curvature": 0.5
+    },
+    {
+      "id": "e-nextjs-server-chatbot-worker",
+      "source": "nextjs-server",
+      "target": "chatbot-worker",
+      "animated": true,
+      "curvature": -0.5
+    }
+  ]
+}

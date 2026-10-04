@@ -1,6 +1,11 @@
 import { motion } from 'framer-motion';
 import Image, { ImageLoader } from 'next/image';
+import IconButton from '@dival-sehgal/ui/icon-button';
 import styles from './styles.module.scss';
+import { useT } from "@/i18n/client";
+
+/** 16:9 size used when Contentful doesn't report the image's dimensions. */
+const FALLBACK_SIZE = { width: 1200, height: 675 } as const;
 
 interface ImageLightboxProps {
   isOpen: boolean;
@@ -20,6 +25,7 @@ export default function ImageLightbox({
   loader,
   onClose,
 }: Readonly<ImageLightboxProps>) {
+  const t = useT();
   if (!isOpen) {
     return null;
   }
@@ -33,7 +39,7 @@ export default function ImageLightbox({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={asset.title || 'Expanded image view'}
+      aria-label={asset.title || t("image.expandedView")}
     >
       <motion.div
         className={styles.lightboxContent}
@@ -43,21 +49,16 @@ export default function ImageLightbox({
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          className={styles.lightboxClose}
-          onClick={onClose}
-          aria-label="Close full view"
-        >
-          ✕
-        </button>
+        <IconButton className={styles.lightboxClose} onClick={onClose} aria-label={t("image.closeFull")}>
+          <span aria-hidden="true">✕</span>
+        </IconButton>
 
         <Image
           loader={loader}
           src={asset.url}
-          alt={asset.title || 'Blog illustration expanded'}
-          width={asset.width || 1200}
-          height={asset.height || 675}
+          alt={asset.title || t("image.expandedAlt")}
+          width={asset.width || FALLBACK_SIZE.width}
+          height={asset.height || FALLBACK_SIZE.height}
           className={styles.lightboxImage}
           priority
         />

@@ -1,0 +1,59 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.views {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-6;
+  width: 100%;
+
+  &__toggle {
+    display: inline-flex;
+    align-self: flex-start;
+
+    padding: $t-spacing-1;
+    border: 1px solid $t-colors-border-default;
+    border-radius: $t-radius-full;
+  }
+
+  &__option {
+    cursor: pointer;
+
+    min-height: $t-spacing-9;
+    padding: 0 $t-spacing-4;
+    border: none;
+    border-radius: $t-radius-full;
+
+    font-family: inherit;
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-secondary;
+
+    background: transparent;
+
+    transition: background-color $t-motion-duration-base $t-motion-easing-standard, color $t-motion-duration-base $t-motion-easing-standard;
+
+    &--active {
+      color: $t-colors-background-primary;
+      background-color: $t-colors-text-primary;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
+    }
+  }
+
+  &__sr {
+    position: absolute;
+
+    overflow: hidden;
+
+    width: 1px;
+    height: 1px;
+
+    white-space: nowrap;
+
+    clip-path: inset(50%);
+  }
+}

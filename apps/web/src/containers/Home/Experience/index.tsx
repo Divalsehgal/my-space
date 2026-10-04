@@ -1,16 +1,18 @@
 import clsx from "clsx";
 import styles from "./styles.module.scss";
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { ArrowOutwardIcon } from "@dival-sehgal/ui/icons";
 import FluidContainer from "@/components/FluidContainer";
 import SectionHeader from "@/components/SectionHeader";
 import { type ExperienceConfig } from "@/features/portfolio";
 import ExperienceCarousel from "./ExperienceCarousel";
+import { getT } from "@/i18n/server";
 
 interface ExperienceProps {
   items?: ExperienceConfig[];
 }
 
 export default function ExperienceSection({ items = [] }: ExperienceProps) {
+  const t = getT();
   return (
     <FluidContainer
       as="section"
@@ -18,10 +20,10 @@ export default function ExperienceSection({ items = [] }: ExperienceProps) {
       className={clsx("section", styles.experience)}
     >
       <SectionHeader 
-        title="Experience" 
+        title={t("experience.title")} 
         align="left" 
         action={{
-          label: "Full Career",
+          label: t("experience.fullCareer"),
           href: "/experience",
           icon: <ArrowOutwardIcon />
         }}

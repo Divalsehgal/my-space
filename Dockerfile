@@ -17,6 +17,11 @@ COPY packages/next-config/package.json ./packages/next-config/
 COPY packages/fonts/package.json ./packages/fonts/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
 COPY packages/jest-config/package.json ./packages/jest-config/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/utils/package.json ./packages/utils/
+COPY packages/stylelint-config/package.json ./packages/stylelint-config/
+COPY packages/quiz/package.json ./packages/quiz/
+COPY packages/tsconfig/package.json ./packages/tsconfig/
 COPY apps/web/package.json ./apps/web/
 COPY apps/contentful-quiz-app/package.json ./apps/contentful-quiz-app/
 

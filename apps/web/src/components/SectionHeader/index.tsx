@@ -1,9 +1,17 @@
 import { ReactNode } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 
 import clsx from "clsx";
 import styles from "./styles.module.scss";
+
+// Literal class names (not template strings) so PurgeCSS keeps these rules.
+const ALIGN_CLASS = {
+  left: styles["section-header--left"],
+  center: styles["section-header--center"],
+};
+const VARIANT_CLASS = {
+  default: undefined,
+  contact: styles["section-header--contact"],
+};
 
 type SectionHeaderProps = {
   eyebrow?: string;
@@ -37,8 +45,8 @@ export default function SectionHeader({
 
   const rootClassNames = clsx(
     styles["section-header"],
-    styles[`section-header--${align}`],
-    variant !== "default" && styles[`section-header--${variant}`],
+    ALIGN_CLASS[align],
+    VARIANT_CLASS[variant],
     className,
   );
 
@@ -50,27 +58,24 @@ export default function SectionHeader({
   );
 
   return (
-    <Box className={rootClassNames}>
-      <Box className={styles["section-header__content"]}>
+    <div className={rootClassNames}>
+      <div className={styles["section-header__content"]}>
         {eyebrow && (
-          <Typography
-            component="span"
-            className={styles["section-header__eyebrow"]}
-          >
+          <span className={styles["section-header__eyebrow"]}>
             {eyebrow}
-          </Typography>
+          </span>
         )}
 
         {title && (
-          <Typography className={titleClasses} component="h2" variant="h2">
+          <h2 className={titleClasses} data-split>
             {title}
-          </Typography>
+          </h2>
         )}
 
         {subtitle && (
-          <Typography className={subtitleClasses}>{subtitle}</Typography>
+          <p className={subtitleClasses} data-reveal>{subtitle}</p>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

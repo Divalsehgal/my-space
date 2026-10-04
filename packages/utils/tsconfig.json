@@ -1,0 +1,7 @@
+{
+  "extends": "@dival-sehgal/tsconfig/library.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

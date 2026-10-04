@@ -2,17 +2,17 @@ import { render, screen } from "@testing-library/react";
 import NotFoundComponent from "./index";
 
 describe("NotFound component", () => {
-  it("renders heading and recovery action", () => {
+  it("renders heading and recovery actions", () => {
     render(<NotFoundComponent />);
 
     expect(
-      screen.getByRole("heading", { name: /lost in space\?/i })
+      screen.getByRole("heading", { name: /page not found/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/page you're searching for seems to have vanished/i)
+      screen.getByText(/this link may be old or mistyped/i)
     ).toBeInTheDocument();
 
-    const homeLink = screen.getByRole("link", { name: /return to home/i });
-    expect(homeLink).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /go to homepage/i })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /read the blog/i })).toHaveAttribute("href", "/blogs");
   });
 });

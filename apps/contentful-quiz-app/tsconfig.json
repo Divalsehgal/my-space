@@ -1,7 +1,7 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+  "extends": "@dival-sehgal/tsconfig/vite-react.json",
+  "include": [
+    "src",
+    "vite.config.ts"
   ]
 }

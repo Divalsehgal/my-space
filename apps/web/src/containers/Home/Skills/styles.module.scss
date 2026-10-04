@@ -1,29 +1,46 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// The one fill color used by every skill level — only its opacity here
-// controls how visible the fill reads against the pill's own light track.
-$t-skill-fill-color: color-mix(in srgb, #{$t-colors-primary-default} 55%, transparent);
-
 .skills {
+  // Masonry (CSS columns): each card is as tall as its content, so there are
+  // no stretched blanks or empty cells whatever the mix of category sizes.
   &__groups {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $t-spacing-8;
-    align-items: flex-start;
-
-    margin-top: $t-spacing-8;
+    columns: 4 260px;
+    column-gap: $t-spacing-6;
+    width: 100%;
+    margin-top: $t-spacing-6;
   }
 
   &__group {
-    flex: 1 1 220px;
-    min-width: 200px;
+    display: inline-block; // Safari needs this for break-inside in columns
+    break-inside: avoid; // keep each card whole within a column
+
+    width: 100%;
+    margin-bottom: $t-spacing-6;
+    padding: $t-spacing-6;
+    border: 1px solid $t-colors-border-subtle;
+
+    background-color: $t-colors-surface-neutral-subtle;
+
+    transition: transform $t-motion-duration-slow $t-motion-easing-emphasized, border-color $t-motion-duration-slow $t-motion-easing-standard;
+
+    @include spotlight-card;
+
+    &:hover {
+      transform: translateY(-3px);
+      border-color: $t-colors-border-default;
+    }
+
   }
 
   &__group-title {
-    @include label-lg;
+    margin: 0 0 $t-spacing-4;
 
-    margin: 0 0 $t-spacing-3;
+    font-family: var(--font-display), var(--font-body);
+    font-size: $t-font-size-lg;
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
   }
 
   &__subgroups {
@@ -34,41 +51,67 @@ $t-skill-fill-color: color-mix(in srgb, #{$t-colors-primary-default} 55%, transp
 
   &__subgroup-title {
     margin: 0 0 $t-spacing-2;
-    font-size: $t-font-size-sm;
+    font-size: $t-font-size-xs;
     font-weight: $t-font-weight-medium;
-    color: $t-colors-text-secondary;
+    color: $t-colors-text-tertiary;
   }
 
   &__tags {
     display: flex;
     flex-wrap: wrap;
     gap: $t-spacing-2;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
   }
 
-  // One fill color at a fixed, clearly-visible opacity — only the WIDTH
-  // changes between levels (beginner a quarter, expert the whole pill).
-  // No hover state: the fill is information, not an affordance.
   &__tag {
     @include pill-tag;
 
-    position: relative;
+    gap: $t-spacing-2;
+    background-color: transparent;
+
+    span {
+      color: $t-colors-text-primary;
+    }
+  }
+
+  // Depth meter: four rising bars, the lit ones in the brand colour.
+  &__meter {
+    display: inline-flex;
+    gap: $micro-space;
+    align-items: flex-end;
+    height: 10px;
+  }
+
+  &__bar {
+    width: 3px;
+    border-radius: 1px;
+    background-color: $t-colors-border-default;
+
+    @for $i from 1 through 4 {
+      &:nth-child(#{$i}) {
+        height: #{$i * 25%};
+      }
+    }
+
+    &--on {
+      background-color: $t-colors-primary-default;
+    }
+  }
+
+  &__sr {
+    position: absolute;
+
     overflow: hidden;
-    background-color: $t-colors-surface-brand-muted;
 
-    &--expert {
-      background-image: linear-gradient(to right, $t-skill-fill-color 100%, transparent 100%);
-    }
+    width: 1px;
+    height: 1px;
 
-    &--advanced {
-      background-image: linear-gradient(to right, $t-skill-fill-color 75%, transparent 75%);
-    }
+    white-space: nowrap;
 
-    &--intermediate {
-      background-image: linear-gradient(to right, $t-skill-fill-color 50%, transparent 50%);
-    }
-
-    &--beginner {
-      background-image: linear-gradient(to right, $t-skill-fill-color 25%, transparent 25%);
-    }
+    clip-path: inset(50%);
   }
 }

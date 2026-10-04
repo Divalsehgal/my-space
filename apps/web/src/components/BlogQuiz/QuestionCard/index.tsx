@@ -2,6 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { ContentfulQuizQuestion } from '@/types';
 import { plainText } from '../types';
 import styles from './styles.module.scss';
+import { useT } from "@/i18n/client";
+import type { Translate } from "@/i18n/core";
+import { padNumber } from "@dival-sehgal/utils/string";
+import QuestionOptions from "./QuestionOptions";
 
 interface QuestionCardProps {
   question: ContentfulQuizQuestion;
@@ -23,34 +27,14 @@ function getCardClass(submitted: boolean, isCorrect: boolean): string {
   return cardClass;
 }
 
-function getOptionClass(
-  isOptionSelected: boolean,
-  isOptionCorrect: boolean,
-  submitted: boolean,
-): string {
-  let optionClass = styles.optionTile;
-  if (isOptionSelected) {
-    optionClass += ` ${styles.optionTileSelected}`;
-  }
-  if (submitted) {
-    optionClass += ` ${styles.optionTileDisabled}`;
-    if (isOptionCorrect) {
-      optionClass += ` ${styles.optionTileCorrect}`;
-    } else if (isOptionSelected) {
-      optionClass += ` ${styles.optionTileIncorrect}`;
-    }
-  }
-  return optionClass;
-}
-
-function renderStatusIndicator(submitted: boolean, isCorrect: boolean, isAnswered: boolean) {
+function renderStatusIndicator(t: Translate, submitted: boolean, isCorrect: boolean, isAnswered: boolean) {
   if (submitted) {
     const statusClass = `${styles.statusIndicator} ${
       isCorrect ? styles.statusCorrect : styles.statusIncorrect
     }`;
     return (
       <span className={statusClass}>
-        {isCorrect ? '✓ Correct' : '✕ Incorrect'}
+        {t(isCorrect ? "quiz.status.correct" : "quiz.status.incorrect")}
       </span>
     );
   }
@@ -60,7 +44,7 @@ function renderStatusIndicator(submitted: boolean, isCorrect: boolean, isAnswere
   }`;
   return (
     <span className={statusClass}>
-      {isAnswered ? 'Answered' : 'Pending'}
+      {t(isAnswered ? "quiz.status.answered" : "quiz.status.pending")}
     </span>
   );
 }
@@ -74,6 +58,7 @@ export default function QuestionCard({
   onToggle,
   onSelectOption,
 }: Readonly<QuestionCardProps>) {
+  const t = useT();
   const isAnswered = Boolean(selectedOptionId);
   const isCorrect = selectedOptionId === question.correctAnswerId;
   const questionPrompt = plainText(question.questionText);
@@ -94,7 +79,7 @@ export default function QuestionCard({
       >
         <div className={styles.accordionHeaderLeft}>
           <span className={styles.questionNumberTag}>
-            {index < 9 ? `0${index + 1}` : index + 1}
+            {padNumber(index + 1)}
           </span>
           <span className={styles.questionPromptSnippet}>
             {questionPrompt}
@@ -102,7 +87,7 @@ export default function QuestionCard({
         </div>
 
         <div className={styles.accordionHeaderRight}>
-          {renderStatusIndicator(submitted, isCorrect, isAnswered)}
+          {renderStatusIndicator(t, submitted, isCorrect, isAnswered)}
           <span
             className={`${styles.chevronIcon} ${
               isOpen ? styles.chevronIconRotated : ''
@@ -125,77 +110,14 @@ export default function QuestionCard({
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             <div className={styles.accordionBody}>
-              {/* Vertical Stack of Options */}
-              <div
-                className={styles.optionsGroup}
-                role="radiogroup"
-                aria-label={`Options for Question ${index + 1}`}
-              >
-                {question.options.map((option, optionIndex) => {
-                  const isOptionSelected = selectedOptionId === option.id;
-                  const isOptionCorrect = option.id === question.correctAnswerId;
-                  const optionClass = getOptionClass(
-                    isOptionSelected,
-                    isOptionCorrect,
-                    submitted,
-                  );
-                  const optionLetter = String.fromCharCode(65 + optionIndex);
-
-                  return (
-                    <label
-                      key={option.id}
-                      className={optionClass}
-                      onClick={() => onSelectOption(option.id)}
-                    >
-                      <input
-                        type="radio"
-                        className={styles.hiddenRadioInput}
-                        name={`quiz-question-${question.id}`}
-                        value={option.id}
-                        checked={isOptionSelected}
-                        disabled={submitted}
-                        onChange={() => onSelectOption(option.id)}
-                      />
-                      <span className={styles.optionLetterBadge}>
-                        {optionLetter}
-                      </span>
-                      <span className={styles.optionContentText}>
-                        {plainText(option.text)}
-                      </span>
-
-                      {submitted && isOptionCorrect && (
-                        <span className={`${styles.verdictBadge} ${styles.verdictCorrect}`}>
-                          Correct Choice ✓
-                        </span>
-                      )}
-                      {submitted && isOptionSelected && !isOptionCorrect && (
-                        <span className={`${styles.verdictBadge} ${styles.verdictIncorrect}`}>
-                          Your Choice ✕
-                        </span>
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-
-              {/* Post-submission Explanation Callout */}
-              {submitted && (
-                <div
-                  className={`${styles.explanationCard} ${
-                    isCorrect
-                      ? styles.explanationCorrect
-                      : styles.explanationIncorrect
-                  }`}
-                >
-                  <div className={styles.explanationTitle}>
-                    <span>{isCorrect ? '✓' : '💡'}</span>
-                    <span>
-                      {isCorrect ? 'Well done!' : 'Answer Explanation:'}
-                    </span>
-                  </div>
-                  <p>{plainText(question.explanation)}</p>
-                </div>
-              )}
+              <QuestionOptions
+                question={question}
+                index={index}
+                selectedOptionId={selectedOptionId}
+                submitted={submitted}
+                isCorrect={isCorrect}
+                onSelectOption={onSelectOption}
+              />
             </div>
           </motion.div>
         )}

@@ -1,0 +1,167 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.optionsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-3;
+  width: 100%;
+}
+
+.optionTile {
+  cursor: pointer;
+  user-select: none;
+
+  position: relative;
+
+  display: flex;
+  gap: $t-spacing-4;
+  align-items: center;
+
+  width: 100%;
+  padding: $t-spacing-4 $t-spacing-5;
+  border: 1.5px solid $t-colors-border-muted;
+  border-radius: $t-radius-md;
+
+  color: $t-colors-text-primary;
+
+  background: color-mix(in srgb, #{$t-colors-text-primary} 3%, transparent);
+
+  transition:
+    transform $t-motion-duration-base $t-motion-easing-standard,
+    border-color $t-motion-duration-base $t-motion-easing-standard,
+    background-color $t-motion-duration-base $t-motion-easing-standard,
+    box-shadow $t-motion-duration-base $t-motion-easing-standard;
+
+  &:hover:not(.optionTileDisabled) {
+    transform: translateY(-1px);
+    border-color: $t-colors-primary-default;
+    background: color-mix(in srgb, #{$t-colors-text-primary} 6%, transparent);
+  }
+
+  &.optionTileSelected {
+    border-color: $t-colors-primary-default;
+    background: color-mix(in srgb, #{$t-colors-primary-default} 10%, transparent);
+    box-shadow: 0 0 0 1px $t-colors-primary-default;
+  }
+
+  &.optionTileDisabled {
+    cursor: default;
+  }
+
+  &.optionTileCorrect {
+    border-color: $t-colors-feedback-success-border;
+    color: $t-colors-feedback-success-text;
+    background: $t-colors-feedback-success-surface;
+  }
+
+  &.optionTileIncorrect {
+    border-color: $t-colors-feedback-error-border;
+    color: $t-colors-feedback-error-text;
+    background: $t-colors-feedback-error-surface;
+  }
+}
+
+.hiddenRadioInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.optionLetterBadge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+  border: 1px solid $t-colors-border-primary;
+  border-radius: 50%;
+
+  font-size: $t-font-size-xxs;
+  font-weight: $t-font-weight-bold;
+  color: $t-colors-text-secondary;
+
+  background: $t-colors-surface-glass;
+
+  transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+  .optionTileSelected & {
+    border-color: $t-colors-primary-default;
+    color: $t-colors-background-primary;
+    background: $t-colors-primary-default;
+  }
+
+  .optionTileCorrect & {
+    border-color: $t-colors-feedback-success-text;
+    color: $t-colors-background-primary;
+    background: $t-colors-feedback-success-text;
+  }
+
+  .optionTileIncorrect & {
+    border-color: $t-colors-feedback-error-text;
+    color: $t-colors-background-primary;
+    background: $t-colors-feedback-error-text;
+  }
+}
+
+.optionContentText {
+  flex-grow: 1;
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-medium;
+  line-height: $t-font-line-height-normal;
+}
+
+.verdictBadge {
+  margin-left: auto;
+  padding: $t-spacing-1 $t-spacing-3;
+  border-radius: $t-radius-sm;
+
+  font-size: $t-font-size-xxs;
+  font-weight: $t-font-weight-bold;
+  white-space: nowrap;
+
+  &.verdictCorrect {
+    color: $t-colors-background-primary;
+    background: $t-colors-feedback-success-text;
+  }
+
+  &.verdictIncorrect {
+    color: $t-colors-background-primary;
+    background: $t-colors-feedback-error-text;
+  }
+}
+
+.explanationCard {
+  margin-top: $t-spacing-4;
+  padding: $t-spacing-4 $t-spacing-5;
+  border-radius: $t-radius-md;
+
+  font-size: $t-font-size-sm;
+  line-height: $t-font-line-height-relaxed;
+
+  &.explanationCorrect {
+    border-left: 4px solid $t-colors-feedback-success-border;
+    color: $t-colors-feedback-success-text;
+    background: $t-colors-feedback-success-surface;
+  }
+
+  &.explanationIncorrect {
+    border-left: 4px solid $t-colors-feedback-error-border;
+    color: $t-colors-feedback-error-text;
+    background: $t-colors-feedback-error-surface;
+  }
+}
+
+.explanationTitle {
+  display: flex;
+  gap: $t-spacing-2;
+  align-items: center;
+
+  margin-bottom: $t-spacing-2;
+
+  font-weight: $t-font-weight-bold;
+}
+

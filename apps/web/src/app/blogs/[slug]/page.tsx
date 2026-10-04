@@ -10,7 +10,10 @@ import BlogPostContainer from "@/containers/BlogPost";
 import BlogPostSkeleton from "@/containers/BlogPost/BlogPostSkeleton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { SITE_URL, AUTHOR } from "@/lib/config/site";
-import styles from "../styles.module.scss";
+import styles from "./styles.module.scss";
+import { getT } from "@/i18n/server";
+
+const RELATED_POST_COUNT = 3;
 
 type Props = {
   readonly params: Promise<{ slug: string }>;
@@ -34,16 +37,16 @@ export const dynamicParams = true;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getContentfulPostBySlug(slug);
+  const t = getT();
 
   if (!post) {
     return {
-      title: "Blog Post Not Found",
-      description: "The requested blog post could not be found.",
+      title: t("meta.postNotFoundTitle"),
+      description: t("meta.postNotFoundDescription"),
     };
   }
 
-  const description =
-    post.description || `Read ${post.title} on Dival Sehgal's blog`;
+  const description = post.description || t("meta.postDescription", { title: post.title });
   const url = `/blogs/${slug}`;
 
   return {
@@ -116,7 +119,7 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   const breadcrumbItems = [
-    { label: "Blogs", href: "/blogs" },
+    { label: getT()("nav.blogs"), href: "/blogs" },
     { label: post.title, href: `/blogs/${slug}` },
   ];
 
@@ -136,6 +139,6 @@ export default async function BlogPostPage({ params }: Props) {
 
 async function BlogPostContent({ post }: Readonly<{ post: ContentfulPost }>) {
   const posts = await getContentfulPosts();
-  const relatedPosts = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const relatedPosts = posts.filter((p) => p.slug !== post.slug).slice(0, RELATED_POST_COUNT);
   return <BlogPostContainer post={post} relatedPosts={relatedPosts} />;
 }

@@ -5,13 +5,13 @@
 .carousel {
   display: flex;
   flex-direction: column;
-  gap: $t-spacing-6;
+  gap: $t-spacing-8;
 
   width: 100%;
   height: 100%;
 
   &__header {
-    z-index: 20;
+    z-index: $t-layer-sticky;
 
     display: flex;
     align-items: flex-end;
@@ -24,7 +24,7 @@
   &__progress {
     width: 50%;
 
-    @media (min-width: $t-breakpoint-desktop) {
+    @media (width >= $t-breakpoint-desktop) {
       width: 40%;
       max-width: 400px;
     }
@@ -50,7 +50,7 @@
 
     width: 100%;
     height: 2px;
-    border-radius: 9999px;
+    border-radius: $t-radius-full;
 
     background-color: $t-colors-surface-neutral-muted;
   }
@@ -58,7 +58,7 @@
   &__progress-indicator {
     height: 100%;
     background-color: $t-colors-primary-default;
-    transition: width 0.3s ease;
+    transition: width $t-motion-duration-slow $t-motion-easing-standard;
   }
 
   &__nav {
@@ -66,17 +66,12 @@
     gap: $t-spacing-4;
     align-items: center;
 
-    @media (max-width: $t-breakpoint-desktop) {
+    @media (width <= $t-breakpoint-desktop) {
       justify-content: flex-end;
     }
   }
 
   &__nav-btn {
-    @include glass-button-nav;
-
-    padding: 0;
-    border: 1px solid $t-colors-border-primary !important; // Override if needed but mixin covers it
-
     &:hover {
       &.carousel__nav-btn--prev .carousel__nav-icon {
         transform: translateX(-3px);
@@ -89,8 +84,8 @@
   }
 
   &__nav-icon {
-    font-size: $t-font-size-lg !important;
-    transition: transform 0.3s ease, color 0.3s ease !important;
+    font-size: $t-font-size-lg;
+    transition: transform $t-motion-duration-slow $t-motion-easing-standard, color $t-motion-duration-slow $t-motion-easing-standard;
   }
 
   &__content {
@@ -108,34 +103,57 @@
     flex-direction: column;
     width: 100%;
     margin: 0 auto;
+
+    // Inactive slides stay mounted (keeping their state) but hidden; the
+    // display rule above would otherwise override the hidden attribute.
+    &[hidden] {
+      display: none;
+    }
   }
 
   &__dots {
     display: flex;
-    gap: $t-spacing-2;
+    gap: $t-spacing-3; // spacing so 24px hit areas don't overlap
     justify-content: center;
     margin-top: $t-spacing-8;
   }
 
   &__dot {
+    @include focus-ring;
+
     cursor: pointer;
 
+    position: relative;
+
     /* compact dot size to reduce visual footprint */
-    width: $t-dimensions-3;
-    min-width: $t-dimensions-3;
-    height: $t-dimensions-3;
-    min-height: $t-dimensions-3;
+    width: $t-spacing-3;
+    min-width: $t-spacing-3;
+    height: $t-spacing-3;
+    min-height: $t-spacing-3;
     padding: 0;
     border: none;
     border-radius: 50%;
 
     background-color: $t-colors-surface-brand-strong;
 
-    transition: all 0.3s ease;
+    transition: color $t-motion-duration-slow $t-motion-easing-standard, background-color $t-motion-duration-slow $t-motion-easing-standard, border-color $t-motion-duration-slow $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard, transform $t-motion-duration-slow $t-motion-easing-standard, opacity $t-motion-duration-slow $t-motion-easing-standard;
+
+    // Invisible 24px hit area around the small dot (WCAG 2.2 target size).
+    &::before {
+      content: "";
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      width: $t-spacing-6;
+      height: $t-spacing-6;
+    }
 
     &--active {
-      width: $t-dimensions-4;
-      height: $t-dimensions-4;
+      width: $t-spacing-4;
+      height: $t-spacing-4;
       border-radius: 50%;
 
       background-color: $t-colors-primary-default;
@@ -144,6 +162,11 @@
 
     &:hover:not(&--active) {
       background-color: $t-colors-scrollbar-thumb;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 3px;
     }
   }
 }

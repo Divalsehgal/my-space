@@ -200,7 +200,7 @@
         "value": "{foundation-colors.neutral.600.value}"
       },
       "border": {
-        "value": "{foundation-colors.neutral.700.value}"
+        "value": "{foundation-colors.neutral.600.value}"
       },
       "border-focus": {
         "value": "{foundation-colors.primary.400.value}"
@@ -256,6 +256,9 @@
       },
       "page-fade-soft": {
         "value": "rgba(23, 23, 23, 0.46)"
+      },
+      "section-alt": {
+        "value": "#22232b"
       }
     },
     "focus": {
@@ -283,6 +286,93 @@
       },
       "default": {
         "value": "rgba(0, 0, 0, 0.5)"
+      }
+    },
+    "feedback": {
+      "error": {
+        "text": {
+          "value": "#fda29b"
+        },
+        "surface": {
+          "value": "#3b1714"
+        },
+        "border": {
+          "value": "#912018"
+        }
+      },
+      "success": {
+        "text": {
+          "value": "#75e0a7"
+        },
+        "surface": {
+          "value": "#0e2a1c"
+        },
+        "border": {
+          "value": "#085d3a"
+        }
+      },
+      "info": {
+        "text": {
+          "value": "#d3d7e3"
+        },
+        "surface": {
+          "value": "#22232b"
+        },
+        "border": {
+          "value": "#4e598c"
+        }
+      },
+      "warning": {
+        "text": {
+          "value": "#fec84b"
+        },
+        "surface": {
+          "value": "#33240b"
+        },
+        "border": {
+          "value": "#93370d"
+        }
+      }
+    },
+    "data-viz": {
+      "categorical": {
+        "comment": ">= 5:1 on the page background and >= 4.5:1 on surface.section-alt",
+        "1": {
+          "value": "#9aa5d6"
+        },
+        "2": {
+          "value": "#f0a36b"
+        },
+        "3": {
+          "value": "#5fd0b8"
+        },
+        "4": {
+          "value": "#c39af0"
+        },
+        "5": {
+          "value": "#7fb2ff"
+        },
+        "6": {
+          "value": "#f28aa5"
+        },
+        "7": {
+          "value": "#b7c96a"
+        },
+        "8": {
+          "value": "#f0c36b"
+        },
+        "9": {
+          "value": "#d3d7e3"
+        },
+        "10": {
+          "value": "#c9a5f0"
+        },
+        "11": {
+          "value": "#6fd0d0"
+        },
+        "12": {
+          "value": "#f39a78"
+        }
       }
     }
   }

@@ -1,0 +1,5 @@
+{
+  "extends": "@dival-sehgal/tsconfig/library.json",
+  "compilerOptions": { "allowJs": true },
+  "include": ["src"]
+}

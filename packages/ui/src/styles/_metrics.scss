@@ -1,0 +1,6 @@
+// Named values the design-token scale doesn't cover. Stylelint requires a
+// token or variable for spacing, position, weight and line-height, so a
+// one-off value gets a name that says why it exists.
+
+// Pull an element over its parent's 1px border.
+$hairline-offset: -1px;

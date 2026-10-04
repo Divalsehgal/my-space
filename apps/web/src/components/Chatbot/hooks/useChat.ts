@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useT } from '@/i18n/client';
+
+/** Server-sent events prefix each payload line with this. */
+const SSE_DATA_PREFIX = 'data: ';
 
 export interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -11,7 +15,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL ||
     ? 'http://localhost:8787'
     : 'https://ai-chatbot-widget.sehgaldival.workers.dev');
 
-const GENERIC_ERROR = 'Sorry, I ran into a problem. Please try again.';
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
@@ -69,10 +72,10 @@ async function processStream(
   };
 
   const consumeLine = (line: string) => {
-    if (!line.startsWith('data: ')) {
+    if (!line.startsWith(SSE_DATA_PREFIX)) {
       return;
     }
-    const data = line.slice(6);
+    const data = line.slice(SSE_DATA_PREFIX.length);
     if (data === '[DONE]') {
       return;
     }
@@ -105,6 +108,7 @@ async function processStream(
 }
 
 export function useChat() {
+  const t = useT();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -166,21 +170,21 @@ export function useChat() {
       const received = await processStream(reader, setMessages);
 
       if (!received) {
-        setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR, isError: true }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: t('chat.error'), isError: true }]);
       }
     } catch (error) {
       if (isAbortError(error)) {
         return;
       }
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: GENERIC_ERROR, isError: true }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: t('chat.error'), isError: true }]);
     } finally {
       if (abortRef.current === controller) {
         abortRef.current = null;
         setIsTyping(false);
       }
     }
-  }, []);
+  }, [t]);
 
   const sendMessage = useCallback(
     async (content: string) => {

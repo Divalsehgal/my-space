@@ -1,0 +1,137 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Phones only; tablets and desktop get the interactive canvas.
+.tiers {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-4;
+
+  width: 100%;
+  margin: $t-spacing-6 0 0;
+  padding: 0;
+
+  list-style: none;
+
+  &__layer {
+    position: relative;
+
+    padding: $t-spacing-4;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-lg;
+
+    background-color: $t-colors-background-primary;
+
+    // Connector to the next layer.
+    &:not(:last-child)::after {
+      content: "";
+
+      position: absolute;
+      bottom: calc(-1 * #{$t-spacing-4});
+      left: 50%;
+
+      width: 2px;
+      height: $t-spacing-4;
+
+      background-color: $t-colors-border-default;
+    }
+  }
+
+  &__label {
+    margin: 0 0 $t-spacing-3;
+
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-2;
+  }
+
+  &__nodes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $t-spacing-2;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+  }
+
+  &__node {
+    border: 1px solid $t-colors-border-default;
+    border-radius: $t-radius-md;
+    background-color: $t-colors-background-secondary;
+
+    &[data-type="frontend"] { border-left: 3px solid $t-colors-primary-default; }
+    &[data-type="backend"] { border-left: 3px solid $t-colors-text-primary; }
+    &[data-type="external"] { border-left: 3px solid $t-colors-secondary-default; }
+  }
+
+  &__summary {
+    cursor: pointer;
+
+    display: flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    min-height: $t-spacing-11; // comfortable tap target
+    padding: 0 $t-spacing-3;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-primary;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: "+";
+      margin-left: auto;
+      font-size: $t-font-size-sm;
+      color: $t-colors-text-secondary;
+    }
+
+    details[open] > &::after {
+      content: "−";
+    }
+
+    &:focus-visible {
+      border-radius: $t-radius-md;
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
+    }
+  }
+
+  &__copy {
+    margin: 0;
+    padding: 0 $t-spacing-3 $t-spacing-3;
+
+    font-size: $t-font-size-xs;
+    line-height: $t-font-line-height-relaxed;
+    color: $t-colors-text-secondary;
+  }
+
+  &__links {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-1;
+
+    margin: 0;
+    padding: 0 $t-spacing-3 $t-spacing-3;
+
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-primary;
+    list-style: none;
+  }
+
+  &__via {
+    color: $t-colors-text-secondary;
+  }
+
+  @media (width >= $t-breakpoint-tablet) {
+    display: none;
+  }
+}

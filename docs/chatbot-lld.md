@@ -4,7 +4,7 @@ This document is the engineering-level design of the **Portfolio Assistant** cha
 scoped, retrieval-augmented (RAG) assistant that answers questions about Dival Sehgal's
 portfolio, experience, projects, skills, contact flow, and blog posts.
 
-It complements the product-oriented [apps/web/CHAT_TECHNOLOGY.md](../apps/web/CHAT_TECHNOLOGY.md)
+It complements the product-oriented [chatbot-technology.md](./chatbot-technology.md)
 (the "what/why") with the implementation-level "how": module contracts, data shapes,
 control flow, failure modes, and a maintenance plan.
 
@@ -220,7 +220,7 @@ Ordered by severity.
 ### High
 
 1. **KV rate limiting is not atomic.** `get`→`+1`→`put` races under concurrency; a burst can
-   exceed 20/min. KV is also eventually consistent. *(Acknowledged in CHAT_TECHNOLOGY.md.)*
+   exceed 20/min. KV is also eventually consistent. *(Acknowledged in chatbot-technology.md.)*
 2. **No edge WAF / bot protection.** `/api/chat` and `/api/seed` rely only on app-level
    checks. A determined caller can drive Workers AI cost.
 3. **No automated guardrail tests for the worker.** `useChat` is tested, but there are no
@@ -370,4 +370,4 @@ silently breaks auto-reseed with a 401.
 ---
 
 *Last reviewed: 2026-08-08. Keep this file in sync with
-[apps/web/CHAT_TECHNOLOGY.md](../apps/web/CHAT_TECHNOLOGY.md) when behavior changes.*
+[chatbot-technology.md](./chatbot-technology.md) when behavior changes.*

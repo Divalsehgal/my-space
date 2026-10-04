@@ -8,6 +8,9 @@ import BlogQuiz from "@/components/BlogQuiz";
 import AuthorBio from "@/components/AuthorBio";
 import RelatedPosts from "@/components/RelatedPosts";
 import styles from "./styles.module.scss";
+import BlogPostContent from "./BlogPostContent";
+import ViewTransition from "@/components/ViewTransition";
+import { getT } from "@/i18n/server";
 
 type BlogPostProps = {
   post: ContentfulPost;
@@ -15,6 +18,7 @@ type BlogPostProps = {
 };
 
 export default function BlogPost({ post, relatedPosts = [] }: Readonly<BlogPostProps>) {
+  const t = getT();
   const content = renderContentfulRichText(post.content);
   const tocItems = extractToc(post.content);
 
@@ -24,27 +28,29 @@ export default function BlogPost({ post, relatedPosts = [] }: Readonly<BlogPostP
     <article className={styles["blog-post"]}>
       <FluidContainer className={styles["blog-post__container"]}>
         <div className={styles["blog-post__layout"]}>
-          <aside className={styles["blog-post__sidebar"]}>
+          <div className={styles["blog-post__sidebar"]}>
             <TableOfContents items={tocItems} />
-          </aside>
+          </div>
 
           <div className={styles["blog-post__main"]}>
             <header className={styles["blog-post__header"]}>
-              <h1 className={styles["blog-post__title"]}>{post.title}</h1>
+              <ViewTransition name={`post-title-${post.slug}`} share="morph">
+                <h1 className={styles["blog-post__title"]}>{post.title}</h1>
+              </ViewTransition>
               <div className={styles["blog-post__meta"]}>
                 {formattedDate && (
-                  <p className={styles["blog-post__date"]}>Last updated at : {formattedDate}</p>
+                  <p className={styles["blog-post__date"]}>{t("post.lastUpdated", { date: formattedDate })}</p>
                 )}
                 <BlogViewTracker slug={post.slug} />
               </div>
             </header>
-            <aside className={styles["blog-post__mobile-toc"]}>
+            <div className={styles["blog-post__mobile-toc"]}>
               <TableOfContents items={tocItems} />
-            </aside>
-            <section className={styles["blog-post__content"]}>
+            </div>
+            <BlogPostContent>
               {content}
               {post.quiz && <BlogQuiz quiz={post.quiz} />}
-            </section>
+            </BlogPostContent>
             <AuthorBio />
             <RelatedPosts posts={relatedPosts} />
           </div>

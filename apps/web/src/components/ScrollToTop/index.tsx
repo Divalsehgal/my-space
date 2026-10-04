@@ -1,18 +1,25 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import IconButton from "@mui/material/IconButton";
+import IconButton from "@dival-sehgal/ui/icon-button";
 
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { KeyboardArrowUpIcon } from "@dival-sehgal/ui/icons";
 import styles from "./styles.module.scss";
+import { useT } from "@/i18n/client";
+
+/** The button appears once the page is scrolled this far. */
+const SHOW_AFTER_PX = 300;
+/** Roughly how long the smooth scroll to the top takes; snapping resumes after it. */
+const SMOOTH_SCROLL_MS = 800;
 
 export default function ScrollToTop() {
+  const t = useT();
   const [isVisible, setIsVisible] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > SHOW_AFTER_PX) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -46,7 +53,7 @@ export default function ScrollToTop() {
     scrollTimeoutRef.current = setTimeout(() => {
       html.style.scrollSnapType = "y mandatory";
       scrollTimeoutRef.current = null;
-    }, 800);
+    }, SMOOTH_SCROLL_MS);
   };
 
   if (!isVisible) {return null;}
@@ -56,7 +63,7 @@ export default function ScrollToTop() {
       <IconButton
         onClick={scrollToTop}
         className={styles.button}
-        aria-label="scroll to top"
+        aria-label={t("common.scrollToTop")}
         size="large"
       >
         <KeyboardArrowUpIcon />

@@ -1,0 +1,41 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .tooltip {
+    z-index: $t-layer-popover;
+
+    padding: $t-spacing-1 $t-spacing-2;
+    border-radius: $t-radius-xs;
+
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-background-primary;
+
+    background-color: $t-colors-text-primary;
+
+    animation: tooltip-in $t-motion-duration-fast $t-motion-easing-emphasized;
+
+    &__arrow {
+      fill: $t-colors-text-primary;
+    }
+  }
+
+  @keyframes tooltip-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @include reduced-motion {
+    .tooltip {
+      animation: none;
+    }
+  }
+}

@@ -1,0 +1,96 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-4;
+  
+
+  &__row {
+    display: flex;
+    gap: $t-spacing-4;
+
+    @media (width <= $t-breakpoint-tablet) {
+      flex-direction: column;
+    }
+  }
+
+  &__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    margin-top: -$t-spacing-2;
+  }
+
+  &__suggestions-label {
+    margin-right: $t-spacing-1;
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+  }
+
+  &__suggestion-btn {
+    cursor: pointer;
+
+    padding: $t-spacing-2 $t-spacing-4;
+    border: 1px solid $t-colors-border-muted;
+    border-radius: $t-radius-full;
+
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-primary;
+    white-space: nowrap;
+
+    background-color: $t-colors-surface-glass;
+
+    transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+    @include focus-ring;
+
+    &:hover:not(:disabled) {
+      border-color: $t-colors-primary-default;
+      color: $t-colors-primary-default;
+      background-color: $t-colors-surface-brand-subtle;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $t-spacing-4;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: -$t-spacing-2;
+    margin-bottom: $t-spacing-8;
+
+    @media (width <= $t-breakpoint-tablet) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__counter {
+    font-size: $t-font-size-xxs;
+    font-variant-numeric: tabular-nums;
+    color: $t-colors-text-secondary;
+  }
+
+  &__submit {
+    flex-shrink: 0;
+
+    &--pending:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    @media (width <= $t-breakpoint-tablet) {
+      width: 100%;
+    }
+  }
+}

@@ -1,56 +1,79 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-
+// Floating glass pill. The <nav> itself is a transparent fixed strip; the
+// visible bar is .navbar__container inside it.
 .navbar {
   --scroll-scale: 0;
 
+  pointer-events: none;
+
   position: fixed;
-  z-index: $t-layer-level-positive-9;
+  z-index: $t-layer-navbar;
   top: 0;
   right: 0;
   left: 0;
 
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: $t-spacing-16;
 
-  height: $t-spacing-16; // 64px
-  border-bottom: 1px solid $t-colors-border-subtle;
+  transition: transform $t-motion-duration-slower $t-motion-easing-emphasized;
 
-  text-shadow: 4px 4px 4px $t-colors-scrollbar-thumb;
-
-  // Glass effect
-  background-color: $t-colors-surface-glass;
-  backdrop-filter: blur(60px);
-
-  &::after {
-    content: "";
-
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    transform-origin: left center;
-    transform: scaleX(var(--scroll-scale));
-
-    height: $t-spacing-1;
-
-    background: $t-colors-surface-brand-strong;
-
-    transition: transform 0.1s ease-out;
+  &--hidden:not(.navbar--open) {
+    transform: translateY(-120%);
   }
 
-  &--open {
-    overflow: visible;
+  &__shell {
+    height: 100%;
+    padding-top: $t-spacing-2;
   }
 
   &__container {
+    pointer-events: auto;
+
+    position: relative;
+
     display: flex;
+    gap: $t-spacing-4;
     align-items: center;
     justify-content: space-between;
+
     height: 100%;
+    padding: 0 $t-spacing-2 0 $t-spacing-4;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-full;
+
+    background-color: color-mix(in srgb, #{$t-colors-background-primary} 72%, transparent);
+    backdrop-filter: blur($t-blur-xl) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #{$t-colors-text-primary} 6%, transparent),
+      0 10px 40px -18px $t-colors-shadow-default;
+
+    transition: background-color $t-motion-duration-slow $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard;
+
+    // Scroll progress, drawn along the pill's bottom edge.
+    &::after {
+      content: "";
+
+      position: absolute;
+      right: $t-spacing-6;
+      bottom: $hairline-offset;
+      left: $t-spacing-6;
+      transform-origin: left center;
+      transform: scaleX(var(--scroll-scale));
+
+      height: 2px;
+      border-radius: 2px;
+
+      background: linear-gradient(90deg, $t-colors-primary-default, $t-colors-secondary-default);
+    }
+  }
+
+  &--scrolled &__container {
+    background-color: color-mix(in srgb, #{$t-colors-background-primary} 86%, transparent);
+  }
+
+  &--open &__container {
+    border-radius: $t-radius-xl;
   }
 
   &__brand {
@@ -64,19 +87,20 @@
     text-decoration: none;
 
     &:hover .navbar__brand-icon {
-      transform: rotate(12deg);
+      transform: rotate(-8deg) scale(1.08);
     }
   }
 
   &__brand-icon {
-    font-size: $t-spacing-8 !important; // 32px
+    font-size: $t-spacing-7;
     color: $t-colors-primary-default;
-    transition: transform 0.3s ease;
+    transition: transform $t-motion-duration-slow $t-motion-easing-emphasized;
   }
 
   &__brand-text {
-    font-size: $t-font-size-md !important; // 20px
-    font-weight: $t-font-weight-bold !important;
+    font-family: var(--font-display), var(--font-body);
+    font-size: $t-font-size-sm;
+    font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
     letter-spacing: $t-font-letter-spacing-tight-1;
   }
@@ -86,83 +110,35 @@
 
     @media (width >= $t-breakpoint-tablet) {
       display: flex;
-      gap: $t-spacing-5;
+      flex: 1;
+      gap: $t-spacing-4;
       align-items: center;
+      justify-content: space-between;
     }
   }
 
-  &__nav-link {
-    font-size: $t-font-size-sm;
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-text-secondary;
-    text-decoration: none;
 
-    transition: color 0.15s ease;
 
-    &:hover {
-      color: $t-colors-primary-default;
-    }
+  // The sliding highlight shared by all links (framer layoutId).
 
-    // For mobile menu specific overrides
-    &--mobile {
-      display: block;
-      padding: $t-spacing-2 0;
-      font-size: $t-font-size-md;
-    }
-  }
 
-  &__menu-btn {
-    z-index: $t-layer-level-positive-9;
-    display: flex !important;
-    color: $t-colors-text-primary !important;
 
-    @media (width >= $t-breakpoint-tablet) {
-      display: none !important;
-    }
-  }
 
-  &__mobile-actions {
-    display: flex;
-    gap: $t-spacing-1;
-    align-items: center;
 
-    @media (width >= $t-breakpoint-tablet) {
-      display: none;
-    }
-  }
+
 
 
   &__overlay {
     position: fixed;
-    z-index: $t-layer-level-positive-8;
+    z-index: $t-layer-navbar; // above the home top bar; <nav> stacks later
     inset: 0;
 
-    background-color: $t-colors-surface-glass;
-    backdrop-filter: blur(4px);
-    backdrop-filter: blur($t-spacing-16);
+    background-color: color-mix(in srgb, #{$t-colors-background-primary} 92%, transparent);
+    backdrop-filter: blur($t-blur-lg);
 
-    animation: navbar-fade-in 0.2s ease-out;
+    animation: navbar-fade-in $t-motion-duration-slow $t-motion-easing-emphasized;
   }
 
-  &__mobile-menu {
-    position: absolute;
-    z-index: $t-layer-level-positive-9;
-    top: $t-spacing-16; // 64px
-    right: 0;
-    left: 0;
-
-    display: flex;
-    flex-direction: column;
-    gap: $t-spacing-4;
-
-    padding: $t-spacing-4;
-    border-bottom: 1px solid $t-colors-border-default;
-
-    background-color: $t-colors-background-primary;
-    box-shadow: $t-colors-shadow-default;
-
-    animation: navbar-slide-down 0.2s ease-out;
-  }
 }
 
 @keyframes navbar-fade-in {
@@ -175,14 +151,10 @@
   }
 }
 
-@keyframes navbar-slide-down {
-  from {
-    transform: translateY(-10px);
-    opacity: 0;
-  }
 
-  to {
-    transform: translateY(0);
-    opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+  .navbar {
+    transition: none;
+    animation: none;
   }
 }

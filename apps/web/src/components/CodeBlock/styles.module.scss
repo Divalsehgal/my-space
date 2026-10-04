@@ -9,7 +9,7 @@
   margin: $t-spacing-6 0;
   padding: $t-spacing-6;
   border: 1px solid $t-colors-border-muted;
-  border-radius: $t-spacing-4;
+  border-radius: $t-radius-lg;
 
   background: $t-colors-background-secondary;
 
@@ -30,13 +30,13 @@
 
 .copyButtonWrapper {
   position: absolute;
-  z-index: 10;
+  z-index: $t-layer-raised;
   top: $t-spacing-2;
   right: $t-spacing-2;
 
   opacity: 0;
 
-  transition: opacity 0.2s ease;
+  transition: opacity $t-motion-duration-base $t-motion-easing-standard;
 }
 
 .copyButton {
@@ -46,9 +46,7 @@
   color: $t-colors-text-secondary;
 
   background: $t-colors-surface-glass-hover;
-  backdrop-filter: blur(4px);
-
-
+  backdrop-filter: blur($t-blur-sm);
 
   &.copied {
     border-color: $t-colors-primary-default;
@@ -58,8 +56,26 @@
   }
 }
 
-.pre:hover {
+// Revealed on hover, on keyboard focus, and always on touch screens (no hover).
+.pre:hover,
+.pre:focus-within {
   .copyButtonWrapper {
     opacity: 1;
   }
+}
+
+@media (hover: none) {
+  .copyButtonWrapper {
+    opacity: 1;
+  }
+}
+
+.copyIcon {
+  font-size: $t-font-size-lg;
+  color: var(--t-colors-primary-default);
+}
+
+.copyIconDone {
+  font-size: $t-font-size-lg;
+  color: var(--t-colors-background-primary);
 }

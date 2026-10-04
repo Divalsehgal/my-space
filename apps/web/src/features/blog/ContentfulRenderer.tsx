@@ -14,19 +14,18 @@ import { ReactNode } from "react";
 import { AnimatedImageBlock } from "./AnimatedImageBlock";
 import { CodeBlock } from "@/components/CodeBlock";
 import type { ContentfulRichText, ContentfulAsset } from "@/types";
+import { slugify } from "@dival-sehgal/utils/string";
+
+/** TOC nesting: sections (H2) and subsections (H3+); see TableOfContents. */
+const TOC_LEVEL = { section: 1, subsection: 3 } as const;
+/** HTML has no heading level below h6. */
+const MAX_HEADING_LEVEL = 6;
 
 /**
  * Renderer for Contentful Rich Text
  * Enhanced for high-fidelity editorial design
  */
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 export function extractToc(content: ContentfulRichText) {
   if (!content?.json) {
@@ -55,7 +54,7 @@ export function extractToc(content: ContentfulRichText) {
         headers.push({
           id,
           text,
-          level: node.nodeType === BLOCKS.HEADING_2 ? 1 : 3,
+          level: node.nodeType === BLOCKS.HEADING_2 ? TOC_LEVEL.section : TOC_LEVEL.subsection,
         });
       }
     }
@@ -63,6 +62,15 @@ export function extractToc(content: ContentfulRichText) {
 
   return headers;
 }
+const HEADING_LEVEL: Record<string, number> = {
+  [BLOCKS.HEADING_1]: 1,
+  [BLOCKS.HEADING_2]: 2,
+  [BLOCKS.HEADING_3]: 3,
+  [BLOCKS.HEADING_4]: 4,
+  [BLOCKS.HEADING_5]: 5,
+  [BLOCKS.HEADING_6]: 6,
+};
+
 export function renderContentfulRichText(content: ContentfulRichText) {
   if (!content?.json) {
     return null;
@@ -75,6 +83,27 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       assetMap.set(asset.sys.id, asset);
     }
   }
+
+  // Rank the heading levels this post actually uses: the shallowest becomes
+  // <h2> (the page title is the only <h1>), the next <h3>, and so on, so the
+  // outline never skips a level whatever the author picked (WCAG 1.3.1).
+  const usedLevels = [
+    ...new Set(
+      (content.json.content ?? [])
+        .map((node) => HEADING_LEVEL[node.nodeType])
+        .filter((level): level is number => level !== undefined),
+    ),
+  ].sort((a, b) => a - b);
+  const Heading = ({ level, id, children }: { level: number; id: string; children: ReactNode }) => {
+    const rank = Math.max(usedLevels.indexOf(level), 0);
+    const Tag = `h${Math.min(rank + 2, MAX_HEADING_LEVEL)}` as "h2" | "h3" | "h4" | "h5" | "h6";
+    return <Tag id={id}>{children}</Tag>;
+  };
+  const headingText = (node: Block | Inline) =>
+    (node as unknown as Block).content
+      .filter((c): c is Text => c.nodeType === "text")
+      .map((c) => c.value)
+      .join("");
 
   const seenIds = new Map<string, number>();
 
@@ -115,16 +144,15 @@ export function renderContentfulRichText(content: ContentfulRichText) {
 
         return <p>{children}</p>;
       },
-      // The page's own <h1> is the post title (see BlogPost/index.tsx). Contentful's
-      // heading levels are shifted down one HTML level here (H1->h2, H2->h3, H3->h4)
-      // so the body never emits a second <h1> — a page should have exactly one.
+      // The page's own <h1> is the post title (see BlogPost/index.tsx); body
+      // headings are re-levelled by <Heading> above so they start at <h2>.
       [BLOCKS.HEADING_1]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
           .filter((c): c is Text => c.nodeType === "text")
           .map((c) => c.value)
           .join("");
         const id = getUniqueId(text);
-        return <h2 id={id}>{children}</h2>;
+        return <Heading level={1} id={id}>{children}</Heading>;
       },
       [BLOCKS.HEADING_2]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
@@ -132,7 +160,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           .map((c) => c.value)
           .join("");
         const id = getUniqueId(text);
-        return <h3 id={id}>{children}</h3>;
+        return <Heading level={2} id={id}>{children}</Heading>;
       },
       [BLOCKS.HEADING_3]: (node: Block | Inline, children: ReactNode) => {
         const text = (node as unknown as Block).content
@@ -140,8 +168,17 @@ export function renderContentfulRichText(content: ContentfulRichText) {
           .map((c) => c.value)
           .join("");
         const id = getUniqueId(text);
-        return <h4 id={id}>{children}</h4>;
+        return <Heading level={3} id={id}>{children}</Heading>;
       },
+      [BLOCKS.HEADING_4]: (node: Block | Inline, children: ReactNode) => (
+        <Heading level={4} id={getUniqueId(headingText(node))}>{children}</Heading>
+      ),
+      [BLOCKS.HEADING_5]: (node: Block | Inline, children: ReactNode) => (
+        <Heading level={5} id={getUniqueId(headingText(node))}>{children}</Heading>
+      ),
+      [BLOCKS.HEADING_6]: (node: Block | Inline, children: ReactNode) => (
+        <Heading level={6} id={getUniqueId(headingText(node))}>{children}</Heading>
+      ),
       [BLOCKS.UL_LIST]: (_node: Block | Inline, children: ReactNode) => (
         <ul>{children}</ul>
       ),

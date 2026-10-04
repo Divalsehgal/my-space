@@ -1,0 +1,16 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.theme-toggle {
+  width: $t-spacing-10;
+  height: $t-spacing-10;
+  border: 1px solid $t-colors-border-subtle;
+
+  color: $t-colors-text-primary;
+
+  transition: transform $t-motion-duration-slow $t-motion-easing-emphasized;
+
+  &:hover {
+    transform: rotate(25deg);
+  }
+}

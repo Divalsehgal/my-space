@@ -1,17 +1,13 @@
-"use client";
-
-import Button from "@mui/material/Button";
-import DescriptionIcon from "@mui/icons-material/Description";
+import Button from "@dival-sehgal/ui/button";
+import { DescriptionIcon } from "@dival-sehgal/ui/icons";
 import clsx from "clsx";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { trackAttrs, ANALYTICS_EVENTS } from "@/utils/analytics";
 import styles from "./styles.module.scss";
+import { getT } from "@/i18n/server";
 
 export type HeroActionsData = {
-  primaryCtaLabel?: string;
   primaryCtaHref?: string;
-  secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
-  resumeLabel?: string;
   resumeUrl?: string;
 };
 
@@ -20,27 +16,35 @@ interface HeroActionsProps {
   className?: string;
 }
 
+// Literal class names (not template strings) so PurgeCSS keeps these rules.
+const CTA_CLASS = {
+  contained: styles["cta--contained"],
+  outlined: styles["cta--outlined"],
+  text: undefined,
+};
+
 export default function HeroActions({ data, className }: HeroActionsProps) {
+  const t = getT();
   const buttons = [
     {
-      label: data?.primaryCtaLabel || "View Projects",
+      id: "projects",
+      label: t("hero.ctaProjects"),
       href: data?.primaryCtaHref ?? "#projects",
       variant: "contained" as const,
-      color: "primary" as const,
       size: "large" as const,
     },
     {
-      label: data?.secondaryCtaLabel || "Contact",
+      id: "contact",
+      label: t("hero.ctaContact"),
       href: data?.secondaryCtaHref ?? "#contact",
       variant: "outlined" as const,
-      color: "primary" as const,
       size: "large" as const,
     },
     {
-      label: data?.resumeLabel || "Resume",
+      id: "resume",
+      label: t("hero.ctaResume"),
       href: data?.resumeUrl,
       variant: "text" as const,
-      color: "primary" as const,
       size: "large" as const,
       startIcon: <DescriptionIcon />,
       target: "_blank",
@@ -53,27 +57,16 @@ export default function HeroActions({ data, className }: HeroActionsProps) {
       {buttons.map((button, index) => (
         <Button
           key={index}
-          component="a"
           variant={button.variant}
-          color={button.color}
+          className={clsx(styles.cta, CTA_CLASS[button.variant])}
           size={button.size}
           href={button.href as string}
           startIcon={button.startIcon}
           target={button.target}
           rel={button.rel}
-          onClick={() => {
-            if (button.label === "Resume") {
-              trackInteraction(ANALYTICS_EVENTS.RESUME_VIEW, {
-                label: "Hero Resume Button",
-              });
-            } else {
-              trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
-                label: button.label,
-                href: button.href || "",
-                location: "navbar",
-              });
-            }
-          }}
+          {...(button.id === "resume"
+            ? trackAttrs(ANALYTICS_EVENTS.RESUME_VIEW, { label: "Hero Resume Button" })
+            : trackAttrs(ANALYTICS_EVENTS.NAV_CLICK, { label: button.label, href: button.href || "", location: "navbar" }))}
         >
           {button.label}
         </Button>

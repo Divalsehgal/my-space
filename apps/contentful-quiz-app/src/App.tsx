@@ -2,21 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Heading, Paragraph, Textarea } from '@contentful/f36-components';
 import { useSDK } from '@contentful/react-apps-toolkit';
 import type { SidebarAppSDK } from '@contentful/app-sdk';
-
-interface QuizOption {
-  text: string;
-  isCorrect: boolean;
-}
-
-interface QuizQuestion {
-  questionText: string;
-  options: QuizOption[];
-  explanation: string;
-}
-
-interface QuizJsonPayload {
-  questions: QuizQuestion[];
-}
+import { optionLetter, parseQuizPayload, type QuizQuestion } from '@dival-sehgal/quiz/validate';
+import { createQuizQuestions } from './api/createQuizQuestions';
 
 const defaultJson = `{
   "questions": [
@@ -62,50 +49,6 @@ function App() {
     }
   }, [jsonInput]);
 
-  const validatePayload = (raw: string): QuizJsonPayload => {
-    const parsed = JSON.parse(raw);
-
-    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.questions)) {
-      throw new Error('Payload must be an object with a top-level "questions" array.');
-    }
-
-    const questions = parsed.questions as QuizQuestion[];
-
-    if (questions.length === 0) {
-      throw new Error('At least one question is required.');
-    }
-
-    questions.forEach((question, index) => {
-      if (!question.questionText || typeof question.questionText !== 'string') {
-        throw new Error(`Question ${index + 1} is missing a valid questionText.`);
-      }
-
-      if (!question.explanation || typeof question.explanation !== 'string') {
-        throw new Error(`Question ${index + 1} is missing a valid explanation.`);
-      }
-
-      if (!Array.isArray(question.options) || question.options.length !== 4) {
-        throw new Error(`Question ${index + 1} must contain exactly 4 options.`);
-      }
-
-      if (question.options.some((option) => !option || !option.text || typeof option.text !== 'string')) {
-        throw new Error(`Question ${index + 1} contains an empty option.`);
-      }
-
-      const correctCount = question.options.filter((option) => option.isCorrect === true).length;
-      if (correctCount !== 1) {
-        throw new Error(`Question ${index + 1} must have exactly one correct option.`);
-      }
-
-      const normalized = question.options.map((option) => option.text.trim().toLowerCase());
-      if (new Set(normalized).size !== normalized.length) {
-        throw new Error(`Question ${index + 1} contains duplicate option text.`);
-      }
-    });
-
-    return parsed as QuizJsonPayload;
-  };
-
   const handleCreateQuestions = async () => {
     if (!entryId) {
       setError('No Contentful entry selected.');
@@ -117,54 +60,10 @@ function App() {
       setSuccess(null);
       setIsSaving(true);
 
-      const payload = validatePayload(jsonInput);
+      const payload = parseQuizPayload(jsonInput);
+      const message = await createQuizQuestions(entryId, payload, publishAfterImport);
 
-      // Use environment variable for backend URL, default to /api for local dev
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api';
-      const endpoint = `${backendUrl}/contentful/create-quiz-questions`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quizId: entryId,
-          questions: payload.questions.map((question) => ({
-            questionText: question.questionText,
-            options: question.options,
-            explanation: question.explanation,
-          })),
-          publish: publishAfterImport,
-        }),
-      });
-
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        let errorMessage = 'Failed to create quiz questions.';
-        
-        try {
-          if (contentType?.includes('application/json')) {
-            const data = await response.json();
-            errorMessage = data?.error || data?.details?.[0] || errorMessage;
-          } else {
-            errorMessage = await response.text();
-          }
-        } catch {
-          errorMessage = `Server error: ${response.status} ${response.statusText}`;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error('Invalid response from server. Please check backend logs.');
-      }
-
-      setSuccess(data?.message || `Created ${payload.questions.length} question(s) successfully. Publish the quiz and its new entries when ready.`);
+      setSuccess(message || `Created ${payload.questions.length} question(s) successfully. Publish the quiz and its new entries when ready.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error creating questions.');
     } finally {
@@ -224,7 +123,7 @@ function App() {
               <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
                 {question.options.map((option, optionIndex) => (
                   <li key={`${option.text}-${optionIndex}`}>
-                    {String.fromCharCode(65 + optionIndex)}. {option.text} {option.isCorrect ? '(correct)' : ''}
+                    {optionLetter(optionIndex)}. {option.text} {option.isCorrect ? '(correct)' : ''}
                   </li>
                 ))}
               </ul>

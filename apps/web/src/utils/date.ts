@@ -1,3 +1,7 @@
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { createTranslator, type Translate } from "@/i18n/core";
+import { DAYS_PER_MONTH, DAYS_PER_WEEK, DAYS_PER_YEAR, MS_PER_DAY } from "@dival-sehgal/utils/time";
+
 /**
  * Formats an ISO date string to a localized string.
  * @param dateString The ISO date string to format
@@ -22,9 +26,7 @@ export function formatDate(
   }
 }
 
-function pluralize(value: number, unit: string): string {
-  return `${value} ${unit}${value === 1 ? "" : "s"} ago`;
-}
+const defaultT = createTranslator();
 
 /**
  * Formats a date into a human-friendly relative label that scales its unit
@@ -35,11 +37,15 @@ function pluralize(value: number, unit: string): string {
  *
  * @param dateString The ISO date string to describe
  * @param isUpdated When true, prefixes with "Last updated"; otherwise "Published"
+ * @param t Translator for the wrapper text ("Published {when}")
+ * @param locale Locale for the relative phrase itself ("3 days ago"), via Intl
  * @returns The relative label or null if the date is missing/invalid
  */
 export function getRelativeTimeLabel(
   dateString?: string | null,
   isUpdated = false,
+  t: Translate = defaultT,
+  locale: string = DEFAULT_LOCALE,
 ): string | null {
   if (!dateString) {
     return null;
@@ -51,25 +57,23 @@ export function getRelativeTimeLabel(
   }
 
   const diffInDays = Math.floor(
-    (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24),
+    (Date.now() - date.getTime()) / MS_PER_DAY,
   );
-  const prefix = isUpdated ? "Last updated" : "Published";
-
+  const wrap = (when: string) => t(isUpdated ? "date.updated" : "date.published", { when });
   if (diffInDays <= 0) {
-    return `${prefix} today`;
+    return wrap(t("date.today"));
   }
 
-  if (diffInDays < 7) {
-    return `${prefix} ${pluralize(diffInDays, "day")}`;
+  // "always" keeps "1 day ago" rather than "yesterday", matching the other units.
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "always" });
+  if (diffInDays < DAYS_PER_WEEK) {
+    return wrap(relative.format(-diffInDays, "day"));
   }
-
-  if (diffInDays < 30) {
-    return `${prefix} ${pluralize(Math.floor(diffInDays / 7), "week")}`;
+  if (diffInDays < DAYS_PER_MONTH) {
+    return wrap(relative.format(-Math.floor(diffInDays / DAYS_PER_WEEK), "week"));
   }
-
-  if (diffInDays < 365) {
-    return `${prefix} ${pluralize(Math.floor(diffInDays / 30), "month")}`;
+  if (diffInDays < DAYS_PER_YEAR) {
+    return wrap(relative.format(-Math.floor(diffInDays / DAYS_PER_MONTH), "month"));
   }
-
-  return `${prefix} ${pluralize(Math.floor(diffInDays / 365), "year")}`;
+  return wrap(relative.format(-Math.floor(diffInDays / DAYS_PER_YEAR), "year"));
 }

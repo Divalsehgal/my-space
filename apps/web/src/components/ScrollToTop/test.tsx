@@ -39,7 +39,7 @@ describe("ScrollToTop Component", () => {
       fireEvent.scroll(window);
     });
 
-    const button = screen.getByLabelText("scroll to top");
+    const button = screen.getByLabelText("Scroll to top");
     expect(button).toBeInTheDocument();
   });
 
@@ -51,7 +51,7 @@ describe("ScrollToTop Component", () => {
       fireEvent.scroll(window);
     });
 
-    const button = screen.getByLabelText("scroll to top");
+    const button = screen.getByLabelText("Scroll to top");
     fireEvent.click(button);
 
     expect(window.scrollTo).toHaveBeenCalledWith({
@@ -78,7 +78,7 @@ describe("ScrollToTop Component", () => {
       fireEvent.scroll(window);
     });
 
-    expect(screen.getByLabelText("scroll to top")).toBeInTheDocument();
+    expect(screen.getByLabelText("Scroll to top")).toBeInTheDocument();
 
     act(() => {
       window.scrollY = 100;
@@ -98,7 +98,7 @@ describe("ScrollToTop Component", () => {
       fireEvent.scroll(window);
     });
 
-    const button = screen.getByLabelText("scroll to top");
+    const button = screen.getByLabelText("Scroll to top");
     fireEvent.click(button); // Starts a timeout
 
     unmount();
@@ -121,7 +121,7 @@ describe("ScrollToTop Component", () => {
       fireEvent.scroll(window);
     });
 
-    const button = screen.getByLabelText("scroll to top");
+    const button = screen.getByLabelText("Scroll to top");
     
     fireEvent.click(button);
     act(() => {

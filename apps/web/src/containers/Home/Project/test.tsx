@@ -4,14 +4,8 @@ import ProjectSection from "./index";
 
 // Mock Carousel
 jest.mock("@/components/Carousel", () => {
-  return function MockCarousel({ items, renderItem }: unknown) {
-    return (
-      <div data-testid="carousel-mock">
-        {items.map((item: unknown, i: number) => (
-          <div key={i}>{renderItem(item)}</div>
-        ))}
-      </div>
-    );
+  return function MockCarousel({ slides }: { slides: React.ReactNode[] }) {
+    return <div data-testid="carousel-mock">{slides}</div>;
   };
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "@/components/Toaster";
+import { TOAST_DURATION_MS, Toaster } from "@/components/Toaster";
 import { ToastContextType, ToastSeverity } from "@/types/contact";
 import React, { createContext, useContext, useState, useCallback } from "react";
 
@@ -32,7 +32,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     timerRef.current = setTimeout(() => {
       setOpen(false);
-    }, 5000);
+    }, TOAST_DURATION_MS);
   }, []);
 
   const handleClose = useCallback((_event?: React.SyntheticEvent | Event, reason?: string) => {

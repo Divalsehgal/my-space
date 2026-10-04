@@ -1,0 +1,153 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// What the info panel shows: a skill's depth, a category's ranked skills, or stack totals.
+.panel {
+  &__eyebrow {
+    margin: 0 0 $t-spacing-1;
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-semibold;
+  }
+
+  &__name {
+    margin: 0 0 $t-spacing-3;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: $t-font-size-lg;
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+  }
+
+  &__depth {
+    display: flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    margin: 0 0 $t-spacing-4;
+
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+  }
+
+  &__meter {
+    display: inline-flex;
+    gap: $micro-space;
+    align-items: flex-end;
+    height: 10px;
+  }
+
+  &__bar {
+    width: 3px;
+    border-radius: 1px;
+    background-color: $t-colors-border-default;
+
+    @for $i from 1 through 4 {
+      &:nth-child(#{$i}) {
+        height: #{$i * 25%};
+      }
+    }
+
+    &--on {
+      background-color: $t-colors-primary-default;
+    }
+  }
+
+  &__clear {
+    cursor: pointer;
+
+    padding: 0;
+    border: none;
+
+    font-family: inherit;
+    font-size: $t-font-size-xs;
+    color: $t-colors-primary-default;
+    text-decoration: underline;
+
+    background: none;
+  }
+
+  &__ranked {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: $micro-space;
+
+    max-height: 280px;
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    button {
+      cursor: pointer;
+
+      display: flex;
+      gap: $t-spacing-2;
+      align-items: center;
+      justify-content: space-between;
+
+      width: 100%;
+      padding: $t-spacing-1 $t-spacing-2;
+      border: none;
+      border-radius: $t-radius-sm;
+
+      font-family: inherit;
+      font-size: $t-font-size-xs;
+      color: $t-colors-text-primary;
+      text-align: left;
+
+      background: transparent;
+
+      &:hover {
+        background-color: $t-colors-surface-brand-subtle;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $t-colors-primary-default;
+        outline-offset: 1px;
+      }
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $t-spacing-3;
+    margin: 0 0 $t-spacing-4;
+
+    dt {
+      font-size: $t-font-size-xxs;
+      color: $t-colors-text-secondary;
+    }
+
+    dd {
+      margin: 0;
+
+      font-family: var(--font-display), var(--font-body);
+      font-size: $t-font-size-xl;
+      font-weight: $t-font-weight-bold;
+      font-variant-numeric: tabular-nums;
+      color: $t-colors-text-primary;
+    }
+  }
+
+  &__note {
+    margin: 0;
+    font-size: $t-font-size-xs;
+    line-height: $t-font-line-height-relaxed;
+    color: $t-colors-text-secondary;
+  }
+
+  &__sr {
+    position: absolute;
+
+    overflow: hidden;
+
+    width: 1px;
+    height: 1px;
+
+    white-space: nowrap;
+
+    clip-path: inset(50%);
+  }
+}

@@ -18,5 +18,9 @@ describe('contentful service', () => {
         expect(query).not.toContain('excerpt');
         expect(query).toContain('body');
         expect(query).not.toContain('image');
+        // Embedded-asset links cost ~1000 per item; the list query must skip
+        // them so it can fetch well past 10 posts under the complexity cap.
+        expect(query).not.toContain('links');
+        expect(request.mock.calls[0][1]).toEqual(expect.objectContaining({ limit: 100 }));
     });
 });

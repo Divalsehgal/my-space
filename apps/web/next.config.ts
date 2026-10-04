@@ -42,7 +42,7 @@ function getSecurityHeaders(
         key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+          "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "img-src 'self' data: https: blob:",
           "font-src 'self' https://fonts.gstatic.com data:",
@@ -65,11 +65,26 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname, "../.."),
   },
+  // Workspace packages ship TypeScript/SCSS source; Next compiles them like app
+  // code, so per-file exports tree-shake and "use client" boundaries survive.
+  transpilePackages: ["@dival-sehgal/ui", "@dival-sehgal/utils"],
   poweredByHeader: false,
   compress: true,
   generateBuildId: async () => "portfolio-blog-build",
   experimental: {
-    optimizePackageImports: ["@mui/material", "@mui/icons-material"],
+    // `inlineCss` is deliberately off: it embedded every stylesheet in each
+    // page's HTML (and again in the RSC payload) while the same files were
+    // still downloaded, so CSS was paid for twice and never cached across
+    // pages. Linked, content-hashed stylesheets are cached immutably instead.
+    // Rewrites barrel imports to per-module imports at build time so only
+    // what is used ships (MUI is also enforced by an ESLint rule).
+    optimizePackageImports: [
+      "@radix-ui/react-toast",
+      "@radix-ui/react-tooltip",
+      "framer-motion",
+      "@xyflow/react",
+      "@react-three/fiber",
+    ],
     serverComponentsHmrCache: false,
   },
   sassOptions: {
@@ -77,14 +92,19 @@ const nextConfig: NextConfig = {
     loadPaths: [
       path.join(__dirname, "src/styles"),
       path.join(__dirname, "../../packages/design-tokens/build/scss"),
+      // Shared Sass helpers that ship with the UI package (e.g. `motion`).
+      path.join(__dirname, "../../packages/ui/src/styles"),
     ],
   },
   async headers() {
-    const securityHeaders = getSecurityHeaders(
-      process.env.NODE_ENV === "production" ? "production" : "development",
-    );
+    const isProduction = process.env.NODE_ENV === "production";
+    const securityHeaders = getSecurityHeaders(isProduction ? "production" : "development");
 
-    return [
+    // Long-lived caching is for production builds only. In development, chunk
+    // URLs are reused while their contents change, so an `immutable` header
+    // pins the browser to stale code ("module factory is not available").
+    const cacheRules = isProduction
+      ? [
       {
         // Content-hashed build assets never change for a given URL, so they can
         // be cached forever without revalidation round-trips.
@@ -112,6 +132,25 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+        ]
+      : [
+          {
+            // Dev only, once per browser: earlier builds sent `immutable` for
+            // dev chunks, so browsers may still hold stale code for lazily
+            // loaded chunks (a hard reload doesn't refetch those). Clear the
+            // HTTP cache on the next page load, then mark it done. Bump the
+            // cookie value to force another reset.
+            source: "/:path((?!_next/).*)",
+            missing: [{ type: "cookie" as const, key: "dev-cache-reset", value: "v1" }],
+            headers: [
+              { key: "Clear-Site-Data", value: '"cache"' },
+              { key: "Set-Cookie", value: "dev-cache-reset=v1; Path=/; Max-Age=31536000; SameSite=Lax" },
+            ],
+          },
+        ];
+
+    return [
+      ...cacheRules,
       {
         source: '/(.*)',
         headers: securityHeaders,

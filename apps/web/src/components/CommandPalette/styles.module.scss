@@ -1,0 +1,152 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.backdrop {
+  position: fixed;
+  z-index: $t-layer-modal;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+
+  padding: $overlay-top-gap $t-spacing-4 $t-spacing-4;
+
+  background-color: color-mix(in srgb, #{$t-colors-background-primary} 60%, transparent);
+  backdrop-filter: blur($t-blur-md);
+
+  animation: palette-fade $t-motion-duration-fast $t-motion-easing-emphasized;
+}
+
+.palette {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  width: min(620px, 100%);
+  max-height: 70vh;
+  border: 1px solid $t-colors-border-default;
+  border-radius: $t-radius-lg;
+
+  background-color: $t-colors-background-primary;
+  box-shadow: 0 30px 80px -30px $t-colors-shadow-default;
+
+  animation: palette-in $t-motion-duration-base $t-motion-easing-emphasized;
+
+  &__input {
+    padding: $t-spacing-4 $t-spacing-5;
+    border: none;
+    border-bottom: 1px solid $t-colors-border-subtle;
+
+    font-family: inherit;
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-primary;
+
+    background: transparent;
+    outline: none; // the dialog's own focus is shown by the active option
+
+    &::placeholder {
+      color: $t-colors-text-secondary;
+    }
+  }
+
+  &__list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    margin: 0;
+    padding: $t-spacing-2;
+
+    list-style: none;
+  }
+
+  &__group {
+    margin: $t-spacing-3 $t-spacing-3 $t-spacing-1;
+
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-2;
+  }
+
+  &__item {
+    cursor: pointer;
+
+    display: flex;
+    gap: $t-spacing-3;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: $t-spacing-2 $t-spacing-3;
+    border-radius: $t-radius-sm;
+
+    &--active {
+      background-color: $t-colors-surface-brand-muted;
+      box-shadow: inset 2px 0 0 $t-colors-primary-default;
+    }
+  }
+
+  &__label {
+    @include ellipsis;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-text-primary;
+  }
+
+  &__hint {
+    @include ellipsis;
+
+    max-width: 45%;
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-secondary;
+  }
+
+  &__empty {
+    padding: $t-spacing-6;
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+    text-align: center;
+  }
+
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-1;
+    align-items: center;
+
+    margin: 0;
+    padding: $t-spacing-2 $t-spacing-4;
+    border-top: 1px solid $t-colors-border-subtle;
+
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-secondary;
+
+    kbd {
+      padding: 0 $t-spacing-1;
+      border: 1px solid $t-colors-border-default;
+      border-radius: $t-radius-xs;
+      font-family: inherit;
+    }
+  }
+}
+
+@keyframes palette-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes palette-in {
+  from {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@include reduced-motion {
+  .backdrop,
+  .palette {
+    animation: none;
+  }
+}

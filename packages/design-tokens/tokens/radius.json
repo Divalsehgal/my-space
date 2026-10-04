@@ -1,0 +1,12 @@
+{
+  "radius": {
+    "type": "dimension",
+    "none": { "value": "0px" },
+    "xs": { "value": "4px", "comment": "Buttons, inputs, tooltips, small chips" },
+    "sm": { "value": "8px", "comment": "Tags, list items, small cards" },
+    "md": { "value": "12px", "comment": "Tiles, panels, images" },
+    "lg": { "value": "16px", "comment": "Cards" },
+    "xl": { "value": "24px", "comment": "Large surfaces, dialogs" },
+    "full": { "value": "9999px", "comment": "Pills. Use 50% for circles." }
+  }
+}

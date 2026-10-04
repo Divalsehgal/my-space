@@ -7,15 +7,18 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { getViewCounts } from "@/lib/services/analytics";
 import { unstable_cache } from "next/cache";
 import styles from "./styles.module.scss";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "Read the latest articles and insights on web development and AI from Dival Sehgal.",
-  alternates: {
-    canonical: "/blogs",
-  },
-};
+export function generateMetadata(): Metadata {
+  const t = getT();
+  return {
+    title: t("meta.blogTitle"),
+    description: t("meta.blogDescription"),
+    alternates: {
+      canonical: "/blogs",
+    },
+  };
+}
 
 const getCachedViewCounts = unstable_cache(
   async (slugs: string[]) => getViewCounts(slugs),
@@ -32,9 +35,10 @@ async function BlogsContent() {
 }
 
 export default async function Blogs() {
+  const t = getT();
   return (
     <div className={`page-scroll ${styles["blog-page"]}`}>
-      <Breadcrumbs items={[{ label: "Blogs", href: "/blogs" }]} />
+      <Breadcrumbs items={[{ label: t("nav.blogs"), href: "/blogs" }]} />
       <Suspense fallback={<BlogListingsSkeleton skipBreadcrumbs />}>
         <BlogsContent />
       </Suspense>

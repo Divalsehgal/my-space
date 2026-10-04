@@ -1,10 +1,8 @@
-import Skeleton from "@mui/material/Skeleton";
-import Box from "@mui/material/Box";
+import Skeleton from "@dival-sehgal/ui/skeleton";
 import FluidContainer from "@/components/FluidContainer";
 import {
     TSpacing2,
     TSpacing4,
-    TSpacingFull,
     TColorsBackgroundTertiary,
     TColorsBackgroundSecondary,
     TColorsBorderDefault,
@@ -34,32 +32,29 @@ export default function BlogListingsSkeleton({ skipBreadcrumbs = false }: BlogLi
                             variant="text"
                             width="40%"
                             height={64}
-                            animation="wave"
-                            sx={{ mx: 'auto', mb: TSpacing2, bgcolor: TColorsBackgroundTertiary }}
+                            style={{ marginInline: 'auto', marginBottom: TSpacing2, backgroundColor: TColorsBackgroundTertiary }}
                         />
                         <Skeleton
                             variant="text"
                             width="30%"
                             height={24}
-                            animation="wave"
-                            sx={{ mx: 'auto', bgcolor: TColorsBackgroundTertiary }}
+                            style={{ marginInline: 'auto', backgroundColor: TColorsBackgroundTertiary }}
                         />
                     </div>
 
                     {/* Featured Carousel Skeleton */}
-                    <Box sx={{ mb: TSpacing4 }}>
+                    <div style={{ marginBottom: TSpacing4 }}>
                         <Skeleton
                             variant="rectangular"
-                            width={TSpacingFull}
+                            width="100%"
                             height={450}
-                            animation="wave"
-                            sx={{
+                            style={{
                                 borderRadius: '2rem',
-                                bgcolor: TColorsBackgroundTertiary,
+                                backgroundColor: TColorsBackgroundTertiary,
                                 border: `1px solid ${TColorsBorderDefault}`
                             }}
                         />
-                    </Box>
+                    </div>
 
                     {/* Search Section Skeleton */}
                     <div className={styles["blogs__search-container"]}>
@@ -67,67 +62,59 @@ export default function BlogListingsSkeleton({ skipBreadcrumbs = false }: BlogLi
                             variant="text"
                             width={120}
                             height={40}
-                            animation="wave"
-                            sx={{ bgcolor: TColorsBackgroundTertiary }}
+                            style={{ backgroundColor: TColorsBackgroundTertiary }}
                         />
                         <Skeleton
                             variant="rectangular"
                             width={300}
                             height={48}
-                            animation="wave"
-                            sx={{ borderRadius: '9999px', bgcolor: TColorsBackgroundTertiary }}
+                            style={{ borderRadius: '9999px', backgroundColor: TColorsBackgroundTertiary }}
                         />
                     </div>
 
                     {/* Grid Skeleton */}
                     <div className={styles["blogs__grid"]}>
                         {SKELETON_CARD_IDS.map((cardId) => (
-                            <Box key={cardId} className={styles["blogs__card"]} sx={{ border: 'none' }}>
+                            <div key={cardId} className={styles["blogs__card"]} style={{ border: 'none' }}>
                                 <Skeleton
                                     variant="rectangular"
                                     width="100%"
                                     height={200}
-                                    animation="wave"
-                                    sx={{ bgcolor: TColorsBackgroundTertiary }}
+                                    style={{ backgroundColor: TColorsBackgroundTertiary }}
                                 />
-                                <Box className={styles["blogs__card-content"]}>
+                                <div className={styles["blogs__card-content"]}>
                                     <Skeleton
                                         variant="text"
                                         width="40%"
                                         height={20}
-                                        animation="wave"
-                                        sx={{ bgcolor: TColorsBackgroundSecondary }}
+                                        style={{ backgroundColor: TColorsBackgroundSecondary }}
                                     />
                                     <Skeleton
                                         variant="text"
                                         width="90%"
                                         height={32}
-                                        animation="wave"
-                                        sx={{ bgcolor: TColorsBackgroundTertiary }}
+                                        style={{ backgroundColor: TColorsBackgroundTertiary }}
                                     />
                                     <Skeleton
                                         variant="text"
                                         width="100%"
                                         height={20}
-                                        animation="wave"
-                                        sx={{ bgcolor: TColorsBackgroundSecondary }}
+                                        style={{ backgroundColor: TColorsBackgroundSecondary }}
                                     />
                                     <Skeleton
                                         variant="text"
                                         width="85%"
                                         height={20}
-                                        animation="wave"
-                                        sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                                        style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                                     />
                                     <Skeleton
                                         variant="text"
                                         width="30%"
                                         height={24}
-                                        animation="wave"
-                                        sx={{ mt: 'auto', bgcolor: TColorsBackgroundTertiary }}
+                                        style={{ marginTop: 'auto', backgroundColor: TColorsBackgroundTertiary }}
                                     />
-                                </Box>
-                            </Box>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>

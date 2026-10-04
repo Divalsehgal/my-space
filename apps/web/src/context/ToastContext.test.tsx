@@ -3,7 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { ToastProvider, useToast } from "./ToastContext";
 
-import { type AlertColor } from "@mui/material";
+import type { ToastSeverity as AlertColor } from "@/types/contact";
 
 
 // Mock the Toaster presentation component

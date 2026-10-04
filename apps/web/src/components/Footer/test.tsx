@@ -3,6 +3,9 @@ import "@testing-library/jest-dom";
 import Footer from "./index";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 
+// Decorative canvas; tsparticles ships ESM that Jest does not transform.
+jest.mock("../ParticlesBackground", () => function MockParticles() { return null; });
+
 jest.mock("next/link", () => {
   return function MockLink({
     children,

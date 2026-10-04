@@ -4,207 +4,57 @@
 .blogs {
   min-height: 100vh;
   padding: $t-spacing-8 0 $t-spacing-20;
-  background-color: $t-colors-background-secondary;
+  background-color: transparent; // the site-wide galaxy shows through
 
   &__header {
-    margin-bottom: $t-spacing-8;
-    text-align: center;
+    margin-bottom: $t-spacing-16;
+    padding-top: $t-spacing-12;
   }
 
   &__title {
-    @include heading-xl;
-    @include ellipsis;
+    margin: 0 0 $t-spacing-6;
 
-    width: 100%;
-    margin-bottom: $t-spacing-4;
-    font-size: $t-font-size-xl;
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2.75rem, 8vw, 6.5rem);
+    font-weight: $t-font-weight-bold;
+    line-height: $line-height-display;
     color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-2;
 
-    @media (min-width: $t-breakpoint-tablet) {
-      font-size: $t-font-size-4xl;
-    }
-
-    @media (min-width: $t-breakpoint-desktop) {
-      font-size: $t-font-size-6xl;
-    }
   }
 
   &__description {
     @include body-lg;
 
-    max-width: 600px;
-    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+
+    max-width: 46ch;
+    margin: 0;
+
     color: $t-colors-text-secondary;
+
+    animation: blogs-rise 1.2s $t-motion-duration-slow $t-motion-easing-emphasized both;
   }
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: $t-spacing-8;
-    margin-top: $t-spacing-12;
 
-    @media (min-width: $t-breakpoint-tablet) {
-      grid-template-columns: repeat(2, 1fr);
-    }
 
-    @media (min-width: $t-breakpoint-desktop) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
 
-  &__card {
-    @include card-glass;
 
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: transform 0.3s ease;
 
-    &:hover {
-      transform: translateY(-$t-spacing-2);
-    }
-  }
 
-  &__card-image {
-    width: 100%;
-    height: 200px;
-    border-bottom: 1px solid $t-colors-border-subtle;
 
-    background-image: var(--blog-card-cover);
-    background-position: center;
-    background-size: cover;
-  }
 
-  &__card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: space-between;
 
-    padding: $t-spacing-6;
-  }
 
-  &__card-date {
-    @include label-sm;
 
-    margin-bottom: $t-spacing-2;
-    color: $t-colors-text-tertiary;
-  }
 
-  &__card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $t-spacing-2;
-    align-items: center;
-    justify-content: space-between;
 
-    margin-bottom: $t-spacing-2;
-  }
 
-  &__card-views {
-    @include label-sm;
 
-    display: inline-flex;
-    gap: $t-spacing-2;
-    align-items: center;
-    color: $t-colors-text-tertiary;
 
-    svg {
-      flex-shrink: 0;
-      opacity: 0.7;
-    }
-  }
 
-  &__card-views-loader {
-    display: inline-block;
 
-    width: 12px;
-    height: 12px;
-    border: 2px solid $t-colors-border-muted;
-    border-top-color: $t-colors-primary-default;
-    border-radius: 50%;
-
-    animation: blogs-views-spin 0.6s linear infinite;
-  }
-
-  &__card-title {
-    @include heading-md;
-    @include ellipsis(2);
-
-    margin-bottom: $t-spacing-3;
-    color: $t-colors-text-primary;
-  }
-
-  &__card-excerpt {
-    @include body-md;
-
-    flex-grow: 1;
-    margin-bottom: $t-spacing-6;
-    color: $t-colors-text-secondary;
-  }
-
-  &__card-link {
-    @include text-link;
-
-    display: inline-flex;
-    gap: $t-spacing-2;
-    align-items: center;
-
-    margin-top: auto;
-
-    font-weight: $t-font-weight-medium;
-    color: $t-colors-link-default;
-
-    &:hover {
-      color: $t-colors-link-hover;
-    }
-  }
-
-  &__search-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $t-spacing-4;
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: $t-spacing-8;
-  }
-
-  &__search-title {
-    margin-bottom: 0;
-    font-size: $t-font-size-xl;
-    color: $t-colors-text-primary;
-  }
-
-  &__search-input {
-    width: 100%;
-    max-width: 300px;
-    padding: $t-spacing-3 $t-spacing-6;
-    border: 2px solid $t-colors-border-strong;
-    border-radius: 9999px;
-
-    color: $t-colors-text-primary;
-
-    background: $t-colors-background-secondary;
-    outline: none;
-
-    transition: border-color 0.2s;
-
-    &::placeholder {
-      color: $t-colors-text-tertiary;
-    }
-
-    &:focus {
-      border-color: $t-colors-primary-default;
-    }
-  }
-
-  &__no-results {
-    grid-column: 1 / -1;
-    padding: $t-spacing-10;
-    color: $t-colors-text-secondary;
-    text-align: center;
-  }
 
   &__featured {
     margin-bottom: $t-spacing-16;
@@ -222,7 +72,7 @@
   font-weight: $t-font-weight-bold;
   color: $t-colors-text-primary;
 
-  @media (min-width: $t-breakpoint-tablet) {
+  @media (width >= $t-breakpoint-tablet) {
     font-size: $t-font-size-6xl;
   }
 }
@@ -230,18 +80,25 @@
 .blogs-empty-message {
   max-width: 600px;
   font-size: $t-font-size-lg;
-  line-height: 1.6;
+  line-height: $t-font-line-height-relaxed;
   color: $t-colors-text-secondary;
 }
 
-@keyframes blogs-views-spin {
+@keyframes blogs-rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
   to {
-    transform: rotate(360deg);
+    transform: none;
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blogs__card-views-loader {
-    animation-duration: 1.5s;
+  .blogs__description {
+    animation: none;
   }
 }
+

@@ -20,7 +20,7 @@
 
     margin-top: $t-spacing-8;
 
-    @media (width <= 1024px) {
+    @media (width <= $t-breakpoint-desktop) {
       grid-template-columns: 1fr;
       gap: $t-spacing-8;
     }
@@ -29,7 +29,7 @@
   &__sidebar {
     padding-right: $t-spacing-4;
 
-    @media (width <= 1024px) {
+    @media (width <= $t-breakpoint-desktop) {
       display: none;
     }
   }

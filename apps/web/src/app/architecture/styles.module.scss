@@ -1,0 +1,9 @@
+@use "variables.scss" as *;
+
+.page {
+  padding-top: $t-spacing-16;
+
+  &__body {
+    padding-block: $t-spacing-8 $t-spacing-16;
+  }
+}

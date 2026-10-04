@@ -1,8 +1,9 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProjectCard from "./index";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { renderWithTracking } from "@/test-utils/render";
 
 // Mock the analytics utility
 jest.mock("@/utils/analytics", () => {
@@ -42,7 +43,7 @@ describe("ProjectCard Component", () => {
   });
 
   it("renders correctly by passing props to GlassCard", () => {
-    render(<ProjectCard project={baseProject} />);
+    renderWithTracking(<ProjectCard project={baseProject} />);
     
     expect(screen.getByTestId("mock-glass-card")).toBeInTheDocument();
     expect(screen.getByTestId("title")).toHaveTextContent("Awesome App");
@@ -50,19 +51,20 @@ describe("ProjectCard Component", () => {
   });
 
   it("renders action button with project link when provided", () => {
-    render(<ProjectCard project={baseProject} />);
+    renderWithTracking(<ProjectCard project={baseProject} />);
     
     const actionContainer = screen.getByTestId("action");
     const linkButton = actionContainer.querySelector("a");
     
     expect(linkButton).toBeInTheDocument();
     expect(linkButton).toHaveAttribute("href", "https://example.com/app");
-    expect(linkButton).toHaveTextContent("View Project Details");
+    expect(linkButton).toHaveTextContent("See how it works");
+    expect(linkButton).toHaveAttribute("aria-label", "See how Awesome App works");
   });
 
   it("renders action button with project repo when link is absent", () => {
     const repoProject = { ...baseProject, link: undefined, repo: "https://github.com/repo" };
-    render(<ProjectCard project={repoProject} />);
+    renderWithTracking(<ProjectCard project={repoProject} />);
     
     const actionContainer = screen.getByTestId("action");
     const linkButton = actionContainer.querySelector("a");
@@ -72,14 +74,14 @@ describe("ProjectCard Component", () => {
 
   it("does not render action button if neither link nor repo is provided", () => {
     const noLinksProject = { ...baseProject, link: undefined, repo: undefined };
-    render(<ProjectCard project={noLinksProject} />);
+    renderWithTracking(<ProjectCard project={noLinksProject} />);
     
     const actionContainer = screen.getByTestId("action");
     expect(actionContainer).toBeEmptyDOMElement();
   });
 
   it("calls trackEvent when the action button is clicked", () => {
-    render(<ProjectCard project={baseProject} />);
+    renderWithTracking(<ProjectCard project={baseProject} />);
     
     const actionContainer = screen.getByTestId("action");
     const linkButton = actionContainer.querySelector("a");
@@ -98,7 +100,7 @@ describe("ProjectCard Component", () => {
 
   it("renders with placeholder image if project image is missing", () => {
     const noImageProject = { ...baseProject, image: undefined };
-    render(<ProjectCard project={noImageProject} />);
+    renderWithTracking(<ProjectCard project={noImageProject} />);
     
     const visualContainer = screen.getByTestId("visual");
     const img = visualContainer.querySelector("img");

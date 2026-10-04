@@ -1,5 +1,3 @@
-"use client";
-
 import { type ExperienceConfig } from "@/features/portfolio";
 import GlassCard from "../GlassCard";
 

@@ -8,6 +8,6 @@ describe("AuthorBio", () => {
     render(<AuthorBio />);
     expect(screen.getByRole("link", { name: AUTHOR.name })).toHaveAttribute("href", "/#about");
     expect(screen.getByAltText(AUTHOR.name)).toBeInTheDocument();
-    expect(screen.getByText(AUTHOR.bio)).toBeInTheDocument();
+    expect(screen.getByText(/building fast, accessible web apps/)).toBeInTheDocument();
   });
 });

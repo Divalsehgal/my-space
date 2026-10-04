@@ -1,0 +1,25 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.chat-composer {
+  padding: $t-spacing-4;
+  border-top: 1px solid $t-colors-border-subtle;
+  background-color: $t-colors-background-primary;
+}
+
+.chat-composer__send {
+  color: $t-colors-primary-default;
+
+  &:hover:not(:disabled) {
+    background-color: $t-colors-surface-brand-muted;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+  }
+}
+
+.chat-composer__send-icon {
+  width: $t-spacing-5;
+  height: $t-spacing-5;
+}

@@ -23,6 +23,22 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      # Fail fast if a secret holds the wrong kind of Contentful token (e.g. a
+      # read/write management token in CONTENTFUL_ACCESS_TOKEN).
+      - name: Verify Contentful tokens
+        run: yarn workspace web contentful:check-tokens
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+          CONTENTFUL_PREVIEW_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_ACCESS_TOKEN }}
+
+      # src/i18n/translations is gitignored and generated from Contentful;
+      # typecheck and tests import it.
+      - run: yarn workspace web translations
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+
       - run: yarn lint
       - run: yarn lint:style
       - run: yarn typecheck
@@ -52,6 +68,26 @@ jobs:
           CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
           CONTENTFUL_PREVIEW_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_ACCESS_TOKEN }}
 
+      # End-to-end tests against the production build just made (desktop and
+      # mobile Chrome). The server re-reads Contentful at runtime, so it needs
+      # the same secrets as the build.
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - run: yarn workspace web test:e2e
+        env:
+          CI: true
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+          CONTENTFUL_PREVIEW_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_ACCESS_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
   sonarqube:
     name: SonarQube Cloud
     runs-on: ubuntu-latest
@@ -68,6 +104,11 @@ jobs:
           cache: yarn
 
       - run: yarn install --frozen-lockfile
+
+      - run: yarn workspace web translations
+        env:
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
 
       # Generates apps/web/coverage/lcov.info, referenced by
       # sonar-project.properties.

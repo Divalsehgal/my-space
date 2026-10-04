@@ -1,26 +1,16 @@
-import React from "react";
-import { type SvgIconProps } from "@mui/material";
-
 import clsx from "clsx";
 import styles from "./styles.module.scss";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { GitHubIcon, InstagramIcon, LinkedInIcon, type IconComponent } from "@dival-sehgal/ui/icons";
 import SectionHeader from "@/components/SectionHeader";
 import FluidContainer from "@/components/FluidContainer";
 
 import ContactForm from "./Form";
+import { getT } from "@/i18n/server";
 
-const ICON_MAP: Record<string, React.ComponentType<SvgIconProps>> = {
+const ICON_MAP: Record<string, IconComponent> = {
   github: GitHubIcon,
   linkedin: LinkedInIcon,
   instagram: InstagramIcon,
-};
-
-type ContactData = {
-  title?: string;
-  subtitle?: string;
-  email?: string;
 };
 
 type SocialItem = {
@@ -51,13 +41,8 @@ function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   );
 }
 
-export default async function Contact({
-  data,
-  socialItems,
-}: {
-  socialItems: SocialItem[];
-  data?: ContactData;
-}) {
+export default async function Contact({ socialItems }: { socialItems: SocialItem[] }) {
+  const t = getT();
   return (
     <FluidContainer
       as="section"
@@ -67,17 +52,16 @@ export default async function Contact({
       <SectionHeader
         title={
           <div className={styles["contact__title-wrapper"]}>
-            {data?.title || "Get in Touch"}
+            {t("contact.title")}
             <SocialLinks socialItems={socialItems} />
           </div>
         }
         subtitle={
-          data?.subtitle ||
-          "Feel free to reach out for collaborations or just a friendly hello!"
+          t("contact.intro")
         }
         align="left"
       />
-      <div className={styles["contact__container"]}>
+      <div className={styles["contact__container"]} data-reveal>
         <ContactForm />
       </div>
     </FluidContainer>

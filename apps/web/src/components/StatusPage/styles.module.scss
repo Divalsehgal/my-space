@@ -1,0 +1,103 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.status {
+  position: relative;
+
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  max-width: 900px;
+  min-height: 75vh;
+  margin: 0 auto;
+  padding: $t-spacing-8 $t-spacing-4;
+
+  text-align: center;
+
+  &__watermark {
+    user-select: none;
+
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(8rem, 30vw, 15rem);
+    font-weight: $t-font-weight-black;
+    color: $t-colors-text-primary;
+
+    opacity: 0.04;
+  }
+
+  &__card {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-4;
+    align-items: center;
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+
+    width: 80px;
+    height: 80px;
+    border-radius: $t-radius-xl;
+
+    font-size: calc(#{$t-font-size-xl} * 1.5); // 48px
+    color: $t-colors-feedback-error-text;
+
+    background-color: $t-colors-background-secondary;
+  }
+
+  &__title {
+    margin: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  &__description {
+    max-width: 480px;
+    margin: 0 0 $t-spacing-4;
+
+    font-size: $t-font-size-sm;
+    line-height: $t-font-line-height-relaxed;
+    color: $t-colors-text-secondary;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-3;
+    justify-content: center;
+  }
+
+  &__debug {
+    overflow-x: auto;
+
+    width: 100%;
+    max-width: 600px;
+    margin: 0;
+    padding: $t-spacing-4;
+    border-radius: $t-radius-sm;
+
+    font-family: monospace;
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-secondary;
+    text-align: left;
+
+    background-color: $t-colors-background-secondary;
+}
+}

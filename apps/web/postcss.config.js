@@ -8,10 +8,13 @@ module.exports = {
                     './src/components/**/*.{js,jsx,ts,tsx}',
                     './src/containers/**/*.{js,jsx,ts,tsx}',
                     './src/features/**/*.{js,jsx,ts,tsx}',
-                    './packages/**/*.{js,jsx,ts,tsx}',
+                    './src/lib/**/*.{js,jsx,ts,tsx}',
+                    // Workspace UI package: its class names live in its own source.
+                    '../../packages/ui/src/**/*.{js,jsx,ts,tsx}',
                 ],
                 defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
-                safelist: ['html', 'body'],
+                // Lenis toggles its classes on <html> at runtime.
+                safelist: { standard: ['html', 'body'], greedy: [/^lenis/] },
             },
         ],
     ],

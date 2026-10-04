@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
 
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
@@ -27,7 +25,7 @@ async function request(pathname, options = {}) {
   });
   const text = await response.text();
   const body = text ? JSON.parse(text) : null;
-  if (!response.ok) throw new Error(`${options.method || 'GET'} ${pathname} failed: ${body?.message || text}`);
+  if (!response.ok) {throw new Error(`${options.method || 'GET'} ${pathname} failed: ${body?.message || text}`);}
   return body;
 }
 
@@ -45,8 +43,8 @@ async function updateEntry(entry) {
 }
 
 function textFromRichText(document) {
-  if (!document || typeof document !== 'object') return '';
-  if (typeof document.value === 'string') return document.value;
+  if (!document || typeof document !== 'object') {return '';}
+  if (typeof document.value === 'string') {return document.value;}
   return (document.content || []).map(textFromRichText).join(' ');
 }
 
@@ -77,11 +75,13 @@ await updateContentType('quizComponent', (fields) => fields.map((field) =>
 
 // Key is the readable option label. It is not a global identifier.
 // Question Title is superseded by Key and omitted from the editor.
-await updateContentType('quizOption', (fields) => fields.map((field) =>
-  field.id === 'key'
-    ? { ...field, validations: (field.validations || []).filter((validation) => !validation.unique) }
-    : field.id === 'questionTitle' ? { ...field, omitted: true } : field
-));
+const relaxOptionField = (field) => {
+  if (field.id === 'key') {
+    return { ...field, validations: (field.validations || []).filter((validation) => !validation.unique) };
+  }
+  return field.id === 'questionTitle' ? { ...field, omitted: true } : field;
+};
+await updateContentType('quizOption', (fields) => fields.map(relaxOptionField));
 
 const questionResponse = await request('/entries?content_type=questionComponent&limit=1000');
 let updatedOptions = 0;
@@ -95,7 +95,7 @@ for (const question of questionResponse.items || []) {
     const option = await request(`/entries/${link.sys.id}`);
     const optionLocale = Object.keys(option.fields.text || {})[0] || locale;
     const optionText = textFromRichText(option.fields.text?.[optionLocale]).replace(/\s+/g, ' ').trim();
-    if (!questionText || !optionText) continue;
+    if (!questionText || !optionText) {continue;}
 
     const optionLabel = `Option ${String.fromCharCode(65 + optionIndex)}`;
     option.fields.key = { [optionLocale]: `${questionText} — ${optionLabel}` };
@@ -104,4 +104,4 @@ for (const question of questionResponse.items || []) {
   }
 }
 
-console.log(`Legacy Questions field omitted. Updated and published ${updatedOptions} option label(s).`);
+console.info(`Legacy Questions field omitted. Updated and published ${updatedOptions} option label(s).`);

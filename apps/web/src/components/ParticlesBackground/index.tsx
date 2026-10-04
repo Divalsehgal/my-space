@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
+import dynamic from "next/dynamic";
 import type { RecursivePartial, IOptions } from "@tsparticles/engine";
 import * as LightTokens from "@dival-sehgal/design-tokens/light";
 import * as DarkTokens from "@dival-sehgal/design-tokens/dark";
 import { useThemeContext } from "@/context/ThemeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+
+// Decorative only: the tsparticles component and engine load on demand after
+// the page renders, instead of shipping in every page's initial bundle.
+const Particles = dynamic(() => import("@tsparticles/react"), { ssr: false });
 
 /**
  * Cap on the number of particles rendered per frame. The previous value
@@ -17,6 +20,8 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
  * and let the `density` option scale it down further on smaller viewports.
  */
 const PARTICLE_COUNT = 4000;
+/** Per-particle opacity range; faint by default so a full-screen field stays subtle. */
+const DEFAULT_OPACITY = { min: 0.1, max: 0.5 };
 
 type ParticlesBackgroundProps = {
   className?: string;
@@ -24,6 +29,12 @@ type ParticlesBackgroundProps = {
   id?: string;
   /** Set false when particles must remain inside the parent element. */
   fullScreen?: boolean;
+  /** Max particles (defaults to the hero-scale PARTICLE_COUNT). */
+  count?: number;
+  /** Hover repulse / click push. Off for small decorative strips. */
+  interactive?: boolean;
+  /** Per-particle opacity range; raise it for sparse strips that must read on dark backgrounds. */
+  opacity?: { min: number; max: number };
 };
 
 export default function ParticlesBackground({
@@ -31,6 +42,9 @@ export default function ParticlesBackground({
   style,
   id,
   fullScreen = true,
+  count = PARTICLE_COUNT,
+  interactive = true,
+  opacity = DEFAULT_OPACITY,
 }: Readonly<ParticlesBackgroundProps>) {
   const [init, setInit] = useState(false);
   const generatedId = useId().replaceAll(":", "");
@@ -42,10 +56,16 @@ export default function ParticlesBackground({
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   useEffect(() => {
-    if (prefersReducedMotion) {return;}
+    // Decorative only: skip it for reduced-motion users and on Save-Data connections.
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    if (prefersReducedMotion || saveData) {return;}
 
     const initEngine = async () => {
       try {
+        const [{ initParticlesEngine }, { loadSlim }] = await Promise.all([
+          import("@tsparticles/react"),
+          import("@tsparticles/slim"),
+        ]);
         await initParticlesEngine(async (engine) => {
           await loadSlim(engine);
         });
@@ -72,9 +92,9 @@ export default function ParticlesBackground({
       fpsLimit: 60,
       interactivity: {
         events: {
-          onClick: { enable: true, mode: "push" },
+          onClick: { enable: interactive, mode: "push" },
           onHover: {
-            enable: true,
+            enable: interactive,
             mode: "repulse",
             parallax: { enable: true, force: 60, smooth: 10 },
           },
@@ -100,13 +120,13 @@ export default function ParticlesBackground({
         },
         number: {
           density: { enable: true },
-          value: PARTICLE_COUNT,
+          value: count,
           // Hard ceiling so density scaling on very large / high-DPI
           // viewports can never balloon the object count again.
-          limit: { value: PARTICLE_COUNT },
+          limit: { value: count },
         },
         opacity: {
-          value: { min: 0.1, max: 0.5 },
+          value: { min: opacity.min, max: opacity.max },
           animation: { enable: true, speed: 1, sync: false },
         },
         shape: { type: "circle" },
@@ -114,7 +134,7 @@ export default function ParticlesBackground({
       },
       detectRetina: true,
     }),
-    [fullScreen, Tokens.TColorsPrimaryDefault],
+    [fullScreen, count, interactive, opacity.min, opacity.max, Tokens.TColorsPrimaryDefault],
   );
 
   if (init) {

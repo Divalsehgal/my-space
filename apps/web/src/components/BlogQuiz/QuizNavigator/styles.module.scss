@@ -4,7 +4,7 @@
 .navigatorStrip {
   padding: $t-spacing-4 $t-spacing-5;
   border: 1px solid $t-colors-border-subtle;
-  border-radius: $t-spacing-3;
+  border-radius: $t-radius-md;
   background: $t-colors-surface-brand-subtle;
 }
 
@@ -17,7 +17,7 @@
 
 .navLabel {
   display: flex;
-  gap: 6px;
+  gap: $t-spacing-2;
   align-items: center;
 
   font-size: $t-font-size-xxs;
@@ -38,19 +38,19 @@
 
   width: 100%;
   height: 6px;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
 
   background: $t-colors-surface-brand-muted;
 }
 
 .trackFill {
   height: 100%;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
   background:
     linear-gradient(
       90deg,
       $t-colors-primary-default,
       $t-colors-primary-hover
     );
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width $t-motion-duration-slow $t-motion-easing-standard;
 }

@@ -1,0 +1,24 @@
+{
+  "name": "@dival-sehgal/quiz",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Quiz content rules shared by the Contentful quiz editor (UI and server): validation and types.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./validate": {
+      "types": "./src/validate.d.ts",
+      "default": "./src/validate.js"
+    }
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@dival-sehgal/eslint-config": "*",
+    "@dival-sehgal/jest-config": "*",
+    "@dival-sehgal/tsconfig": "*"
+  }
+}

@@ -2,12 +2,16 @@
   "source": [
     "tokens/breakpoint.json",
     "tokens/colors.json",
-    "tokens/dimensions.json",
+    "tokens/colors-terminal.json",
     "tokens/font.json",
     "tokens/global.json",
     "tokens/layer.json",
     "tokens/spacing.json",
-    "tokens/semantic-colors.dark.json"
+    "tokens/semantic-colors.dark.json",
+    "tokens/radius.json",
+    "tokens/motion.json",
+    "tokens/shadow.json",
+    "tokens/blur.json"
   ],
   "platforms": {
     "ts": {
@@ -38,7 +42,6 @@
           }
         }
       ]
-
     },
     "scss": {
       "transformGroup": "scss",
@@ -53,4 +56,3 @@
     }
   }
 }
-

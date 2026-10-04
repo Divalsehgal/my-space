@@ -1,22 +1,26 @@
 {
   "breakpoint": {
     "type": "dimension",
-
     "mobile": {
       "value": "360px",
       "comment": "Small mobile devices and compact handsets"
     },
-
+    "mobileLg": {
+      "value": "450px",
+      "comment": "Large phones in portrait; floating panels go edge-to-edge below this"
+    },
     "tablet": {
       "value": "768px",
       "comment": "Tablets and small landscape devices"
     },
-
     "desktop": {
       "value": "1024px",
       "comment": "Standard desktop and laptop screens"
     },
-
+    "wide": {
+      "value": "1200px",
+      "comment": "Wide laptops; room for side-by-side layouts"
+    },
     "desktopLg": {
       "value": "1440px",
       "comment": "Large desktop and wide screens"

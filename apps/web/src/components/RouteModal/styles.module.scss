@@ -1,0 +1,59 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.modal {
+  overscroll-behavior: contain;
+
+  width: min(1200px, calc(100vw - #{$t-spacing-8}));
+  max-width: none;
+  max-height: calc(100dvh - #{$t-spacing-8});
+  margin: auto;
+  padding: 0;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-lg;
+
+  color: $t-colors-text-primary;
+
+  background-color: $t-colors-background-primary;
+  box-shadow: 0 40px 120px -40px $t-colors-shadow-default;
+
+  &::backdrop {
+    background-color: $t-colors-surface-scrim;
+    backdrop-filter: blur($t-blur-lg);
+  }
+
+  &__panel {
+    position: relative;
+    padding: $t-spacing-8 $t-spacing-6 $t-spacing-6;
+
+    @media (width >= $t-breakpoint-tablet) {
+      padding: $t-spacing-10;
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: $t-spacing-4;
+    right: $t-spacing-4;
+
+    @include focus-ring;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal[open] {
+    animation: modal-in $t-motion-duration-slow $t-motion-easing-emphasized both;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    transform: translateY(24px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

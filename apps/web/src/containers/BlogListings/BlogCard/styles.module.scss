@@ -1,0 +1,147 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// One blog post card.
+// Styling hooks (set by a parent, e.g. the listing's lead slot in BlogSearch):
+//   --blog-card-image-height  cover height (default 200px)
+//   --blog-card-title-size    title font size (default: heading-md scale)
+.blog-card {
+  @include card($interactive: true);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid $t-colors-primary-default;
+    outline-offset: 4px;
+  }
+  
+
+  &__image {
+    position: relative;
+
+    overflow: hidden;
+
+    width: 100%;
+    height: var(--blog-card-image-height, 200px);
+    border-bottom: 1px solid $t-colors-border-subtle;
+
+    // The cover lives on a pseudo-element so it can zoom inside the frame.
+    &::before {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      background-image: var(--blog-card-cover);
+      background-position: center;
+      background-size: cover;
+
+      transition: transform $t-motion-duration-slowest $t-motion-easing-expressive;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+
+    padding: $t-spacing-6;
+  }
+
+  &__date {
+    @include label-sm;
+
+    margin-bottom: $t-spacing-2;
+    color: $t-colors-text-tertiary;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: $t-spacing-2;
+  }
+
+  &__views {
+    @include label-sm;
+
+    display: inline-flex;
+    gap: $t-spacing-2;
+    align-items: center;
+    color: $t-colors-text-tertiary;
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+  }
+
+  &__views-loader {
+    border-color: $t-colors-border-muted;
+    border-top-color: $t-colors-primary-default;
+  }
+
+  &__title {
+    @include heading-md;
+    @include ellipsis(2);
+
+    margin-bottom: $t-spacing-3;
+
+    font-family: var(--font-display), var(--font-body);
+
+    // Hook for the lead slot; falls back to the heading-md sizes.
+    font-size: var(--blog-card-title-size, #{$t-font-size-2xl});
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+
+    @media (width >= $t-breakpoint-tablet) {
+      font-size: var(--blog-card-title-size, #{$t-font-size-3xl});
+    }
+  }
+
+  &__excerpt {
+    @include body-base;
+
+    flex-grow: 1;
+    margin-bottom: $t-spacing-6;
+    color: $t-colors-text-secondary;
+  }
+
+  &__link {
+    @include text-link;
+
+    display: inline-flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    margin-top: auto;
+
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-link-default;
+
+    &:hover {
+      color: $t-colors-link-hover;
+    }
+  }
+
+  &__arrow {
+    display: inline-block;
+    transition: transform $t-motion-duration-slow $t-motion-easing-expressive;
+  }
+
+  &:hover &__image::before {
+    transform: scale(1.06);
+  }
+
+  &:hover &__arrow {
+    transform: translateX(6px);
+  
+  }
+}

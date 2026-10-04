@@ -66,7 +66,7 @@ describe("Navbar Component", () => {
   it("renders navigation links on desktop", () => {
     renderWithTheme(<Navbar />);
     expect(screen.getByTestId("navlink-/#home")).toBeInTheDocument();
-    expect(screen.getByTestId("navlink-/#about")).toBeInTheDocument();
+    expect(screen.getByTestId("navlink-/#skills")).toBeInTheDocument();
   });
 
   it("opens the mobile menu when the hamburger icon is clicked", () => {
@@ -90,7 +90,7 @@ describe("Navbar Component", () => {
     expect(screen.getByLabelText("Close menu")).toBeInTheDocument();
 
     // Click a link
-    const mobileLinks = screen.getAllByTestId("navlink-/#about");
+    const mobileLinks = screen.getAllByTestId("navlink-/#skills");
     const mobileLink = mobileLinks.length > 1 ? mobileLinks[1] : mobileLinks[0];
 
     fireEvent.click(mobileLink);

@@ -1,4 +1,5 @@
 import type { ContentfulQuiz, ContentfulRichText } from '@/types';
+import type { Translate } from '@/i18n/core';
 
 export type BlogQuizProps = {
   quiz: ContentfulQuiz;
@@ -31,39 +32,21 @@ export function plainText(richText?: ContentfulRichText | string | null): string
   return read(richText.json).replace(/\s+/g, ' ').trim();
 }
 
-export function getTierInfo(percentage: number): QuizTierInfo {
-  if (percentage === 100) {
-    return {
-      badge: '🏆 Flawless Mastery',
-      title: 'Outstanding! Perfect score!',
-      desc: 'You answered every question accurately. You have mastered these concepts thoroughly.',
-      color: '#22c55e',
-      bgColor: 'rgba(34, 197, 94, 0.15)',
-    };
-  }
-  if (percentage >= 75) {
-    return {
-      badge: '🌟 Advanced Practitioner',
-      title: 'Great job! Strong foundation!',
-      desc: 'You demonstrated a solid command of the material with only minor gaps.',
-      color: '#6366f1',
-      bgColor: 'rgba(99, 102, 241, 0.15)',
-    };
-  }
-  if (percentage >= 50) {
-    return {
-      badge: '💡 Good Effort',
-      title: 'Good start — Keep learning!',
-      desc: 'You got some key points right. Review the answer explanations below to strengthen your understanding.',
-      color: '#f59e0b',
-      bgColor: 'rgba(245, 158, 11, 0.15)',
-    };
-  }
+// Tier colours are feedback tokens (CSS vars) so they follow the site theme.
+const TIERS = [
+  { min: 100, id: "perfect", tone: "success" },
+  { min: 75, id: "strong", tone: "info" },
+  { min: 50, id: "good", tone: "warning" },
+  { min: 0, id: "retry", tone: "error" },
+] as const;
+
+export function getTierInfo(percentage: number, t: Translate): QuizTierInfo {
+  const tier = TIERS.find(({ min }) => percentage >= min) ?? TIERS[TIERS.length - 1];
   return {
-    badge: '📖 Knowledge Builder',
-    title: 'Review & try again',
-    desc: 'Take some time to explore the detailed answers below and retake the quiz to level up your knowledge.',
-    color: '#ef4444',
-    bgColor: 'rgba(239, 68, 68, 0.15)',
+    badge: t(`quiz.tier.${tier.id}.badge`),
+    title: t(`quiz.tier.${tier.id}.title`),
+    desc: t(`quiz.tier.${tier.id}.desc`),
+    color: `var(--t-colors-feedback-${tier.tone}-text)`,
+    bgColor: `var(--t-colors-feedback-${tier.tone}-surface)`,
   };
 }
