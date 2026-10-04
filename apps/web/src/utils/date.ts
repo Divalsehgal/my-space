@@ -9,16 +9,18 @@ import { DAYS_PER_MONTH, DAYS_PER_WEEK, DAYS_PER_YEAR, MS_PER_DAY } from "@dival
  * @param locale The locale to use (defaults to "en-US")
  * @returns Formatted date string or null if invalid
  */
+const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+
 export function formatDate(
   dateString?: string | null,
-  options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" },
+  options: Intl.DateTimeFormatOptions = DEFAULT_DATE_OPTIONS,
   locale: string = "en-US"
 ): string | null {
   if (!dateString) {return null;}
 
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {return null;}
+    if (Number.isNaN(date.getTime())) {return null;}
     return date.toLocaleDateString(locale, options);
   } catch (error) {
     console.error("Failed to format date:", dateString, error);

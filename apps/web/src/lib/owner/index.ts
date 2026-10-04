@@ -1,6 +1,5 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { SECONDS_PER_YEAR } from "@dival-sehgal/utils/time";
 
 /**
  * Owner mode, verified on the server only. The owner signs in once at /owner
@@ -11,7 +10,7 @@ import { SECONDS_PER_YEAR } from "@dival-sehgal/utils/time";
 export const OWNER_SESSION_COOKIE = "owner_session";
 /** Non-sensitive, JS-readable hint so client code can skip analytics for the owner. */
 export const OWNER_FLAG_COOKIE = "owner_mode";
-export const OWNER_COOKIE_MAX_AGE = SECONDS_PER_YEAR;
+export { SECONDS_PER_YEAR as OWNER_COOKIE_MAX_AGE } from "@dival-sehgal/utils/time";
 
 const secret = () => process.env.ADMIN_VIEW_SECRET || "";
 

@@ -70,7 +70,7 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@dival-sehgal/ui", "@dival-sehgal/utils"],
   poweredByHeader: false,
   compress: true,
-  generateBuildId: async () => "portfolio-blog-build",
+  generateBuildId: () => "portfolio-blog-build",
   experimental: {
     // `inlineCss` is deliberately off: it embedded every stylesheet in each
     // page's HTML (and again in the RSC payload) while the same files were
@@ -96,7 +96,7 @@ const nextConfig: NextConfig = {
       path.join(__dirname, "../../packages/ui/src/styles"),
     ],
   },
-  async headers() {
+  headers() {
     const isProduction = process.env.NODE_ENV === "production";
     const securityHeaders = getSecurityHeaders(isProduction ? "production" : "development");
 

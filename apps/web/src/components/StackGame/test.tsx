@@ -19,13 +19,13 @@ jest.mock("next/dynamic", () => () =>
     onGameOver: (h: number) => void;
   }) {
     props.onReady(gameApi);
-    callbacks = props;
+    callbacks = { onPlaced: props.onPlaced, onGameOver: props.onGameOver };
     return <div data-testid="scene" />;
   },
 );
 
 // jsdom has no PointerEvent; MouseEvent carries the clientX/Y the game reads.
-if (typeof window.PointerEvent === "undefined") {
+if (window.PointerEvent === undefined) {
   (window as unknown as { PointerEvent: typeof MouseEvent }).PointerEvent = MouseEvent;
 }
 

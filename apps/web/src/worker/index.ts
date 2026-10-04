@@ -44,7 +44,7 @@ const RECENT_TURNS_FOR_CONTEXT = 6;
 /** Conversation turns sent to the model with each request. */
 const HISTORY_TURNS_SENT_TO_MODEL = 10;
 
-const cookie = (r: Request) => r.headers.get('Cookie')?.match(/chatbot_session=([^;]+)/)?.[1];
+const cookie = (r: Request) => /chatbot_session=([^;]+)/.exec(r.headers.get('Cookie') ?? '')?.[1];
 
 function sessionCookie(req: Request, sid: string): string {
     const crossSiteAttributes = new URL(req.url).protocol === 'https:' ? '; SameSite=None; Secure' : '; SameSite=Lax';
@@ -168,7 +168,7 @@ async function chat(req: Request, env: Env): Promise<Response> {
         return json({ error: 'Message required' }, HTTP_STATUS.BAD_REQUEST, {}, req);
     }
 
-    const validation = await validateMessage(message);
+    const validation = validateMessage(message);
     if (!validation.valid) {
         return chatStream(req, validation.reason || OFF_TOPIC_REPLY);
     }
@@ -261,7 +261,7 @@ const worker = {
     // the chatbot's knowledge stays fresh with no manual step and no secret.
     // The schedule itself is configured in wrangler.json ("triggers.crons").
     // `ctx.waitUntil` lets the seed finish even after the handler returns.
-    async scheduled(event: { cron: string; scheduledTime: number }, env: Env, ctx: { waitUntil: (p: Promise<unknown>) => void }): Promise<void> {
+    scheduled(event: { cron: string; scheduledTime: number }, env: Env, ctx: { waitUntil: (p: Promise<unknown>) => void }): void {
         ctx.waitUntil(
             runSeed(env)
                 .then((count) => console.info(`Scheduled reseed complete (${event.cron}): ${count} vectors upserted`))

@@ -21,10 +21,18 @@ test.describe("contact form", () => {
 });
 
 test.describe("stack game", () => {
+  test("never opens on its own", async ({ page }) => {
+    // Fake timers: jump the page's clock past the old idle prompt's delay
+    // instead of really waiting, then check nothing opened by itself.
+    await page.clock.install();
+    await page.goto("/");
+    await page.clock.fastForward(13_000);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
   test("opens only from the Play button and closes with Escape", async ({ page, isMobile }) => {
     test.skip(isMobile, "the Play button is hidden on phones; the game opens from the command palette");
     await page.goto("/");
-    await page.waitForTimeout(13_000); // longer than the old idle prompt
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
     await page.getByRole("button", { name: "Play the stack game" }).click();

@@ -22,7 +22,7 @@
 // Focus — the one keyboard focus indicator for custom interactive elements.
 // ui/* primitives already include it.
 @mixin focus-ring($offset: 2px) {
-  &:focus-visible {
+  &:focus-visible { // NOSONAR: mixin body — `&` resolves to the including rule
     outline: 2px solid $t-colors-primary-default; // focus-ring token is a 20% tint: too faint for 3:1
     outline-offset: $offset;
   }
@@ -123,8 +123,7 @@
   position: relative;
   border-radius: $radius;
 
-  &::before,
-  &::after {
+  &::before, &::after { // NOSONAR: mixin body — `&` resolves to the including rule
     pointer-events: none;
     content: "";
 
@@ -139,7 +138,7 @@
   }
 
   // Inner glow
-  &::before {
+  &::before { // NOSONAR: mixin body — `&` resolves to the including rule
     z-index: -1;
     background: radial-gradient(
       420px circle at var(--spot-x) var(--spot-y),
@@ -149,7 +148,7 @@
   }
 
   // Lit border: the same gradient, masked down to a 1px ring.
-  &::after {
+  &::after { // NOSONAR: mixin body — `&` resolves to the including rule
     z-index: 2;
 
     padding: $hairline;
@@ -169,8 +168,7 @@
     mask-composite: exclude;
   }
 
-  &:hover::before,
-  &:hover::after {
+  &:hover::before, &:hover::after { // NOSONAR: mixin body — `&` resolves to the including rule
     opacity: 1;
   }
 }
@@ -186,13 +184,13 @@
       transform $t-motion-duration-slow $t-motion-easing-emphasized,
       border-color $t-motion-duration-slow $t-motion-easing-standard;
 
-    &:hover {
+    &:hover { // NOSONAR: mixin body — `&` resolves to the including rule
       transform: translateY(-3px);
       border-color: $t-colors-border-default;
     }
 
     @media (prefers-reduced-motion: reduce) {
-      &:hover {
+      &:hover { // NOSONAR: mixin body — `&` resolves to the including rule
         transform: none;
       }
     }
@@ -228,7 +226,7 @@
   color: $t-colors-primary-default;
   text-decoration: none;
 
-  &:hover {
+  &:hover { // NOSONAR: mixin body — `&` resolves to the including rule
     color: $t-colors-link-hover;
     text-decoration: underline;
   }

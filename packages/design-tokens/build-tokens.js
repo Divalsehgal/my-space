@@ -45,9 +45,9 @@ async function build() {
         }
       };
       const mappingSd = new StyleDictionary(mappingConfig);
-      await mappingSd.buildAllPlatforms();
+      await mappingSd.buildAllPlatforms(); // NOSONAR: builds share output directories; run them one at a time
     } else {
-      await sd.buildAllPlatforms();
+      await sd.buildAllPlatforms(); // NOSONAR: builds share output directories; run them one at a time
     }
   }
 }

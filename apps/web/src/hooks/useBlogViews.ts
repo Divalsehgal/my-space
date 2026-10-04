@@ -113,7 +113,8 @@ export function useBlogViews(
       lastVisibleAt.current = Date.now();
       timerRef.current = setTimeout(() => {
         accumulatedMs.current = thresholdMs; // mark as complete
-        recordView();
+        // recordView handles its own errors; the catch only keeps the promise from floating.
+        recordView().catch(() => undefined);
       }, remaining);
     };
 

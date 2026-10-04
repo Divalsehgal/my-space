@@ -22,8 +22,13 @@ services:
       target: runner
       args:
         - NEXT_PUBLIC_ENV=staging
+      secrets:
+        - webenv
     ports:
       - "3002:3000"
+    env_file:
+      - path: apps/web/.env
+        required: false
     environment:
       - NODE_ENV=production
     restart: always
@@ -35,8 +40,19 @@ services:
       target: runner
       args:
         - NEXT_PUBLIC_ENV=production
+      secrets:
+        - webenv
     ports:
       - "3003:3000"
+    env_file:
+      - path: apps/web/.env
+        required: false
     environment:
       - NODE_ENV=production
     restart: always
+
+# Build-time Contentful credentials, mounted only for the build step (never
+# stored in an image layer). See the builder stage in Dockerfile.
+secrets:
+  webenv:
+    file: apps/web/.env

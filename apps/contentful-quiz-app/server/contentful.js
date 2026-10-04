@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { HTTP_STATUS } from './http.js';
 
 const MS_PER_SECOND = 1000;
@@ -59,7 +59,7 @@ function paced(fn) {
 /** Wait before retrying a rate-limited or failed response, honouring Contentful's reset hint. */
 function retryDelay(response, attempt) {
   const header = response.headers.get('x-contentful-ratelimit-reset') || response.headers.get('retry-after');
-  const seconds = header ? Number(header) : NaN;
+  const seconds = header ? Number(header) : Number.NaN;
   return Number.isFinite(seconds) && seconds >= 0 ? seconds * MS_PER_SECOND + RETRY_AFTER_PADDING_MS : backoff(attempt);
 }
 
@@ -70,7 +70,7 @@ async function fetchWithRetries(url, init) {
   for (let attempt = 0; ; attempt += 1) {
     let response;
     try {
-      response = await fetch(url, init);
+      response = await fetch(url, init); // NOSONAR: retry loop — each attempt depends on the previous one
     } catch (networkError) {
       // Transient DNS/connection blips, not Contentful errors - retry the same way.
       if (attempt >= MAX_RETRIES) {throw networkError;}

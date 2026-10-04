@@ -185,7 +185,7 @@ export default function SkillSphere({ skills, groups }: Readonly<SkillSphereProp
         >
           <ul className={styles["sphere__list"]}>
             {points.map((p, i) => (
-              <li
+              <li // NOSONAR: inside an aria-hidden decorative sphere; SkillsViews' cards and the category rail are the accessible equivalents
                 key={p.name}
                 ref={(node) => {
                   items.current[i] = node;

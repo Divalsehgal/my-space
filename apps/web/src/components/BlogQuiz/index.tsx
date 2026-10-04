@@ -15,7 +15,7 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
   const [submitted, setSubmitted] = useState(false);
   const [openQuestions, setOpenQuestions] = useState<Record<number, boolean>>({ 0: true });
 
-  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+  if (!quiz?.questions?.length) {
     return null;
   }
 

@@ -34,7 +34,7 @@ async function BlogsContent() {
   return <BlogPageContent posts={blogPosts} initialViewCounts={viewCounts} />;
 }
 
-export default async function Blogs() {
+export default function Blogs() {
   const t = getT();
   return (
     <div className={`page-scroll ${styles["blog-page"]}`}>

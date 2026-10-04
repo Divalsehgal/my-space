@@ -4,7 +4,7 @@ import styles from './styles.module.scss';
 import { useT } from "@/i18n/client";
 
 /** Options are lettered A, B, C… */
-const FIRST_OPTION_LETTER = "A".charCodeAt(0);
+const FIRST_OPTION_LETTER = "A".codePointAt(0) ?? 0;
 
 interface QuestionOptionsProps {
   question: ContentfulQuizQuestion;
@@ -61,14 +61,11 @@ export default function QuestionOptions({
             isOptionCorrect,
             submitted,
           );
-          const optionLetter = String.fromCharCode(FIRST_OPTION_LETTER + optionIndex);
+          const optionLetter = String.fromCodePoint(FIRST_OPTION_LETTER + optionIndex);
 
           return (
-            <label
-              key={option.id}
-              className={optionClass}
-              onClick={() => onSelectOption(option.id)}
-            >
+            // Clicking the label checks the radio, whose onChange selects it.
+            <label key={option.id} className={optionClass}>
               <input
                 type="radio"
                 className={styles.hiddenRadioInput}

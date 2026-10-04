@@ -2,7 +2,7 @@
 
 import { TOAST_DURATION_MS, Toaster } from "@/components/Toaster";
 import { ToastContextType, ToastSeverity } from "@/types/contact";
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 
 export const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
@@ -42,8 +42,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setOpen(false);
   }, []);
 
+  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <Toaster open={open} message={message} severity={severity} onClose={handleClose} />
     </ToastContext.Provider>

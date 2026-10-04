@@ -48,7 +48,7 @@ function Game({ onReady, onPlaced, onGameOver }: Readonly<GameProps>) {
   // Falling-piece physics, kept apart from the (immutable) render state.
   const physics = useRef(new Map<number, Physics>());
   const nextId = useRef(1);
-  const cameraY = useRef(DEMO_TOWER[DEMO_TOWER.length - 1].y);
+  const cameraY = useRef(DEMO_TOWER.at(-1)?.y ?? 0);
 
   const callbacks = useRef({ onPlaced, onGameOver });
   useEffect(() => {
@@ -195,9 +195,9 @@ function Game({ onReady, onPlaced, onGameOver }: Readonly<GameProps>) {
   return (
     <>
       {blocks.slice(-VISIBLE_BLOCKS).map((b) => (
-        <mesh key={b.id} position={[b.x, b.y, b.z]} scale={[b.w, 1, b.d]}>
-          <boxGeometry args={[1, BLOCK_HEIGHT, 1]} />
-          <meshStandardMaterial color={b.color} roughness={0.45} metalness={0.1} />
+        <mesh key={b.id} position={[b.x, b.y, b.z]} scale={[b.w, 1, b.d]} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */>
+          <boxGeometry args={[1, BLOCK_HEIGHT, 1]} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
+          <meshStandardMaterial color={b.color} roughness={0.45} metalness={0.1} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
         </mesh>
       ))}
 
@@ -208,17 +208,17 @@ function Game({ onReady, onPlaced, onGameOver }: Readonly<GameProps>) {
             if (mesh) {debrisMeshes.current.set(piece.id, mesh);}
             else {debrisMeshes.current.delete(piece.id);}
           }}
-          position={[piece.x, piece.y, piece.z]}
+          position={[piece.x, piece.y, piece.z]} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */
           scale={[piece.w, 1, piece.d]}
         >
-          <boxGeometry args={[1, BLOCK_HEIGHT, 1]} />
-          <meshStandardMaterial color={piece.color} roughness={0.45} transparent opacity={0.85} />
+          <boxGeometry args={[1, BLOCK_HEIGHT, 1]} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
+          <meshStandardMaterial color={piece.color} roughness={0.45} transparent opacity={0.85} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
         </mesh>
       ))}
 
       <mesh ref={movingMesh}>
-        <boxGeometry args={[1, BLOCK_HEIGHT, 1]} />
-        <meshStandardMaterial roughness={0.45} metalness={0.1} />
+        <boxGeometry args={[1, BLOCK_HEIGHT, 1]} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
+        <meshStandardMaterial roughness={0.45} metalness={0.1} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
       </mesh>
     </>
   );
@@ -233,9 +233,9 @@ export default function StackGameScene({ active, ...props }: Readonly<GameProps 
       gl={{ antialias: true, alpha: true }}
       frameloop={active ? "always" : "never"}
     >
-      <ambientLight intensity={AMBIENT_LIGHT} />
-      <directionalLight position={[KEY_LIGHT.x, KEY_LIGHT.y, KEY_LIGHT.z]} intensity={KEY_LIGHT.intensity} />
-      <directionalLight position={[FILL_LIGHT.x, FILL_LIGHT.y, FILL_LIGHT.z]} intensity={FILL_LIGHT.intensity} color={FILL_LIGHT.color} />
+      <ambientLight intensity={AMBIENT_LIGHT} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
+      <directionalLight position={[KEY_LIGHT.x, KEY_LIGHT.y, KEY_LIGHT.z]} intensity={KEY_LIGHT.intensity} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
+      <directionalLight position={[FILL_LIGHT.x, FILL_LIGHT.y, FILL_LIGHT.z]} intensity={FILL_LIGHT.intensity} color={FILL_LIGHT.color} /* NOSONAR: react-three-fiber (three.js) props, not DOM attributes */ />
       <Game {...props} />
     </Canvas>
   );

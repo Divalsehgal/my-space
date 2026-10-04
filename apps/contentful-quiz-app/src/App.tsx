@@ -95,7 +95,7 @@ function App() {
           checked={publishAfterImport}
           onChange={(event) => setPublishAfterImport(event.target.checked)}
         />
-        Publish the options, questions, and this quiz after import
+        <span>Publish the options, questions, and this quiz after import</span>
       </label>
 
       <Button variant="primary" isDisabled={!entryId || !isQuizEntry || isSaving} onClick={handleCreateQuestions}>

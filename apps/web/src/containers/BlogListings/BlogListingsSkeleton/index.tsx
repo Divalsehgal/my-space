@@ -22,7 +22,7 @@ interface BlogListingsSkeletonProps {
     skipBreadcrumbs?: boolean;
 }
 
-export default function BlogListingsSkeleton({ skipBreadcrumbs = false }: BlogListingsSkeletonProps) {
+export default function BlogListingsSkeleton({ skipBreadcrumbs = false }: Readonly<BlogListingsSkeletonProps>) {
     const content = (
         <div className={`${styles["skeleton-page"]} ${styles.blogs}`}>
             <FluidContainer>

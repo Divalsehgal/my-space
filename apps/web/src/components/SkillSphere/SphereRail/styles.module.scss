@@ -10,7 +10,11 @@
   grid-area: rail;
   gap: $t-spacing-2;
 
-  padding-bottom: $t-spacing-1;
+  // <fieldset>: drop the UA border, padding and min-content min-width.
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 $t-spacing-1;
+  border: none;
 
 
   &__cat {

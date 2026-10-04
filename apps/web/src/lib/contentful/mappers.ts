@@ -61,7 +61,7 @@ function mapContentfulQuiz(quiz?: ContentfulPostItem['quiz']): ContentfulQuiz | 
     id: quiz.sys.id,
     title: quiz.title,
     questions: (quiz.questionEntriesCollection?.items || []).flatMap((question) => {
-      if (!question || !question.questionText || !question.explanation || !question.correctAnswer) {
+      if (!question?.questionText || !question.explanation || !question.correctAnswer) {
         return [];
       }
       return [{

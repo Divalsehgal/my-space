@@ -80,11 +80,12 @@ add("compute", {
   description: `App Router with Server Components and Server Actions. API routes: ${apiRoutes.join(", ") || "none"}.`,
 });
 if (integrations.worker) {
+  const cronNote = crons.length ? `, re-indexed on a schedule (${crons.join(", ")})` : "";
   add("compute", {
     id: "chatbot-worker",
     type: "backend",
     label: "AI Chatbot Worker",
-    description: `Cloudflare Worker "${wrangler.name}": retrieval-augmented chat${crons.length ? `, re-indexed on a schedule (${crons.join(", ")})` : ""}.`,
+    description: `Cloudflare Worker "${wrangler.name}": retrieval-augmented chat${cronNote}.`,
   });
 }
 if (integrations.analytics) {
@@ -94,7 +95,8 @@ if (integrations.contentful) {
   add("data", { id: "contentful", type: "external", label: "Contentful CMS", description: `Blog content over GraphQL${/revalidateTag/.test(revalidateRoute) ? "; a publish webhook busts the cache by tag" : ""}.` });
 }
 if (integrations.portfolioConfig) {
-  add("data", { id: "portfolio-config", type: "data", label: "Portfolio Config", description: `JSON in a GitHub repo, validated with Zod${configRevalidate ? `, refreshed every ${configRevalidate}s` : ""}.` });
+  const refreshNote = configRevalidate ? `, refreshed every ${configRevalidate}s` : "";
+  add("data", { id: "portfolio-config", type: "data", label: "Portfolio Config", description: `JSON in a GitHub repo, validated with Zod${refreshNote}.` });
 }
 if (integrations.notion) {
   add("data", { id: "notion", type: "data", label: "Notion", description: "Contact submissions are stored as database rows." });
@@ -114,6 +116,7 @@ if (integrations.kv) {
 
 // ---- Edges ------------------------------------------------------------------
 const ids = new Set(Object.values(tiers).flat().map((node) => node.id));
+/** @type {Array<[source: string, target: string, label: string, extra?: Record<string, unknown>]>} */
 const edgeList = [
   ["browser", "nextjs-server", "contact + view requests"],
   ["browser", "chatbot-worker", "chat queries", { animated: true }],

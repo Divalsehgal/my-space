@@ -18,7 +18,7 @@ interface SphereRailProps {
 export default function SphereRail({ groups, counts, total, colors, focus, onAll, onCategory }: Readonly<SphereRailProps>) {
   const t = useT();
   return (
-    <div className={styles.rail} role="group" aria-label={t("skills.categories")}>
+    <fieldset className={styles.rail} aria-label={t("skills.categories")}>
       <button
         type="button"
         className={clsx(styles["rail__cat"], focus === null && styles["rail__cat--active"])}
@@ -42,6 +42,6 @@ export default function SphereRail({ groups, counts, total, colors, focus, onAll
           <span className={styles["rail__count"]}>{counts[index]}</span>
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }

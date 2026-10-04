@@ -1,9 +1,9 @@
 # 1. Base Stage
 FROM node:22-alpine AS base
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
-# Corepack for Yarn 3/4+ if needed, though this project appears to be Yarn 1/vBerry
-RUN corepack enable && corepack prepare yarn@stable --activate
+# Corepack serves the Yarn version pinned by package.json's packageManager field.
+RUN apk add --no-cache libc6-compat \
+  && corepack enable
 
 # 2. Dependencies Stage
 FROM base AS deps
@@ -25,13 +25,18 @@ COPY packages/tsconfig/package.json ./packages/tsconfig/
 COPY apps/web/package.json ./apps/web/
 COPY apps/contentful-quiz-app/package.json ./apps/contentful-quiz-app/
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Install dependencies. --ignore-scripts: no dependency lifecycle scripts run
+# during the build; none are needed (native binaries ship as optional
+# platform packages).
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # 3. Builder / Staging / Production Stage
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Only what the web build needs — never a recursive copy of the whole context.
+COPY package.json yarn.lock turbo.json ./
+COPY packages ./packages
+COPY apps/web ./apps/web
 
 # Environment variables for build time (provided via --build-arg)
 ARG NEXT_PUBLIC_ENV=production
@@ -41,14 +46,22 @@ ENV NODE_ENV=production
 # Build the design tokens the app imports at build time
 RUN yarn workspace @dival-sehgal/design-tokens build
 
-# Build only the Next.js app (not every workspace in the monorepo)
-RUN yarn turbo build --filter=web
+# Build only the Next.js app (not every workspace in the monorepo).
+# Contentful credentials are mounted as a BuildKit secret, so they never land in
+# an image layer:
+#   docker build --secret id=webenv,src=apps/web/.env .
+# Without the secret the build falls back to the process environment. Any env
+# file Next.js traces into the standalone output is removed afterwards — pass
+# runtime values with `docker run --env-file` (docker-compose does this).
+RUN --mount=type=secret,id=webenv,target=/app/apps/web/.env \
+  yarn turbo build --filter=web \
+  && rm -f apps/web/.next/standalone/apps/web/.env*
 
 # 4. Runner (Production/Staging)
 FROM base AS runner
 ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
 
 # apps/web's own build output, not a repo-root one — Next.js standalone
 # output in a monorepo nests everything under the app's path relative to the
@@ -57,8 +70,8 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/apps/web/public ./apps/web/public
 
 # Set the correct permission for prerender cache
-RUN mkdir -p apps/web/.next
-RUN chown nextjs:nodejs apps/web/.next
+RUN mkdir -p apps/web/.next \
+  && chown nextjs:nodejs apps/web/.next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -74,10 +87,16 @@ ENV HOSTNAME "0.0.0.0"
 CMD ["node", "apps/web/server.js"]
 
 # 5. Development Stage (Optional Target)
+# NODE_ENV is not set here: `next dev` sets it, and docker-compose passes it.
 FROM base AS development
-ENV NODE_ENV=development
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Run as the image's unprivileged `node` user; it owns the workspace so turbo
+# and Next.js can write their caches.
+RUN chown node:node /app
+COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node package.json yarn.lock turbo.json ./
+COPY --chown=node:node packages ./packages
+COPY --chown=node:node apps/web ./apps/web
+USER node
 # Run token generation for dev too
 RUN yarn workspace @dival-sehgal/design-tokens build
 EXPOSE 3000

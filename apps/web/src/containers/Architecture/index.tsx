@@ -13,7 +13,7 @@ interface ArchitectureProps {
 }
 
 /** The system map: stacked tiers on phones, the interactive diagram from tablet up. */
-export default function Architecture({ data, headingLevel: Heading = "h2", titleId }: ArchitectureProps) {
+export default function Architecture({ data, headingLevel: Heading = "h2", titleId }: Readonly<ArchitectureProps>) {
   const t = getT();
   if (!data?.nodes?.length) {
     return null;

@@ -33,15 +33,17 @@ export function plainText(richText?: ContentfulRichText | string | null): string
 }
 
 // Tier colours are feedback tokens (CSS vars) so they follow the site theme.
+/** Lowest tier, and the fallback when no other tier matches. */
+const RETRY_TIER = { min: 0, id: "retry", tone: "error" } as const;
 const TIERS = [
   { min: 100, id: "perfect", tone: "success" },
   { min: 75, id: "strong", tone: "info" },
   { min: 50, id: "good", tone: "warning" },
-  { min: 0, id: "retry", tone: "error" },
+  RETRY_TIER,
 ] as const;
 
 export function getTierInfo(percentage: number, t: Translate): QuizTierInfo {
-  const tier = TIERS.find(({ min }) => percentage >= min) ?? TIERS[TIERS.length - 1];
+  const tier = TIERS.find(({ min }) => percentage >= min) ?? RETRY_TIER;
   return {
     badge: t(`quiz.tier.${tier.id}.badge`),
     title: t(`quiz.tier.${tier.id}.title`),

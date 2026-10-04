@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import path from 'path';
+import path from 'node:path';
 
 dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
 
@@ -92,14 +92,14 @@ for (const question of questionResponse.items || []) {
   const optionLinks = question.fields.options?.[locale] || [];
 
   for (const [optionIndex, link] of optionLinks.entries()) {
-    const option = await request(`/entries/${link.sys.id}`);
+    const option = await request(`/entries/${link.sys.id}`); // NOSONAR: sequential on purpose — Contentful Management API rate limit
     const optionLocale = Object.keys(option.fields.text || {})[0] || locale;
     const optionText = textFromRichText(option.fields.text?.[optionLocale]).replace(/\s+/g, ' ').trim();
     if (!questionText || !optionText) {continue;}
 
-    const optionLabel = `Option ${String.fromCharCode(65 + optionIndex)}`;
+    const optionLabel = `Option ${String.fromCodePoint(65 + optionIndex)}`;
     option.fields.key = { [optionLocale]: `${questionText} — ${optionLabel}` };
-    await updateEntry(option);
+    await updateEntry(option); // NOSONAR: sequential on purpose — Contentful Management API rate limit
     updatedOptions += 1;
   }
 }

@@ -11,7 +11,7 @@ interface ExperienceProps {
   items?: ExperienceConfig[];
 }
 
-export default function ExperienceSection({ items = [] }: ExperienceProps) {
+export default function ExperienceSection({ items = [] }: Readonly<ExperienceProps>) {
   const t = getT();
   return (
     <FluidContainer

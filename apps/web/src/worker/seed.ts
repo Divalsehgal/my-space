@@ -1,5 +1,6 @@
 import { Env } from "./types";
 import { HTTP_STATUS } from "@dival-sehgal/utils/http";
+import { splitIntoSentences } from "./sentences";
 
 // Character budgets for text stored alongside each embedding.
 const MAX_TITLE_CHARS = 180;
@@ -73,10 +74,6 @@ function sanitizeContent(value: string | undefined, maxLength = 1400): string {
 
 const maxChunkLength = 1400;
 
-function splitIntoSentences(text: string): string[] {
-    return text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) || [text];
-}
-
 // Packs sentences greedily up to maxChunkLength instead of slicing at fixed
 // character offsets, so a chunk (and its embedding) never starts or ends
 // mid-sentence.
@@ -129,8 +126,15 @@ async function deleteManagedVectors(env: Env): Promise<void> {
     const ids = getManagedVectorIds();
     const deleteBatchSize = 100;
     for (let i = 0; i < ids.length; i += deleteBatchSize) {
-        await env.VECTORIZE.deleteByIds(ids.slice(i, i + deleteBatchSize));
+        await env.VECTORIZE.deleteByIds(ids.slice(i, i + deleteBatchSize)); // NOSONAR: batches sent one at a time to stay within Vectorize limits
     }
+}
+
+function describeError(err: unknown): string {
+    if (err instanceof Error) {
+        return err.message;
+    }
+    return typeof err === 'string' ? err : JSON.stringify(err) ?? 'Unknown error';
 }
 
 export async function seed(req: Request, env: Env): Promise<Response> {
@@ -146,7 +150,7 @@ export async function seed(req: Request, env: Env): Promise<Response> {
         const count = await runSeed(env);
         return json({ success: true, count }, HTTP_STATUS.OK, {}, req);
     } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
+        const message = describeError(err);
         console.error('Seed error:', message);
         return json({ error: 'Seed failed', details: message }, HTTP_STATUS.INTERNAL_SERVER_ERROR, {}, req);
     }
@@ -226,7 +230,8 @@ export async function runSeed(env: Env): Promise<number> {
     const vecs: { id: string; values: number[]; metadata: Record<string, unknown> }[] = [];
     for (let i = 0; i < prepared.length; i += embedBatchSize) {
         const batch = prepared.slice(i, i + embedBatchSize);
-        const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: batch.map((b) => b.content) }) as { data?: number[][] };
+        // Sequential on purpose: one Workers AI request at a time to stay within its rate limit.
+        const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: batch.map((b) => b.content) }) as { data?: number[][] }; // NOSONAR
         const embeddings = e.data || [];
         batch.forEach((c, idx) => {
             vecs.push({ id: c.id, values: embeddings[idx] || [], metadata: { ...c.metadata, text: c.content } });

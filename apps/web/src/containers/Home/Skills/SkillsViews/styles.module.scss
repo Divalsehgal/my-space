@@ -11,6 +11,9 @@
     display: inline-flex;
     align-self: flex-start;
 
+    // <fieldset>: drop the UA margin and min-content min-width.
+    min-width: 0;
+    margin: 0;
     padding: $t-spacing-1;
     border: 1px solid $t-colors-border-default;
     border-radius: $t-radius-full;

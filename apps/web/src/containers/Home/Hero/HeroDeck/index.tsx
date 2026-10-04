@@ -217,7 +217,7 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
       onBlur={() => (paused.current = false)}
     >
       {cards.map((card, index) => (
-        <div
+        <div // NOSONAR: click-to-bring-forward is a pointer nicety; the deck auto-rotates and its links stay keyboard reachable (a <button> can't wrap them)
           key={card.key}
           ref={(el) => {
             cardRefs.current[index] = el;

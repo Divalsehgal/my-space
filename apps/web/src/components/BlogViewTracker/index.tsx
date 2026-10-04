@@ -19,7 +19,7 @@ interface BlogViewTrackerProps {
  *
  * Drop this anywhere inside a blog post page.
  */
-export default function BlogViewTracker({ slug }: BlogViewTrackerProps) {
+export default function BlogViewTracker({ slug }: Readonly<BlogViewTrackerProps>) {
   const t = useT();
   const locale = useLocale();
   const { views } = useBlogViews(slug);

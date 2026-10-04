@@ -50,9 +50,9 @@ export function parseQuizPayload(raw) {
   return parsed;
 }
 
-const FIRST_OPTION_CODE = "A".charCodeAt(0);
+const FIRST_OPTION_CODE = "A".codePointAt(0);
 
 /** Letter for an option by position: 0 → "A", 1 → "B"… */
 export function optionLetter(index) {
-  return String.fromCharCode(FIRST_OPTION_CODE + index);
+  return String.fromCodePoint(FIRST_OPTION_CODE + index);
 }

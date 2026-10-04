@@ -63,6 +63,7 @@ export default function Button(props: ButtonProps) {
     return (
       <a
         {...(rest as unknown as AnchorHTMLAttributes<HTMLAnchorElement>)}
+        href={rest.href}
         className={classes}
         aria-busy={loading || undefined}
         aria-disabled={loading || undefined}

@@ -23,7 +23,7 @@ const CTA_CLASS = {
   text: undefined,
 };
 
-export default function HeroActions({ data, className }: HeroActionsProps) {
+export default function HeroActions({ data, className }: Readonly<HeroActionsProps>) {
   const t = getT();
   const buttons = [
     {
@@ -54,9 +54,9 @@ export default function HeroActions({ data, className }: HeroActionsProps) {
 
   return (
     <div className={clsx(styles.actions, className)}>
-      {buttons.map((button, index) => (
+      {buttons.map((button) => (
         <Button
-          key={index}
+          key={button.id}
           variant={button.variant}
           className={clsx(styles.cta, CTA_CLASS[button.variant])}
           size={button.size}

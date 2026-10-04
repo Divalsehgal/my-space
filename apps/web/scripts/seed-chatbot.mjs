@@ -31,6 +31,9 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(__dirname, "..");
 
+// Strips CR/LF and other control characters so remote text can't forge log lines.
+const sanitize = (value) => String(value).replaceAll(/\p{Cc}/gu, " ");
+
 const DEFAULT_WORKER_URL = "https://ai-chatbot-widget.sehgaldival.workers.dev";
 
 /**
@@ -100,7 +103,7 @@ async function main() {
       headers: { Authorization: `Bearer ${secret}` },
     });
   } catch (err) {
-    console.error(`[seed] Network error calling the Worker: ${err?.message || err}`);
+    console.error(`[seed] Network error calling the Worker: ${sanitize(err?.message || err)}`);
     process.exit(1);
   }
 
@@ -115,11 +118,11 @@ async function main() {
   const elapsed = ((Date.now() - started) / 1000).toFixed(1);
 
   if (!response.ok || body?.success !== true) {
-    console.error(`[seed] Failed (HTTP ${response.status}, ${elapsed}s):`, body);
+    console.error(`[seed] Failed (HTTP ${response.status}, ${elapsed}s): ${sanitize(JSON.stringify(body))}`);
     process.exit(1);
   }
 
-  console.log(`[seed] Success in ${elapsed}s — ${body.count} vectors upserted.`);
+  console.log(`[seed] Success in ${elapsed}s — ${sanitize(body.count)} vectors upserted.`);
 }
 
-main();
+await main();

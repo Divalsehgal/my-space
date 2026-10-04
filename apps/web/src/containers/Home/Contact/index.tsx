@@ -19,7 +19,7 @@ type SocialItem = {
   icon?: string;
 };
 
-function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
+function SocialLinks({ socialItems }: Readonly<{ socialItems: SocialItem[] }>) {
   return (
     <div className={styles["contact__social-links"]}>
       {socialItems.map((social) => {
@@ -41,7 +41,7 @@ function SocialLinks({ socialItems }: { socialItems: SocialItem[] }) {
   );
 }
 
-export default async function Contact({ socialItems }: { socialItems: SocialItem[] }) {
+export default function Contact({ socialItems }: Readonly<{ socialItems: SocialItem[] }>) {
   const t = getT();
   return (
     <FluidContainer

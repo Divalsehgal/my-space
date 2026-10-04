@@ -291,7 +291,7 @@ export async function getPopularPosts(limit: number = 10): Promise<PopularPost[]
     let cursor = 0;
 
     do {
-      const [nextCursor, batch] = await redis.scan(cursor, {
+      const [nextCursor, batch] = await redis.scan(cursor, { // NOSONAR: SCAN is cursor-paginated; each call needs the previous cursor
         match: 'views:total:*',
         count: 100,
       });

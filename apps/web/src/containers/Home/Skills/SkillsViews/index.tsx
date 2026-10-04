@@ -33,7 +33,7 @@ export default function SkillsViews({ skills, groups, children }: Readonly<Skill
 
   return (
     <div className={styles.views}>
-      <div className={styles["views__toggle"]} role="group" aria-label={t("skills.viewToggle")}>
+      <fieldset className={styles["views__toggle"]} aria-label={t("skills.viewToggle")}>
         {(["sphere", "cards"] as const).map((option) => (
           <button
             key={option}
@@ -45,7 +45,7 @@ export default function SkillsViews({ skills, groups, children }: Readonly<Skill
             {t(option === "sphere" ? "skills.viewSphere" : "skills.viewCards")}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       {view === "sphere" && <SkillSphere skills={skills} groups={groups} />}
       {/* Visually hidden (not `hidden`) in sphere view so screen readers always get the cards. */}

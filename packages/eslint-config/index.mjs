@@ -28,7 +28,7 @@ const RESTRICTED_PATTERNS = [
   },
   {
     // Every component owns its styles: only ./styles.module.scss next to it.
-    regex: "^(?!\\./styles\\.module\\.scss$).*\\.module\\.scss$",
+    regex: String.raw`^(?!\./styles\.module\.scss$).*\.module\.scss$`,
     message: "Import only your own ./styles.module.scss. Give a sub-component its own folder and stylesheet instead of sharing another component's.",
   },
 ];
@@ -164,7 +164,7 @@ export const styleOwnershipConfig = [
           patterns: [
             ...RESTRICTED_PATTERNS,
             {
-              regex: "\\.module\\.scss$",
+              regex: String.raw`\.module\.scss$`,
               message: "Only a component's index.tsx may import its styles. Move this sub-component into its own folder with its own styles.module.scss.",
             },
           ],

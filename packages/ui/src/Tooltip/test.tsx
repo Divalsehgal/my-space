@@ -16,7 +16,7 @@ describe("Tooltip", () => {
         <button type="button">copy</button>
       </Tooltip>,
     );
-    await act(async () => {
+    await act(() => {
       fireEvent.focus(screen.getByRole("button", { name: "copy" }));
     });
     expect((await screen.findAllByText("Copy code")).length).toBeGreaterThan(0);

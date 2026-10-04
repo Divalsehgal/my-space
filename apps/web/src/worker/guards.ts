@@ -66,6 +66,21 @@ export function sanitizeActiveBlogPath(pagePath: string | undefined): string | u
     return normalized && /^\/blogs\/[a-z0-9-]+$/i.test(normalized) ? normalized : undefined;
 }
 
+// Same shape as /^[^\s@]+@[^\s@]+\.[^\s@]+$/ (no whitespace, one "@", a dot
+// inside the domain), checked without a backtracking regex.
+function isEmailShaped(email: string): boolean {
+    if (/\s/.test(email)) {
+        return false;
+    }
+    const at = email.indexOf('@');
+    if (at <= 0 || at !== email.lastIndexOf('@')) {
+        return false;
+    }
+    const domain = email.slice(at + 1);
+    const dot = domain.indexOf('.', 1);
+    return dot !== -1 && dot < domain.length - 1;
+}
+
 export function validateContact(contact: { name: string; email: string; message: string } | undefined) {
     if (!contact) {
         return undefined;
@@ -74,14 +89,14 @@ export function validateContact(contact: { name: string; email: string; message:
     const name = contact.name?.trim();
     const email = contact.email?.trim();
     const message = contact.message?.trim();
-    if (!name || name.length > MAX_NAME_LENGTH || !email || email.length > MAX_EMAIL_LENGTH || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message || message.length > MAX_CONTACT_MESSAGE_LENGTH) {
+    if (!name || name.length > MAX_NAME_LENGTH || !email || email.length > MAX_EMAIL_LENGTH || !isEmailShaped(email) || !message || message.length > MAX_CONTACT_MESSAGE_LENGTH) {
         return undefined;
     }
 
     return { name, email, message };
 }
 
-export async function validateMessage(message: string | undefined): Promise<{ valid: boolean; reason?: string }> {
+export function validateMessage(message: string | undefined): { valid: boolean; reason?: string } {
     const blocked = ['crypto', 'bitcoin', 'gambling', 'dating', 'adult', 'politics', 'offensive'];
     const msg = message?.toLowerCase().trim() || '';
 

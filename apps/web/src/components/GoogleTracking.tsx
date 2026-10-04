@@ -15,7 +15,10 @@ interface GoogleTrackingProps {
  * Skips entirely when owner_mode=true is set in localStorage
  * so the site owner doesn't inflate their own analytics.
  */
-export default function GoogleTracking({ gaId, adsId, gtmId }: GoogleTrackingProps) {
+/** Google Ads conversion id: the numeric part of "AW-123" (or the bare id). */
+const adsConversionId = (adsId: string) => (adsId.includes('-') ? adsId.split('-')[1] : adsId);
+
+export default function GoogleTracking({ gaId, adsId, gtmId }: Readonly<GoogleTrackingProps>) {
   const [blocked, setBlocked] = useState(true); // default blocked until we know
 
   useEffect(() => {
@@ -39,7 +42,7 @@ export default function GoogleTracking({ gaId, adsId, gtmId }: GoogleTrackingPro
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               ${gaId ? `gtag('config', '${gaId}', { page_path: window.location.pathname, send_page_view: true });` : ''}
-              ${adsId ? `gtag('config', 'AW-${adsId.includes('-') ? adsId.split('-')[1] : adsId}');` : ''}
+              ${adsId ? `gtag('config', 'AW-${adsConversionId(adsId)}');` : ''}
             `}
           </Script>
         </>

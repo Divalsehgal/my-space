@@ -84,7 +84,7 @@ const CONTENT_TYPE_BODY = {
       localized: false,
       validations: [
         { unique: true },
-        { regexp: { pattern: "^[a-z][a-zA-Z0-9]*(\\.[a-zA-Z0-9_-]+)+$" }, message: "Use dot.separated.keys, e.g. nav.home" },
+        { regexp: { pattern: String.raw`^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9_-]+)+$` }, message: "Use dot.separated.keys, e.g. nav.home" },
       ],
     },
     { id: "value", name: "Value", type: "Text", required: true, localized: true },
@@ -122,7 +122,7 @@ function entryId(key) {
   const safe = `t.${key}`.replace(/[^A-Za-z0-9._-]/g, "-");
   if (safe.length <= 64) {return safe;}
   let hash = 0;
-  for (const char of key) {hash = (hash * 31 + char.charCodeAt(0)) >>> 0;}
+  for (const char of key) {hash = (hash * 31 + char.codePointAt(0)) >>> 0;}
   return `${safe.slice(0, 55)}.${hash.toString(36)}`;
 }
 
@@ -161,7 +161,7 @@ async function push() {
     const current = existing.get(key);
     const unchanged = current && (!update || current.fields.value?.[locale] === value);
     if (unchanged) {continue;}
-    await upsert(key, value, locale, current);
+    await upsert(key, value, locale, current); // NOSONAR: sequential on purpose — Contentful Management API rate limit
     counts[current ? "updated" : "created"] += 1;
   }
   const untouched = Object.keys(messages).length - counts.created - counts.updated;

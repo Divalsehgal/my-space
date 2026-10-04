@@ -60,7 +60,7 @@ function toSphere(entries: [string, SkillItemConfig[] | Record<string, SkillItem
   return { groups, skills };
 }
 
-export default function Skills({ categories = {} }: SkillsProps) {
+export default function Skills({ categories = {} }: Readonly<SkillsProps>) {
   const t = getT();
   // Object.entries preserves the source config's key order, which is what
   // the categories should render in — not alphabetical or otherwise resorted.

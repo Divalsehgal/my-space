@@ -16,10 +16,17 @@
   position: relative;
 
   overflow: hidden;
+  display: block;
 
+  // <button>: drop the UA padding, font and colour so it lays out like the former <div>.
   width: 100%;
+  padding: 0;
   border: 1px solid $t-colors-border-muted;
   border-radius: $t-radius-lg;
+
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
 
   background: $t-colors-surface-brand-subtle;
 

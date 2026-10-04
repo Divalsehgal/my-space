@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import path from 'path';
+import path from 'node:path';
 import { validateQuestions } from '@dival-sehgal/quiz/validate';
 import { contentfulRequest, getContentfulConfig } from './contentful.js';
 import { HTTP_STATUS } from './http.js';
@@ -13,6 +13,8 @@ const serverDir = import.meta.dirname;
 dotenv.config({ path: path.resolve(serverDir, '../.env') });
 
 const app = express();
+// Don't advertise the framework/version in an X-Powered-By header.
+app.disable('x-powered-by');
 const port = process.env.PORT || process.env.BACKEND_PORT || DEFAULT_PORT;
 const defaultLocale = process.env.CONTENTFUL_LOCALE || 'en-US';
 const distPath = path.resolve(serverDir, '../dist');

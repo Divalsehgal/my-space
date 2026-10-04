@@ -3,8 +3,8 @@ interface GTMNoScriptProps {
   gtmId?: string;
 }
 
-export default function GTMNoScript({ gtmId }: GTMNoScriptProps) {
-  if (!gtmId || !gtmId.startsWith("GTM-")) {
+export default function GTMNoScript({ gtmId }: Readonly<GTMNoScriptProps>) {
+  if (!gtmId?.startsWith("GTM-")) {
     return null;
   }
 

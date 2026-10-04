@@ -123,11 +123,11 @@ export default function StackGame({ items, className, autoFocus = false }: Reado
   };
 
   return (
-    <div
+    <div // NOSONAR: role="application" game surface — it is interactive (Space/Enter and tap both play)
       ref={root}
       className={clsx(styles.game, className)}
       role="application"
-      tabIndex={0}
+      tabIndex={0} // NOSONAR: the game must take keyboard focus to be playable
       aria-label={t("game.ariaLabel")}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}

@@ -16,7 +16,7 @@ interface CodeBlockProps {
   content: string;
 }
 
-export function CodeBlock({ children, content }: CodeBlockProps) {
+export function CodeBlock({ children, content }: Readonly<CodeBlockProps>) {
   const t = useT();
   const [copied, setCopied] = useState(false);
 

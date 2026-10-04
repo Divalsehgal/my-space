@@ -46,52 +46,48 @@ export const createContactSubmission = async (submission: ContactSubmission): Pr
     if (!notionContactDbId) {        throw new Error("NOTION_CONTACT_DB_ID is not configured. Unable to submit contact form.");
     }
 
-    try {
-        // Fetch database schema to detect property names dynamically
-        const db = await notionFetch(`/databases/${notionContactDbId}`);
-        const properties = db.properties;
+    // Fetch database schema to detect property names dynamically
+    const db = await notionFetch(`/databases/${notionContactDbId}`);
+    const properties = db.properties;
 
-        // Find property names by type
-        const titlePropName = Object.keys(properties).find(key => properties[key].type === 'title');
-        const emailPropName = Object.keys(properties).find(key => properties[key].type === 'email');
-        const messagePropName = Object.keys(properties).find(key => 
-            properties[key].type === 'rich_text' && (key.toLowerCase().includes('message') || key.toLowerCase().includes('content'))
-        ) || Object.keys(properties).find(key => properties[key].type === 'rich_text');
+    // Find property names by type
+    const titlePropName = Object.keys(properties).find(key => properties[key].type === 'title');
+    const emailPropName = Object.keys(properties).find(key => properties[key].type === 'email');
+    const messagePropName = Object.keys(properties).find(key => 
+        properties[key].type === 'rich_text' && (key.toLowerCase().includes('message') || key.toLowerCase().includes('content'))
+    ) || Object.keys(properties).find(key => properties[key].type === 'rich_text');
 
-        if (!titlePropName) {
-            throw new Error(`No 'title' property found in Notion database ${notionContactDbId}`);
-        }
-
-        const notionPageProperties: Record<string, unknown> = {
-            [titlePropName]: {
-                title: [
-                    { text: { content: submission.name } }
-                ]
-            }
-        };
-
-        if (emailPropName) {
-            notionPageProperties[emailPropName] = {
-                email: submission.email
-            };
-        }
-
-        if (messagePropName) {
-            notionPageProperties[messagePropName] = {
-                rich_text: [
-                    { text: { content: submission.message } }
-                ]
-            };
-        }
-
-        await notionFetch("/pages", {
-            method: "POST",
-            body: JSON.stringify({
-                parent: { database_id: notionContactDbId },
-                properties: notionPageProperties
-            }),
-        });
-    } catch (error) {
-        throw error;
+    if (!titlePropName) {
+        throw new Error(`No 'title' property found in Notion database ${notionContactDbId}`);
     }
+
+    const notionPageProperties: Record<string, unknown> = {
+        [titlePropName]: {
+            title: [
+                { text: { content: submission.name } }
+            ]
+        }
+    };
+
+    if (emailPropName) {
+        notionPageProperties[emailPropName] = {
+            email: submission.email
+        };
+    }
+
+    if (messagePropName) {
+        notionPageProperties[messagePropName] = {
+            rich_text: [
+                { text: { content: submission.message } }
+            ]
+        };
+    }
+
+    await notionFetch("/pages", {
+        method: "POST",
+        body: JSON.stringify({
+            parent: { database_id: notionContactDbId },
+            properties: notionPageProperties
+        }),
+    });
 };

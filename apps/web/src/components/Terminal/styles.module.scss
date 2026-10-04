@@ -11,6 +11,11 @@
   display: flex;
   flex-direction: column;
 
+  // <dialog open> (non-modal): undo the UA dialog box; `inset` sizes it.
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
   border: 1px solid $t-colors-terminal-line;
   border-radius: $t-radius-lg;
 

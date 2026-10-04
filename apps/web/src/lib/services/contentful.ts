@@ -62,7 +62,7 @@ export const previewClient = new GraphQLClient(endpoint, {
 /**
  * Utility to fetch data from Contentful using the GraphQL client
  */
-export async function fetchContentful<T>(
+export function fetchContentful<T>(
   query: string,
   variables?: Record<string, unknown>,
   preview = false

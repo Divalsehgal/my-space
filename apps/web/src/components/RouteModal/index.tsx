@@ -34,7 +34,7 @@ export default function RouteModal({ children, labelledBy, closeLabel }: Readonl
   const close = useCallback(() => router.back(), [router]);
 
   return (
-    <dialog
+    <dialog // NOSONAR: backdrop click on a native modal <dialog>; keyboard users close it with Escape (onCancel) or the close button
       ref={dialog}
       className={styles.modal}
       aria-labelledby={labelledBy}

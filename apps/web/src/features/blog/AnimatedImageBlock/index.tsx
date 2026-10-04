@@ -56,13 +56,6 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
     }
   };
 
-  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleTriggerClick();
-    }
-  };
-
   const aspectRatio =
     asset.width && asset.height
       ? `${asset.width} / ${asset.height}`
@@ -84,13 +77,11 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
         viewport={{ once: true }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <div
+        <button
+          type="button"
           className={styles.imageWrapper}
           style={{ aspectRatio }}
           onClick={handleTriggerClick}
-          role="button"
-          tabIndex={0}
-          onKeyDown={handleTriggerKeyDown}
           aria-label={
             asset.title ? t("image.viewFullNamed", { title: asset.title }) : t("image.viewFull")
           }
@@ -119,7 +110,7 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
               <span>{t("image.expandHint")}</span>
             </div>
           )}
-        </div>
+        </button>
 
         {asset.title && (
           <figcaption className={styles.caption}>{asset.title}</figcaption>

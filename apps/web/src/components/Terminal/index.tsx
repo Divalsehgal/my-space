@@ -83,7 +83,7 @@ export default function Terminal({ index, onClose }: Readonly<TerminalProps>) {
         onClose();
         break;
       case "ask":
-        void ask(action.question);
+        ask(action.question);
         break;
     }
   };
@@ -114,7 +114,7 @@ export default function Terminal({ index, onClose }: Readonly<TerminalProps>) {
   };
 
   return (
-    <div className={styles.terminal} role="dialog" aria-modal="true" aria-label={t("terminal.label")}>
+    <dialog open className={styles.terminal} aria-modal="true" aria-label={t("terminal.label")}>
       <div className={styles["terminal__bar"]}>
         <span className={styles["terminal__dots"]} aria-hidden="true"><i /><i /><i /></span>
         <span>{`${PROMPT_USER}@${index.name.split(" ")[0].toLowerCase()}: ~`}</span>
@@ -122,7 +122,12 @@ export default function Terminal({ index, onClose }: Readonly<TerminalProps>) {
           esc
         </button>
       </div>
-      <div ref={screenRef} className={styles["terminal__screen"]} onClick={() => inputRef.current?.focus()}>
+      {/* Click-anywhere-to-type for pointer users; keyboard focus is already in the input. */}
+      <div // NOSONAR: pointer-only convenience — keyboard focus already sits in the input
+        ref={screenRef}
+        className={styles["terminal__screen"]}
+        onClick={() => inputRef.current?.focus()}
+      >
         <div role="log" aria-live="polite">
           {lines.map((l) => (
             <pre key={l.id} className={LINE_CLASS[l.kind]}>
@@ -145,6 +150,6 @@ export default function Terminal({ index, onClose }: Readonly<TerminalProps>) {
           />
         </form>
       </div>
-    </div>
+    </dialog>
   );
 }

@@ -12,7 +12,7 @@ export const followUpTerms = ['it', 'that', 'this', 'more', 'explain', 'summariz
 function buildRetrievalQuery(q: string, priorTurns: ChatMessage[], activeBlogPath?: string): string {
     const isShortOrFollowUp = q.length < SHORT_QUERY_CHARS || followUpTerms.some((term) => q.toLowerCase().includes(term));
     const priorUserMessage = isShortOrFollowUp
-        ? priorTurns.filter((m) => m.role === 'user').at(-1)?.content
+        ? priorTurns.findLast((m) => m.role === 'user')?.content
         : undefined;
 
     const parts = [priorUserMessage, q, activeBlogPath ? `Current blog page: ${activeBlogPath}` : undefined];

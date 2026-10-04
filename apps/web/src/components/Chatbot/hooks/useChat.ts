@@ -139,7 +139,8 @@ export function useChat() {
       }
     };
 
-    fetchHistory();
+    // fetchHistory handles its own errors; the catch only keeps the promise from floating.
+    fetchHistory().catch(() => undefined);
     return () => controller.abort();
   }, []);
 

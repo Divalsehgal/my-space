@@ -35,7 +35,7 @@ interface ArchitectureDiagramProps {
   edges: ArchitectureEdgeConfig[];
 }
 
-export default function ArchitectureDiagram({ nodes, edges }: ArchitectureDiagramProps) {
+export default function ArchitectureDiagram({ nodes, edges }: Readonly<ArchitectureDiagramProps>) {
   const t = useT();
   const [selectedNode, setSelectedNode] = useState<ArchitectureNodeConfig | null>(null);
   const { mode } = useThemeContext();

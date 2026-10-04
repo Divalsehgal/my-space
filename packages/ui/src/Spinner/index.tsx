@@ -11,7 +11,7 @@ type SpinnerProps = {
 /** Small indeterminate progress ring. Server-safe: callers pass translated labels. */
 export default function Spinner({ size = 16, className, "aria-label": label }: Readonly<SpinnerProps>) {
   return (
-    <span
+    <span // NOSONAR: a native <progress> can't be styled as a spinning ring consistently across browsers; role="progressbar" is the ARIA equivalent
       role={label ? "progressbar" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}

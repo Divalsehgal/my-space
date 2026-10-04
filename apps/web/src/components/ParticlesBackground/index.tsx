@@ -76,7 +76,8 @@ export default function ParticlesBackground({
       }
     };
 
-    initEngine();
+    // initEngine handles its own errors; the catch only keeps the promise from floating.
+    initEngine().catch(() => undefined);
   }, [prefersReducedMotion]);
 
   const options: RecursivePartial<IOptions> = useMemo(

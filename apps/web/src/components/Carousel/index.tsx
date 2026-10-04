@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { Children, isValidElement, useState, useEffect, useCallback, type ReactNode } from "react";
 import IconButton from "@dival-sehgal/ui/icon-button";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@dival-sehgal/ui/icons";
@@ -24,8 +24,10 @@ type CarouselProps = {
   autoPlayInterval?: number;
 };
 
+const slideKey = (slide: ReactNode) => (isValidElement(slide) ? slide.key : null);
+
 export default function Carousel({
-  slides: items,
+  slides,
   sectionTitle,
   progressLabelPrefix,
   showNavigation = true,
@@ -35,6 +37,9 @@ export default function Carousel({
   autoPlayInterval = 5000,
 }: Readonly<CarouselProps>) {
   const t = useT();
+  // Children.toArray keys every slide from the caller's own element key, so
+  // slide wrappers and dots get stable keys instead of array indexes.
+  const items = Children.toArray(slides);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -52,13 +57,13 @@ export default function Carousel({
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
-    const t = e.targetTouches && e.targetTouches[0];
+    const t = e.targetTouches?.[0];
     if (t) {setTouchStart(t.clientX);}
     setIsAutoPlayActive(false);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    const t = e.targetTouches && e.targetTouches[0];
+    const t = e.targetTouches?.[0];
     if (t) {setTouchEnd(t.clientX);}
   };
 
@@ -156,16 +161,16 @@ export default function Carousel({
         {/* Every slide stays mounted (and in the server HTML); inactive ones are
             hidden, so each card keeps its own state when you page away and back. */}
         {items.map((slide, index) => (
-          <div key={index} className={styles["carousel__item-wrapper"]} hidden={index !== currentIndex}>
+          <div key={slideKey(slide)} className={styles["carousel__item-wrapper"]} hidden={index !== currentIndex}>
             {slide}
           </div>
         ))}
 
         {showDots && (
           <div className={styles["carousel__dots"]}>
-            {items.map((_, index) => (
+            {items.map((slide, index) => (
               <button
-                key={index}
+                key={slideKey(slide)}
                 type="button"
                 className={clsx(styles["carousel__dot"], { [styles["carousel__dot--active"]]: currentIndex === index })}
                 onClick={() => {

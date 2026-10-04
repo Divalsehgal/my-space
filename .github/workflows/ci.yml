@@ -21,7 +21,10 @@ jobs:
           node-version-file: .nvmrc
           cache: yarn
 
-      - run: yarn install --frozen-lockfile
+      # --ignore-scripts: dependency lifecycle scripts never run in CI. None
+      # are needed — native binaries (esbuild, workerd, …) ship as optional
+      # platform packages.
+      - run: yarn install --frozen-lockfile --ignore-scripts
 
       # Fail fast if a secret holds the wrong kind of Contentful token (e.g. a
       # read/write management token in CONTENTFUL_ACCESS_TOKEN).
@@ -56,7 +59,10 @@ jobs:
           node-version-file: .nvmrc
           cache: yarn
 
-      - run: yarn install --frozen-lockfile
+      # --ignore-scripts: dependency lifecycle scripts never run in CI. None
+      # are needed — native binaries (esbuild, workerd, …) ship as optional
+      # platform packages.
+      - run: yarn install --frozen-lockfile --ignore-scripts
 
       # Requires CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN and
       # CONTENTFUL_PREVIEW_ACCESS_TOKEN set as repo secrets (Settings ->
@@ -71,7 +77,9 @@ jobs:
       # End-to-end tests against the production build just made (desktop and
       # mobile Chrome). The server re-reads Contentful at runtime, so it needs
       # the same secrets as the build.
-      - run: npx playwright install --with-deps chromium
+      # Runs the locked @playwright/test devDependency's CLI rather than
+      # letting npx fetch an unpinned package.
+      - run: yarn playwright install --with-deps chromium
         working-directory: apps/web
 
       - run: yarn workspace web test:e2e
@@ -103,7 +111,10 @@ jobs:
           node-version-file: .nvmrc
           cache: yarn
 
-      - run: yarn install --frozen-lockfile
+      # --ignore-scripts: dependency lifecycle scripts never run in CI. None
+      # are needed — native binaries (esbuild, workerd, …) ship as optional
+      # platform packages.
+      - run: yarn install --frozen-lockfile --ignore-scripts
 
       - run: yarn workspace web translations
         env:
@@ -117,6 +128,6 @@ jobs:
       # Requires a SONAR_TOKEN repo secret (Settings -> Secrets and
       # variables -> Actions), generated from sonarcloud.io once the repo
       # is imported there. See sonar-project.properties for project config.
-      - uses: SonarSource/sonarqube-scan-action@v5
+      - uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5.3.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

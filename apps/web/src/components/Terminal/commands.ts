@@ -75,7 +75,13 @@ type Handler = (arg: string, index: SiteIndex, t: Translate) => CommandResult;
 
 const HANDLERS: Record<string, Handler> = {
   help: (_arg, _index, t) => ({
-    lines: [t("terminal.commandsHeading"), ...COMMANDS.map((name) => `  ${name.padEnd(COMMAND_COLUMN_WIDTH)}${t(`terminal.help.${name}`)}`)],
+    lines: [
+      t("terminal.commandsHeading"),
+      ...COMMANDS.map((name) => {
+        const description = t(`terminal.help.${name}`);
+        return `  ${name.padEnd(COMMAND_COLUMN_WIDTH)}${description}`;
+      }),
+    ],
   }),
   whoami: (_arg, index) => ({ lines: [`${index.name}, ${index.role}.`] }),
   about: (_arg, index, t) => ({ lines: index.about.length ? index.about : [t("terminal.noBio")] }),

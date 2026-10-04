@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const nextDir = '.next';
 const appBuildManifestPath = path.join(nextDir, 'app-build-manifest.json');
@@ -13,7 +13,7 @@ function formatSize(bytes) {
   const k = 1024;
   const sizes = ['B', 'kB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
 console.log('\n' + 'Route'.padEnd(40) + 'Size'.padEnd(15) + 'First Load JS');

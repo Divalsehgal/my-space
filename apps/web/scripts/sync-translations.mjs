@@ -29,7 +29,9 @@ try {
 const space = process.env.CONTENTFUL_SPACE_ID;
 const token = process.env.CONTENTFUL_ACCESS_TOKEN;
 const environment = process.env.CONTENTFUL_ENVIRONMENT || "master";
-const log = (message) => console.info(`[translations] ${message}`);
+// Strips CR/LF and other control characters so remote error text can't forge log lines.
+const sanitize = (value) => String(value).replaceAll(/\p{Cc}/gu, " ");
+const log = (message) => console.info(`[translations] ${sanitize(message)}`);
 
 // Builds run on Vercel/CI with this token, so it must be read-only. Personal
 // access tokens (Management API, read/write) start with "CFPAT-".
@@ -104,7 +106,7 @@ async function main() {
       log(`Contentful unavailable (${error.message}); reusing the last generated files.`);
       return;
     }
-    console.error(`[translations] Can't generate translation files: ${error.message}`);
+    console.error(`[translations] Can't generate translation files: ${sanitize(error.message)}`);
     process.exit(1);
   }
 }

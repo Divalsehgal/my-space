@@ -24,7 +24,7 @@ interface BlogPostSkeletonProps {
   skipBreadcrumbs?: boolean;
 }
 
-export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSkeletonProps) {
+export default function BlogPostSkeleton({ skipBreadcrumbs = false }: Readonly<BlogPostSkeletonProps>) {
   const content = (
     <article className={`${styles["skeleton-page"]} ${styles["blog-post"]}`}>
         <FluidContainer className={styles["blog-post__container"]}>

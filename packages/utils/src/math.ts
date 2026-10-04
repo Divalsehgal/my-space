@@ -1,5 +1,5 @@
 /** π(3 − √5) rad (≈137.5°): the turn between points that spaces them most evenly. */
-const GOLDEN_ANGLE = 2.399_963_229_728_653;
+const GOLDEN_ANGLE = 2.399963229728653;
 /** Sample each latitude band at its middle, not its edge. */
 const BAND_CENTRE = 0.5;
 

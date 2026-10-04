@@ -11,7 +11,7 @@ interface ProjectProps {
   items?: ProjectConfig[];
 }
 
-export default function Project({ items = [] }: ProjectProps) {
+export default function Project({ items = [] }: Readonly<ProjectProps>) {
   const t = getT();
   return (
     <FluidContainer as="section" id="projects" className={clsx("section", styles.project)}>

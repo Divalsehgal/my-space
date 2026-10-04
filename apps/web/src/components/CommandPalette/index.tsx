@@ -21,7 +21,7 @@ export default function CommandPalette({ index, onRun, onClose }: Readonly<Comma
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const all = useMemo(() => buildItems(index, t), [index, t]);
 
   const results = useMemo(
@@ -54,14 +54,16 @@ export default function CommandPalette({ index, onRun, onClose }: Readonly<Comma
   };
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div
-        className={styles.palette}
-        role="dialog"
-        aria-modal="true"
-        aria-label={t("palette.label")}
-        onClick={(event) => event.stopPropagation()}
-      >
+    <div className={styles.backdrop}>
+      {/* Click-outside target. Out of the tab order: Escape closes for keyboard users. */}
+      <button
+        type="button"
+        className={styles["backdrop__dismiss"]}
+        aria-label={t("palette.keyClose")}
+        tabIndex={-1}
+        onClick={onClose}
+      />
+      <dialog open className={styles.palette} aria-modal="true" aria-label={t("palette.label")}>
         <input
           ref={inputRef}
           className={styles["palette__input"]}
@@ -79,33 +81,43 @@ export default function CommandPalette({ index, onRun, onClose }: Readonly<Comma
           autoComplete="off"
           spellCheck={false}
         />
-        <ul ref={listRef} id="palette-results" role="listbox" className={styles["palette__list"]}>
-          {results.length === 0 && <li className={styles["palette__empty"]}>{t("palette.empty", { query })}</li>}
+        {/* Plain <div> wrappers (not <ul>/<li>), so nothing needs role="presentation". */}
+        <div ref={listRef} id="palette-results" role="listbox" className={styles["palette__list"]}>
+          {results.length === 0 && <div className={styles["palette__empty"]}>{t("palette.empty", { query })}</div>}
           {results.map((item, i) => {
             const header = i === 0 || results[i - 1].group !== item.group ? item.group : null;
             return (
-              <li key={item.id} role="presentation">
+              <div key={item.id}>
                 {header && <p className={styles["palette__group"]} aria-hidden="true">{header}</p>}
+                {/* Focus stays in the input (aria-activedescendant); tabIndex -1
+                    keeps options out of the tab order but focusable on click. */}
                 <div
                   id={`palette-${item.id}`}
                   role="option"
+                  tabIndex={-1}
                   aria-selected={i === active}
                   data-index={i}
                   className={clsx(styles["palette__item"], i === active && styles["palette__item--active"])}
                   onMouseMove={() => setActive(i)}
                   onClick={() => onRun(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onRun(item);
+                    }
+                  }}
                 >
                   <span className={styles["palette__label"]}>{item.label}</span>
                   {item.hint && <span className={styles["palette__hint"]}>{item.hint}</span>}
                 </div>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </div>
         <p className={styles["palette__footer"]}>
           <kbd>↑</kbd><kbd>↓</kbd> {t("palette.keyMove")} <kbd>↵</kbd> {t("palette.keyRun")} <kbd>esc</kbd> {t("palette.keyClose")} · <kbd>`</kbd> {t("palette.keyTerminal")}
         </p>
-      </div>
+      </dialog>
     </div>
   );
 }

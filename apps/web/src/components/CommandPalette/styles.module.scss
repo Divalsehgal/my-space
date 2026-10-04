@@ -15,17 +15,36 @@
   backdrop-filter: blur($t-blur-md);
 
   animation: palette-fade $t-motion-duration-fast $t-motion-easing-emphasized;
+
+  &__dismiss {
+    position: absolute;
+    inset: 0;
+
+    padding: 0;
+    border: none;
+
+    background: transparent;
+  }
 }
 
 .palette {
+  // <dialog open> (non-modal): undo the UA dialog box so it lays out like the
+  // former <div>, stacked above the backdrop's dismiss button.
+  position: relative;
+
   overflow: hidden;
   display: flex;
   flex-direction: column;
 
   width: min(620px, 100%);
+  height: auto;
   max-height: 70vh;
+  margin: 0;
+  padding: 0;
   border: 1px solid $t-colors-border-default;
   border-radius: $t-radius-lg;
+
+  color: inherit;
 
   background-color: $t-colors-background-primary;
   box-shadow: 0 30px 80px -30px $t-colors-shadow-default;

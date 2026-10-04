@@ -1,21 +1,46 @@
-node_modules
-.next
-out
-build
-dist
-.env*
-!.env.example
+# Patterns are matched against the build context root, so every nested-path
+# rule needs a **/ prefix to cover apps/* and packages/* too.
+
+# Dependencies and build output (rebuilt inside the image)
+**/node_modules
+**/.next
+**/out
+**/build
+**/dist
+**/coverage
+**/.turbo
+**/.swc
+**/.wrangler
+**/*.tsbuildinfo
+**/test-results
+**/playwright-report
+
+# Secrets — never bake env files, keys or certificates into an image.
+# Pass build-time values with `docker build --secret` (see Dockerfile).
+**/.env*
+!**/.env.example
+**/*.pem
+**/*.key
+**/.npmrc
 .vercel
+**/.vercel
+
+# VCS / CI / editor
 .git
 .github
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+.husky
 .idea
 .vscode
-*.swp
-*.swo
-.DS_Store
-Dockerfile
+**/*.swp
+**/*.swo
+**/.DS_Store
+
+# Logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Docker files themselves
+**/Dockerfile
 docker-compose.yml

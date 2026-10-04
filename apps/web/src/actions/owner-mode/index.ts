@@ -15,7 +15,8 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** Signs the owner in: verifies the secret server-side and sets the session cookies. */
 export async function enableOwnerMode(formData: FormData): Promise<void> {
-  const candidate = String(formData.get("secret") ?? "");
+  const secretField = formData.get("secret");
+  const candidate = typeof secretField === "string" ? secretField : "";
   const token = ownerSessionToken();
   if (!token || !isOwnerSecret(candidate)) {
     // Slow down guessing; the response never says which part was wrong.

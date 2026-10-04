@@ -57,7 +57,7 @@ function SplitTitle({ text }: Readonly<{ text: string }>) {
 }
 
 /** Copy on the left; on the right a deck led by the portrait, then highlights. */
-export default function Hero({ data, highlights, socials = [] }: HeroProps) {
+export default function Hero({ data, highlights, socials = [] }: Readonly<HeroProps>) {
   const t = getT();
   const title = t("common.siteName");
   const subtitle = t("hero.subtitle");

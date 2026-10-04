@@ -16,13 +16,13 @@ const config = {
     "plugin/selector-bem-pattern": {
       "componentName": "[a-z0-9-]+",
       "componentSelectors": {
-        "initial": "^\\.{componentName}(?:__[a-z0-9-]+)?(?:--[a-z0-9-]+)?$"
+        "initial": String.raw`^\.{componentName}(?:__[a-z0-9-]+)?(?:--[a-z0-9-]+)?$`
       },
       "ignoreSelectors": [
-        "^\\.section$",
-        "^\\.active$",
-        "^\\.fluid-container$",
-        "^\\.container$"
+        String.raw`^\.section$`,
+        String.raw`^\.active$`,
+        String.raw`^\.fluid-container$`,
+        String.raw`^\.container$`
       ]
     },
     "selector-pseudo-class-no-unknown": [
@@ -103,16 +103,16 @@ const config = {
     "color-no-hex": true,
     "declaration-property-value-disallowed-list": {
       "z-index": [
-        "/^-?([3-9]|\\d{2,})$/"
+        String.raw`/^-?([3-9]|\d{2,})$/`
       ],
       "/^border(-[a-z]+)*-radius$/": [
-        "/(^|[\\s(])([3-9]|\\d{2,})(\\.\\d+)?px/"
+        String.raw`/(^|[\s(])([3-9]|\d{2,})(\.\d+)?px/`
       ],
       "/^(backdrop-filter|filter)$/": [
-        "/blur\\(\\s*\\d+(\\.\\d+)?px/"
+        String.raw`/blur\(\s*\d+(\.\d+)?px/`
       ],
       "/^(transition|transition-duration)$/": [
-        "/(^|[\\s,(])\\d*\\.?\\d+m?s\\b/"
+        String.raw`/(^|[\s,(])\d*\.?\d+m?s\b/`
       ]
     },
     "function-disallowed-list": [

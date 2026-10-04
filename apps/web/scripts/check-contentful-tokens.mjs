@@ -73,10 +73,11 @@ async function main() {
   const seen = new Map();
   const problems = [];
   for (const check of CHECKS) {
-    problems.push(...(await checkToken(check, seen)));
+    problems.push(...(await checkToken(check, seen))); // NOSONAR: sequential: `seen` dedupes tokens across checks and the report prints in order
   }
   if (problems.length) {
-    console.error(`\n${problems.map((p) => `✖ ${p}`).join("\n")}`);
+    const report = problems.map((p) => `✖ ${p}`).join("\n");
+    console.error(`\n${report}`);
     process.exit(1);
   }
   console.info("\nAll Contentful tokens are the right kind.");
