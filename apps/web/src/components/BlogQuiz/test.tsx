@@ -117,4 +117,23 @@ describe('BlogQuiz Component', () => {
     );
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('expands every question for review and locks answers after submitting', () => {
+    render(<BlogQuiz quiz={mockQuiz} />);
+    fireEvent.click(screen.getByText('Zero bundle size on client'));
+    fireEvent.click(screen.getByRole('button', { name: /02.*memoizing values/i }));
+    fireEvent.click(screen.getByText('useCallback'));
+    fireEvent.click(screen.getByRole('button', { name: /see your learning score/i }));
+
+    // Collapse both questions, then "review" opens them all again.
+    fireEvent.click(screen.getByRole('button', { name: /01.*server components/i }));
+    fireEvent.click(screen.getByRole('button', { name: /02.*memoizing values/i }));
+    fireEvent.click(screen.getByRole('button', { name: /review/i }));
+    expect(screen.getByRole('button', { name: /01.*server components/i })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: /02.*memoizing values/i })).toHaveAttribute('aria-expanded', 'true');
+
+    // Picking another option after submitting changes nothing.
+    fireEvent.click(screen.getByText('useMemo'));
+    expect(screen.getByText('1 / 2')).toBeInTheDocument();
+  });
 });

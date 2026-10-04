@@ -36,4 +36,16 @@ describe('ImageLightbox', () => {
     fireEvent.click(closeBtn);
     expect(handleClose).toHaveBeenCalled();
   });
+
+  it('closes on backdrop click but not on content click, and falls back to default labels', () => {
+    const handleClose = jest.fn();
+    render(<ImageLightbox isOpen={true} asset={{ url: 'https://x.test/a.png' }} onClose={handleClose} />);
+
+    const dialog = screen.getByRole('dialog', { name: 'Expanded image view' });
+    const image = screen.getByAltText('Blog illustration expanded');
+    fireEvent.click(image);
+    expect(handleClose).not.toHaveBeenCalled();
+    fireEvent.click(dialog);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
 });

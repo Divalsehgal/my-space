@@ -121,9 +121,10 @@ jobs:
           CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
           CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
 
-      # Generates apps/web/coverage/lcov.info, referenced by
-      # sonar-project.properties.
-      - run: yarn workspace web test:coverage
+      # Generates <workspace>/coverage/lcov.info for every tested workspace,
+      # referenced by sonar-project.properties. Runs through turbo so ^build
+      # compiles workspace deps (design-tokens' gitignored build/) before jest.
+      - run: yarn test:coverage
 
       # Requires a SONAR_TOKEN repo secret (Settings -> Secrets and
       # variables -> Actions), generated from sonarcloud.io once the repo

@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SpotlightTracker from "./index";
 import { paintSpotlight } from "@/lib/spotlight";
@@ -32,5 +32,49 @@ describe("SpotlightTracker", () => {
   it("renders nothing", () => {
     const { container } = render(<SpotlightTracker />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  describe("with hover support", () => {
+    const originalMatchMedia = window.matchMedia;
+    let frames: FrameRequestCallback[];
+
+    beforeEach(() => {
+      frames = [];
+      window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
+      jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        frames.push(cb);
+        return frames.length;
+      });
+      jest.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+      jest.restoreAllMocks();
+    });
+
+    it("paints the latest pointer position once per frame", () => {
+      document.body.innerHTML = `<div data-spotlight id="card"></div>`;
+      const card = document.getElementById("card") as HTMLElement;
+      card.getBoundingClientRect = rect(0, 0);
+      render(<SpotlightTracker />);
+      // jsdom's PointerEvent drops clientX/Y, so dispatch a MouseEvent of that type.
+      const move = (clientX: number, clientY: number) =>
+        card.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX, clientY }));
+      move(1, 2);
+      move(3, 4);
+      expect(frames).toHaveLength(1);
+      expect(card.style.getPropertyValue("--spot-x")).toBe("");
+      frames[0](0);
+      expect(card.style.getPropertyValue("--spot-x")).toBe("3px");
+      expect(card.style.getPropertyValue("--spot-y")).toBe("4px");
+    });
+
+    it("removes the listener and cancels the frame on unmount", () => {
+      const { unmount } = render(<SpotlightTracker />);
+      fireEvent.pointerMove(document.body);
+      unmount();
+      expect(window.cancelAnimationFrame).toHaveBeenCalledWith(1);
+    });
   });
 });

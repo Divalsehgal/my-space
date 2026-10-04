@@ -1,9 +1,13 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
+import { emitSiteEvent, SITE_EVENTS } from '@/lib/site-events';
 import Chatbot from './index';
 import { useChat } from './hooks/useChat';
 
 // The panel is lazy-loaded in production; render it synchronously here.
-jest.mock("next/dynamic", () => () => jest.requireActual("./ChatPanel").default);
+jest.mock("next/dynamic", () => (load: () => Promise<unknown>) => {
+  void load();
+  return jest.requireActual("./ChatPanel").default;
+});
 
 // Mock useChat hook
 jest.mock('./hooks/useChat', () => ({
@@ -135,5 +139,19 @@ describe('Chatbot Component', () => {
     });
     rerender(<Chatbot />);
     expect(document.querySelector('[class*="typing-indicator"]')).not.toBeInTheDocument();
+  });
+
+  it('opens from a site event and forwards a pending question', () => {
+    render(<Chatbot />);
+    act(() => emitSiteEvent(SITE_EVENTS.openChat, { message: 'What stack?' }));
+    expect(screen.getByRole('heading', { name: /portfolio assistant/i })).toBeInTheDocument();
+    expect(mockSendMessage).toHaveBeenCalledWith('What stack?');
+  });
+
+  it('opens from a site event without a question', () => {
+    render(<Chatbot />);
+    act(() => emitSiteEvent(SITE_EVENTS.openChat));
+    expect(screen.getByRole('heading', { name: /portfolio assistant/i })).toBeInTheDocument();
+    expect(mockSendMessage).not.toHaveBeenCalled();
   });
 });

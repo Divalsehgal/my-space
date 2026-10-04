@@ -159,4 +159,98 @@ describe('useChat', () => {
 
     expect(result.current.messages).toHaveLength(0);
   });
+
+  it('ignores failed, malformed or empty history responses', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const empty = [null, 'text', { role: 'assistant', content: '   ' }];
+    const responses = [{ ok: false } as Response, jsonResponse({ messages: 'nope' }), jsonResponse({ messages: empty })];
+    for (const response of responses) {
+      globalThis.fetch = jest.fn(async () => response) as unknown as typeof fetch;
+      const { result } = renderHook(() => useChat());
+      await act(() => Promise.resolve());
+      expect(result.current.messages).toEqual([]);
+    }
+
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('offline')) as unknown as typeof fetch;
+    renderHook(() => useChat());
+    await waitFor(() => expect(consoleError).toHaveBeenCalledWith('Failed to fetch chat history:', expect.any(Error)));
+  });
+
+  it('does not log aborted history requests', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    globalThis.fetch = jest.fn().mockRejectedValue(new DOMException('aborted', 'AbortError')) as unknown as typeof fetch;
+    renderHook(() => useChat());
+    await act(() => Promise.resolve());
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it('skips non-data lines and bad JSON, and flushes a trailing unterminated line', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ messages: [] }))
+      .mockResolvedValueOnce({
+        ok: true,
+        body: sseStream([': ping\n', 'data: not-json\n', 'data: {"other":1}\n', 'data: {"response":"A"}\n', 'data: {"response":"B"}']),
+      } as unknown as Response) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    await act(async () => {
+      await result.current.sendMessage('Hi');
+    });
+    expect(result.current.messages.at(-1)).toEqual({ role: 'assistant', content: 'AB' });
+  });
+
+  it('shows the error bubble when the stream carries no content', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ messages: [] }))
+      .mockResolvedValueOnce({ ok: true, body: sseStream(['data: [DONE]\n']) } as unknown as Response) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    await act(async () => {
+      await result.current.sendMessage('Hi');
+    });
+    expect(result.current.messages.at(-1)).toEqual(expect.objectContaining({ role: 'assistant', isError: true }));
+  });
+
+  it('ignores blank messages and retries with no prior user message', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(jsonResponse({ messages: [] }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const { result } = renderHook(() => useChat());
+    await act(async () => {
+      await result.current.sendMessage('   ');
+      await result.current.retryLastMessage();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1); // history only
+    expect(result.current.messages).toEqual([]);
+  });
+
+  it('ignores sends and retries while a reply is pending, and stays silent when cleared mid-request', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    let rejectChat!: (error: unknown) => void;
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ messages: [] }))
+      .mockImplementationOnce(() => new Promise((_resolve, reject) => (rejectChat = reject)));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    let pending!: Promise<void>;
+    act(() => {
+      pending = result.current.sendMessage('First');
+    });
+    expect(result.current.isTyping).toBe(true);
+
+    await act(() => result.current.sendMessage('Second').then(result.current.retryLastMessage));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    act(() => result.current.clearHistory());
+    await act(async () => {
+      rejectChat(new DOMException('aborted', 'AbortError'));
+      await pending;
+    });
+    expect(result.current.messages).toEqual([]);
+    expect(result.current.isTyping).toBe(false);
+    expect(consoleError).not.toHaveBeenCalled();
+  });
 });

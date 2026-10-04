@@ -97,4 +97,39 @@ describe("AnimatedImageBlock", () => {
 
     expect(img).toHaveAttribute("src", "/placeholder-project.jpg");
   });
+
+  it("closes the lightbox on Escape and restores page scrolling", async () => {
+    render(<AnimatedImageBlock asset={asset} />);
+    fireEvent.click(screen.getByRole("button", { name: /view sample diagram in full screen/i }));
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("does not open the lightbox for a broken image", () => {
+    render(<AnimatedImageBlock asset={asset} />);
+    fireEvent.error(screen.getByTestId("next-image"));
+    fireEvent.click(screen.getByRole("button", { name: /view sample diagram in full screen/i }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("uses fallback labels and 16:9 sizing without title or dimensions", () => {
+    render(<AnimatedImageBlock asset={{ url: asset.url }} />);
+    const trigger = screen.getByRole("button", { name: "View image in full screen" });
+    expect(trigger.style.aspectRatio).toBe("16 / 9");
+    expect(screen.getByAltText("Blog illustration")).toBeInTheDocument();
+  });
+
+  it("uses the default next/image loader when configured", () => {
+    const original = process.env.NEXT_PUBLIC_IMAGE_LOADER;
+    process.env.NEXT_PUBLIC_IMAGE_LOADER = "default";
+    render(<AnimatedImageBlock asset={asset} />);
+    expect(screen.getByTestId("next-image")).toBeInTheDocument();
+    process.env.NEXT_PUBLIC_IMAGE_LOADER = original;
+  });
 });
