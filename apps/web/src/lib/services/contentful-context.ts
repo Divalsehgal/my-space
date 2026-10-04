@@ -1,5 +1,10 @@
+import "server-only";
+
 import { fetchContentful, type ContentfulCollectionResponse, type ContentfulPostItem } from "./contentful";
 import type { ContentfulRichText } from "@/types/contentful";
+
+/** Length of the plain-text description given to the chatbot per post. */
+const DESCRIPTION_CHARS = 180;
 
 /**
  * Simple helper to convert Contentful Rich Text JSON to plain text.
@@ -64,7 +69,7 @@ export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ 
     return data.blogPageCollection.items.map(item => ({
       title: item.title,
       slug: item.slug,
-      description: contentfulToPlainText(item.body).slice(0, 180),
+      description: contentfulToPlainText(item.body).slice(0, DESCRIPTION_CHARS),
       date: item.sys.firstPublishedAt,
       tags: [], // Contentful schema might need tags added, leaving empty for now
       content: contentfulToPlainText(item.body)

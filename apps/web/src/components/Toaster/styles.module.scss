@@ -1,0 +1,135 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.toast {
+  display: flex;
+  gap: $t-spacing-3;
+  align-items: center;
+
+  padding: $t-spacing-3 $t-spacing-3 $t-spacing-3 $t-spacing-4;
+  border: 1px solid;
+  border-radius: $t-radius-md;
+
+  box-shadow: 0 16px 40px -20px $t-colors-shadow-default;
+
+  &[data-state="open"] {
+    animation: toast-in $t-motion-duration-slow $t-motion-easing-emphasized;
+  }
+
+  &[data-state="closed"] {
+    animation: toast-out $t-motion-duration-base $t-motion-easing-standard forwards;
+  }
+
+  &[data-swipe="move"] {
+    transform: translateY(var(--radix-toast-swipe-move-y));
+  }
+
+  &--success {
+    border-color: $t-colors-feedback-success-border;
+    color: $t-colors-feedback-success-text;
+    background-color: $t-colors-feedback-success-surface;
+  }
+
+  &--error {
+    border-color: $t-colors-feedback-error-border;
+    color: $t-colors-feedback-error-text;
+    background-color: $t-colors-feedback-error-surface;
+  }
+
+  &--info {
+    border-color: $t-colors-feedback-info-border;
+    color: $t-colors-feedback-info-text;
+    background-color: $t-colors-feedback-info-surface;
+  }
+
+  &--warning {
+    border-color: $t-colors-feedback-warning-border;
+    color: $t-colors-feedback-warning-text;
+    background-color: $t-colors-feedback-warning-surface;
+  }
+
+  &__message {
+    flex: 1;
+    margin: 0;
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-medium;
+  }
+
+  &__close {
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: $t-spacing-8;
+    height: $t-spacing-8;
+    border: none;
+    border-radius: 50%;
+
+    color: inherit;
+
+    background: transparent;
+
+    &:hover {
+      background-color: color-mix(in srgb, currentcolor 10%, transparent);
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 2px;
+    }
+  }
+
+  // Top-centre, like the previous snackbar.
+  &__viewport {
+    position: fixed;
+    z-index: $t-layer-toast;
+    top: $t-spacing-20;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-2;
+
+    width: min(440px, calc(100vw - #{$t-spacing-8}));
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    outline: none;
+
+    // Radix focuses the viewport on F8; show where focus went.
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 4px;
+    }
+  }
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@include reduced-motion {
+  .toast[data-state="open"],
+  .toast[data-state="closed"] {
+    animation: none;
+  }
+}

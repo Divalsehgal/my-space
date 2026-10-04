@@ -1,4 +1,5 @@
 import styles from './styles.module.scss';
+import { useT } from "@/i18n/client";
 
 interface QuizNavigatorProps {
   answers: Record<string, string>;
@@ -17,22 +18,23 @@ export default function QuizNavigator({
   percentage,
   tierColor,
 }: Readonly<QuizNavigatorProps>) {
+  const t = useT();
   const answeredCount = Object.keys(answers).length;
   const progressPercent = submitted
     ? percentage
     : (answeredCount / totalQuestions) * 100;
 
   return (
-    <div className={styles.navigatorStrip} aria-label="Quiz progress">
+    <div className={styles.navigatorStrip} aria-label={t("quiz.progress")}>
       <div className={styles.navHeader}>
         <div className={styles.navLabel}>
           <span>📋</span>
-          <span>Quiz Progress</span>
+          <span>{t("quiz.progress")}</span>
         </div>
         <span className={styles.navCount}>
           {submitted
-            ? `${score} of ${totalQuestions} Correct (${percentage}%)`
-            : `${answeredCount} of ${totalQuestions} Answered`}
+            ? t("quiz.progressScore", { score, total: totalQuestions, percentage })
+            : t("quiz.progressAnswered", { answered: answeredCount, total: totalQuestions })}
         </span>
       </div>
 

@@ -1,4 +1,5 @@
 @use "variables.scss" as *;
+@use "mixins" as *;
 
 .related-posts {
   margin-top: $t-spacing-12;
@@ -23,7 +24,7 @@
   &__item {
     padding: $t-spacing-4;
     border: 1px solid $t-colors-border-subtle;
-    border-radius: 12px;
+    border-radius: $t-radius-md;
   }
 
   &__link {
@@ -31,6 +32,8 @@
     font-weight: $t-font-weight-semibold;
     color: $t-colors-text-primary;
     text-decoration: none;
+
+    @include focus-ring;
 
     &:hover {
       text-decoration: underline;

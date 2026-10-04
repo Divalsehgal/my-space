@@ -2,6 +2,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Chatbot from './index';
 import { useChat } from './hooks/useChat';
 
+// The panel is lazy-loaded in production; render it synchronously here.
+jest.mock("next/dynamic", () => () => jest.requireActual("./ChatPanel").default);
+
 // Mock useChat hook
 jest.mock('./hooks/useChat', () => ({
   useChat: jest.fn(),
@@ -37,7 +40,8 @@ describe('Chatbot Component', () => {
     render(<Chatbot />);
     const button = screen.getByLabelText(/toggle chatbot/i);
     fireEvent.click(button);
-    expect(screen.getByText(/assistant/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /portfolio assistant/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Message Portfolio Assistant' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/ask a question/i)).toBeInTheDocument();
   });
 
@@ -119,7 +123,7 @@ describe('Chatbot Component', () => {
       isTyping: true,
     });
     rerender(<Chatbot />);
-    expect(document.querySelector('[class*="chatbot__typing"]')).toBeInTheDocument();
+    expect(document.querySelector('[class*="typing-indicator"]')).toBeInTheDocument();
 
     // Streaming started: assistant bubble exists, so the indicator is hidden.
     mockUseChat({
@@ -130,6 +134,6 @@ describe('Chatbot Component', () => {
       isTyping: true,
     });
     rerender(<Chatbot />);
-    expect(document.querySelector('[class*="chatbot__typing"]')).not.toBeInTheDocument();
+    expect(document.querySelector('[class*="typing-indicator"]')).not.toBeInTheDocument();
   });
 });

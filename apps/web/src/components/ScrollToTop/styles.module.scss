@@ -3,13 +3,13 @@
 
 .scrollToTop {
   position: fixed;
-  z-index: $t-layer-level-positive-8;
+  z-index: $t-layer-floating;
   right: $t-spacing-8;
   bottom: $t-spacing-8;
 
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in $t-motion-duration-slow $t-motion-easing-emphasized;
 
-  @media (width <= 450px) {
+  @media (width <= $t-breakpoint-mobile-lg) {
     right: auto;
     bottom: calc($t-spacing-4 + env(safe-area-inset-bottom, 0px));
     left: $t-spacing-4;
@@ -17,30 +17,26 @@
 }
 
 .button {
-  border: 2px solid $t-colors-border-strong !important;
+  border: 2px solid $t-colors-border-strong;
 
-  color: $t-colors-primary-default !important;
+  color: $t-colors-primary-default;
 
-  background-color: $t-colors-surface-glass !important;
-  backdrop-filter: blur(8px);
+  background-color: $t-colors-surface-glass;
+  backdrop-filter: blur($t-blur-md);
 
-  transition: all 0.2s ease-in-out !important;
+  transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: transparent !important;
-    background-color: $t-colors-primary-default !important;
+    border-color: transparent;
+    background-color: $t-colors-primary-default;
   }
 }
 
-@keyframes fade-in {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
+@include keyframes-fade-in;
 
-  to {
-    transform: scale(1);
-    opacity: 1;
+@include reduced-motion {
+  .scrollToTop {
+    animation: none;
   }
 }

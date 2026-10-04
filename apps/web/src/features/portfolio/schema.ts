@@ -52,6 +52,8 @@ export const ArchitectureNodeConfigSchema = z.object({
   id: z.string(),
   position: z.object({ x: z.number(), y: z.number() }),
   type: z.enum(["frontend", "backend", "external", "data"]).optional(),
+  /** Layer used by the stacked mobile layout (generated diagrams set it). */
+  tier: z.enum(["client", "compute", "data"]).optional(),
   data: z.object({
     label: z.string(),
     description: z.string().optional(),
@@ -77,51 +79,33 @@ export const ArchitectureConfigSchema = z.object({
   edges: z.array(ArchitectureEdgeConfigSchema).optional().default([]),
 });
 
+/**
+ * The GitHub `portfolio-config` JSON now holds data only: links, contact email,
+ * socials and the structured lists (skills, experience, projects). All copy —
+ * name, subtitle, about text, SEO title/description, UI labels — comes from the
+ * Contentful `translation` model (src/i18n). Fields not listed here are ignored
+ * (zod strips unknown keys), so old copy left in the JSON is harmless.
+ */
 export const PortfolioConfigSchema = z.object({
-  metadata: z.object({
-    title: z.string(),
-    description: z.string(),
-    keywords: z.array(z.string()).optional().default([]),
-    verification: z.object({
-      google: z.string().optional(),
-    }).optional(),
-  }).optional(),
   socials: z.array(z.object({
     label: z.string(),
     href: z.string(),
     icon: z.string().optional(),
   })).optional().default([]),
-  navbar: z.object({
-    brand: z.string(),
-  }).optional(),
   hero: z.object({
-    title: z.string(),
-    subtitle: z.string(),
-    primaryCtaLabel: z.string().optional(),
     primaryCtaHref: z.string().optional(),
-    secondaryCtaLabel: z.string().optional(),
     secondaryCtaHref: z.string().optional(),
     resumeUrl: z.string().optional(),
-    resumeLabel: z.string().optional(),
-    badge: z.object({
-      label: z.string(),
-      enabled: z.boolean(),
-    }).optional(),
-  }),
+  }).optional().default({}),
   about: z.object({
-    title: z.string(),
-    paragraphs: z.array(z.string()).optional().default([]),
     facts: z.array(z.string()).optional().default([]),
     resumeUrl: z.string().optional(),
-    imgSrc: z.string().optional(),
-  }),
+  }).optional().default({ facts: [] }),
   experience: z.array(ExperienceConfigSchema).optional().default([]),
   skills: SkillsConfigSchema.optional().default({}),
   projects: z.array(ProjectConfigSchema).optional().default([]),
   architecture: ArchitectureConfigSchema.optional().default({ nodes: [], edges: [] }),
   contact: z.object({
-    title: z.string(),
-    subtitle: z.string(),
     email: z.string().email(),
   }).optional(),
 });

@@ -63,15 +63,15 @@
 
     display: block;
 
-    margin-left: -1px; // overlap border
+    margin-left: $hairline-offset; // overlap border
     padding: $t-spacing-2 $t-spacing-4;
     border-left: 2px solid transparent;
 
-    line-height: 1.4;
+    line-height: $t-font-line-height-normal;
     color: $t-colors-text-secondary;
     text-decoration: none;
 
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
 
     &::first-letter {
       font-weight: $t-font-weight-bold;

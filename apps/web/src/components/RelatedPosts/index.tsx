@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { ContentfulPost } from "@/types";
 import styles from "./styles.module.scss";
+import { getT } from "@/i18n/server";
+import { AUTHOR } from "@/lib/config/site";
 
 type RelatedPostsProps = {
   posts: readonly ContentfulPost[];
 };
 
 export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
+  const t = getT();
   if (posts.length === 0) {
     return null;
   }
@@ -14,7 +17,7 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
   return (
     <nav className={styles["related-posts"]} aria-labelledby="related-posts-heading">
       <h2 id="related-posts-heading" className={styles["related-posts__heading"]}>
-        More articles by Dival Sehgal
+        {t("post.related", { name: AUTHOR.name })}
       </h2>
       <ul className={styles["related-posts__list"]}>
         {posts.map((post) => (

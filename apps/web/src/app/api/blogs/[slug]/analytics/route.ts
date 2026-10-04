@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAnalytics } from '@/lib/services/analytics';
-
-const ADMIN_VIEW_SECRET = process.env.ADMIN_VIEW_SECRET;
+import { OWNER_SESSION_COOKIE, isOwnerModeConfigured, isOwnerSession } from '@/lib/owner';
 
 /**
  * GET /api/blogs/[slug]/analytics
@@ -9,7 +8,7 @@ const ADMIN_VIEW_SECRET = process.env.ADMIN_VIEW_SECRET;
  * total views, unique visitors, daily/monthly breakdown,
  * top referrers, and country distribution.
  *
- * Protected — requires the admin_view_secret cookie to match ADMIN_VIEW_SECRET env var.
+ * Protected — requires the owner session cookie set by signing in at /owner.
  */
 export async function GET(
   req: NextRequest,
@@ -17,15 +16,14 @@ export async function GET(
 ) {
   try {
     // ── Auth check ──────────────────────────────────────────────────
-    if (!ADMIN_VIEW_SECRET) {
+    if (!isOwnerModeConfigured()) {
       return NextResponse.json(
         { error: 'Analytics endpoint is not configured. Set ADMIN_VIEW_SECRET env var.' },
         { status: 503 }
       );
     }
 
-    const ownerCookie = req.cookies.get('admin_view_secret')?.value;
-    if (!ownerCookie || ownerCookie !== ADMIN_VIEW_SECRET) {
+    if (!isOwnerSession(req.cookies.get(OWNER_SESSION_COOKIE)?.value)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

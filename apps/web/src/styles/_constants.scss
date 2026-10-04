@@ -1,0 +1,28 @@
+// Named values the design-token scale doesn't cover. Stylelint requires a
+// token or variable for spacing, position, weight and line-height, so a
+// one-off value gets a name that says why it exists. Prefer a token
+// ($t-spacing-*, $t-font-*) whenever one fits.
+@forward "metrics"; // shared with the UI package ($hairline-offset)
+
+// Spacing below the 4px token step
+$hairline: 1px; // inner padding that keeps a 1px gradient border visible
+$micro-space: 2px; // tightest gap: meter bars, ranked lists, chip/kbd padding
+$baseline-nudge: 3px; // optically aligns small labels with larger numerals
+
+// Line heights outside the tight/normal/relaxed tokens
+$line-height-display: 0.95; // oversized display headings
+$line-height-heading: 1.1;
+$line-height-snug: 1.15;
+$line-height-comfortable: 1.5; // chat bubbles
+$line-height-reading: 1.75; // lead paragraph
+$line-height-loose: 1.8; // long-form body copy
+
+// Typography-relative spacing
+$descender-room: 0.08em; // room for descenders inside a clipping mask
+$inline-code-padding: 0.2em 0.4em;
+
+// Layout offsets
+$overlay-top-gap: 12vh; // command palette distance from the top edge
+$overlay-inset: 5vh 5vw; // terminal window margin on large screens
+$glow-bleed: -100px; // decorative glow extends past its container
+$lightbox-close-offset: -45px; // close button sits above the image

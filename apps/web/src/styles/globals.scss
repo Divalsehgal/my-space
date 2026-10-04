@@ -68,12 +68,12 @@ html {
     scroll-behavior: auto; // Recommended for mandatory snapping to avoid floaty feel
     scroll-snap-type: y mandatory !important;
 
-    @media (max-width: $t-breakpoint-tablet) {
+    @media (width <= $t-breakpoint-tablet) {
       scroll-snap-type: none !important;
     }
   }
 
-  @media (max-width: $t-breakpoint-tablet) {
+  @media (width <= $t-breakpoint-tablet) {
     .snap-proximity {
       scroll-snap-type: none !important;
     }
@@ -86,6 +86,14 @@ html {
 // override these rules without needing !important.
 // ---------------------------------------------------------------------------
 @layer base {
+  // What MUI's CssBaseline used to provide.
+  html {
+    text-size-adjust: 100%;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   html,
   body {
     min-height: 100%;
@@ -94,7 +102,7 @@ html {
 
     color: var(--t-colors-text-secondary);
 
-    background-color: var(--t-colors-surface-brand-subtle);
+    background-color: var(--t-colors-background-primary);
   }
 
   // Slices the HomeTopBar's height off the top of the content area so
@@ -119,7 +127,7 @@ html {
     overflow: visible;
     display: flex;
     flex-direction: column;
-    gap: $t-spacing-4;
+    gap: $t-spacing-8;
     align-items: center;
     justify-content: flex-start;
 
@@ -131,35 +139,20 @@ html {
     // ✓ Horizontal padding is controlled EXCLUSIVELY by FluidContainer (.fluid-container)
     // The FluidContainer is a CSS Module (unlayered) and will override this layer.
     // If layout breaks, the issue is NOT here — check FluidContainer or component styles.
-    padding-top: $t-spacing-8;
-    padding-bottom: $t-spacing-8;
+    padding-top: $t-spacing-16;
+    padding-bottom: $t-spacing-20;
 
-    background-color: $t-colors-background-primary;
+    background-color: transparent; // the site-wide galaxy shows through
 
-    &__bg-pattern {
-      pointer-events: none;
-
-      position: absolute;
-      z-index: 1;
-      inset: 0;
-
-      opacity: 0.25;
-      background-image: radial-gradient(
-        $t-colors-primary-default 2px,
-        transparent 2px
-      );
-      background-position: center;
-      background-size: 32px 32px;
-    }
 
     &--top {
       justify-content: flex-start;
     }
 
-    @media (max-width: $t-breakpoint-tablet) {
+    @media (width <= $t-breakpoint-tablet) {
       align-items: flex-start;
-      padding-top: $t-spacing-4;
-      padding-bottom: $t-spacing-4;
+      padding-top: $t-spacing-10;
+      padding-bottom: $t-spacing-12;
     }
   }
 
@@ -185,9 +178,9 @@ html {
 
 ::-webkit-scrollbar-thumb {
   border: $t-spacing-1 solid $t-colors-background-primary;
-  border-radius: $t-spacing-1;
+  border-radius: $t-radius-xs;
   background-color: $t-colors-scrollbar-thumb;
-  transition: background-color 0.2s;
+  transition: background-color $t-motion-duration-base;
 
   &:hover {
     background-color: $t-colors-scrollbar-thumb-hover;
@@ -205,4 +198,105 @@ a {
 
   // Add some padding bottom to ensure last section doesn't overlap footer
   // or that there is enough space to scroll to footer if needed
+}
+
+// Lenis (components/SmoothScroll) drives scrolling itself; native smooth
+// scrolling would fight it.
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+// ---------------------------------------------------------------------------
+// SECTION BANDS — every other home section sits on a tinted surface so
+// sections read as distinct bands against the page body (AA text contrast is
+// preserved on both surfaces; see surface.section-alt in the design tokens).
+// ---------------------------------------------------------------------------
+.page-scroll > .section:nth-of-type(even) {
+  border-top: 1px solid $t-colors-border-subtle;
+  border-bottom: 1px solid $t-colors-border-subtle;
+  background-color: $t-colors-surface-section-alt;
+}
+
+// ---------------------------------------------------------------------------
+// INTERACTION & TYPOGRAPHY BASELINES (Web Interface Guidelines)
+// ---------------------------------------------------------------------------
+@layer base {
+  // No double-tap-to-zoom delay on controls; deliberate tap highlight.
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+
+    -webkit-tap-highlight-color: color-mix(in srgb, #{$t-colors-primary-default} 15%, transparent);
+  }
+
+  // Avoid single-word last lines on headings.
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+}
+
+// Skip link: hidden until focused with the keyboard.
+.skip-link {
+  position: fixed;
+  z-index: $t-layer-skip-link;
+  top: $t-spacing-2;
+  left: $t-spacing-2;
+  transform: translateY(-200%);
+
+  padding: $t-spacing-2 $t-spacing-4;
+  border-radius: $t-radius-sm;
+
+  font-weight: $t-font-weight-semibold;
+  color: $t-colors-background-primary;
+
+  background-color: $t-colors-text-primary;
+
+  transition: transform $t-motion-duration-base $t-motion-easing-standard;
+
+  &:focus-visible {
+    transform: none;
+    outline: 2px solid $t-colors-primary-default;
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// VIEW TRANSITIONS — quick cross-fade between pages; the blog title morph
+// (share="morph") uses the browser default, which already animates position
+// and size. Disabled for reduced-motion users.
+// ---------------------------------------------------------------------------
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: $t-motion-easing-emphasized;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

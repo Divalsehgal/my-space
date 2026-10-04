@@ -1,0 +1,30 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.mobile-actions {
+  display: flex;
+  gap: $t-spacing-1;
+  align-items: center;
+
+  &__menu {
+    z-index: $t-layer-navbar;
+    display: flex;
+    color: $t-colors-text-primary;
+
+    @media (width >= $t-breakpoint-tablet) {
+      display: none;
+    }
+  }
+
+  // Same ring as the theme toggle, without the hover spin.
+  &__search {
+    width: $t-spacing-10;
+    height: $t-spacing-10;
+    border: 1px solid $t-colors-border-subtle;
+    color: $t-colors-text-primary;
+  }
+
+    @media (width >= $t-breakpoint-tablet) {
+      display: none;
+    }
+}

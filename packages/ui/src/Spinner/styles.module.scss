@@ -1,0 +1,26 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .spinner {
+    display: inline-block;
+
+    border: 2px solid $t-colors-border-default;
+    border-top-color: $t-colors-text-secondary;
+    border-radius: 50%;
+
+    animation: spinner-turn 0.7s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 2s;
+    }
+  }
+
+  @keyframes spinner-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

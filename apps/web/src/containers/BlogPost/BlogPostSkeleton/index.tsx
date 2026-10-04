@@ -1,5 +1,4 @@
-import Skeleton from "@mui/material/Skeleton";
-import Box from "@mui/material/Box";
+import Skeleton from "@dival-sehgal/ui/skeleton";
 import FluidContainer from "@/components/FluidContainer";
 import { 
   TSpacing2, 
@@ -12,6 +11,9 @@ import {
   TColorsBorderDefault,
 } from "@dival-sehgal/design-tokens/variables.js";
 import styles from "./styles.module.scss";
+
+const SKELETON_LINE_COUNT = 6;
+const SKELETON_LINES = Array.from({ length: SKELETON_LINE_COUNT }, (_, i) => i + 1);
 
 /**
  * Skeleton loader for the BlogPost container
@@ -29,87 +31,80 @@ export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSk
           <div className={styles["blog-post__layout"]}>
             {/* Sidebar Skeleton */}
             <aside className={styles["blog-post__sidebar"]}>
-              <Box sx={{ py: TSpacing4 }}>
+              <div style={{ paddingBlock: TSpacing4 }}>
                 <Skeleton
                   variant="text"
                   width={150}
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing6, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing6, backgroundColor: TColorsBackgroundSecondary }}
                 />
-                <Box 
-                  sx={{ 
+                <div 
+                  style={{ 
                     borderLeft: `1px solid ${TColorsBorderDefault}`, 
-                    pl: TSpacing4, 
+                    paddingLeft: TSpacing4,
                     display: 'flex', 
                     flexDirection: 'column', 
                     gap: TSpacing2 
                   }}
                 >
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                  {SKELETON_LINES.map((i) => (
                     <Skeleton
                       key={i}
                       variant="text"
                       width={i % 2 === 0 ? "85%" : "65%"}
                       height={20}
-                      animation="wave"
-                      sx={{ bgcolor: TColorsBackgroundSecondary }}
+                      style={{ backgroundColor: TColorsBackgroundSecondary }}
                     />
                   ))}
-                </Box>
-              </Box>
+                </div>
+              </div>
             </aside>
 
             {/* Main Content Skeleton */}
             <div className={styles["blog-post__main"]}>
-              <Box sx={{ mb: TSpacing12, mt: TSpacing8 }}>
+              <div style={{ marginBottom: TSpacing12, marginTop: TSpacing8 }}>
                 <Skeleton
                   variant="text"
                   width={200}
                   height={24}
-                  animation="wave"
-                  sx={{ bgcolor: TColorsBackgroundSecondary }}
+                  style={{ backgroundColor: TColorsBackgroundSecondary }}
                 />
-              </Box>
+              </div>
 
               <header className={styles["blog-post__header"]}>
                 <Skeleton
                   variant="text"
                   width="90%"
                   height={80}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <div className={styles["blog-post__meta"]}>
                   <Skeleton
                     variant="text"
                     width={150}
                     height={28}
-                    animation="wave"
-                    sx={{ bgcolor: TColorsBackgroundSecondary }}
+                    style={{ backgroundColor: TColorsBackgroundSecondary }}
                   />
-                  <Box sx={{ display: "flex", gap: TSpacing2 }}>
+                  <div style={{ display: "flex", gap: TSpacing2 }}>
                     <Skeleton
                       variant="rectangular"
                       width={70}
                       height={28}
-                      animation="wave"
-                      sx={{
+                      style={{
                         borderRadius: "9999px",
-                        bgcolor: TColorsBackgroundSecondary,
+                        backgroundColor: TColorsBackgroundSecondary,
                       }}
                     />
                     <Skeleton
                       variant="rectangular"
                       width={90}
                       height={28}
-                      animation="wave"
-                      sx={{
+                      style={{
                         borderRadius: "9999px",
-                        bgcolor: TColorsBackgroundSecondary,
+                        backgroundColor: TColorsBackgroundSecondary,
                       }}
                     />
-                  </Box>
+                  </div>
                 </div>
               </header>
 
@@ -118,40 +113,35 @@ export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSk
                   variant="text"
                   width="100%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="100%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="95%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="98%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing4, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing4, backgroundColor: TColorsBackgroundSecondary }}
                 />
 
                 <Skeleton
                   variant="rectangular"
                   width="100%"
                   height={400}
-                  animation="wave"
-                  sx={{
-                    mb: TSpacing6,
+                  style={{
+                    marginBottom: TSpacing6,
                     borderRadius: TSpacing6,
-                    bgcolor: TColorsBackgroundSecondary,
+                    backgroundColor: TColorsBackgroundSecondary,
                   }}
                 />
 
@@ -159,55 +149,48 @@ export default function BlogPostSkeleton({ skipBreadcrumbs = false }: BlogPostSk
                   variant="text"
                   width="40%"
                   height={48}
-                  animation="wave"
-                  sx={{ mb: TSpacing3, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing3, backgroundColor: TColorsBackgroundSecondary }}
                 />
 
                 <Skeleton
                   variant="text"
                   width="100%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="97%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="99%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                 />
                 <Skeleton
                   variant="text"
                   width="92%"
                   height={24}
-                  animation="wave"
-                  sx={{ mb: TSpacing4, bgcolor: TColorsBackgroundSecondary }}
+                  style={{ marginBottom: TSpacing4, backgroundColor: TColorsBackgroundSecondary }}
                 />
 
-                <Box className={styles["blog-post__quote"]}>
+                <div className={styles["blog-post__quote"]}>
                   <Skeleton
                     variant="text"
                     width="100%"
                     height={28}
-                    animation="wave"
-                    sx={{ mb: TSpacing2, bgcolor: TColorsBackgroundSecondary }}
+                    style={{ marginBottom: TSpacing2, backgroundColor: TColorsBackgroundSecondary }}
                   />
                   <Skeleton
                     variant="text"
                     width="80%"
                     height={28}
-                    animation="wave"
-                    sx={{ bgcolor: TColorsBackgroundSecondary }}
+                    style={{ backgroundColor: TColorsBackgroundSecondary }}
                   />
-                </Box>
+                </div>
               </section>
             </div>
           </div>

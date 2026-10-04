@@ -7,8 +7,10 @@ import QuestionCard from './QuestionCard';
 import QuizResults from './QuizResults';
 import { getTierInfo, type BlogQuizProps } from './types';
 import styles from './styles.module.scss';
+import { useT } from "@/i18n/client";
 
 export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
+  const t = useT();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [openQuestions, setOpenQuestions] = useState<Record<number, boolean>>({ 0: true });
@@ -52,7 +54,7 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
   };
 
-  const tier = getTierInfo(percentage);
+  const tier = getTierInfo(percentage, t);
 
   return (
     <section
@@ -65,17 +67,17 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
       {/* Quiz Header */}
       <div className={styles.header}>
         <div className={styles.headerMain}>
-          <span className={styles.headerBadge}>Assessment</span>
+          <span className={styles.headerBadge}>{t("quiz.badge")}</span>
         </div>
 
         <button
           className={styles.resetButton}
           onClick={resetQuiz}
           type="button"
-          aria-label="Reset quiz answers"
+          aria-label={t("quiz.resetLabel")}
         >
           <span>↺</span>
-          <span>Reset Quiz</span>
+          <span>{t("quiz.reset")}</span>
         </button>
       </div>
 
@@ -116,8 +118,8 @@ export default function BlogQuiz({ quiz }: Readonly<BlogQuizProps>) {
           >
             <span>
               {answeredCount === totalQuestions
-                ? 'See Your Learning Score'
-                : `Answer all questions (${answeredCount}/${totalQuestions})`}
+                ? t("quiz.seeScore")
+                : t("quiz.answerAll", { answered: answeredCount, total: totalQuestions })}
             </span>
           </button>
         </div>

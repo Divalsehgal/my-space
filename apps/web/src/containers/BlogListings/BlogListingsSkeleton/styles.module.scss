@@ -30,11 +30,11 @@
     gap: $t-spacing-8;
     margin-top: $t-spacing-12;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (min-width: $t-breakpoint-desktop) {
+    @media (width >= $t-breakpoint-desktop) {
       grid-template-columns: repeat(3, 1fr);
     }
   }
@@ -45,7 +45,7 @@
     flex-direction: column;
 
     height: 100%;
-    border-radius: $t-spacing-4;
+    border-radius: $t-radius-lg;
 
     background: $t-colors-background-secondary;
   }

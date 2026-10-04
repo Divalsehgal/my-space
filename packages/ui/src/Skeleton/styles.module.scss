@@ -1,0 +1,53 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .skeleton {
+    position: relative;
+
+    overflow: hidden;
+    display: block;
+
+    height: 1.2em;
+
+    background-color: $t-colors-surface-neutral-muted;
+
+    &::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, #{$t-colors-text-primary} 6%, transparent), transparent);
+
+      animation: skeleton-wave 1.6s $t-motion-easing-standard infinite;
+    }
+
+    &--text {
+      border-radius: $t-radius-xs;
+    }
+
+    &--rounded {
+      border-radius: $t-radius-sm;
+    }
+
+    &--circular {
+      border-radius: 50%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      &::after {
+        animation: none;
+      }
+    }
+  }
+
+  @keyframes skeleton-wave {
+    to {
+      transform: translateX(100%);
+    }
+  }
+}

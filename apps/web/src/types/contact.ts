@@ -1,13 +1,24 @@
 import { z } from "zod";
+import { createTranslator, type Translate } from "@/i18n/core";
+
+export const MESSAGE_MAX_CHARS = 1000;
 
 // ---------------------------------------------------------------------------
 // Zod schema for runtime validation
 // ---------------------------------------------------------------------------
-export const contactSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Please enter a valid email address"),
-    message: z.string().min(1, "Message is required").max(1000, "Message cannot exceed 1000 characters"),
-});
+/** Validation messages come from the active locale's translations. */
+export function createContactSchema(t: Translate) {
+    return z.object({
+        name: z.string().min(1, t("contact.validation.nameRequired")),
+        email: z.string().email(t("contact.validation.emailInvalid")),
+        message: z
+            .string()
+            .min(1, t("contact.validation.messageRequired"))
+            .max(MESSAGE_MAX_CHARS, t("contact.validation.messageTooLong", { max: MESSAGE_MAX_CHARS })),
+    });
+}
+
+export const contactSchema = createContactSchema(createTranslator());
 
 // ---------------------------------------------------------------------------
 // Contact form types

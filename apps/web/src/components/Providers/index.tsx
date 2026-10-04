@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 import dynamic from "next/dynamic";
@@ -17,7 +16,6 @@ export default function Providers({
 }) {
   return (
     <ThemeContextProvider>
-      <CssBaseline />
       <ToastProvider>
         {children}
         <Chatbot />

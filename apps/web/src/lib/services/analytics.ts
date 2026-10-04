@@ -1,5 +1,10 @@
+import "server-only";
+
 import crypto from 'node:crypto';
 import { redis } from '../redis';
+
+/** How many top referrers / countries the analytics breakdown returns. */
+const TOP_N = 10;
 
 export type ViewStats = {
   total: number;
@@ -213,9 +218,9 @@ export async function getAnalytics(slug: string): Promise<AnalyticsData> {
     // Monthly breakdown (full hash)
     pipeline.hgetall(`views:monthly:${slug}`);
     // Top 10 referrers (sorted set, descending)
-    pipeline.zrange(`referrers:${slug}`, 0, 9, { rev: true, withScores: true });
+    pipeline.zrange(`referrers:${slug}`, 0, TOP_N - 1, { rev: true, withScores: true });
     // Top 10 countries (sorted set, descending)
-    pipeline.zrange(`geo:${slug}`, 0, 9, { rev: true, withScores: true });
+    pipeline.zrange(`geo:${slug}`, 0, TOP_N - 1, { rev: true, withScores: true });
 
     const results = await pipeline.exec();
 

@@ -12,19 +12,38 @@ $home-top-bar-height: 48px;
   // padded in globals.scss so page content clears it without any section
   // knowing this bar exists.
   position: absolute;
-  z-index: $t-layer-level-positive-8;
+  z-index: $t-layer-floating;
   top: $t-spacing-16; // Clears the fixed navbar
   right: 0;
   left: 0;
+
+  overflow: hidden; // contains the decorative particle canvas
 
   height: $home-top-bar-height;
   border-bottom: 1px solid $t-colors-border-subtle;
 
   background-color: $t-colors-surface-brand-muted;
 
+  &__particles {
+    pointer-events: none;
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+  }
+
+  &__particles-canvas {
+    position: absolute;
+    inset: 0;
+    opacity: 0.8;
+  }
+
   &__container {
+    position: relative;
+    z-index: 1;
+
     display: flex;
     align-items: center;
+
     height: 100%;
   }
 
@@ -39,20 +58,41 @@ $home-top-bar-height: 48px;
     min-width: 0;
 
     color: $t-colors-text-primary;
+  }
+
+  &__link {
+    overflow: hidden;
+    display: inline-flex;
+    flex: 0 1 auto;
+    gap: $t-spacing-1;
+    align-items: center;
+
+    min-width: 0;
+    min-height: $t-spacing-11; // 44px hit area inside the 48px bar
+
+    color: inherit;
     text-decoration: none;
 
-    &:hover {
-      .home-top-bar__title {
-        text-decoration: underline;
-      }
+    &:hover .home-top-bar__title {
+      text-decoration: underline;
+    }
+
+    &:hover .home-top-bar__arrow {
+      transform: translateX(3px);
+    }
+
+    &:focus-visible {
+      border-radius: $t-radius-xs;
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
     }
   }
 
   &__tag {
     flex-shrink: 0;
 
-    padding: 2px $t-spacing-2;
-    border-radius: 9999px;
+    padding: $micro-space $t-spacing-2;
+    border-radius: $t-radius-full;
 
     font-size: $t-font-size-xxs;
     font-weight: $t-font-weight-bold;
@@ -78,14 +118,15 @@ $home-top-bar-height: 48px;
     font-size: $t-font-size-xs;
     color: $t-colors-text-secondary;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       display: inline;
     }
   }
 
   &__arrow {
     flex-shrink: 0;
-    font-size: $t-font-size-sm !important;
+    font-size: $t-font-size-sm;
     color: $t-colors-primary-default;
+    transition: transform $t-motion-duration-slow $t-motion-easing-standard;
   }
 }

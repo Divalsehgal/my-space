@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import styles from './styles.module.scss';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+import IconButton from "@dival-sehgal/ui/icon-button";
+import Tooltip from "@dival-sehgal/ui/tooltip";
 
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
+import { CheckIcon, CopyIcon as ContentCopyIcon } from "@dival-sehgal/ui/icons";
+import { useT } from "@/i18n/client";
+
+/** How long the "Copied!" state stays visible. */
+const COPIED_FEEDBACK_MS = 2000;
 
 interface CodeBlockProps {
   children: React.ReactNode;
@@ -14,13 +17,14 @@ interface CodeBlockProps {
 }
 
 export function CodeBlock({ children, content }: CodeBlockProps) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -29,21 +33,17 @@ export function CodeBlock({ children, content }: CodeBlockProps) {
   return (
     <pre className={styles.pre}>
       <div className={styles.copyButtonWrapper}>
-        <Tooltip 
-          title={copied ? "Copied!" : "Copy code"} 
-          placement="left"
-          arrow
-        >
+        <Tooltip title={t(copied ? "code.copied" : "code.copy")} side="left">
           <IconButton
             className={`${styles.copyButton} ${copied ? styles.copied : ''}`}
             onClick={handleCopy}
-            aria-label="Copy code to clipboard"
+            aria-label={t("code.copyLabel")}
             size="small"
           >
             {copied ? (
-              <CheckIcon sx={{ color: 'var(--t-colors-background-primary)', fontSize: 24 }} />
+              <CheckIcon className={styles.copyIconDone} />
             ) : (
-              <ContentCopyIcon sx={{ color: 'var(--t-colors-primary-default)', fontSize: 24 }} />
+              <ContentCopyIcon className={styles.copyIcon} />
             )}
           </IconButton>
         </Tooltip>

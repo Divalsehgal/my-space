@@ -1,0 +1,43 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.chat-panel {
+  position: absolute;
+  right: 0;
+  bottom: $t-spacing-20;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  width: 400px;
+  height: min(520px, calc(100vh - 120px));
+  min-height: 380px;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: $t-radius-sm;
+
+  background-color: $t-colors-background-primary;
+  backdrop-filter: blur($t-blur-lg);
+  box-shadow: 0 20px 50px $t-colors-surface-brand-strong;
+
+  @media (width <= $t-breakpoint-mobile-lg) {
+    width: calc(100vw - #{$t-spacing-8});
+    height: min(560px, calc(100dvh - 112px - env(safe-area-inset-bottom, 0px)));
+    min-height: 360px;
+  }
+}
+
+.chat-panel__messages {
+  scroll-behavior: smooth;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $t-spacing-3;
+
+  padding: $t-spacing-6 $t-spacing-5;
+
+  background-color: $t-colors-surface-glass;
+}

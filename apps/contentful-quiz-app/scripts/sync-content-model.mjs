@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
 
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
@@ -26,7 +24,7 @@ async function request(pathname, options = {}) {
   });
   const text = await response.text();
   const body = text ? JSON.parse(text) : null;
-  if (!response.ok) throw new Error(`${options.method || 'GET'} ${pathname} failed: ${body?.message || text}`);
+  if (!response.ok) {throw new Error(`${options.method || 'GET'} ${pathname} failed: ${body?.message || text}`);}
   return body;
 }
 
@@ -61,7 +59,7 @@ async function addField(contentTypeId, field) {
     : [...contentType.fields, field];
 
   if (fields === contentType.fields) {
-    console.log(`${contentTypeId}.${field.id} already exists.`);
+    console.info(`${contentTypeId}.${field.id} already exists.`);
     return;
   }
 
@@ -76,7 +74,7 @@ async function addField(contentTypeId, field) {
     headers: { 'X-Contentful-Version': String(updated.sys.version) },
     body: JSON.stringify({}),
   });
-  console.log(`Added and published ${contentTypeId}.${field.id}.`);
+  console.info(`Added and published ${contentTypeId}.${field.id}.`);
 }
 
 await addField('quizComponent', quizQuestionEntries);

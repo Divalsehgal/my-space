@@ -1,0 +1,145 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+@use "../styles/metrics" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-2;
+    width: 100%;
+
+    &__label {
+      font-size: $t-font-size-xs;
+      font-weight: $t-font-weight-semibold;
+      color: $t-colors-text-primary;
+    }
+
+    &__control {
+      width: 100%;
+      padding: $t-spacing-3 $t-spacing-4;
+      border: 1px solid $t-colors-input-border;
+      border-radius: $t-radius-xs;
+
+      font-family: inherit;
+      font-size: $t-font-size-sm;
+      color: $t-colors-input-text;
+
+      background-color: $t-colors-input-background;
+
+      transition: border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard;
+
+      &::placeholder {
+        color: $t-colors-input-placeholder;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: $t-colors-input-background-hover;
+      }
+
+      &:focus {
+        border-color: $t-colors-input-border-focus;
+        background-color: $t-colors-input-background-focus;
+        outline: none;
+        box-shadow: 0 0 0 3px $t-colors-surface-brand-muted;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        background-color: $t-colors-input-background-disabled;
+      }
+    }
+
+    &__label--hidden {
+      position: absolute;
+
+      overflow: hidden;
+
+      width: 1px;
+      height: 1px;
+      margin: $hairline-offset;
+      padding: 0;
+      border: 0;
+
+      white-space: nowrap;
+
+      clip-path: inset(50%);
+    }
+
+    &__box {
+      display: flex;
+      gap: $t-spacing-2;
+      align-items: center;
+    }
+
+    textarea.field__control {
+      resize: vertical;
+    }
+
+    &__helper {
+      min-height: 1.2em; // reserve space so errors don't shift the layout
+      margin: 0;
+      font-size: $t-font-size-xxs;
+      color: $t-colors-text-secondary;
+    }
+
+    // Compact rounded composer input: the box carries the border, the control
+    // is bare so adornments (send buttons) sit inside the pill.
+    &--pill {
+      .field__box {
+        padding: $t-spacing-1 $t-spacing-4;
+        border: 1px solid $t-colors-border-muted;
+        border-radius: $t-radius-full;
+
+        background-color: $t-colors-background-secondary;
+
+        transition: border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard;
+
+        &:focus-within {
+          border-color: $t-colors-primary-default;
+          box-shadow: 0 0 0 3px $t-colors-surface-brand-muted;
+        }
+      }
+
+      .field__control {
+        flex: 1;
+
+        min-width: 0;
+        padding: $t-spacing-3 0;
+        border: none;
+
+        font-size: $t-font-size-xs;
+
+        background: transparent;
+
+        &:hover:not(:disabled),
+        &:focus {
+          background: transparent;
+          box-shadow: none;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          background: transparent;
+        }
+      }
+
+      &:has(.field__control:disabled) .field__box {
+        cursor: not-allowed;
+        background-color: $t-colors-input-background-disabled;
+      }
+    }
+
+    &--error {
+      .field__control {
+        border-color: $t-colors-feedback-error-text;
+      }
+
+      .field__helper {
+        color: $t-colors-feedback-error-text;
+      }
+    }
+  }
+}

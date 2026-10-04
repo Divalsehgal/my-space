@@ -1,0 +1,191 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.deck {
+  position: relative;
+
+  width: 100%;
+  max-width: 440px;
+  height: 360px;
+  margin-inline: auto;
+
+  &__card {
+    will-change: transform;
+    cursor: pointer;
+    user-select: none;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-3;
+
+    width: min(340px, 86%);
+    height: 290px;
+    padding: $t-spacing-6;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-lg;
+
+    background-color: $t-colors-background-secondary;
+    box-shadow: 0 30px 60px -30px $t-colors-shadow-default;
+
+    // The portrait: a full-bleed photo, no text over it.
+    &--photo {
+      overflow: hidden;
+      padding: 0;
+      background-color: $t-colors-background-primary;
+    }
+
+    // Tinted variants so the text cards read as different things.
+    &--brand {
+      background:
+        radial-gradient(circle at 100% 0%, color-mix(in srgb, #{$t-colors-primary-default} 35%, transparent), transparent 60%),
+        $t-colors-background-secondary;
+    }
+
+    &--warm {
+      background:
+        radial-gradient(circle at 0% 100%, color-mix(in srgb, #{$t-colors-secondary-default} 22%, transparent), transparent 60%),
+        $t-colors-background-secondary;
+    }
+
+    &--front {
+      border-color: $t-colors-border-default;
+    }
+  }
+
+  &__photo {
+    pointer-events: none;
+    object-fit: cover;
+    object-position: 50% 30%;
+  }
+
+  &__label {
+    display: inline-flex;
+    gap: $t-spacing-2;
+    align-items: center;
+
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-primary-default;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-3;
+  }
+
+  &__title {
+    @include ellipsis(3);
+
+    margin: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: $t-font-size-lg;
+    font-weight: $t-font-weight-bold;
+    line-height: $line-height-snug;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  &__meta {
+    @include ellipsis(2);
+
+    margin: 0;
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+  }
+
+  &__link {
+    display: inline-flex;
+    gap: $t-spacing-1;
+    align-items: center;
+
+    margin-top: auto;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-primary-default;
+    text-decoration: none;
+
+    span {
+      transition: transform $t-motion-duration-slow $t-motion-easing-emphasized;
+    }
+
+    &:hover span {
+      transform: translateX(4px);
+    }
+
+    &:focus-visible {
+      border-radius: $t-radius-xs;
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 3px;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-2;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+    li {
+      padding: $t-spacing-1 $t-spacing-3;
+      border: 1px solid $t-colors-border-subtle;
+      border-radius: $t-radius-sm;
+
+      font-size: $t-font-size-xs;
+      font-weight: $t-font-weight-medium;
+      color: $t-colors-text-primary;
+
+      background-color: color-mix(in srgb, #{$t-colors-background-primary} 60%, transparent);
+    }
+  }
+
+  @media (width >= $t-breakpoint-desktop) {
+    height: 400px;
+    margin-right: $t-spacing-16;
+  }
+}
+
+// Phones: a swipeable row of full cards instead of the rotated stack, so
+// nothing is clipped and every card is readable.
+@media (width <= $t-breakpoint-tablet) {
+  .deck {
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    display: flex;
+    gap: $t-spacing-3;
+
+    width: calc(100% + #{$t-spacing-8});
+    max-width: none;
+    height: auto;
+    margin-inline: calc(-1 * #{$t-spacing-4});
+    padding: $t-spacing-2 $t-spacing-4 $t-spacing-4;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .deck__card {
+    scroll-snap-align: center;
+
+    position: relative;
+    z-index: auto !important;
+    transform: none !important;
+
+    flex: 0 0 82%;
+
+    width: auto;
+    height: 240px;
+
+    opacity: 1 !important;
+  }
+}

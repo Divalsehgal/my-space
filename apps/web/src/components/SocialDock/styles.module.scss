@@ -1,0 +1,53 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Left edge, vertically centred: clear of the top-right Architecture widget
+// and the bottom corners (Play, chat, scroll-to-top).
+.dock {
+  position: fixed;
+  z-index: $t-layer-floating;
+  top: 50%;
+  left: $t-spacing-4;
+  transform: translateY(-50%);
+
+  display: none;
+  flex-direction: column;
+  gap: $t-spacing-3;
+  align-items: center;
+
+  &__links {
+    flex-direction: column;
+
+    padding: $t-spacing-1;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-full;
+
+    background-color: color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent);
+    backdrop-filter: blur($t-blur-lg);
+    box-shadow: 0 18px 40px -20px $t-colors-shadow-default;
+  }
+
+  // A hairline trailing off below the pill.
+  &__rule {
+    width: 1px;
+    height: $t-spacing-16;
+    background: linear-gradient(to bottom, $t-colors-border-default, transparent);
+  }
+
+  @media (width >= $t-breakpoint-desktop) {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dock {
+    animation: dock-in $t-motion-duration-slowest 1s $t-motion-easing-expressive backwards;
+  }
+}
+
+@keyframes dock-in {
+  from {
+    translate: -24px 0;
+    opacity: 0;
+  }
+}

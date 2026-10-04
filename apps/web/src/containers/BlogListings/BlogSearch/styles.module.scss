@@ -1,0 +1,92 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Search box and the filtered grid of server-rendered cards.
+.blog-search {
+  &__bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-4;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: $t-spacing-8;
+  }
+
+  &__title {
+    margin-bottom: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: $t-font-weight-bold;
+    line-height: 1;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-2;
+  }
+
+  &__input {
+    width: 100%;
+    max-width: 340px;
+    padding: $t-spacing-4 $t-spacing-5;
+    border: 1px solid $t-colors-border-default;
+    border-radius: $t-radius-sm;
+
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-primary;
+
+    background: $t-colors-surface-glass;
+    backdrop-filter: blur($t-blur-lg);
+    outline: none;
+
+    transition: border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard;
+
+    &::placeholder {
+      color: $t-colors-text-tertiary;
+    }
+
+    &:focus {
+      border-color: $t-colors-primary-default;
+      box-shadow: 0 0 0 4px $t-colors-surface-brand-muted;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-auto-flow: row dense;
+    grid-template-columns: repeat(1, 1fr);
+    gap: $t-spacing-6;
+
+    margin-top: $t-spacing-8;
+
+    @media (width >= $t-breakpoint-tablet) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (width >= $t-breakpoint-desktop) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__cell {
+    // Wraps one server-rendered card; the card fills the cell.
+    display: grid;
+
+    // Lead story: double width with a taller cover and bigger title on wide
+    // screens, via BlogCard's custom-property hooks.
+    &--lead {
+      @media (width >= $t-breakpoint-tablet) {
+        --blog-card-image-height: 320px;
+        --blog-card-title-size: #{$t-font-size-xl};
+
+        grid-column: span 2;
+      }
+    }
+  }
+
+  &__empty {
+    grid-column: 1 / -1;
+    padding: $t-spacing-10;
+    color: $t-colors-text-secondary;
+    text-align: center;
+  }
+}

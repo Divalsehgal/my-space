@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Hero from "./index";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { renderWithTracking } from "@/test-utils/render";
 
 // Mock utilities
 jest.mock("@/utils/analytics", () => {
@@ -12,58 +13,72 @@ jest.mock("@/utils/analytics", () => {
   };
 });
 
-// Mock decorative backgrounds
-jest.mock("@/components/BackgroundPattern", () => function MockBackgroundPattern() { return <div data-testid="bg-pattern" />; });
-jest.mock("@/components/ParticlesBackground", () => function MockParticlesBackground() { return <div data-testid="particles-bg" />; });
+// GSAP choreography is visual only; render the copy as-is.
+jest.mock("./HeroStage", () => function MockHeroStage({ children }: { children: React.ReactNode }) { return <div>{children}</div>; });
 
 describe("Hero Container", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders with default fallback text when data is empty", () => {
-    render(<Hero />);
+  it("renders the translated name, subtitle and actions", () => {
+    renderWithTracking(<Hero />);
     
     expect(screen.getByText("Dival Sehgal")).toBeInTheDocument();
-    expect(screen.getByText("Full-Stack Engineer")).toBeInTheDocument();
+    expect(screen.getByText(/^Senior Software Engineer specialising/)).toBeInTheDocument();
     
     // Default Buttons
-    expect(screen.getByText("View Projects")).toBeInTheDocument();
+    expect(screen.getByText("Projects")).toBeInTheDocument();
     expect(screen.getByText("Contact")).toBeInTheDocument();
-    expect(screen.getByText("Resume")).toBeInTheDocument();
+    expect(screen.getByText("View Resume")).toBeInTheDocument();
   });
 
-  it("renders with dynamic data passed as props", () => {
-    const mockData = {
-      title: "Test Title",
-      subtitle: "Test Subtitle",
-      primaryCtaLabel: "Custom CTA",
-    };
+  it("folds the bio under the subtitle without repeating its opening paragraph", () => {
+    renderWithTracking(<Hero />);
 
-    render(<Hero data={mockData} />);
+    expect(document.querySelector("details#about summary")).toHaveTextContent("About Me");
+    expect(screen.getByText(/^Recently I've been orchestrating/)).toBeInTheDocument();
+    expect(screen.queryByText(/^I'm a Senior Software Engineer with/)).not.toBeInTheDocument();
+  });
 
-    expect(screen.getByText("Test Title")).toBeInTheDocument();
-    expect(screen.getByText("Test Subtitle")).toBeInTheDocument();
-    expect(screen.getByText("Custom CTA")).toBeInTheDocument();
+  it("renders the social links", () => {
+    renderWithTracking(<Hero socials={[{ label: "GitHub", href: "https://github.com/x", icon: "github" }]} />);
+
+    expect(screen.getByLabelText("GitHub")).toHaveAttribute("href", "https://github.com/x");
+  });
+
+  it("takes links (not copy) from the config", () => {
+    renderWithTracking(<Hero data={{ primaryCtaHref: "/work", resumeUrl: "/cv.pdf" }} />);
+
+    expect(screen.getByText("Projects")).toHaveAttribute("href", "/work");
+    expect(screen.getByText("View Resume")).toHaveAttribute("href", "/cv.pdf");
+  });
+
+  it("puts the portrait at the front of the deck", () => {
+    renderWithTracking(<Hero highlights={{ skills: ["React"] }} />);
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Dival Sehgal/);
+    expect(screen.getByAltText("Portrait of Dival Sehgal")).toBeInTheDocument();
+    expect(screen.getByText("React")).toBeInTheDocument();
   });
 
   it("calls trackInteraction properly on Resume click", () => {
-    render(<Hero />);
+    renderWithTracking(<Hero />);
     
-    const resumeBtn = screen.getByText("Resume");
+    const resumeBtn = screen.getByText("View Resume");
     fireEvent.click(resumeBtn);
     
     expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.RESUME_VIEW, { label: "Hero Resume Button" });
   });
 
   it("calls trackInteraction properly on other button clicks", () => {
-    render(<Hero />);
+    renderWithTracking(<Hero />);
     
-    const viewProjectsBtn = screen.getByText("View Projects");
+    const viewProjectsBtn = screen.getByText("Projects");
     fireEvent.click(viewProjectsBtn);
     
     expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.NAV_CLICK, { 
-      label: "View Projects", 
+      label: "Projects", 
       href: "#projects", 
       location: "navbar" 
     });
@@ -71,19 +86,16 @@ describe("Hero Container", () => {
 
   it("handles missing href in trackInteraction (fallback to empty string)", () => {
     const mockData = {
-      title: "Test Title",
-      subtitle: "Test Subtitle",
-      primaryCtaLabel: "No Href",
       primaryCtaHref: "", // empty string to trigger fallback
     };
 
-    render(<Hero data={mockData} />);
+    renderWithTracking(<Hero data={mockData} />);
     
-    const btn = screen.getByText("No Href");
+    const btn = screen.getByText("Projects");
     fireEvent.click(btn);
     
     expect(trackInteraction).toHaveBeenCalledWith(ANALYTICS_EVENTS.NAV_CLICK, { 
-      label: "No Href", 
+      label: "Projects", 
       href: "", 
       location: "navbar" 
     });

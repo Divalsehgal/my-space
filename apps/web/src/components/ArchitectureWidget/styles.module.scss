@@ -1,0 +1,143 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Keep in sync with $home-top-bar-height in HomeTopBar.
+$home-top-bar-height: 48px;
+
+// Top-right, just under the fixed navbar (and the "new blog" bar when the
+// home page shows one). The bottom corners belong to Play, chat and scroll-to-top.
+.widget {
+  position: fixed;
+  z-index: $t-layer-floating;
+  top: calc(#{$t-spacing-16} + #{$t-spacing-3});
+  right: $t-spacing-6;
+
+  display: flex;
+  gap: $t-spacing-3;
+  align-items: center;
+
+  width: 264px;
+  padding: $t-spacing-3;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-lg;
+
+  color: $t-colors-text-primary;
+  text-decoration: none;
+
+  background-color: color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent);
+  backdrop-filter: blur($t-blur-lg);
+  box-shadow: 0 18px 40px -20px $t-colors-shadow-default;
+
+  transition:
+    transform $t-motion-duration-slow $t-motion-easing-emphasized,
+    border-color $t-motion-duration-slow $t-motion-easing-standard;
+
+  :global(.page-scroll[data-has-top-bar="true"]) & {
+    top: calc(#{$t-spacing-8} + #{$home-top-bar-height} + #{$t-spacing-2});
+  }
+
+  &:hover {
+    transform: translateY(2px);
+    border-color: $t-colors-primary-default;
+  }
+
+  &__map {
+    flex: 0 0 auto;
+
+    width: 56px;
+    height: 52px;
+    padding: $t-spacing-1;
+    border-radius: $t-radius-md;
+
+    background-color: $t-colors-surface-brand-muted;
+  }
+
+  &__edge {
+    fill: none;
+    stroke: $t-colors-border-default;
+    stroke-width: 1.5;
+  }
+
+  &__pulse {
+    fill: none;
+    stroke: $t-colors-primary-default;
+    stroke-dasharray: 0.18 1;
+    stroke-dashoffset: 0.18;
+    stroke-linecap: round;
+    stroke-width: 2;
+  }
+
+  &__node {
+    fill: $t-colors-background-secondary;
+    stroke: $t-colors-primary-default;
+    stroke-width: 1.5;
+  }
+
+  &__copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: $t-spacing-1;
+
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-primary-default;
+    text-transform: uppercase;
+    letter-spacing: $t-font-letter-spacing-wide-3;
+  }
+
+  &__title {
+    @include ellipsis(2);
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-medium;
+    line-height: $line-height-snug;
+  }
+
+  &__arrow {
+    align-self: flex-start;
+    color: $t-colors-text-secondary;
+    transition: transform $t-motion-duration-slow $t-motion-easing-emphasized;
+  }
+
+  &:hover &__arrow {
+    transform: translate(2px, -2px);
+    color: $t-colors-primary-default;
+  }
+
+  // Phones: just the map thumbnail, so it never covers the content.
+  @media (width <= $t-breakpoint-tablet) {
+    right: $t-spacing-4;
+    width: auto;
+    padding: $t-spacing-2;
+
+    &__copy,
+    &__arrow {
+      display: none;
+    }
+
+    &__map {
+      width: 40px;
+      height: 38px;
+    }
+  }
+
+  @include focus-ring(3px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .widget__pulse {
+    animation: widget-pulse 2.4s linear infinite;
+    animation-delay: calc(var(--i, 0) * 0.4s);
+  }
+}
+
+@keyframes widget-pulse {
+  to {
+    stroke-dashoffset: -1;
+  }
+}

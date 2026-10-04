@@ -2,25 +2,77 @@
   "layer": {
     "level": {
       "negative": {
-        "1": { "value": "-10" },
-        "2": { "value": "-20" }
+        "1": {
+          "value": "-10"
+        },
+        "2": {
+          "value": "-20"
+        }
       },
-
       "base": {
         "value": "0"
       },
-
       "positive": {
-        "1": { "value": "10" },
-        "2": { "value": "20" },
-        "3": { "value": "30" },
-        "4": { "value": "40" },
-        "5": { "value": "50" },
-        "6": { "value": "60" },
-        "7": { "value": "70" },
-        "8": { "value": "80" },
-        "9": { "value": "90" }
+        "1": {
+          "value": "10"
+        },
+        "2": {
+          "value": "20"
+        },
+        "3": {
+          "value": "30"
+        },
+        "4": {
+          "value": "40"
+        },
+        "5": {
+          "value": "50"
+        },
+        "6": {
+          "value": "60"
+        },
+        "7": {
+          "value": "70"
+        },
+        "8": {
+          "value": "80"
+        },
+        "9": {
+          "value": "90"
+        }
       }
+    },
+    "raised": {
+      "value": "10",
+      "comment": "Lifted above siblings inside a section (badges, copy buttons, detail panels)"
+    },
+    "sticky": {
+      "value": "20",
+      "comment": "In-flow sticky/overlaid controls (carousel arrows)"
+    },
+    "floating": {
+      "value": "80",
+      "comment": "Fixed chrome below the navbar: home top bar, scroll-to-top, game launcher"
+    },
+    "navbar": {
+      "value": "90",
+      "comment": "Primary fixed navigation"
+    },
+    "popover": {
+      "value": "90",
+      "comment": "Chatbot panel, tooltips"
+    },
+    "toast": {
+      "value": "92",
+      "comment": "Toasts and game prompts; above popovers"
+    },
+    "modal": {
+      "value": "93",
+      "comment": "Dialogs: terminal, command palette, image lightbox"
+    },
+    "skip-link": {
+      "value": "95",
+      "comment": "Keyboard skip link; always on top"
     }
   }
 }

@@ -8,8 +8,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { createMuiThemeFromTokens } from "@/lib/mui/createMuiThemeFromTokens";
 
 type ThemeMode = "light" | "dark";
 
@@ -62,11 +60,6 @@ export function ThemeContextProvider({
     }
   }, [mode]);
 
-  const theme = useMemo(
-    () => createTheme(createMuiThemeFromTokens(mode)),
-    [mode],
-  );
-
   const contextValue = useMemo(
     () => ({ mode, toggleTheme }),
     [mode, toggleTheme],
@@ -74,7 +67,7 @@ export function ThemeContextProvider({
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      {children}
     </ThemeContext.Provider>
   );
 }

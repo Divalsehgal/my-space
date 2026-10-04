@@ -29,25 +29,26 @@ describe("Carousel Component", () => {
   });
 
   it("renders nothing when items array is empty", () => {
-    const { container } = render(<Carousel items={[]} renderItem={renderItem} />);
+    const { container } = render(<Carousel slides={[].map(renderItem)} />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("renders section title if provided", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} sectionTitle="Featured" />);
+    render(<Carousel slides={mockItems.map(renderItem)} sectionTitle="Featured" />);
     expect(screen.getByText("Featured")).toBeInTheDocument();
   });
 
   it("renders the first item initially and shows correct progress", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} progressLabelPrefix="Slide" />);
+    render(<Carousel slides={mockItems.map(renderItem)} progressLabelPrefix="Slide" />);
     
     expect(screen.getByTestId("carousel-item-1")).toBeInTheDocument();
-    expect(screen.queryByTestId("carousel-item-2")).not.toBeInTheDocument();
+    // Inactive slides stay mounted (keeping their state) but are hidden.
+    expect(screen.getByTestId("carousel-item-2")).not.toBeVisible();
     expect(screen.getByText("Slide 01 / 03")).toBeInTheDocument();
   });
 
   it("navigates to next and previous slides using navigation buttons", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} showNavigation={true} />);
+    render(<Carousel slides={mockItems.map(renderItem)} showNavigation={true} />);
     
     const nextButton = screen.getByLabelText("Next");
     const prevButton = screen.getByLabelText("Previous");
@@ -63,7 +64,7 @@ describe("Carousel Component", () => {
   });
 
   it("loops back to the first slide when clicking next on the last slide", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} />);
+    render(<Carousel slides={mockItems.map(renderItem)} />);
     
     const nextButton = screen.getByLabelText("Next");
     fireEvent.click(nextButton); // to slide 2
@@ -74,7 +75,7 @@ describe("Carousel Component", () => {
   });
 
   it("loops back to the last slide when clicking prev on the first slide", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} />);
+    render(<Carousel slides={mockItems.map(renderItem)} />);
     
     const prevButton = screen.getByLabelText("Previous");
     fireEvent.click(prevButton); // loop to slide 3
@@ -83,7 +84,7 @@ describe("Carousel Component", () => {
   });
 
   it("renders dots when showDots is true and handles dot clicks", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} showDots={true} />);
+    render(<Carousel slides={mockItems.map(renderItem)} showDots={true} />);
     
     const dots = screen.getAllByRole("button", { name: /Go to slide/i });
     expect(dots).toHaveLength(3);
@@ -93,7 +94,7 @@ describe("Carousel Component", () => {
   });
 
   it("handles autoPlay correctly and stops when user interacts", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} autoPlay={true} autoPlayInterval={5000} />);
+    render(<Carousel slides={mockItems.map(renderItem)} autoPlay={true} autoPlayInterval={5000} />);
     
     expect(screen.getByTestId("carousel-item-1")).toBeInTheDocument();
 
@@ -115,7 +116,7 @@ describe("Carousel Component", () => {
   });
 
   it("handles touch swipe gestures correctly", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} />);
+    render(<Carousel slides={mockItems.map(renderItem)} />);
     
     const content = screen.getByTestId("carousel-content");
 
@@ -133,7 +134,7 @@ describe("Carousel Component", () => {
   });
 
   it("ignores touchEnd if touchStart or touchEnd positions are missing", () => {
-    render(<Carousel items={mockItems} renderItem={renderItem} />);
+    render(<Carousel slides={mockItems.map(renderItem)} />);
     const content = screen.getByTestId("carousel-content");
     
     // Fire touchEnd immediately without touchStart
@@ -145,7 +146,7 @@ describe("Carousel Component", () => {
 
   it("formats progress label correctly for 10 or more items", () => {
     const lotsOfItems = Array.from({ length: 11 }, (_, i) => ({ id: i, text: `Item ${i}` }));
-    render(<Carousel items={lotsOfItems} renderItem={(item) => <div>{item.text}</div>} progressLabelPrefix="Slide" />);
+    render(<Carousel slides={lotsOfItems.map((item) => <div key={item.id}>{item.text}</div>)} progressLabelPrefix="Slide" />);
     
     // 1st item of 11 items -> "01 / 11"
     expect(screen.getByText("Slide 01 / 11")).toBeInTheDocument();
@@ -184,10 +185,9 @@ describe("Carousel Component", () => {
 
     render(
       <Carousel
-        items={cardItems}
-        renderItem={(item) => (
-          <GlassCard title={item.title} description={item.description} />
-        )}
+        slides={cardItems.map((item) => (
+          <GlassCard key={item.id} title={item.title} description={item.description} />
+        ))}
       />
     );
 

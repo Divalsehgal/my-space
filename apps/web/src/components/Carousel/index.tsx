@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import IconButton from "@mui/material/IconButton";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
+import IconButton from "@dival-sehgal/ui/icon-button";
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { ChevronLeftIcon, ChevronRightIcon } from "@dival-sehgal/ui/icons";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
+import { useT } from "@/i18n/client";
+import { padNumber } from "@dival-sehgal/utils/string";
 
-type CarouselProps<T> = {
-  items: ReadonlyArray<T>;
+type CarouselProps = {
+  /**
+   * Pre-rendered slides. Rendering them in the caller (usually a Server
+   * Component) keeps the cards on the server; only the paging is client-side.
+   */
+  slides: readonly ReactNode[];
   sectionTitle?: string;
   progressLabelPrefix?: string;
-  renderItem: (item: T) => React.ReactNode;
   showNavigation?: boolean;
   showProgress?: boolean;
   showDots?: boolean;
@@ -20,17 +24,17 @@ type CarouselProps<T> = {
   autoPlayInterval?: number;
 };
 
-export default function Carousel<T>({
-  items,
+export default function Carousel({
+  slides: items,
   sectionTitle,
-  progressLabelPrefix = "Item",
-  renderItem,
+  progressLabelPrefix,
   showNavigation = true,
   showProgress = true,
   showDots = false,
   autoPlay = false,
   autoPlayInterval = 5000,
-}: Readonly<CarouselProps<T>>) {
+}: Readonly<CarouselProps>) {
+  const t = useT();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -84,7 +88,6 @@ export default function Carousel<T>({
     return null;
   }
 
-  const currentItem = items[currentIndex];
   // Calculate progress percentage: (currentIndex + 1) / total * 100
   const progressPercentage = ((currentIndex + 1) / items.length) * 100;
 
@@ -99,7 +102,7 @@ export default function Carousel<T>({
           <div className={styles["carousel__progress"]}>
             <div className={styles["carousel__progress-header"]}>
               <span className={styles["carousel__progress-label"]}>
-                {progressLabelPrefix} {currentIndex + 1 < 10 ? `0${currentIndex + 1}` : currentIndex + 1} / {items.length < 10 ? `0${items.length}` : items.length}
+                {progressLabelPrefix ?? t("carousel.item")} {padNumber(currentIndex + 1)} / {padNumber(items.length)}
               </span>
             </div>
             <div className={styles["carousel__progress-track"]}>
@@ -119,8 +122,9 @@ export default function Carousel<T>({
                 handlePrev();
                 setIsAutoPlayActive(false);
               }}
-              aria-label="Previous"
+              aria-label={t("carousel.previous")}
               size="small"
+              variant="glass"
             >
               <ChevronLeftIcon className={styles["carousel__nav-icon"]} />
             </IconButton>
@@ -130,8 +134,9 @@ export default function Carousel<T>({
                 handleNext();
                 setIsAutoPlayActive(false);
               }}
-              aria-label="Next"
+              aria-label={t("carousel.next")}
               size="small"
+              variant="glass"
             >
               <ChevronRightIcon className={styles["carousel__nav-icon"]} />
             </IconButton>
@@ -148,22 +153,27 @@ export default function Carousel<T>({
         onTouchEnd={onTouchEnd}
       >
 
-        {/* Main Item Render (Card Container) */}
-        <div className={styles["carousel__item-wrapper"]}>
-          {renderItem(currentItem)}
-        </div>
+        {/* Every slide stays mounted (and in the server HTML); inactive ones are
+            hidden, so each card keeps its own state when you page away and back. */}
+        {items.map((slide, index) => (
+          <div key={index} className={styles["carousel__item-wrapper"]} hidden={index !== currentIndex}>
+            {slide}
+          </div>
+        ))}
 
         {showDots && (
           <div className={styles["carousel__dots"]}>
             {items.map((_, index) => (
               <button
                 key={index}
+                type="button"
                 className={clsx(styles["carousel__dot"], { [styles["carousel__dot--active"]]: currentIndex === index })}
                 onClick={() => {
                   setCurrentIndex(index);
                   setIsAutoPlayActive(false);
                 }}
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={t("carousel.goTo", { number: index + 1 })}
+                aria-current={currentIndex === index || undefined}
               />
             ))}
           </div>

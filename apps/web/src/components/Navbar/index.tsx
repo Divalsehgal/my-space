@@ -1,216 +1,65 @@
 "use client";
 
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import TerminalIcon from "@mui/icons-material/Terminal";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import { useState, useEffect, useRef } from "react";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import clsx from "clsx";
-import styles from "./styles.module.scss";
-import FluidContainer from "../FluidContainer";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { TerminalIcon } from "@dival-sehgal/ui/icons";
 import { TBreakpointTablet } from "@dival-sehgal/design-tokens/variables.js";
-import { navLinks } from "./constants";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useT } from "@/i18n/client";
+import FluidContainer from "../FluidContainer";
 import MobileMenu from "./MobileMenu";
-import { useThemeContext } from "@/context/ThemeContext";
+import MobileActions from "./MobileActions";
+import NavActions from "./NavActions";
+import NavLinks from "./NavLinks";
+import { useActiveSection } from "./hooks/useActiveSection";
+import { useMenuLock } from "./hooks/useMenuLock";
+import { useNavbarScroll } from "./hooks/useNavbarScroll";
+import styles from "./styles.module.scss";
 
 type NavbarProps = {
   readonly brand?: string;
 };
 
+/** Floating pill navbar: brand, desktop links and actions, and the mobile menu. */
 export default function Navbar({ brand }: NavbarProps) {
-  const { mode, toggleTheme } = useThemeContext();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery(`(min-width: ${TBreakpointTablet})`);
   const navRef = useRef<HTMLElement>(null);
+  const activeHref = useActiveSection();
+  const close = useCallback(() => setOpen(false), []);
 
-  // SAFE RENDER-PHASE UPDATE: Adjusts state directly when screen resizes to desktop
+  // Render-phase correction: the mobile menu can't stay open on desktop widths.
   if (isDesktop && open) {
     setOpen(false);
   }
 
-  useEffect(() => {
-    let ticking = false;
-    const updateProgress = () => {
-      const winScroll = window.scrollY || document.documentElement.scrollTop;
-      const height =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-      const scrolled = height > 0 ? winScroll / height : 0;
-
-      if (navRef.current) {
-        navRef.current.style.setProperty("--scroll-scale", scrolled.toString());
-      }
-      ticking = false;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(updateProgress);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    // Initialize
-    updateProgress();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const mainContent = document.getElementById("main-content");
-    if (open) {
-      document.body.style.overflow = "hidden";
-      mainContent?.setAttribute("inert", "true");
-    } else {
-      document.body.style.overflow = "";
-      mainContent?.removeAttribute("inert");
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-      mainContent?.removeAttribute("inert");
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-        return;
-      }
-
-      if (e.key !== "Tab") {
-        return;
-      }
-
-      const focusableElements = navRef.current?.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-
-      if (!focusableElements || focusableElements.length === 0) {
-        return;
-      }
-
-      const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[
-        focusableElements.length - 1
-      ] as HTMLElement;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        }
-      } else if (document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
-    };
-
-    globalThis.addEventListener("keydown", handleKeyDown);
-    return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [open]);
+  useNavbarScroll(navRef, { hidden: styles["navbar--hidden"], scrolled: styles["navbar--scrolled"] });
+  useMenuLock(open, close, navRef);
 
   return (
     <>
-      {/* Overlay */}
-      {open && (
-        <div
-          className={styles["navbar__overlay"]}
-          onClick={() => {
-            setOpen(false);
-          }}
-          aria-hidden="true"
-        />
-      )}
+      {open && <div className={styles["navbar__overlay"]} onClick={close} aria-hidden="true" />}
 
-      <nav
-        className={clsx(styles.navbar, open && styles["navbar--open"])}
-        ref={navRef}
-      >
-        <FluidContainer className={styles["navbar__container"]}>
-          {/* Brand */}
-          <Link
-            href="/"
-            className={styles["navbar__brand"]}
-            onClick={() => {
-              setOpen(false);
-            }}
-          >
-            <TerminalIcon className={styles["navbar__brand-icon"]} />
-            <Typography variant="h3" className={styles["navbar__brand-text"]}>
-              {brand || "Dival Sehgal"}
-            </Typography>
-          </Link>
+      <nav className={clsx(styles.navbar, open && styles["navbar--open"])} ref={navRef} aria-label={t("nav.primaryLabel")}>
+        <FluidContainer className={styles["navbar__shell"]}>
+          <div className={styles["navbar__container"]}>
+            <Link href="/" className={styles["navbar__brand"]} onClick={close}>
+              <TerminalIcon className={styles["navbar__brand-icon"]} />
+              <span className={styles["navbar__brand-text"]}>{brand || t("common.siteName")}</span>
+            </Link>
 
-          {/* Desktop Nav */}
-          <div className={styles["navbar__nav-desktop"]}>
-            {navLinks.map((l) => (
-              <Link
-                key={l.label}
-                href={l.href}
-                className={styles["navbar__nav-link"]}
-                onClick={() => {
-                  trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
-                    label: l.label,
-                    href: l.href,
-                    location: "navbar",
-                  });
-                }}
-              >
-                {l.label}
-              </Link>
-            ))}
-            <IconButton
-              onClick={toggleTheme}
-              sx={{ color: "text.primary", ml: 1 }}
-              aria-label={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
-            >
-              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-            </IconButton>
-          </div>
+            <div className={styles["navbar__nav-desktop"]}>
+              <NavLinks activeHref={activeHref} />
+              <NavActions />
+            </div>
 
-          {/* Mobile Menu Button Container */}
-          <div className={styles["navbar__mobile-actions"]}>
-            <IconButton
-              onClick={toggleTheme}
-              sx={{
-                color: "text.primary",
-                mr: 1,
-                display: { xs: "flex", md: "none" },
-              }}
-              aria-label={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
-            >
-              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-            </IconButton>
-
-            <IconButton
-              className={styles["navbar__menu-btn"]}
-              onClick={() => {
-                setOpen((prev) => !prev);
-              }}
-              edge="end"
-              aria-label={open ? "Close menu" : "Open menu"}
-              size="large"
-            >
-              {open ? <CloseIcon /> : <MenuIcon />}
-            </IconButton>
+            <MobileActions open={open} onToggle={() => setOpen((prev) => !prev)} />
           </div>
         </FluidContainer>
 
-        <MobileMenu isOpen={open} onClose={() => setOpen(false)} />
+        <MobileMenu isOpen={open} onClose={close} />
       </nav>
     </>
   );

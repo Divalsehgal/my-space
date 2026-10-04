@@ -6,6 +6,11 @@ import Image from "next/image";
 import ImageLoader from "./ImageLoader";
 import ImageLightbox from "./ImageLightbox";
 import styles from "./styles.module.scss";
+import { useT } from "@/i18n/client";
+import { contentfulImageLoader } from "@/lib/contentful/imageLoader";
+
+/** 16:9 size used when Contentful doesn't report the image's dimensions. */
+const FALLBACK_SIZE = { width: 800, height: 450 } as const;
 
 export interface AnimatedImageBlockProps {
   asset: {
@@ -16,26 +21,15 @@ export interface AnimatedImageBlockProps {
   };
 }
 
-const contentfulLoader = ({
-  src,
-  width,
-  quality,
-}: {
-  src: string;
-  width: number;
-  quality?: number;
-}) => {
-  const secureSrc = src.startsWith("//") ? `https:${src}` : src;
-  return `${secureSrc}?w=${width}&q=${quality || 75}&fm=webp`;
-};
 
 export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>) {
+  const t = useT();
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const loaderStrategy = process.env.NEXT_PUBLIC_IMAGE_LOADER;
-  const loaderToUse = loaderStrategy === "default" ? undefined : contentfulLoader;
+  const loaderToUse = loaderStrategy === "default" ? undefined : contentfulImageLoader;
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -98,9 +92,7 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
           tabIndex={0}
           onKeyDown={handleTriggerKeyDown}
           aria-label={
-            asset.title
-              ? `View ${asset.title} in full screen`
-              : "View image in full screen"
+            asset.title ? t("image.viewFullNamed", { title: asset.title }) : t("image.viewFull")
           }
         >
           {/* Interactive Separated Shimmer Loader */}
@@ -109,9 +101,9 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
           <Image
             loader={loaderToUse}
             src={hasError ? "/placeholder-project.jpg" : asset.url}
-            alt={asset.title || "Blog illustration"}
-            width={asset.width || 800}
-            height={asset.height || 450}
+            alt={asset.title || t("image.fallbackAlt")}
+            width={asset.width || FALLBACK_SIZE.width}
+            height={asset.height || FALLBACK_SIZE.height}
             sizes="(max-width: 800px) 100vw, 800px"
             className={imageClassName}
             onLoad={() => setIsLoading(false)}
@@ -124,7 +116,7 @@ export function AnimatedImageBlock({ asset }: Readonly<AnimatedImageBlockProps>)
           {!isLoading && !hasError && (
             <div className={styles.zoomHint} aria-hidden="true">
               <span>🔍</span>
-              <span>Click to expand</span>
+              <span>{t("image.expandHint")}</span>
             </div>
           )}
         </div>

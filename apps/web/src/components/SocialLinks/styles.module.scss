@@ -1,0 +1,29 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.socials {
+  display: flex;
+  gap: $t-spacing-2;
+  align-items: center;
+
+  &__btn {
+    color: $t-colors-text-secondary;
+    transition:
+      color $t-motion-duration-slow $t-motion-easing-standard,
+      background-color $t-motion-duration-slow $t-motion-easing-standard,
+      transform $t-motion-duration-slow $t-motion-easing-standard;
+
+    @include focus-ring;
+
+    &:hover {
+      transform: translateY(-2px);
+      color: $t-colors-primary-default;
+      background-color: $t-colors-surface-brand-muted;
+    }
+  }
+
+  &__fallback {
+    font-size: $t-font-size-xxs;
+    font-weight: $t-font-weight-bold;
+  }
+}

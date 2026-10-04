@@ -1,10 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { ArrowForwardIcon } from "@dival-sehgal/ui/icons";
 import styles from "./styles.module.scss";
 import FluidContainer from "@/components/FluidContainer";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
+import ParticlesBackground from "@/components/ParticlesBackground";
+import { trackAttrs, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { getT } from "@/i18n/server";
 
 export type HomeTopBarLatestPost = {
   slug: string;
@@ -17,31 +17,41 @@ type HomeTopBarProps = {
 };
 
 export default function HomeTopBar({ latestPost }: HomeTopBarProps) {
+  const t = getT();
   if (!latestPost) {
     return null;
   }
 
   return (
     <div className={styles["home-top-bar"]}>
+      <div className={styles["home-top-bar__particles"]} aria-hidden="true">
+        <ParticlesBackground
+          id="home-top-bar-particles"
+          className={styles["home-top-bar__particles-canvas"]}
+          fullScreen={false}
+          count={1000}
+        />
+      </div>
       <FluidContainer className={styles["home-top-bar__container"]}>
-        <Link
-          href={`/blogs/${latestPost.slug}`}
-          className={styles["home-top-bar__announcement"]}
-          onClick={() => {
-            trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, {
+        {/* Only the post title (and its arrow) is the link, not the whole strip. */}
+        <div className={styles["home-top-bar__announcement"]}>
+          <span className={styles["home-top-bar__tag"]}>{t("blog.newBadge")}</span>
+          <Link
+            href={`/blogs/${latestPost.slug}`}
+            className={styles["home-top-bar__link"]}
+            {...trackAttrs(ANALYTICS_EVENTS.NAV_CLICK, {
               label: latestPost.title,
               href: `/blogs/${latestPost.slug}`,
               location: "home-top-bar",
-            });
-          }}
-        >
-          <span className={styles["home-top-bar__tag"]}>New Blog</span>
-          <span className={styles["home-top-bar__title"]}>{latestPost.title}</span>
+            })}
+          >
+            <span className={styles["home-top-bar__title"]}>{latestPost.title}</span>
+            <ArrowForwardIcon className={styles["home-top-bar__arrow"]} fontSize="inherit" />
+          </Link>
           {latestPost.relativeLabel && (
             <span className={styles["home-top-bar__meta"]}>{latestPost.relativeLabel}</span>
           )}
-          <ArrowForwardIcon className={styles["home-top-bar__arrow"]} fontSize="inherit" />
-        </Link>
+        </div>
       </FluidContainer>
     </div>
   );

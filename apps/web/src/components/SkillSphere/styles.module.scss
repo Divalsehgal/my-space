@@ -1,0 +1,155 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Desktop: categories | sphere | info. Below desktop: chips row, sphere, info.
+.sphere {
+  display: grid;
+  grid-template-areas: "rail" "center" "panel";
+  grid-template-columns: minmax(0, 1fr);
+  gap: $t-spacing-6;
+
+  width: 100%;
+
+  &__center {
+    display: flex;
+    grid-area: center;
+    flex-direction: column;
+    gap: $t-spacing-3;
+    align-items: center;
+  }
+
+  &__stage {
+    touch-action: pan-y; // vertical swipes still scroll the page
+    cursor: grab;
+    user-select: none;
+
+    position: relative;
+
+    aspect-ratio: 1;
+    width: min(100%, 560px);
+
+    background: radial-gradient(circle at 50% 50%, color-mix(in srgb, #{$t-colors-primary-default} 12%, transparent), transparent 65%);
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__list {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+  }
+
+  &__item {
+    will-change: transform, opacity;
+    cursor: pointer;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-weight: $t-font-weight-semibold;
+    white-space: nowrap;
+
+    &--d1 {
+      font-size: $t-font-size-xxs;
+      font-weight: $t-font-weight-medium;
+    }
+
+    &--d2 {
+      font-size: $t-font-size-xs;
+    }
+
+    &--d3 {
+      font-size: $t-font-size-sm;
+    }
+
+    &--d4 {
+      font-size: $t-font-size-md;
+      font-weight: $t-font-weight-bold;
+    }
+
+    // Away from the viewer the word has faded to its dot (opacity set per frame).
+    &--back {
+      pointer-events: none;
+    }
+  }
+
+  &__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+
+    opacity: 0;
+    background-color: var(--c);
+
+    // Dots of other categories fade too while one is focused.
+    &--dim {
+      filter: grayscale(1) opacity(0.25);
+    }
+  }
+
+  &__word {
+    display: block;
+
+    padding: $micro-space $t-spacing-2;
+    border-radius: $t-radius-sm;
+
+    color: var(--c);
+
+    transition: background-color $t-motion-duration-base $t-motion-easing-standard, color $t-motion-duration-base $t-motion-easing-standard, filter $t-motion-duration-slow $t-motion-easing-standard;
+
+    &--dim {
+      filter: grayscale(1) opacity(0.25);
+    }
+
+    &--hover {
+      color: $t-colors-background-primary;
+      background-color: var(--c);
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: $t-font-size-xxs;
+    color: $t-colors-text-secondary;
+    text-align: center;
+  }
+
+  &__panel {
+    grid-area: panel;
+
+    min-height: 200px;
+    padding: $t-spacing-5;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-lg;
+
+    background-color: $t-colors-background-primary;
+  }
+
+  // Side-by-side only when the sphere still gets ~500px; below that it would be
+  // squeezed, so the categories sit above it as a chip row instead.
+  @media (width >= $t-breakpoint-wide) {
+    grid-template-areas: "rail center panel";
+    grid-template-columns: 200px minmax(0, 1fr) 260px;
+    align-items: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__word {
+      transition: none;
+    }
+  }
+}

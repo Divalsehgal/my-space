@@ -1,0 +1,133 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Bottom-left, clear of the chatbot / scroll-to-top buttons on the right.
+.launcher {
+  cursor: pointer;
+
+  position: fixed;
+  z-index: $t-layer-floating;
+  bottom: $t-spacing-6;
+  left: $t-spacing-6;
+
+  display: inline-flex;
+  gap: $t-spacing-2;
+  align-items: center;
+
+  height: $t-spacing-11;
+  padding: 0 $t-spacing-4 0 $t-spacing-3;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-full;
+
+  font-family: inherit;
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-semibold;
+  color: $t-colors-text-primary;
+
+  background-color: color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent);
+  backdrop-filter: blur($t-blur-lg);
+  box-shadow: 0 12px 32px -16px $t-colors-shadow-default;
+
+  transition: border-color $t-motion-duration-slow $t-motion-easing-standard;
+
+  svg {
+    color: $t-colors-primary-default;
+  }
+
+  &:hover {
+    border-color: $t-colors-primary-default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $t-colors-primary-default;
+    outline-offset: 3px;
+  }
+
+  // Hidden on phones/small tablets: it would sit over page content. The game
+  // stays reachable from the command palette and terminal (SITE_EVENTS.openGame).
+  @media (width < $t-breakpoint-tablet) {
+    display: none;
+  }
+}
+
+.backdrop {
+  position: fixed;
+  z-index: $t-layer-toast; // above the chatbot launcher
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: $t-spacing-6;
+
+  background-color: color-mix(in srgb, #{$t-colors-background-primary} 70%, transparent);
+  backdrop-filter: blur($t-blur-lg);
+
+  @media (width <= $t-breakpoint-tablet) {
+    align-items: end;
+    padding: 0;
+  }
+}
+
+.modal {
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-4;
+
+  width: min(560px, 100%);
+  height: min(720px, calc(100dvh - #{$t-spacing-12}));
+  padding: $t-spacing-6;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-xl;
+
+  background-color: $t-colors-background-primary;
+  box-shadow: 0 40px 100px -40px $t-colors-shadow-default;
+
+  &__header {
+    display: flex;
+    gap: $t-spacing-4;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  &__subtitle {
+    margin: $t-spacing-1 0 0;
+    font-size: $t-font-size-xs;
+    color: $t-colors-text-secondary;
+  }
+
+  // Keyboard hint only where there is likely a keyboard.
+  &__key-hint {
+    @media (hover: none) {
+      display: none;
+    }
+  }
+
+  &__close {
+    border: 1px solid $t-colors-border-subtle;
+    color: $t-colors-text-primary;
+  }
+
+  &__game {
+    flex: 1;
+    min-height: 0;
+  }
+
+  // Phones: a bottom sheet that fills most of the screen.
+  @media (width <= $t-breakpoint-tablet) {
+    height: calc(100dvh - #{$t-spacing-10});
+    padding: $t-spacing-5 $t-spacing-4 $t-spacing-4;
+    border-radius: $t-radius-xl $t-radius-xl 0 0;
+  }
+}

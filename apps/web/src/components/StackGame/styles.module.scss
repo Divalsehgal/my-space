@@ -1,0 +1,181 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.game {
+  // Lets the page still scroll vertically on touch; taps stay fast.
+  touch-action: pan-y;
+  cursor: pointer;
+  user-select: none;
+
+  position: relative;
+
+  overflow: hidden;
+
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-xl;
+
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, #{$t-colors-primary-default} 16%, transparent), transparent 65%),
+    color-mix(in srgb, #{$t-colors-background-secondary} 70%, transparent);
+
+  -webkit-tap-highlight-color: transparent;
+
+  canvas {
+    display: block;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $t-colors-primary-default;
+    outline-offset: 4px;
+  }
+
+  &__hud {
+    pointer-events: none;
+
+    position: absolute;
+    top: $t-spacing-5;
+    right: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-2;
+    align-items: center;
+  }
+
+  &__score {
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: $t-font-weight-bold;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: $t-colors-text-primary;
+  }
+
+  &__toast {
+    padding: $t-spacing-1 $t-spacing-3;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-full;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-text-primary;
+
+    background-color: color-mix(in srgb, #{$t-colors-background-primary} 80%, transparent);
+
+    animation: game-toast 1.2s $t-motion-easing-emphasized both;
+
+    &--perfect {
+      border-color: transparent;
+      color: $t-colors-background-primary;
+      background-color: $t-colors-secondary-default;
+    }
+  }
+
+  &__panel {
+    pointer-events: none;
+
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: $t-spacing-2;
+    align-items: center;
+    justify-content: flex-end;
+
+    padding: $t-spacing-8 $t-spacing-6;
+
+    text-align: center;
+
+    background: linear-gradient(to top, color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent), transparent 55%);
+
+    animation: game-fade $t-motion-duration-slower $t-motion-easing-emphasized both;
+  }
+
+  &__title {
+    margin: 0;
+
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  &__hint {
+    max-width: 32ch;
+    margin: 0;
+
+    font-size: $t-font-size-xs;
+    line-height: $t-font-line-height-relaxed;
+    color: $t-colors-text-secondary;
+  }
+
+  &__cta {
+    margin-top: $t-spacing-3;
+    padding: $t-spacing-2 $t-spacing-5;
+    border-radius: $t-radius-full;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-semibold;
+    color: $t-colors-background-primary;
+
+    background-color: $t-colors-text-primary;
+
+    animation: game-pulse 2.4s $t-motion-easing-standard infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__cta,
+    &__toast,
+    &__panel {
+      animation: none;
+    }
+  }
+}
+
+@keyframes game-toast {
+  0% {
+    transform: translateY(8px) scale(0.9);
+    opacity: 0;
+  }
+
+  20% {
+    transform: none;
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+}
+
+@keyframes game-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes game-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}

@@ -6,14 +6,8 @@ import ExperienceSection from "./index";
 
 // Mock Carousel to just render the items map
 jest.mock("@/components/Carousel", () => {
-  return function MockCarousel({ items, renderItem }: any) {
-    return (
-      <div data-testid="carousel-mock">
-        {items.map((item: unknown, i: number) => (
-          <div key={i}>{renderItem(item)}</div>
-        ))}
-      </div>
-    );
+  return function MockCarousel({ slides }: { slides: React.ReactNode[] }) {
+    return <div data-testid="carousel-mock">{slides}</div>;
   };
 });
 

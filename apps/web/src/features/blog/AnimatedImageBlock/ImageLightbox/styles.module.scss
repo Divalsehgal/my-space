@@ -1,18 +1,11 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
 
-// Replaced hardcoded colors with design token equivalents
-// $color-white: #fff; → $t-colors-background-primary
-// $color-light-gray: #e5e5e5; → $t-colors-neutral-300
-// $color-overlay-bg: rgb(0 0 0 / 85%); → rgba($t-colors-neutral-900, 0.85)
-// $color-overlay-shadow: rgb(0 0 0 / 50%); → rgba($t-colors-neutral-900, 0.5)
-// $color-overlay-border: rgb(255 255 255 / 15%); → rgba($t-colors-background-primary, 0.15)
-
 .lightboxOverlay {
   cursor: zoom-out;
 
   position: fixed;
-  z-index: 9999;
+  z-index: $t-layer-modal;
   inset: 0;
 
   display: flex;
@@ -22,8 +15,8 @@
 
   padding: $t-spacing-6;
 
-  background: rgba($t-foundation-colors-neutral-900, 0.85);
-  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, $t-foundation-colors-neutral-900 85%, transparent);
+  backdrop-filter: blur($t-blur-lg);
 }
 
 .lightboxContent {
@@ -44,40 +37,34 @@
   max-width: 90vw;
   height: auto;
   max-height: 80vh;
-  border: 1px solid rgba($t-colors-background-primary, 0.15);
-  border-radius: $t-spacing-3;
+  border: 1px solid color-mix(in srgb, $t-foundation-colors-neutral-50 15%, transparent);
+  border-radius: $t-radius-md;
 
   object-fit: contain;
-  box-shadow: 0 20px 50px rgba($t-foundation-colors-neutral-900, 0.5);
+  box-shadow: $t-shadow-lg;
 }
 
 .lightboxClose {
-  cursor: pointer;
-
   position: absolute;
-  top: -45px;
+  top: $lightbox-close-offset;
   right: 0;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 36px;
-  height: 36px;
+  width: $t-spacing-9;
+  height: $t-spacing-9;
   border: 1px solid $t-colors-border-primary;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-md;
-  color: $t-colors-background-primary;
+  color: $t-foundation-colors-neutral-50; // the overlay is dark in both themes
 
   background: $t-colors-surface-glass;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur($t-blur-lg);
 
   transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
+    transform $t-motion-duration-base $t-motion-easing-standard,
+    background-color $t-motion-duration-base $t-motion-easing-standard;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: scale(1.1);
     background: $t-colors-surface-brand-strong;
   }

@@ -3,6 +3,10 @@ import "@testing-library/jest-dom";
 import Skills from ".";
 import type { SkillsConfig } from "@/features/portfolio";
 
+// The 3D sphere is decorative; the cards carry the content under test.
+jest.mock("@/components/SkillSphere", () => function MockSkillSphere() { return <div data-testid="skill-sphere" />; });
+
+
 describe("Skills Container", () => {
   it("renders nothing when there is no data", () => {
     const { container } = render(<Skills />);
@@ -54,5 +58,12 @@ describe("Skills Container", () => {
     expect(screen.getByText("AWS")).toBeInTheDocument();
     expect(screen.queryByText("Azure")).not.toBeInTheDocument();
     expect(screen.queryByText("Content Platforms")).not.toBeInTheDocument();
+  });
+
+  it("shows depth of experience as a meter with a spoken label", () => {
+    render(<Skills categories={{ languages: [{ name: "TypeScript", level: "Expert" }, { name: "Go", level: "beginner" }] }} />);
+    expect(screen.getByText(", Deep expertise")).toBeInTheDocument();
+    expect(screen.getByText(", Learning")).toBeInTheDocument();
+    expect(screen.queryByText("Expert")).not.toBeInTheDocument();
   });
 });

@@ -3,14 +3,37 @@
 
 
 .footer {
+  position: relative; // contains the decorative particle canvas
+
+  overflow: hidden;
+
   margin-top: auto;
-  padding: $t-spacing-12 0 $t-spacing-6;
+
+  // Bottom padding clears the fixed chat FAB (offset + 56px button + gap) so
+  // the last row is never covered (components/Chatbot).
+  padding: $t-spacing-12 0 calc(#{$t-spacing-6} + #{$t-spacing-14} + #{$t-spacing-4} + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid $t-colors-border-muted;
+
   background-color: $t-colors-background-primary;
 
   // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
 
+  &__particles {
+    pointer-events: none;
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+  }
+
+  &__particles-canvas {
+    position: absolute;
+    inset: 0;
+  }
+
   &__container {
+    position: relative;
+    z-index: 1;
+
     display: flex;
     flex-direction: column;
     gap: $t-spacing-12;
@@ -21,7 +44,7 @@
     flex-direction: column;
     gap: $t-spacing-8;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       flex-direction: row;
       justify-content: space-between;
     }
@@ -44,20 +67,22 @@
     color: inherit;
     text-decoration: none;
 
+    @include focus-ring;
+
     &:hover .footer__brand-icon {
       transform: rotate(12deg);
     }
   }
 
   &__brand-icon {
-    font-size: $t-spacing-8 !important;
+    font-size: $t-spacing-8;
     color: $t-colors-primary-default;
-    transition: transform 0.3s ease;
+    transition: transform $t-motion-duration-slow $t-motion-easing-standard;
   }
 
   &__brand-text {
-    font-size: $t-font-size-md !important;
-    font-weight: $t-font-weight-bold !important;
+    font-size: $t-font-size-md;
+    font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
     letter-spacing: $t-font-letter-spacing-tight-1;
   }
@@ -69,10 +94,11 @@
   }
 
   &__section-title {
-    margin-bottom: $t-spacing-4 !important;
+    margin-top: 0;
+    margin-bottom: $t-spacing-4;
 
-    font-size: $t-font-size-sm !important;
-    font-weight: $t-font-weight-bold !important;
+    font-size: $t-font-size-sm;
+    font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
     text-transform: uppercase;
     letter-spacing: $t-font-letter-spacing-wide-3;
@@ -88,7 +114,7 @@
 
     list-style: none;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       grid-template-columns: 1fr;
     }
   }
@@ -97,7 +123,9 @@
     font-size: $t-font-size-sm;
     color: $t-colors-text-secondary;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color $t-motion-duration-base $t-motion-easing-standard;
+
+    @include focus-ring;
 
     &:hover {
       color: $t-colors-primary-default;
@@ -111,7 +139,9 @@
 
   &__social-icon {
     color: $t-colors-text-secondary;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color $t-motion-duration-slow $t-motion-easing-standard, background-color $t-motion-duration-slow $t-motion-easing-standard, border-color $t-motion-duration-slow $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard, transform $t-motion-duration-slow $t-motion-easing-standard, opacity $t-motion-duration-slow $t-motion-easing-standard;
+
+    @include focus-ring;
 
     &:hover {
       transform: translateY(-4px) scale(1.1);
@@ -119,10 +149,10 @@
     }
 
     svg {
-      font-size: $t-spacing-8; // Increased from $t-spacing-6
+      font-size: $t-spacing-6;
 
-      @media (max-width: $t-breakpoint-tablet) {
-        font-size: $t-spacing-7;
+      @media (width <= $t-breakpoint-tablet) {
+        font-size: $t-spacing-5;
       }
     }
   }
@@ -140,13 +170,14 @@
 
     padding-top: $t-spacing-6;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       flex-direction: row;
       justify-content: space-between;
     }
   }
 
   &__copyright {
+    margin: 0;
     font-size: $t-font-size-xxs;
     color: $t-colors-text-tertiary;
   }
@@ -160,7 +191,9 @@
     font-size: $t-font-size-xxs;
     color: $t-colors-text-tertiary;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color $t-motion-duration-base $t-motion-easing-standard;
+
+    @include focus-ring;
 
     &:hover {
       color: $t-colors-primary-default;

@@ -1,0 +1,27 @@
+{
+  "name": "@dival-sehgal/utils",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Framework-free helpers (strings, math, fuzzy search, DOM checks, fetch retry). One entry point per module, no side effects.",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    "./string": "./src/string.ts",
+    "./math": "./src/math.ts",
+    "./fuzzy": "./src/fuzzy.ts",
+    "./dom": "./src/dom.ts",
+    "./fetch-with-retry": "./src/fetchWithRetry.ts",
+    "./time": "./src/time.ts",
+    "./http": "./src/http.ts"
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@dival-sehgal/jest-config": "*",
+    "@dival-sehgal/eslint-config": "*",
+    "@dival-sehgal/tsconfig": "*"
+  }
+}

@@ -62,3 +62,14 @@ turbo-*.log
 
 contentful-mcp-server
 .vscode
+
+.claude
+# Playwright
+/apps/web/playwright-report/
+/apps/web/test-results/
+
+# i18n dictionaries — generated from Contentful by apps/web/scripts/sync-translations.mjs
+/apps/web/src/i18n/translations/
+
+# MCP config holds a personal Contentful token — keep it local
+/.mcp.json

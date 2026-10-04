@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { ContactSubmission } from "@/types";
 
 export type { ContactSubmission };

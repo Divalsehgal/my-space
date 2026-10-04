@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { recordView, getViews } from '@/lib/services/analytics';
 import { redis, isRedisConfigured } from '@/lib/redis';
 import crypto from 'node:crypto';
+import { OWNER_SESSION_COOKIE, isOwnerSession } from '@/lib/owner';
+import { SECONDS_PER_MINUTE, SECONDS_PER_YEAR } from "@dival-sehgal/utils/time";
+
+// At most RATE_LIMIT_MAX_REQUESTS view pings per IP per window.
+const RATE_LIMIT_WINDOW_SECONDS = SECONDS_PER_MINUTE;
+const RATE_LIMIT_MAX_REQUESTS = 10;
 
 // View recording depends on request cookies/headers and must never be cached
 // or statically optimized.
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const ADMIN_VIEW_SECRET = process.env.ADMIN_VIEW_SECRET;
 
 function getClientIp(req: NextRequest): string | null {
   const forwarded = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
@@ -20,9 +25,9 @@ async function isRateLimited(ip: string): Promise<boolean> {
   try {
     const requests = await redis.incr(rlKey);
     if (requests === 1) {
-      await redis.expire(rlKey, 60);
+      await redis.expire(rlKey, RATE_LIMIT_WINDOW_SECONDS);
     }
-    return requests > 10;
+    return requests > RATE_LIMIT_MAX_REQUESTS;
   } catch (error) {
     console.error('Rate limit redis error', error);
     return false;
@@ -54,7 +59,7 @@ export async function GET(
 /**
  * POST /api/blogs/[slug]/view
  * Records a unique view for a blog post.
- * - Skips recording if the owner's admin_view_secret cookie is present (server-side owner check).
+ * - Skips recording for a signed-in owner (httpOnly owner session from /owner).
  * - Rate limited to 10 requests/minute per IP.
  * - Deduplicates using a visitor_id cookie + IP + User-Agent hash (24h window).
  * - Increments total, daily, and monthly counters in Redis.
@@ -82,14 +87,10 @@ export async function POST(
     }
 
     // ── Server-side owner check ──────────────────────────────────────
-    // If the admin_view_secret cookie matches the env var, this is the
-    // site owner — return the count without recording the view.
-    if (ADMIN_VIEW_SECRET) {
-      const ownerCookie = req.cookies.get('admin_view_secret')?.value;
-      if (ownerCookie && ownerCookie === ADMIN_VIEW_SECRET) {
-        const views = await getViews(slug);
-        return NextResponse.json({ success: true, views, owner: true }, { status: 200 });
-      }
+    // A valid owner session (see /owner) gets the count without recording the view.
+    if (isOwnerSession(req.cookies.get(OWNER_SESSION_COOKIE)?.value)) {
+      const views = await getViews(slug);
+      return NextResponse.json({ success: true, views, owner: true }, { status: 200 });
     }
 
     const ip = getClientIp(req);
@@ -131,7 +132,7 @@ export async function POST(
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 365, // 1 year
+        maxAge: SECONDS_PER_YEAR,
       });
     }
 

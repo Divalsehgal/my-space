@@ -1,0 +1,3 @@
+# Type errors and test failures never reach the remote. Turbo caches results,
+# so unchanged workspaces are skipped.
+yarn turbo run typecheck test lint:style

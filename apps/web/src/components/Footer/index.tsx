@@ -1,25 +1,12 @@
-"use client";
-
 import Link from "next/link";
-import Typography from "@mui/material/Typography";
 
-import TerminalIcon from "@mui/icons-material/Terminal";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import { GitHubIcon, InstagramIcon, LinkedInIcon, TerminalIcon, type IconComponent } from "@dival-sehgal/ui/icons";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
-import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
-
-const footerLinks = [
-    { label: "Home", href: "/#home" },
-    { label: "About", href: "/#about" },
-    { label: "Blogs", href: "/blogs" },
-    { label: "Skills", href: "/#skills" },
-    { label: "Projects", href: "/#projects" },
-    { label: "Experience", href: "/#experience" },
-    { label: "Contact", href: "/#contact" },
-];
+import ParticlesBackground from "../ParticlesBackground";
+import { trackAttrs, ANALYTICS_EVENTS } from "@/utils/analytics";
+import { getT } from "@/i18n/server";
+import { navLinks as footerLinks } from "../Navbar/constants";
 
 type SocialItem = {
     label: string;
@@ -32,48 +19,57 @@ type FooterProps = {
     readonly socialItems?: SocialItem[];
 };
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+// Density scaling thins this out on a short, wide strip (~1/5 survives at 1440px).
+const FOOTER_PARTICLE_COUNT = 600;
+// Brighter than the default field so the sparse strip reads on the dark footer.
+const FOOTER_PARTICLE_OPACITY = { min: 0.35, max: 0.9 };
+
+const ICON_MAP: Record<string, IconComponent> = {
     github: GitHubIcon,
     linkedin: LinkedInIcon,
     instagram: InstagramIcon,
 };
 
 export default function Footer({ brand, socialItems = [] }: FooterProps) {
+    const t = getT();
     const currentYear = new Date().getFullYear();
 
     return (
         <footer className={styles.footer}>
+            <div className={styles["footer__particles"]} aria-hidden="true">
+                <ParticlesBackground
+                    id="footer-particles"
+                    className={styles["footer__particles-canvas"]}
+                    fullScreen={false}
+                    count={FOOTER_PARTICLE_COUNT}
+                    opacity={FOOTER_PARTICLE_OPACITY}
+                />
+            </div>
             <FluidContainer className={styles["footer__container"]}>
                 <div className={styles["footer__top"]}>
                     {/* Brand */}
                     <div className={styles["footer__brand"]}>
                         <Link href="/" className={styles["footer__brand-link"]}>
                             <TerminalIcon className={styles["footer__brand-icon"]} />
-                            <Typography variant="h3" className={styles["footer__brand-text"]}>
-                                {brand || "Dival"}
-                            </Typography>
+                            <span className={styles["footer__brand-text"]}>{brand || t("common.siteShortName")}</span>
                         </Link>
                         <p className={styles["footer__description"]}>
-                            Software Developer focused on building beautiful, interactive, and high-performance applications.
+                            {t("footer.tagline")}
                         </p>
                     </div>
 
                     {/* Navigation */}
                     <div className={styles["footer__links-section"]}>
-                        <Typography variant="h2" className={styles["footer__section-title"]}>
-                            Navigation
-                        </Typography>
+                        <h2 className={styles["footer__section-title"]}>{t("footer.navigation")}</h2>
                         <ul className={styles["footer__links-list"]}>
                             {footerLinks.map((link) => (
-                                <li key={link.label}>
+                                <li key={link.id}>
                                     <Link 
                                         href={link.href} 
                                         className={styles["footer__link"]}
-                                        onClick={() => {
-                                            trackInteraction(ANALYTICS_EVENTS.NAV_CLICK, { label: link.label, href: link.href, location: "footer" });
-                                        }}
+                                        {...trackAttrs(ANALYTICS_EVENTS.NAV_CLICK, { label: link.id, href: link.href, location: "footer" })}
                                     >
-                                        {link.label}
+                                        {t(link.labelKey)}
                                     </Link>
                                 </li>
                             ))}
@@ -82,9 +78,7 @@ export default function Footer({ brand, socialItems = [] }: FooterProps) {
 
                     {/* Social */}
                     <div className={styles["footer__social-section"]}>
-                        <Typography variant="h2" className={styles["footer__section-title"]}>
-                            Connect
-                        </Typography>
+                        <h2 className={styles["footer__section-title"]}>{t("footer.connect")}</h2>
                         <div className={styles["footer__social-links"]}>
                             {socialItems.map((social) => {
                                 const Icon = ICON_MAP[social.icon?.toLowerCase() || ""] || null;
@@ -96,11 +90,9 @@ export default function Footer({ brand, socialItems = [] }: FooterProps) {
                                         rel="noopener noreferrer"
                                         className={styles["footer__social-icon"]}
                                         aria-label={social.label}
-                                        onClick={() => {
-                                            trackInteraction(ANALYTICS_EVENTS.SOCIAL_CLICK, { platform: social.label, href: social.href });
-                                        }}
+                                        {...trackAttrs(ANALYTICS_EVENTS.SOCIAL_CLICK, { platform: social.label, href: social.href })}
                                     >
-                                        {Icon ? <Icon /> : social.label.substring(0, 2).toUpperCase()}
+                                        {Icon ? <Icon fontSize="inherit" /> : social.label.substring(0, 2).toUpperCase()}
                                     </a>
                                 );
                             })}
@@ -109,9 +101,9 @@ export default function Footer({ brand, socialItems = [] }: FooterProps) {
                 </div>
 
                 <div className={styles["footer__bottom"]}>
-                    <Typography className={styles["footer__copyright"]}>
-                        © {currentYear} {brand || "Dival Sehgal"}. Built with precision and passion.
-                    </Typography>
+                    <p className={styles["footer__copyright"]}>
+                        {t("footer.copyright", { year: currentYear, name: brand || t("common.siteName") })}
+                    </p>
                 </div>
             </FluidContainer>
         </footer>

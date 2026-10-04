@@ -1,7 +1,8 @@
 "use server";
 
 import { createContactSubmission } from "../../lib/services/notion";
-import { contactSchema, type ContactFormState } from "../../types/contact";
+import { createContactSchema, type ContactFormState } from "../../types/contact";
+import { getT } from "@/i18n/server";
 export async function submitContact(
     _prevState: ContactFormState,
     formData: FormData
@@ -12,12 +13,13 @@ export async function submitContact(
     const email = formData.get("email")?.toString().trim() || "";
     const message = formData.get("message")?.toString().trim() || "";
 
-    const validatedFields = contactSchema.safeParse({ name, email, message });
+    const t = getT();
+    const validatedFields = createContactSchema(t).safeParse({ name, email, message });
 
     if (!validatedFields.success) {
         return {
             status: "error",
-            message: "Please fix the errors in the form.",
+            message: t("contact.result.invalid"),
             errors: validatedFields.error.flatten().fieldErrors,
         };
     }
@@ -27,13 +29,13 @@ export async function submitContact(
 
         return {
             status: "success",
-            message: "Thanks for reaching out! I'll get back to you soon.",
+            message: t("contact.result.success"),
         };
     } catch (err) {
         console.error("Contact form error", err);
         return {
             status: "error",
-            message: "Something went wrong. Please try again in a moment.",
+            message: t("contact.result.failed"),
         };
     }
 }

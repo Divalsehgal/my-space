@@ -1,4 +1,11 @@
 import { Env } from "./types";
+import { HTTP_STATUS } from "@dival-sehgal/utils/http";
+
+// Character budgets for text stored alongside each embedding.
+const MAX_TITLE_CHARS = 180;
+const MAX_SUMMARY_CHARS = 320;
+const MAX_DATE_CHARS = 80;
+const MAX_CHUNK_CHARS = 1600;
 
 export const getCorsHeaders = (req: Request) => {
     const origin = req.headers.get('Origin');
@@ -132,16 +139,16 @@ export async function seed(req: Request, env: Env): Promise<Response> {
     }
 
     if (!isAuthorizedSeedRequest(req, env)) {
-        return json({ error: 'Unauthorized' }, 401, {}, req);
+        return json({ error: 'Unauthorized' }, HTTP_STATUS.UNAUTHORIZED, {}, req);
     }
 
     try {
         const count = await runSeed(env);
-        return json({ success: true, count }, 200, {}, req);
+        return json({ success: true, count }, HTTP_STATUS.OK, {}, req);
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         console.error('Seed error:', message);
-        return json({ error: 'Seed failed', details: message }, 500, {}, req);
+        return json({ error: 'Seed failed', details: message }, HTTP_STATUS.INTERNAL_SERVER_ERROR, {}, req);
     }
 }
 
@@ -199,7 +206,7 @@ export async function runSeed(env: Env): Promise<number> {
         chunkBlogContent(b).forEach((content, chunkIndex) => {
             chunks.push({
                 id: `blog-${i}-${chunkIndex}`,
-                content: `Blog Post: ${sanitizeContent(b.title, 180)}. Summary: ${sanitizeContent(b.description, 320)}. Content excerpt: ${content}. Published on: ${sanitizeContent(b.date, 80)}. URL: /blogs/${sanitizeContent(b.slug, 180)}`,
+                content: `Blog Post: ${sanitizeContent(b.title, MAX_TITLE_CHARS)}. Summary: ${sanitizeContent(b.description, MAX_SUMMARY_CHARS)}. Content excerpt: ${content}. Published on: ${sanitizeContent(b.date, MAX_DATE_CHARS)}. URL: /blogs/${sanitizeContent(b.slug, MAX_TITLE_CHARS)}`,
                 metadata: { type: 'blog', title: b.title, slug: b.slug, chunk: chunkIndex }
             });
         });
@@ -214,7 +221,7 @@ export async function runSeed(env: Env): Promise<number> {
     // Batch embedding generation to stay within the Worker per-invocation
     // subrequest limit. One AI.run call embeds up to `embedBatchSize` texts,
     // instead of one subrequest per chunk (which overflowed the limit).
-    const prepared = chunks.map((c) => ({ ...c, content: sanitizeContent(c.content, 1600) }));
+    const prepared = chunks.map((c) => ({ ...c, content: sanitizeContent(c.content, MAX_CHUNK_CHARS) }));
     const embedBatchSize = 50;
     const vecs: { id: string; values: number[]; metadata: Record<string, unknown> }[] = [];
     for (let i = 0; i < prepared.length; i += embedBatchSize) {

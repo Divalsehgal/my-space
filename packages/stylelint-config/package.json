@@ -1,0 +1,21 @@
+{
+  "name": "@dival-sehgal/stylelint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./max-lines": "./max-lines.js"
+  },
+  "peerDependencies": {
+    "stylelint": "^17.0.0"
+  },
+  "dependencies": {
+    "stylelint-config-clean-order": "^8.0.1",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-declaration-strict-value": "^1.11.1",
+    "stylelint-order": ">=6",
+    "stylelint-selector-bem-pattern": "^4.0.1"
+  }
+}

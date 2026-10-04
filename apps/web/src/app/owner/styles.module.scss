@@ -1,0 +1,12 @@
+@use "variables.scss" as *;
+
+// Sign-in / sign-out form inside the owner status page.
+.owner-form {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-3;
+  align-items: stretch;
+
+  width: 100%;
+  max-width: 360px;
+}

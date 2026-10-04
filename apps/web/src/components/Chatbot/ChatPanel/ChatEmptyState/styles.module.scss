@@ -1,0 +1,74 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.chat-empty {
+  padding: $t-spacing-8 $t-spacing-4;
+  text-align: center;
+}
+
+.chat-empty__title {
+  margin: 0 0 $t-spacing-2;
+  color: $t-colors-text-primary;
+}
+
+.chat-empty__copy {
+  margin: 0 0 $t-spacing-4;
+  font-size: $t-font-size-xs;
+  color: $t-colors-text-secondary;
+}
+
+.chat-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: $t-spacing-16;
+  height: $t-spacing-16;
+  margin: 0 auto $t-spacing-4;
+  border-radius: 50%;
+
+  color: $t-colors-primary-default;
+
+  background-color: $t-colors-surface-brand-muted;
+}
+
+.chat-empty__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $t-spacing-2;
+  justify-content: center;
+}
+
+.chat-empty__suggestion {
+  cursor: pointer;
+
+  padding: $t-spacing-2 $t-spacing-4;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: $t-radius-full;
+
+  font-size: $t-font-size-xxs;
+  color: $t-colors-text-primary;
+  white-space: nowrap;
+
+  background-color: $t-colors-surface-glass;
+
+  transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+  @include focus-ring;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: $t-colors-primary-default;
+    color: $t-colors-button-primary-text;
+    background-color: $t-colors-primary-default;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.chat-empty__icon-svg {
+  width: $t-spacing-8;
+  height: $t-spacing-8;
+}

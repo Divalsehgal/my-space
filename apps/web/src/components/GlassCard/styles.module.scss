@@ -14,23 +14,24 @@
   width: 100%;
   min-height: 300px;
 
-  box-shadow: 0 $t-spacing-2 $t-spacing-8 0 $t-colors-shadow-default;
+  box-shadow: 0 1px 2px 0 $t-colors-shadow-default;
 
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color $t-motion-duration-slow $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard;
 
   &:hover {
-    box-shadow: 0 $t-spacing-3 $t-spacing-12 0 $t-colors-shadow-default;
+    border-color: $t-colors-border-default;
+    box-shadow: 0 $t-spacing-2 $t-spacing-8 0 $t-colors-shadow-default;
   }
 
   &--no-visual {
     .glass-card__content {
-      @media (min-width: $t-breakpoint-desktop) {
+      @media (width >= $t-breakpoint-desktop) {
         width: 100%;
       }
     }
   }
 
-  @include card-glass;
+  @include card;
 
   // Visual Area
   &__visual {
@@ -42,7 +43,7 @@
     background-repeat: no-repeat;
     background-size: cover; // Better for a 50/50 split on desktop
 
-    @media (min-width: $t-breakpoint-desktop) {
+    @media (width >= $t-breakpoint-desktop) {
       aspect-ratio: auto; // Remove aspect ratio constraint on desktop
       width: 50%;
       min-height: 100%;
@@ -66,7 +67,7 @@
     height: 100%;
     padding: $t-spacing-8; // A bit more breathing room
 
-    @media (min-width: $t-breakpoint-desktop) {
+    @media (width >= $t-breakpoint-desktop) {
       width: 50%;
     }
   }
@@ -78,8 +79,8 @@
     // into 5-6 lines on small screens. Scale down until tablet.
     font-size: $t-font-size-lg;
 
-    @media (min-width: $t-breakpoint-tablet) {
-      font-size: $t-font-size-2xl;
+    @media (width >= $t-breakpoint-tablet) {
+      font-size: $t-font-size-xl;
     }
   }
 
@@ -88,75 +89,15 @@
     line-height: $t-font-line-height-relaxed;
     color: $t-colors-text-primary-muted;
 
-    ul {
-      margin-top: $t-spacing-2;
-      padding-left: $t-spacing-5;
-      list-style-type: disc;
-
-      li {
-        margin-bottom: $t-spacing-1;
-      }
-    }
-
-    &--scrollable {
-      overflow-y: auto;
-      max-height: 200px;
-      padding-right: $t-spacing-2;
-
-      // Smooth custom glass scrollbar
-      &::-webkit-scrollbar {
-        width: $t-dimensions-1;
-      }
-
-      &::-webkit-scrollbar-track {
-        border-radius: $t-dimensions-1;
-        background: $t-colors-surface-page-fade;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        border-radius: $t-dimensions-1;
-        background: $t-colors-scrollbar-thumb;
-
-        &:hover {
-          background: $t-colors-scrollbar-thumb-hover;
-        }
-      }
-    }
-
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       font-size: $t-font-size-base;
     }
   }
 
-  &__accordion-toggle {
-    cursor: pointer;
-
-    display: inline-flex;
-    gap: $t-spacing-1;
-    align-items: center;
-
-    margin-top: $t-spacing-2;
-    padding: $t-spacing-1 0;
-    border: none;
-
-    font-size: $t-font-size-xs;
-    font-weight: $t-font-weight-bold;
-    color: $t-colors-primary-default;
-
-    background: transparent;
-
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      text-decoration: underline;
-      opacity: 0.8;
-    }
-
-    &:focus-visible {
-      outline: 2px solid $t-colors-primary-default;
-      outline-offset: 2px;
-    }
+  &__text {
+    margin: 0;
   }
+
 
   &__tags {
     display: flex;
@@ -175,15 +116,15 @@
       height: $t-spacing-12;
         padding-right: $t-spacing-8;
         padding-left: $t-spacing-8;
-        border-radius: 9999px;
+        border-radius: $t-radius-sm;
 
-        font-weight: $t-font-weight-bold;
+        font-weight: $t-font-weight-semibold;
       text-transform: none;
     }
   }
 
   // Media queries at the bottom of the block
-  @media (min-width: $t-breakpoint-desktop) {
+  @media (width >= $t-breakpoint-desktop) {
     flex-direction: row;
     align-items: stretch; // Ensure both columns are same height
   }

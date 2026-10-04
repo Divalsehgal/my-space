@@ -4,27 +4,27 @@
 .resultsSection {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: $t-spacing-6;
 
   margin-top: $t-spacing-8;
-  padding: 24px 28px;
+  padding: $t-spacing-6 $t-spacing-7;
   border: 1px solid $t-colors-border-muted;
-  border-radius: 16px;
+  border-radius: $t-radius-lg;
 
   background: $t-colors-surface-glass;
-  box-shadow: 0 12px 35px rgba($t-foundation-colors-neutral-900, 0.3);
+  box-shadow: $t-shadow-md;
 }
 
 .resultsHeroRow {
   display: flex;
-  gap: 28px;
+  gap: $t-spacing-7;
   align-items: center;
   justify-content: space-around;
 
-  padding-bottom: 24px;
+  padding-bottom: $t-spacing-6;
   border-bottom: 1px solid $t-colors-border-muted;
 
-  @media (max-width: $t-breakpoint-tablet) {
+  @media (width <= $t-breakpoint-tablet) {
     flex-direction: column;
     text-align: center;
   }
@@ -58,7 +58,7 @@
   fill: none;
   stroke-linecap: round;
   stroke-width: 8;
-  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: stroke-dashoffset $t-motion-duration-slowest $t-motion-easing-standard;
 }
 
 .radialGaugeCenter {
@@ -78,7 +78,7 @@
 }
 
 .fractionSmall {
-  margin-top: 3px;
+  margin-top: $baseline-nudge;
   font-size: $t-font-size-xs;
   font-weight: $t-font-weight-semibold;
   color: $t-colors-text-secondary;
@@ -87,22 +87,22 @@
 .resultsHeroText {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: $t-spacing-2;
 }
 
 .tierPill {
   display: inline-flex;
-  gap: 6px;
+  gap: $t-spacing-2;
   align-items: center;
 
   width: fit-content;
-  padding: 4px 14px;
-  border-radius: $t-spacing-2;
+  padding: $t-spacing-1 $t-spacing-4;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-xs;
   font-weight: $t-font-weight-bold;
 
-  @media (max-width: $t-breakpoint-tablet) {
+  @media (width <= $t-breakpoint-tablet) {
     margin: 0 auto;
   }
 }
@@ -125,13 +125,13 @@
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: $t-spacing-3;
 }
 
 .metricCard {
-  padding: 14px 16px;
+  padding: $t-spacing-4 $t-spacing-4;
   border: 1px solid $t-colors-border-subtle;
-  border-radius: 10px;
+  border-radius: $t-radius-md;
 
   text-align: center;
 
@@ -144,16 +144,16 @@
   color: $t-colors-text-primary;
 
   &.metricNumberSuccess {
-    color: $t-colors-secondary-default;
+    color: $t-colors-feedback-success-text;
   }
 
   &.metricNumberError {
-    color: $t-colors-surface-brand-strong;
+    color: $t-colors-feedback-error-text;
   }
 }
 
 .metricTitle {
-  margin-top: 3px;
+  margin-top: $baseline-nudge;
   font-size: $t-font-size-xxs;
   font-weight: $t-font-weight-medium;
   color: $t-colors-text-secondary;
@@ -162,10 +162,10 @@
 /* Results Action Buttons */
 .resultsActionRow {
   display: flex;
-  gap: 14px;
+  gap: $t-spacing-4;
   justify-content: center;
 
-  @media (max-width: $t-breakpoint-tablet) {
+  @media (width <= $t-breakpoint-tablet) {
     flex-direction: column;
   }
 }
@@ -174,13 +174,13 @@
   cursor: pointer;
 
   display: inline-flex;
-  gap: 6px;
+  gap: $t-spacing-2;
   align-items: center;
   justify-content: center;
 
-  padding: 12px 24px;
+  padding: $t-spacing-3 $t-spacing-6;
   border: 1.5px solid $t-colors-primary-default;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-sm;
   font-weight: $t-font-weight-bold;
@@ -189,13 +189,15 @@
   appearance: none;
   background: transparent;
 
-  transition: all 0.2s ease;
+  transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+  @include focus-ring;
 
   &:hover {
     transform: translateY(-1px);
     color: $t-colors-background-primary;
     background: $t-colors-primary-default;
-    box-shadow: 0 4px 15px rgba($t-colors-primary-default, 0.35);
+    box-shadow: $t-shadow-brand;
   }
 }
 
@@ -203,13 +205,13 @@
   cursor: pointer;
 
   display: inline-flex;
-  gap: 6px;
+  gap: $t-spacing-2;
   align-items: center;
   justify-content: center;
 
-  padding: 12px 24px;
+  padding: $t-spacing-3 $t-spacing-6;
   border: 1px solid $t-colors-border-primary;
-  border-radius: $t-spacing-2;
+  border-radius: $t-radius-sm;
 
   font-size: $t-font-size-sm;
   font-weight: $t-font-weight-semibold;
@@ -218,7 +220,9 @@
   appearance: none;
   background: $t-colors-surface-glass;
 
-  transition: all 0.2s ease;
+  transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+  @include focus-ring;
 
   &:hover {
     background: $t-colors-surface-brand-muted;

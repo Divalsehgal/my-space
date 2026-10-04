@@ -1,0 +1,40 @@
+{
+  "colors": {
+    "terminal": {
+      "comment": "The terminal is always dark, in both site themes, so these values do not change per theme.",
+      "bg": {
+        "value": "#0f1117"
+      },
+      "bar": {
+        "value": "#161922"
+      },
+      "line": {
+        "value": "#2c2f3a"
+      },
+      "line-strong": {
+        "value": "#3a3f4c"
+      },
+      "text": {
+        "value": "#d7dae0"
+      },
+      "muted": {
+        "value": "#9aa1ad"
+      },
+      "input": {
+        "value": "#8ad4ff"
+      },
+      "focus": {
+        "value": "#8d97bb"
+      },
+      "red": {
+        "value": "#ff5f57"
+      },
+      "amber": {
+        "value": "#febc2e"
+      },
+      "green": {
+        "value": "#28c840"
+      }
+    }
+  }
+}

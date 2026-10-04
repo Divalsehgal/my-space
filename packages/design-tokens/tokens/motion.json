@@ -1,0 +1,45 @@
+{
+  "motion": {
+    "duration": {
+      "type": "time",
+      "fast": {
+        "value": "150ms",
+        "comment": "Micro-feedback: press, toggle, icon colour"
+      },
+      "base": {
+        "value": "200ms",
+        "comment": "Default hover/focus transitions"
+      },
+      "slow": {
+        "value": "300ms",
+        "comment": "Surface changes, cards, panels"
+      },
+      "slower": {
+        "value": "500ms",
+        "comment": "Entrances and large movements"
+      },
+      "slowest": {
+        "value": "800ms",
+        "comment": "Long showcase moves: image zooms, score gauges"
+      }
+    },
+    "easing": {
+      "type": "cubicBezier",
+      "standard": {
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)"
+      },
+      "emphasized": {
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "comment": "Entrances / reveals"
+      },
+      "linear": {
+        "value": "linear",
+        "comment": "Continuous loops (spinners, shimmer)"
+      },
+      "expressive": {
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "comment": "Hero/showcase reveals with a long settle"
+      }
+    }
+  }
+}

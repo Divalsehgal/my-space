@@ -1,0 +1,205 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+// Typography for the rendered rich text (headings, lists, code, tables).
+.content {
+  max-width: 800px;
+  line-height: $t-font-line-height-relaxed;
+  color: $t-colors-text-primary-muted;
+
+  p {
+    margin-bottom: $t-spacing-4;
+
+    &:last-child {
+      margin-bottom: $t-spacing-0;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: $t-spacing-8;
+    margin-bottom: $t-spacing-4;
+
+    font-weight: $t-font-weight-bold;
+    line-height: $t-font-line-height-tight;
+    color: $t-colors-text-primary;
+
+    &:first-child {
+      margin-top: $t-spacing-0;
+    }
+  }
+
+  h1 {
+    font-size: $t-font-size-3xl;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  // One clear step per level, so headings never tie with the page title
+  // (which is 40px on phones) or with each other.
+  h2 {
+    font-size: $t-font-size-xl;
+    letter-spacing: $t-font-letter-spacing-tight-1;
+  }
+
+  h3 {
+    font-size: $t-font-size-lg;
+  }
+
+  h4 {
+    font-size: $t-font-size-md;
+  }
+
+  h5,
+  h6 {
+    font-size: $t-font-size-md;
+    font-weight: $t-font-weight-semibold;
+  }
+
+  blockquote {
+    margin: $t-spacing-12 0;
+    padding: $t-spacing-6 $t-spacing-8;
+    border-left: $t-spacing-1 solid $t-colors-primary-default;
+    border-radius: 0 $t-radius-sm $t-radius-sm 0;
+
+    font-style: italic;
+
+    background: $t-colors-surface-brand-subtle;
+
+    p {
+      margin-bottom: $t-spacing-0;
+      color: $t-colors-text-primary;
+    }
+  }
+
+  ul {
+    margin: $t-spacing-0;
+    padding-left: $t-spacing-8;
+    list-style-position: outside;
+    list-style-type: disc;
+  }
+
+  ol {
+    margin: $t-spacing-0;
+    padding-left: $t-spacing-8;
+    list-style-position: outside;
+    list-style-type: decimal;
+  }
+
+  li {
+    margin-bottom: $t-spacing-3;
+    color: $t-colors-text-primary-muted;
+
+    &::marker {
+      font-weight: $t-font-weight-bold;
+      color: $t-colors-primary-default;
+    }
+
+    p {
+      margin-bottom: $t-spacing-2;
+    }
+  }
+
+  hr {
+    margin: $t-spacing-16 0;
+    border: 0;
+    border-top: 1px solid $t-colors-border-muted;
+  }
+
+  a {
+    color: $t-colors-link-default;
+    text-decoration: underline;
+    text-underline-offset: $t-spacing-1;
+    transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
+
+    @include focus-ring;
+
+    &:hover {
+      color: $t-colors-link-hover;
+      text-decoration-color: $t-colors-link-hover;
+    }
+  }
+
+  code:not(pre code) {
+    padding: $inline-code-padding;
+    border: 1px solid $t-colors-surface-brand-strong;
+    border-radius: $t-radius-xs;
+
+    font-family: ui-monospace, monospace;
+    // stylelint-disable-next-line scale-unlimited/declaration-strict-value -- relative to surrounding text size (h2/p/li all differ), not a fixed scale pick
+    font-size: 0.9em;
+    color: $t-colors-primary-default;
+
+    background: $t-colors-surface-brand-muted;
+  }
+
+  table,
+  :global(table) {
+    overflow: hidden;
+    border-spacing: 0;
+    border-collapse: collapse;
+
+    width: 100%;
+    margin: $t-spacing-12 0;
+    border: 1px solid $t-colors-border-subtle;
+    border-style: hidden;
+    border-radius: $t-radius-sm;
+
+    background: $t-colors-surface-glass;
+    box-shadow: 0 0 0 1px $t-colors-border-subtle;
+
+    th,
+    td,
+    :global(th),
+    :global(td) {
+      padding: $t-spacing-4 $t-spacing-6;
+      border-bottom: 1px solid $t-colors-border-subtle;
+      text-align: left;
+      vertical-align: top !important;
+
+      p,
+      :global(p) {
+        margin: 0;
+        margin-bottom: $t-spacing-2;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    th,
+    :global(th) {
+      font-weight: $t-font-weight-bold;
+      color: $t-colors-text-primary;
+      text-transform: uppercase;
+      letter-spacing: $t-font-letter-spacing-wide-2;
+
+      background: $t-colors-surface-brand-subtle;
+
+      @include label-md;
+    }
+
+    tr:hover td,
+    tr:hover :global(td) {
+      background: $t-colors-surface-brand-subtle;
+    }
+  }
+
+  @media (width >= $t-breakpoint-tablet) {
+    h2 {
+      font-size: $t-font-size-2xl;
+    }
+
+    h3 {
+      font-size: $t-font-size-xl;
+    }
+
+    h4 {
+      font-size: $t-font-size-lg;
+    }
+  }
+}

@@ -1,11 +1,16 @@
 import { Env, ChatMessage } from "./types";
 
+/** Queries shorter than this are treated as follow-ups and enriched with the previous turn. */
+const SHORT_QUERY_CHARS = 20;
+/** Vector matches below this similarity are dropped as irrelevant. */
+const MIN_RELEVANCE_SCORE = 0.65;
+
 // Ambiguous, short, or pronoun-heavy messages ("tell me more", "why?") retrieve
 // poorly on their own, so their query is enriched with the prior user turn.
 export const followUpTerms = ['it', 'that', 'this', 'more', 'explain', 'summarize', 'summary', 'why', 'how'];
 
 function buildRetrievalQuery(q: string, priorTurns: ChatMessage[], activeBlogPath?: string): string {
-    const isShortOrFollowUp = q.length < 20 || followUpTerms.some((term) => q.toLowerCase().includes(term));
+    const isShortOrFollowUp = q.length < SHORT_QUERY_CHARS || followUpTerms.some((term) => q.toLowerCase().includes(term));
     const priorUserMessage = isShortOrFollowUp
         ? priorTurns.filter((m) => m.role === 'user').at(-1)?.content
         : undefined;
@@ -24,7 +29,7 @@ export async function faq(env: Env, q: string, priorTurns: ChatMessage[], active
         }
         const r = await env.VECTORIZE.query(e.data[0], { topK: 5, returnMetadata: 'all' });
         const matches = r.matches as { score?: number; metadata?: { text?: string } }[];
-        const relevantMatches = matches.filter((m) => typeof m.score !== 'number' || m.score >= 0.65);
+        const relevantMatches = matches.filter((m) => typeof m.score !== 'number' || m.score >= MIN_RELEVANCE_SCORE);
         return relevantMatches.map((m) => m.metadata?.text || '').filter(Boolean).join('\n\n');
     } catch {
         return '';

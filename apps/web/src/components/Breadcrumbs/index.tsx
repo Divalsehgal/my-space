@@ -1,13 +1,13 @@
 import Link from "next/link";
 import clsx from "clsx";
-import HomeIcon from "@mui/icons-material/Home";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { HomeIcon, KeyboardArrowRightIcon } from "@dival-sehgal/ui/icons";
 import FluidContainer from "../FluidContainer";
 import styles from "./styles.module.scss";
 import type { BreadcrumbItem } from "@/types";
 import ParticlesBackground from "../ParticlesBackground";
 import JsonLd from "../JsonLd";
 import { SITE_URL } from "@/lib/config/site";
+import { getT } from "@/i18n/server";
 
 interface BreadcrumbsProps {
   items: readonly BreadcrumbItem[];
@@ -15,10 +15,11 @@ interface BreadcrumbsProps {
 }
 
 export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsProps>) {
+  const t = getT();
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [{ label: "Home", href: "/" }, ...items].map((item, index) => ({
+    itemListElement: [{ label: t("nav.home"), href: "/" }, ...items].map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
@@ -27,7 +28,7 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
   };
 
   return (
-    <nav className={clsx(styles.breadcrumbs, className)} aria-label="breadcrumb">
+    <nav className={clsx(styles.breadcrumbs, className)} aria-label={t("breadcrumbs.label")}>
       <div className={styles["breadcrumbs__particles"]} aria-hidden="true">
         <ParticlesBackground
           id="breadcrumbs-particles"
@@ -40,8 +41,8 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
         <ol className={styles["breadcrumbs__list"]}>
           <li className={styles["breadcrumbs__item"]}>
             <Link href="/" className={styles["breadcrumbs__link"]}>
-              <HomeIcon className={styles["breadcrumbs__home-icon"]} aria-hidden="true" focusable="false" />
-              <span className="sr-only">Home</span>
+              <HomeIcon fontSize="inherit" className={styles["breadcrumbs__home-icon"]} aria-hidden="true" focusable="false" />
+              <span className="sr-only">{t("nav.home")}</span>
             </Link>
           </li>
 
@@ -73,6 +74,7 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
             return (
               <li key={item.href} className={styles["breadcrumbs__item"]}>
                 <KeyboardArrowRightIcon
+                  fontSize="inherit"
                   className={styles["breadcrumbs__separator"]}
                   aria-hidden="true"
                   focusable="false"

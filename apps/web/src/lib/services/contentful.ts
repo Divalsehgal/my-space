@@ -1,5 +1,10 @@
+import "server-only";
+
 import { GraphQLClient } from 'graphql-request';
-import type { ContentfulPost, ContentfulQuiz, ContentfulRichText } from '@/types/contentful';
+import type { ContentfulPost } from '@/types/contentful';
+import { mapContentfulPost, type ContentfulCollectionResponse, type ContentfulPostItem } from '@/lib/contentful/mappers';
+
+export { mapContentfulPost, type ContentfulCollectionResponse, type ContentfulPostItem };
 
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -7,6 +12,15 @@ const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
 
 if (!spaceId || (!accessToken && !previewToken)) {
   console.warn('Contentful environment variables are missing. GraphQL client may not work.');
+}
+
+// Personal access tokens (Management API, read/write) start with "CFPAT-".
+// The site must only ever hold read-only Delivery/Preview tokens.
+const MANAGEMENT_TOKEN_PREFIX = 'CFPAT-';
+for (const [name, token] of Object.entries({ CONTENTFUL_ACCESS_TOKEN: accessToken, CONTENTFUL_PREVIEW_ACCESS_TOKEN: previewToken })) {
+  if (token?.startsWith(MANAGEMENT_TOKEN_PREFIX)) {
+    throw new Error(`${name} is a Contentful management (read/write) token. Use the read-only Delivery/Preview API token instead.`);
+  }
 }
 
 const endpoint = `https://graphql.contentful.com/content/v1/spaces/${spaceId}`;
@@ -46,36 +60,6 @@ export const previewClient = new GraphQLClient(endpoint, {
 });
 
 /**
- * Raw item structure from Contentful GraphQL API
- */
-export interface ContentfulPostItem {
-  sys: {
-    id: string;
-    firstPublishedAt: string;
-    publishedAt?: string;
-  };
-  title: string;
-  slug: string;
-  excerpt?: string;
-  body: ContentfulRichText;
-  quiz?: {
-    sys: { id: string };
-    title: string;
-    questionEntriesCollection?: {
-      items: Array<{
-        sys: { id: string };
-        questionText: ContentfulRichText;
-        explanation: ContentfulRichText;
-        correctAnswer: { sys: { id: string } };
-        optionsCollection?: {
-          items: Array<{ sys: { id: string }; text: ContentfulRichText } | null>;
-        };
-      } | null>;
-    };
-  } | null;
-}
-
-/**
  * Utility to fetch data from Contentful using the GraphQL client
  */
 export async function fetchContentful<T>(
@@ -88,103 +72,16 @@ export async function fetchContentful<T>(
 }
 
 /**
- * Mapping function to convert Contentful data to our shared Blog Post format
+ * Fetches the blog post list (index cards, related posts, sitemap, static
+ * params). Only `body { json }` is requested, for the card description:
+ * `body.links.assets` costs ~1000 per item against Contentful's 11,000
+ * query-complexity cap, which limited this to ~10 posts. Rendering a single
+ * post with its embedded assets goes through getContentfulPostBySlug.
  */
-export function mapContentfulPost(item: ContentfulPostItem): ContentfulPost {
-  return {
-    id: item.sys.id,
-    title: item.title,
-    // BlogPage does not define a cover-image field in the Contentful model.
-    cover: null,
-    date: item.sys.firstPublishedAt,
-    publishedAt: item.sys.publishedAt,
-    slug: item.slug,
-    description: getPostDescription(item.body),
-    tags: [],
-    content: item.body,
-    quiz: mapContentfulQuiz(item.quiz),
-  };
-}
-
-function mapContentfulQuiz(quiz?: ContentfulPostItem['quiz']): ContentfulQuiz | null {
-  if (!quiz) {
-    return null;
-  }
-
-  return {
-    id: quiz.sys.id,
-    title: quiz.title,
-    questions: (quiz.questionEntriesCollection?.items || []).flatMap((question) => {
-      if (!question || !question.questionText || !question.explanation || !question.correctAnswer) {
-        return [];
-      }
-      return [{
-        id: question.sys.id,
-        questionText: question.questionText,
-        explanation: question.explanation,
-        correctAnswerId: question.correctAnswer.sys.id,
-        options: (question.optionsCollection?.items || []).flatMap((option) => option ? [{
-          id: option.sys.id,
-          text: option.text,
-        }] : []),
-      }];
-    }),
-  };
-}
-
-export interface ContentfulCollectionResponse<T> {
-  blogPageCollection: {
-    items: T[];
-  };
-}
-
-function getPostDescription(body?: ContentfulRichText): string {
-  if (!body?.json?.content) {
-    return "";
-  }
-
-  interface RichTextNode {
-    nodeType: string;
-    value?: string;
-    content?: RichTextNode[];
-  }
-
-  const extractText = (nodes: RichTextNode[]): string =>
-    nodes
-      .map((node) => (node.nodeType === "text" ? node.value || "" : extractText(node.content || [])))
-      .join("");
-
-  // Each block (paragraph, heading, list item) becomes its own sentence so the
-  // snippet reads naturally instead of running list items together.
-  const blocks: string[] = [];
-  const collectBlocks = (nodes: RichTextNode[]) => {
-    for (const node of nodes) {
-      if (node.nodeType === "paragraph" || node.nodeType.startsWith("heading")) {
-        const text = extractText(node.content || []).replace(/\s+/g, " ").trim();
-        if (text) {blocks.push(/[.!?:]$/.test(text) ? text : `${text}.`);}
-      } else if (node.content) {
-        collectBlocks(node.content);
-      }
-    }
-  };
-  collectBlocks(body.json.content as unknown as RichTextNode[]);
-
-  const text = blocks.join(" ");
-  const maxLength = 155;
-  if (text.length <= maxLength) {
-    return text;
-  }
-  const cut = text.slice(0, maxLength);
-  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.]$/, "")}…`;
-}
-
-/**
- * Fetches all blog posts from Contentful
- */
-export async function getContentfulPosts(limit = 10, preview = false): Promise<ContentfulPost[]> {
+export async function getContentfulPosts(limit = 100, preview = false): Promise<ContentfulPost[]> {
   const query = `
     query GetBlogPosts($limit: Int, $preview: Boolean) {
-      blogPageCollection(limit: $limit, preview: $preview) {
+      blogPageCollection(limit: $limit, order: [sys_firstPublishedAt_DESC], preview: $preview) {
         items {
           sys {
             id
@@ -195,17 +92,6 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
           slug
           body {
             json
-            links {
-              assets {
-                block {
-                  sys { id }
-                  url
-                  title
-                  width
-                  height
-                }
-              }
-            }
           }
         }
       }
@@ -226,6 +112,35 @@ export async function getContentfulPosts(limit = 10, preview = false): Promise<C
   }
 }
 
+
+/**
+ * Titles and slugs only, for the command palette / terminal index. Skipping
+ * the rich-text body keeps this well under Contentful's query-cost limit.
+ */
+export async function getContentfulPostTitles(limit = 100, preview = false): Promise<Array<{ title: string; slug: string }>> {
+  const query = `
+    query GetBlogPostTitles($limit: Int, $preview: Boolean) {
+      blogPageCollection(limit: $limit, order: [sys_firstPublishedAt_DESC], preview: $preview) {
+        items {
+          title
+          slug
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchContentful<{ blogPageCollection?: { items?: Array<{ title: string; slug: string } | null> } }>(
+      query,
+      { limit, preview },
+      preview,
+    );
+    return (data?.blogPageCollection?.items ?? []).flatMap((item) => (item?.slug ? [{ title: item.title, slug: item.slug }] : []));
+  } catch (error) {
+    console.error('Error fetching Contentful post titles:', error);
+    return [];
+  }
+}
 
 /**
  * Fetches the most recently published blog post, for surfacing "new post"

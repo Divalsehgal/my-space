@@ -22,6 +22,8 @@
 // 1. EVENT REGISTRY — The only place event names are declared.
 //    Import this object everywhere. Never write raw string event names.
 // ---------------------------------------------------------------------------
+import { isOwnerMode } from "./ownerMode";
+
 export const ANALYTICS_EVENTS = {
   // Navigation
   NAV_CLICK: "nav_click",
@@ -44,6 +46,11 @@ export const ANALYTICS_EVENTS = {
   // Engagement
   PAGE_END_REACHED: "page_end_reached",
   BLOG_VIEW: "blog_view",
+
+  // Hero stack game
+  GAME_PROMPT: "game_prompt",
+  GAME_START: "game_start",
+  GAME_OVER: "game_over",
 } as const;
 
 // Derive the union type from the registry values
@@ -64,6 +71,9 @@ export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
   [ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT]: "Contact",
   [ANALYTICS_EVENTS.PAGE_END_REACHED]:"Engagement",
   [ANALYTICS_EVENTS.BLOG_VIEW]:       "Blog",
+  [ANALYTICS_EVENTS.GAME_PROMPT]:     "Engagement",
+  [ANALYTICS_EVENTS.GAME_START]:      "Engagement",
+  [ANALYTICS_EVENTS.GAME_OVER]:       "Engagement",
 };
 
 // ---------------------------------------------------------------------------
@@ -71,7 +81,7 @@ export const EVENT_CATEGORY_MAP: Record<AnalyticsEventName, string> = {
 //    If you call trackInteraction with wrong params, it's a compile error.
 // ---------------------------------------------------------------------------
 export interface AnalyticsEventPayloads {
-  [ANALYTICS_EVENTS.NAV_CLICK]:       { label: string; href: string; location: "navbar" | "footer" | "home-top-bar" };
+  [ANALYTICS_EVENTS.NAV_CLICK]:       { label: string; href: string; location: "navbar" | "footer" | "home-top-bar" | "architecture-widget" };
   [ANALYTICS_EVENTS.SOCIAL_CLICK]:    { platform: string; href: string };
   [ANALYTICS_EVENTS.RESUME_VIEW]:     { label?: string };
   [ANALYTICS_EVENTS.RESUME_DOWNLOAD]: { label?: string };
@@ -81,6 +91,9 @@ export interface AnalyticsEventPayloads {
   [ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT]: { template: string };
   [ANALYTICS_EVENTS.PAGE_END_REACHED]:{ label?: string };
   [ANALYTICS_EVENTS.BLOG_VIEW]:       { title: string; slug: string; tags?: string[] };
+  [ANALYTICS_EVENTS.GAME_PROMPT]:     { action: "play" };
+  [ANALYTICS_EVENTS.GAME_START]:      { attempt: number };
+  [ANALYTICS_EVENTS.GAME_OVER]:       { score: number; best: number };
 }
 
 // ---------------------------------------------------------------------------
@@ -129,9 +142,7 @@ export function trackEvent(
   }
 
   // Owner mode: never send analytics events
-  try {
-    if (localStorage.getItem('owner_mode') === 'true') {return;}
-  } catch { /* ignore */ }
+  if (isOwnerMode()) {return;}
 
   let label: string | undefined;
   let payload: Record<string, unknown> = { ...extraPayload };
@@ -190,5 +201,36 @@ export const trackInteraction = <T extends AnalyticsEventName>(
   const label = resolveLabel(eventName, payload as unknown as Record<string, unknown>);
   trackEvent(eventName, category, label, payload as unknown as Record<string, unknown>);
 };
+
+// ---------------------------------------------------------------------------
+// 7. DECLARATIVE CLICK TRACKING — for Server Components.
+//    Spread `trackAttrs(...)` onto a link or button; the single client-side
+//    <ClickTracker /> (mounted in the root layout) sends the event on click.
+//    Same typed payloads as trackInteraction, without an onClick handler —
+//    so the component does not have to become a Client Component.
+// ---------------------------------------------------------------------------
+const EVENT_NAMES = new Set<string>(Object.values(ANALYTICS_EVENTS));
+
+export const trackAttrs = <T extends AnalyticsEventName>(eventName: T, payload: AnalyticsEventPayloads[T]) => ({
+  "data-track": eventName,
+  "data-track-payload": JSON.stringify(payload),
+});
+
+/** The event declared on the nearest `[data-track]` ancestor of `target`, if any (pure; no side effects). */
+export function readTrackedClick(
+  target: EventTarget | null,
+): { eventName: AnalyticsEventName; payload: AnalyticsEventPayloads[AnalyticsEventName] } | null {
+  const el = target instanceof Element ? target.closest<HTMLElement>("[data-track]") : null;
+  const eventName = el?.dataset.track;
+  if (!el || !eventName || !EVENT_NAMES.has(eventName)) {return null;}
+  try {
+    return {
+      eventName: eventName as AnalyticsEventName,
+      payload: JSON.parse(el.dataset.trackPayload ?? "{}") as AnalyticsEventPayloads[AnalyticsEventName],
+    };
+  } catch {
+    return null;
+  }
+}
 
 export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID;

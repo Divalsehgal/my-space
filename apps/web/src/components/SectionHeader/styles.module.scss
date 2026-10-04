@@ -26,14 +26,16 @@
 
   &__action-button {
     padding: $t-spacing-2 $t-spacing-4;
-    border-radius: $t-spacing-2;
+    border-radius: $t-radius-sm;
 
     font-weight: $t-font-weight-bold;
     color: $t-colors-primary-default;
     text-transform: none;
     letter-spacing: $t-font-letter-spacing-tight-1;
 
-    transition: all 0.3s ease;
+    transition: color $t-motion-duration-slow $t-motion-easing-standard, background-color $t-motion-duration-slow $t-motion-easing-standard, border-color $t-motion-duration-slow $t-motion-easing-standard, box-shadow $t-motion-duration-slow $t-motion-easing-standard, transform $t-motion-duration-slow $t-motion-easing-standard, opacity $t-motion-duration-slow $t-motion-easing-standard;
+
+    @include focus-ring;
 
     &:hover {
       transform: translateX($t-spacing-1);
@@ -51,21 +53,21 @@
     letter-spacing: $t-font-letter-spacing-wide-3; // Extra wide tracking for premium feel
   }
 
-  &__title {
-    font-family: $t-font-family-heading;
-    font-size: $t-font-size-2xl; // More prominent
-    font-weight: $t-font-weight-bold;
-    line-height: $t-font-line-height-tight;
-    color: $t-colors-text-primary;
-    letter-spacing: $t-font-letter-spacing-tight-1;
+  // Two-class selector so it beats MUI's Typography h2 sizing.
+  &__content > &__title {
+    margin: 0;
 
-    @media (min-width: $t-breakpoint-tablet) {
-      font-size: $t-font-size-3xl;
-    }
+    font-family: var(--font-display), $t-font-family-heading;
+    font-size: clamp(2.25rem, 5.5vw, 4.5rem);
+    font-weight: $t-font-weight-bold;
+    line-height: $line-height-display;
+    color: $t-colors-text-primary;
+    letter-spacing: $t-font-letter-spacing-tight-2;
   }
 
   &__subtitle {
     max-width: 600px;
+    margin: 0;
 
     font-size: $t-font-size-sm;
     font-weight: $t-font-weight-medium;
@@ -74,7 +76,7 @@
 
     opacity: 0.8;
 
-    @media (min-width: $t-breakpoint-tablet) {
+    @media (width >= $t-breakpoint-tablet) {
       font-size: $t-font-size-base;
     }
   }
@@ -101,7 +103,7 @@
     text-align: center;
   }
 
-  @media (min-width: $t-breakpoint-tablet) {
+  @media (width >= $t-breakpoint-tablet) {
     // Default alignment handled by props, but ensuring base layout is solid
   }
 }

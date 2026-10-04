@@ -6,7 +6,14 @@ const nextConfig: NextConfig = {
     productionBrowserSourceMaps: true,
     experimental: {
         externalDir: true,
-        optimizePackageImports: ["@mui/material", "@mui/icons-material"],
+        // Barrel packages rewritten to per-module imports at build time.
+        optimizePackageImports: [
+            "@radix-ui/react-toast",
+            "@radix-ui/react-tooltip",
+            "framer-motion",
+            "@xyflow/react",
+            "@react-three/fiber",
+        ],
     },
     images: {
         qualities: [75, 80],

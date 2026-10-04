@@ -2,5 +2,10 @@
   "name": "@dival-sehgal/eslint-config",
   "version": "0.1.0",
   "private": true,
-  "main": "index.mjs"
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./react": "./react.mjs"
+  },
+  "type": "module"
 }

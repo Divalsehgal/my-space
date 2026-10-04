@@ -1,4 +1,4 @@
-import { fetchWithRetry } from "@/utils/fetchWithRetry";
+import { fetchWithRetry } from "@dival-sehgal/utils/fetch-with-retry";
 import { PortfolioConfigSchema, type PortfolioConfig } from "./schema";
 
 const CONFIG_URL =

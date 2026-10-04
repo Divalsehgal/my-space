@@ -1,8 +1,8 @@
 import { portfolioService } from "./portfolio.service";
-import { fetchWithRetry } from "@/utils/fetchWithRetry";
+import { fetchWithRetry } from "@dival-sehgal/utils/fetch-with-retry";
 
 // Mock fetchWithRetry
-jest.mock("@/utils/fetchWithRetry", () => ({
+jest.mock("@dival-sehgal/utils/fetch-with-retry", () => ({
   fetchWithRetry: jest.fn(),
 }));
 
@@ -32,7 +32,9 @@ describe("PortfolioService", () => {
     const result = await portfolioService.getConfig();
 
     expect(fetchWithRetry).toHaveBeenCalledTimes(1);
-    expect(result.config.hero?.title).toBe("Hero Title");
+    // Copy fields are ignored now (they come from translations); links are kept.
+    expect(result.config.hero).not.toHaveProperty("title");
+    expect(result.config.experience).toBeDefined();
   });
 
   it("throws an error if fetch response is not ok", async () => {

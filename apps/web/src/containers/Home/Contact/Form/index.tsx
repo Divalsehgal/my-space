@@ -1,37 +1,43 @@
 "use client";
 
 import { useActionState, useEffect, use, useState } from "react";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import clsx from "clsx";
+import TextField from "@dival-sehgal/ui/text-field";
+import Button from "@dival-sehgal/ui/button";
 import { submitContact } from "@/actions/submit-contact";
 
 import { ToastContext } from "@/context/ToastContext";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { getRememberedContact, saveRememberedContact } from "@/utils/contactRemember";
-import styles from "../styles.module.scss";
+import styles from "./styles.module.scss";
 import { MESSAGE_TEMPLATES } from "./constants";
+import { useT } from "@/i18n/client";
+import { MESSAGE_MAX_CHARS } from "@/types/contact";
+
+const MESSAGE_MAX_LENGTH = MESSAGE_MAX_CHARS;
 
 type SubmitButtonProps = {
     readonly pending: boolean;
 };
 
 export function SubmitButton({ pending }: SubmitButtonProps) {
+    const t = useT();
     return (
         <Button
             type="submit"
-            variant="contained"
             size="large"
-            fullWidth
             disabled={pending}
+            aria-busy={pending || undefined}
+            className={clsx(styles["contact-form__submit"], pending && styles["contact-form__submit--pending"])}
         >
-            {pending ? "Sending..." : "Send Message"}
+            {t(pending ? "contact.sending" : "contact.send")}
         </Button>
     );
 }
 
 
 export default function ContactForm() {
+    const t = useT();
     const [state, formAction, isPending] = useActionState(submitContact, { status: "idle" });
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -70,17 +76,15 @@ export default function ContactForm() {
     }, [state, showToast, name, email]);
 
     return (
-        <Box
-            component="form"
+        <form
             id="contact-form"
             action={formAction}
-            className={styles["contact__form"]}
+            className={styles["contact-form"]}
         >
-            <div className={styles["contact__row"]}>
+            <div className={styles["contact-form__row"]}>
                 <TextField
-                    label="Name"
+                    label={t("contact.name")}
                     name="name"
-                    fullWidth
                     required
                     autoComplete="name"
                     disabled={isPending}
@@ -88,60 +92,63 @@ export default function ContactForm() {
                     onChange={(e) => setName(e.target.value)}
                     error={Boolean(state.errors?.name)}
                     helperText={state.errors?.name?.[0] ?? " "}
-                    className={styles["contact__field"]}
+                    className={styles["contact-form__field"]}
                 />
                 <TextField
-                    label="Email"
+                    label={t("contact.email")}
                     name="email"
                     type="email"
-                    fullWidth
+                    autoComplete="email"
+                    spellCheck={false}
                     required
                     disabled={isPending}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     error={Boolean(state.errors?.email)}
                     helperText={state.errors?.email?.[0] ?? " "}
-                    className={styles["contact__field"]}
+                    className={styles["contact-form__field"]}
                 />
             </div>
 
-            <div className={styles["contact__suggestions"]}>
-                <span className={styles["contact__suggestions-label"]}>Not sure what to write?</span>
+            <div className={styles["contact-form__suggestions"]}>
+                <span className={styles["contact-form__suggestions-label"]}>{t("contact.suggestionsLabel")}</span>
                 {MESSAGE_TEMPLATES.map((template) => (
                     <button
-                        key={template.label}
+                        key={template.id}
                         type="button"
                         disabled={isPending}
-                        className={styles["contact__suggestion-btn"]}
+                        className={styles["contact-form__suggestion-btn"]}
                         onClick={() => {
-                            setMessage(template.message);
-                            trackInteraction(ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT, { template: template.label });
+                            setMessage(t(template.messageKey));
+                            trackInteraction(ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT, { template: template.id });
                         }}
                     >
-                        {template.label}
+                        {t(template.labelKey)}
                     </button>
                 ))}
             </div>
 
             <TextField
-                label="Message"
+                label={t("contact.message")}
                 name="message"
-                fullWidth
                 required
                 multiline
                 minRows={5}
                 disabled={isPending}
                 value={message}
                 error={Boolean(state.errors?.message)}
-                helperText={state.errors?.message?.[0] ?? `${message.length} / 1000`}
-                slotProps={{ htmlInput: { maxLength: 1000 } }}
-                className={styles["contact__field"]}
+                helperText={state.errors?.message?.[0]}
+                maxLength={MESSAGE_MAX_LENGTH}
+                className={styles["contact-form__field"]}
                 onChange={(e) => setMessage(e.target.value)}
             />
 
-            <div className={styles["contact__actions"]}>
+            <div className={styles["contact-form__actions"]}>
+                <span className={styles["contact-form__counter"]}>
+                    {message.length} / {MESSAGE_MAX_LENGTH}
+                </span>
                 <SubmitButton pending={isPending} />
             </div>
-        </Box>
+        </form>
     );
 }

@@ -1,0 +1,99 @@
+@use "variables.scss" as *;
+@use "../styles/motion" as *;
+
+// Primitives live in the components layer so consumer CSS Modules (unlayered)
+// can override them with plain class selectors.
+@layer components {
+  .icon-button {
+    cursor: pointer;
+
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    width: $t-spacing-10;
+    height: $t-spacing-10;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+
+    font-size: $t-font-size-sm;
+    color: inherit;
+    text-decoration: none;
+
+    background-color: transparent;
+
+    transition: background-color $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard;
+
+    &:hover:not(:disabled) {
+      background-color: $t-colors-surface-brand-subtle;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.94);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $t-colors-primary-default;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &--small {
+      width: $t-spacing-8;
+      height: $t-spacing-8;
+      font-size: $t-font-size-xs;
+    }
+
+    &--large {
+      width: $t-spacing-12;
+      height: $t-spacing-12;
+      font-size: $t-font-size-md;
+    }
+
+    // Square glass control with a brand glow on hover (carousel arrows).
+    &--glass {
+      width: $t-spacing-11;
+      height: $t-spacing-11;
+      border: 1px solid $t-colors-border-primary;
+      border-radius: $t-radius-sm;
+
+      color: $t-colors-text-primary;
+
+      backdrop-filter: blur($t-blur-md);
+
+      transition:
+        color $t-motion-duration-slow $t-motion-easing-standard,
+        background-color $t-motion-duration-slow $t-motion-easing-standard,
+        border-color $t-motion-duration-slow $t-motion-easing-standard,
+        box-shadow $t-motion-duration-slow $t-motion-easing-standard,
+        transform $t-motion-duration-slow $t-motion-easing-standard;
+
+      &:hover:not(:disabled) {
+        border-color: $t-colors-scrollbar-thumb-hover;
+        background-color: $t-colors-surface-brand-subtle;
+        box-shadow: 0 0 20px $t-colors-surface-brand-strong;
+
+        svg {
+          color: $t-colors-primary-default;
+        }
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(0.92);
+      }
+
+      svg {
+        font-size: $t-font-size-lg;
+        transition:
+          transform $t-motion-duration-slow $t-motion-easing-standard,
+          color $t-motion-duration-slow $t-motion-easing-standard;
+      }
+    }
+  }
+}
