@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteIndex } from "@/lib/site-index";
 import { emitSiteEvent, SITE_EVENTS } from "@/lib/site-events";
@@ -88,7 +88,7 @@ export default function Terminal({ index, onClose }: Readonly<TerminalProps>) {
     }
   };
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
     const result = runCommand(input, index, t);
     setLines((prev) => [...prev, line(input, "in"), ...result.lines.map((text) => line(text))]);

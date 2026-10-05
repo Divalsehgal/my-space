@@ -54,7 +54,7 @@ const integrations = {
   portfolioConfig: /raw\.githubusercontent\.com/.test(portfolioService),
   notion: has("src/lib/services/notion.ts"),
   redis: Boolean(deps["@upstash/redis"]),
-  analytics: has("src/components/GoogleTracking.tsx"),
+  analytics: has("src/components/GoogleTracking/index.tsx"),
   worker: Boolean(wrangler),
   workersAi: Boolean(wrangler?.ai),
   vectorize: (wrangler?.vectorize ?? []).length > 0,

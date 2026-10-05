@@ -157,7 +157,7 @@ export const styleOwnershipConfig = [
       // A stylesheet belongs to one component: only a component's entry file
       // (or a route file) may import it. Sub-components live in their own folder.
       files: ["**/*.tsx"],
-      ignores: ["**/index.tsx", "**/page.tsx", "**/layout.tsx", "**/not-found.tsx", "**/error.tsx", "**/*.test.tsx", "**/test.tsx"],
+      ignores: ["**/index.tsx", "**/page.tsx", "**/layout.tsx", "**/not-found.tsx", "**/error.tsx", "**/*.test.tsx"],
       rules: {
         "no-restricted-imports": ["error", {
           paths: RESTRICTED_PATHS,
@@ -177,7 +177,7 @@ export const styleOwnershipConfig = [
 export const testOverridesConfig = [
   {
       // Tests, scripts, configs and end-to-end specs use literal data freely.
-      files: ["**/*.test.*", "**/test.*", "**/__tests__/**", "**/e2e/**", "**/scripts/**", "**/*.config.*", "**/test-utils/**", "**/test-mocks/**"],
+      files: ["**/*.test.*", "**/__tests__/**", "**/e2e/**", "**/scripts/**", "**/*.config.*", "**/test-utils/**", "**/test-mocks/**"],
       rules: {
         "@typescript-eslint/no-magic-numbers": "off",
         "react/jsx-no-literals": "off"

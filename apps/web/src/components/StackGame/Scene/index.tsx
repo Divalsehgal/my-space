@@ -24,7 +24,7 @@ import {
   debrisSpin,
   type Block,
   type Physics,
-} from "./constants";
+} from "../constants";
 
 export type StackGameApi = { drop: () => void; reset: () => void };
 
@@ -56,7 +56,7 @@ function Game({ onReady, onPlaced, onGameOver }: Readonly<GameProps>) {
   }, [onPlaced, onGameOver]);
 
   useEffect(() => {
-    const top = () => blocksRef.current[blocksRef.current.length - 1];
+    const top = () => blocksRef.current.at(-1) ?? BASE_BLOCK;
 
     const spawnDebris = (piece: Omit<Block, "id">) => {
       const id = nextId.current++;
@@ -134,7 +134,7 @@ function Game({ onReady, onPlaced, onGameOver }: Readonly<GameProps>) {
 
   useFrame(({ camera, size }, rawDelta) => {
     const delta = Math.min(rawDelta, MAX_FRAME_SECONDS); // avoid jumps after tab switches
-    const prev = blocksRef.current[blocksRef.current.length - 1];
+    const prev = blocksRef.current.at(-1) ?? BASE_BLOCK;
 
     // Slide the active block back and forth.
     const m = moving.current;

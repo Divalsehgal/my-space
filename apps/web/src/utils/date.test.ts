@@ -1,4 +1,4 @@
-import { getRelativeTimeLabel } from "./date";
+import { formatDate, getRelativeTimeLabel } from "./date";
 
 describe("getRelativeTimeLabel", () => {
   const NOW = new Date("2026-08-08T00:00:00.000Z").getTime();
@@ -50,5 +50,21 @@ describe("getRelativeTimeLabel", () => {
   it("uses the updated prefix when isUpdated is true", () => {
     expect(getRelativeTimeLabel(daysAgo(3), true)).toBe("Last updated 3 days ago");
     expect(getRelativeTimeLabel(daysAgo(0), true)).toBe("Last updated today");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats valid dates and rejects missing or invalid ones", () => {
+    expect(formatDate("2024-03-05T12:00:00Z")).toBe("March 5, 2024");
+    expect(formatDate("2024-03-05T12:00:00Z", { year: "numeric" })).toBe("2024");
+    expect(formatDate(null)).toBeNull();
+    expect(formatDate("not a date")).toBeNull();
+  });
+
+  it("returns null when the formatter throws", () => {
+    const error = jest.spyOn(console, "error").mockImplementation(() => undefined);
+    expect(formatDate("2024-03-05", undefined, "not_a_locale!!")).toBeNull();
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
   });
 });

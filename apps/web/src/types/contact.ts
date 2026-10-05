@@ -10,7 +10,7 @@ export const MESSAGE_MAX_CHARS = 1000;
 export function createContactSchema(t: Translate) {
     return z.object({
         name: z.string().min(1, t("contact.validation.nameRequired")),
-        email: z.string().email(t("contact.validation.emailInvalid")),
+        email: z.email(t("contact.validation.emailInvalid")),
         message: z
             .string()
             .min(1, t("contact.validation.messageRequired"))

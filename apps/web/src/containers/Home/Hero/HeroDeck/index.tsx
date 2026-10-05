@@ -175,7 +175,7 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
       const next = [...rest, front];
       const el = cardRefs.current[front];
       if (el && motionAllowed()) {
-        animate(el, { x: TOSS.x, y: TOSS.y, rotate: TOSS.rotation }, { duration: TOSS.duration, ease: "easeIn" }).then(() => place(next, false, RESHUFFLE_SECONDS));
+        void animate(el, { x: TOSS.x, y: TOSS.y, rotate: TOSS.rotation }, { duration: TOSS.duration, ease: "easeIn" }).then(() => place(next, false, RESHUFFLE_SECONDS));
       } else {
         place(next, false, 0);
       }

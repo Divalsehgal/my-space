@@ -2,6 +2,7 @@
 
 import { createContactSubmission } from "../../lib/services/notion";
 import { createContactSchema, type ContactFormState } from "../../types/contact";
+import { z } from "zod";
 import { getT } from "@/i18n/server";
 
 /** A trimmed text field; a missing field or a file upload reads as "". */
@@ -27,7 +28,7 @@ export async function submitContact(
         return {
             status: "error",
             message: t("contact.result.invalid"),
-            errors: validatedFields.error.flatten().fieldErrors,
+            errors: z.flattenError(validatedFields.error).fieldErrors,
         };
     }
 

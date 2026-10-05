@@ -38,8 +38,8 @@ export const ProjectConfigSchema = z.object({
   name: z.string(),
   description: z.string(),
   techStack: z.array(z.string()).optional(),
-  link: z.string().url().optional(),
-  repo: z.string().url().optional(),
+  link: z.url().optional(),
+  repo: z.url().optional(),
   image: z.string().optional(),
 });
 
@@ -106,7 +106,7 @@ export const PortfolioConfigSchema = z.object({
   projects: z.array(ProjectConfigSchema).optional().default([]),
   architecture: ArchitectureConfigSchema.optional().default({ nodes: [], edges: [] }),
   contact: z.object({
-    email: z.string().email(),
+    email: z.email(),
   }).optional(),
 });
 

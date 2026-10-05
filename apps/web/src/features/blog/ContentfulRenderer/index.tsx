@@ -11,7 +11,7 @@ import {
   Text,
 } from "@contentful/rich-text-types";
 import { ReactNode } from "react";
-import { AnimatedImageBlock } from "./AnimatedImageBlock";
+import { AnimatedImageBlock } from "../AnimatedImageBlock";
 import { CodeBlock } from "@/components/CodeBlock";
 import type { ContentfulRichText, ContentfulAsset } from "@/types";
 import { slugify } from "@dival-sehgal/utils/string";
@@ -119,7 +119,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       [MARKS.BOLD]: (text: ReactNode) => <strong>{text}</strong>,
       [MARKS.ITALIC]: (text: ReactNode) => <em>{text}</em>,
       [MARKS.CODE]: (text: ReactNode) => {
-        const contentStr = typeof text === "string" ? text : String(text);
+        const contentStr = typeof text === "string" || typeof text === "number" ? String(text) : "";
         // If it's multiline, wrap in our CodeBlock component
         if (contentStr?.includes("\n")) {
           return <CodeBlock content={contentStr}>{contentStr}</CodeBlock>;
