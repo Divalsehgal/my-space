@@ -96,6 +96,11 @@ const nextConfig: NextConfig = {
       path.join(__dirname, "../../packages/ui/src/styles"),
     ],
   },
+  redirects() {
+    // The About page was merged into the home hero; Search Console still had
+    // `/about` as a 404, so send it (and its ranking signals) to the home page.
+    return Promise.resolve([{ source: "/about", destination: "/", permanent: true }]);
+  },
   headers() {
     const isProduction = process.env.NODE_ENV === "production";
     const securityHeaders = getSecurityHeaders(isProduction ? "production" : "development");
