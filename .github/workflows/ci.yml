@@ -45,7 +45,20 @@ jobs:
       - run: yarn lint
       - run: yarn lint:style
       - run: yarn typecheck
-      - run: yarn test
+
+      # Writes <workspace>/coverage/lcov.info for every tested workspace
+      # (referenced by sonar-project.properties); the sonarqube job reuses
+      # them instead of running the suite a second time.
+      - run: yarn test:coverage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            apps/*/coverage/lcov.info
+            packages/*/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
 
   build:
     name: Build
@@ -100,35 +113,44 @@ jobs:
     name: SonarQube Cloud
     runs-on: ubuntu-latest
     needs: verify
+    # Secrets aren't available to PRs from forks or to Dependabot, so the scan
+    # would only fail there; it still runs (and must pass) on main and on PRs
+    # opened from this repo.
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.actor != 'dependabot[bot]')
     steps:
       - uses: actions/checkout@v4
         with:
           # SonarQube Cloud uses full git history for blame/new-code data.
           fetch-depth: 0
 
+      - name: Check SONAR_TOKEN
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "::error::SONAR_TOKEN secret is not set. Generate a token at sonarcloud.io (My Account -> Security) and add it under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: yarn
 
-      # --ignore-scripts: dependency lifecycle scripts never run in CI. None
-      # are needed — native binaries (esbuild, workerd, …) ship as optional
-      # platform packages.
+      # Installed so the TypeScript analyzer can resolve imported types.
+      # --ignore-scripts: dependency lifecycle scripts never run in CI.
       - run: yarn install --frozen-lockfile --ignore-scripts
 
-      - run: yarn workspace web translations
-        env:
-          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
-          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+      # Coverage reports written by the verify job.
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
 
-      # Generates <workspace>/coverage/lcov.info for every tested workspace,
-      # referenced by sonar-project.properties. Runs through turbo so ^build
-      # compiles workspace deps (design-tokens' gitignored build/) before jest.
-      - run: yarn test:coverage
-
-      # Requires a SONAR_TOKEN repo secret (Settings -> Secrets and
-      # variables -> Actions), generated from sonarcloud.io once the repo
-      # is imported there. See sonar-project.properties for project config.
+      # Project settings live in sonar-project.properties. Automatic Analysis
+      # must be disabled in SonarQube Cloud for this CI-based scan to be accepted.
       - uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5.3.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

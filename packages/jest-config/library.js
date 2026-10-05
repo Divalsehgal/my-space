@@ -2,7 +2,10 @@
  * Jest preset for workspace libraries (packages/*) that aren't Next.js apps:
  * TypeScript/TSX via ts-jest, jsdom, and CSS Modules mapped to their class names.
  */
+const { coverageReporters } = require('./coverage.js');
+
 module.exports = {
+  coverageReporters,
   setupFilesAfterEnv: ['@dival-sehgal/jest-config/setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   transform: {
