@@ -1,8 +1,6 @@
 import { getContentfulPosts } from "@/lib/services/contentful";
 import BlogPageContent from "@/containers/BlogListings";
-import BlogListingsSkeleton from "@/containers/BlogListings/BlogListingsSkeleton";
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { getViewCounts } from "@/lib/services/analytics";
 import { unstable_cache } from "next/cache";
@@ -39,9 +37,9 @@ export default function Blogs() {
   return (
     <div className={`page-scroll ${styles["blog-page"]}`}>
       <Breadcrumbs items={[{ label: t("nav.blogs"), href: "/blogs" }]} />
-      <Suspense fallback={<BlogListingsSkeleton skipBreadcrumbs />}>
-        <BlogsContent />
-      </Suspense>
+      {/* Inline rather than streamed so crawlers get the post links in the HTML
+          (see the note in blogs/[slug]/page.tsx). */}
+      <BlogsContent />
     </div>
   );
 }

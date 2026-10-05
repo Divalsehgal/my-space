@@ -12,24 +12,27 @@ export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Listing pages change when a post does. Using the build time instead made
+  // every lastmod "now" on each deploy, which teaches Google to ignore them.
+  const latestPostTime = Math.max(0, ...blogUrls.map((entry) => entry.lastModified.getTime()));
+  const contentUpdated = latestPostTime ? new Date(latestPostTime) : undefined;
 
   // Static routes
   const staticUrls = [
     {
       url: BASE_URL,
-      lastModified: new Date(),
+      lastModified: contentUpdated,
       changeFrequency: "monthly" as const,
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/blogs`,
-      lastModified: new Date(),
+      lastModified: contentUpdated,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/architecture`,
-      lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.5,
     },

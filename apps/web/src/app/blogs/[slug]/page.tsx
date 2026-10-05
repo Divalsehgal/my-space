@@ -5,9 +5,7 @@ import {
 import type { ContentfulPost } from "@/types";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import BlogPostContainer from "@/containers/BlogPost";
-import BlogPostSkeleton from "@/containers/BlogPost/BlogPostSkeleton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { SITE_URL, AUTHOR } from "@/lib/config/site";
 import styles from "./styles.module.scss";
@@ -130,9 +128,10 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Breadcrumbs items={breadcrumbItems} />
-      <Suspense fallback={<BlogPostSkeleton skipBreadcrumbs />}>
-        <BlogPostContent post={post} />
-      </Suspense>
+      {/* Rendered inline, not behind <Suspense>: streamed boundaries are revealed by a
+          script wrapped in a view transition, which Google's renderer aborts, so
+          crawlers only ever saw the skeleton. */}
+      <BlogPostContent post={post} />
     </div>
   );
 }
