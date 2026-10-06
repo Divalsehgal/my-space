@@ -19,10 +19,12 @@ interface BlogViewTrackerProps {
  *
  * Drop this anywhere inside a blog post page.
  */
+
+const VIEW_THRESHOLD = 60000; // 60 seconds
 export default function BlogViewTracker({ slug }: Readonly<BlogViewTrackerProps>) {
   const t = useT();
   const locale = useLocale();
-  const { views } = useBlogViews(slug);
+  const { views } = useBlogViews(slug, { thresholdMs: VIEW_THRESHOLD });
 
   return (
     <div className={styles.views} aria-live="polite">

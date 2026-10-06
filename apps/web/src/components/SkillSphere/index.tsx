@@ -14,7 +14,6 @@ import { useSphereDrag, type SphereMotion } from "./useSphereDrag";
 import { stepMotion } from "./motion";
 import { drawSphere } from "./draw";
 import styles from "./styles.module.scss";
-import { useT } from "@/i18n/client";
 import { MAX_SKILL_DEPTH } from "@/features/portfolio/skillLevel";
 
 export type { SphereGroup, SphereSkill };
@@ -40,7 +39,6 @@ interface SkillSphereProps {
  * only (no WebGL); stops animating off-screen or for reduced-motion users.
  */
 export default function SkillSphere({ skills, groups }: Readonly<SkillSphereProps>) {
-  const t = useT();
   const stage = useRef<HTMLDivElement>(null);
   const items = useRef<(HTMLLIElement | null)[]>([]);
   const paint = useRef<(() => void) | null>(null);
@@ -223,7 +221,6 @@ export default function SkillSphere({ skills, groups }: Readonly<SkillSphereProp
             ))}
           </ul>
         </div>
-        <p className={styles["sphere__hint"]}>{t("skills.hint")}</p>
       </div>
 
       <aside className={styles["sphere__panel"]} aria-live="polite">
