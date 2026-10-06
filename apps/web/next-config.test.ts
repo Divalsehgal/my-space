@@ -73,7 +73,7 @@ describe("next.config", () => {
         if (typeof nextConfig.headers !== "function") {return;}
 
         const headers = await nextConfig.headers();
-        const catchAllRule = headers.find((rule) => rule.source === "/(.*)");
+        const catchAllRule = headers.find((rule) => rule.source === "/:path((?!preview/|api/preview).*)");
 
         expect(catchAllRule).toBeDefined();
 
@@ -97,5 +97,22 @@ describe("next.config", () => {
         const cacheHeaders = headers.flatMap((rule) => rule.headers).filter((header) => header.key === "Cache-Control");
 
         expect(cacheHeaders).toEqual([]);
+    });
+
+    it("lets only the Contentful web app frame the preview routes", async () => {
+        if (typeof nextConfig.headers !== "function") {return;}
+
+        const headers = await withNodeEnv("production", () => nextConfig.headers!());
+        const find = (source: string, key: string) =>
+            headers.find((rule) => rule.source === source)?.headers.find((header) => header.key === key)?.value;
+
+        const catchAll = "/:path((?!preview/|api/preview).*)";
+        expect(find(catchAll, "X-Frame-Options")).toBe("DENY");
+        expect(find(catchAll, "Content-Security-Policy")).toContain("frame-ancestors 'none'");
+
+        for (const source of ["/preview/:path*", "/api/preview"]) {
+            expect(find(source, "X-Frame-Options")).toBeUndefined();
+            expect(find(source, "Content-Security-Policy")).toContain("frame-ancestors 'self' https://app.contentful.com");
+        }
     });
 });

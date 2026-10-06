@@ -1,0 +1,28 @@
+@use "variables.scss" as *;
+@use "mixins" as *;
+
+.preview-page {
+  padding-top: $t-spacing-16;
+
+  &__banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $t-spacing-3;
+    align-items: center;
+    justify-content: center;
+
+    padding: $t-spacing-2 $t-spacing-4;
+    border-bottom: 1px solid $t-colors-border-default;
+
+    font-size: $t-font-size-sm;
+    font-weight: $t-font-weight-medium;
+    color: $t-colors-text-primary;
+
+    background: $t-colors-surface-brand-muted;
+  }
+
+  &__exit {
+    color: $t-colors-text-accent;
+    text-decoration: underline;
+  }
+}

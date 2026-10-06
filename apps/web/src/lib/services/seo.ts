@@ -46,7 +46,8 @@ export function generateRobots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/private/",
+      // Draft previews 404 for the public anyway; keep crawlers off them too.
+      disallow: ["/private/", "/preview/", "/api/preview"],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
   };

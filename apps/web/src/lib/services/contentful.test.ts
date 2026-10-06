@@ -139,4 +139,14 @@ describe('contentful service', () => {
         request.mockRejectedValueOnce(new Error('boom'));
         await expect(mod.getContentfulPostBySlug('x')).resolves.toBeNull();
     });
+
+    it('getContentfulPostItemBySlug returns the raw draft item for live preview', async () => {
+        const { mod, previewRequest } = load();
+        previewRequest.mockResolvedValueOnce({ blogPageCollection: { items: [item] } });
+        await expect(mod.getContentfulPostItemBySlug('hello', true)).resolves.toBe(item);
+        expect(previewRequest.mock.calls[0][0]).toContain('__typename');
+        expect(previewRequest.mock.calls[0][1]).toEqual({ slug: 'hello', preview: true });
+        previewRequest.mockRejectedValueOnce(new Error('boom'));
+        await expect(mod.getContentfulPostItemBySlug('x', true)).resolves.toBeNull();
+    });
 });
