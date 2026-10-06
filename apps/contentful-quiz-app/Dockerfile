@@ -30,17 +30,18 @@ COPY package.json yarn.lock ./
 COPY packages/quiz ./packages/quiz
 COPY packages/tsconfig ./packages/tsconfig
 COPY apps/contentful-quiz-app ./apps/contentful-quiz-app
-RUN yarn workspace contentful-quiz-app build
+RUN yarn workspace contentful-quiz-app build \
+  && yarn workspace contentful-quiz-app build:server
 
-FROM base AS runner
+# The server is bundled with its dependencies (express, dotenv, the shared quiz
+# validator) into server-dist, and the UI is prebuilt into dist, so the runtime
+# image needs no node_modules — just Node and those two folders.
+FROM node:22-alpine AS runner
 ENV NODE_ENV=production
-# Files stay root-owned (read-only to the app); the server runs as `node`.
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/packages/quiz ./packages/quiz
-COPY --from=build /app/apps/contentful-quiz-app/package.json ./apps/contentful-quiz-app/
-COPY --from=build /app/apps/contentful-quiz-app/server ./apps/contentful-quiz-app/server
-COPY --from=build /app/apps/contentful-quiz-app/dist ./apps/contentful-quiz-app/dist
 WORKDIR /app/apps/contentful-quiz-app
+# Files stay root-owned (read-only to the app); the server runs as `node`.
+COPY --from=build /app/apps/contentful-quiz-app/server-dist ./server-dist
+COPY --from=build /app/apps/contentful-quiz-app/dist ./dist
 USER node
 EXPOSE 3003
-CMD ["node", "server/index.js"]
+CMD ["node", "server-dist/index.js"]

@@ -11,6 +11,7 @@
     "sync:content-model": "node scripts/sync-content-model.mjs",
     "migrate:quiz-content": "node scripts/migrate-quiz-content.mjs",
     "build": "tsc --noEmit && vite build",
+    "build:server": "esbuild server/index.js --bundle --platform=node --target=node22 --format=esm --outfile=server-dist/index.js --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src server scripts",
@@ -37,6 +38,7 @@
     "vite": "^6.0.0",
     "@dival-sehgal/eslint-config": "*",
     "@dival-sehgal/jest-config": "*",
-    "@dival-sehgal/tsconfig": "*"
+    "@dival-sehgal/tsconfig": "*",
+    "esbuild": "0.27.3"
   }
 }
