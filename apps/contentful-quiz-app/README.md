@@ -4,7 +4,15 @@ This is a single deployable service: it serves the Contentful app UI and the qui
 
 ## Deploy
 
-Deploy the `apps/contentful-quiz-app` directory to any Node host that supports Docker (for example, Railway, Render, Fly.io, or Cloud Run) using its `Dockerfile`.
+Deploy to any Node host that supports Docker (for example, Railway, Render, Fly.io, or Cloud Run) using `apps/contentful-quiz-app/Dockerfile`.
+
+The image depends on the root `yarn.lock` and the shared workspace packages, so the Docker build context must be the **repository root**, not this directory:
+
+```bash
+docker build -f apps/contentful-quiz-app/Dockerfile .
+```
+
+On a hosting dashboard, leave the root/source directory empty (repo root) and set the Dockerfile path to `apps/contentful-quiz-app/Dockerfile`. Pointing the root directory at `apps/contentful-quiz-app` fails with `"/yarn.lock": not found`.
 
 Set these production variables on the host:
 
