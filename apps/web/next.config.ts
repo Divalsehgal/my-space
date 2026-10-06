@@ -17,14 +17,23 @@ const withBundleAnalyzer = bundleAnalyzer({
 // of truth) and removes that cwd-dependent fragility.
 type RuntimeEnvironment = "development" | "production" | "test";
 
+// Contentful's Live Preview pane loads the preview routes in an iframe, so
+// those (and only those) may be framed by the Contentful web app.
+const CONTENTFUL_APP_ORIGIN = "https://app.contentful.com";
+const PREVIEW_ROUTES = ["/preview/:path*", "/api/preview/:path*", "/api/preview"];
+
 function getSecurityHeaders(
   environment: RuntimeEnvironment = "production",
+  { frameableByContentful = false } = {},
 ): Array<{ key: string; value: string }> {
   const isProduction = environment === "production";
+  const frameAncestors = frameableByContentful ? `'self' ${CONTENTFUL_APP_ORIGIN}` : "'none'";
 
   const headers = [
     { key: "X-Content-Type-Options", value: "nosniff" },
-    { key: "X-Frame-Options", value: "DENY" },
+    // X-Frame-Options can't allow a specific origin, so framable routes rely on
+    // CSP frame-ancestors alone.
+    ...(frameableByContentful ? [] : [{ key: "X-Frame-Options", value: "DENY" }]),
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     {
       key: "Permissions-Policy",
@@ -51,10 +60,12 @@ function getSecurityHeaders(
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",
-          "frame-ancestors 'none'",
+          `frame-ancestors ${frameAncestors}`,
         ].join("; "),
       },
     );
+  } else if (frameableByContentful) {
+    headers.push({ key: "Content-Security-Policy", value: `frame-ancestors ${frameAncestors}` });
   }
 
   return headers;
@@ -103,7 +114,9 @@ const nextConfig: NextConfig = {
   },
   headers() {
     const isProduction = process.env.NODE_ENV === "production";
-    const securityHeaders = getSecurityHeaders(isProduction ? "production" : "development");
+    const environment = isProduction ? "production" : "development";
+    const securityHeaders = getSecurityHeaders(environment);
+    const previewSecurityHeaders = getSecurityHeaders(environment, { frameableByContentful: true });
 
     // Long-lived caching is for production builds only. In development, chunk
     // URLs are reused while their contents change, so an `immutable` header
@@ -157,9 +170,11 @@ const nextConfig: NextConfig = {
     return [
       ...cacheRules,
       {
-        source: '/(.*)',
+        // Every route except the preview ones, which get the framable set below.
+        source: "/:path((?!preview/|api/preview).*)",
         headers: securityHeaders,
       },
+      ...PREVIEW_ROUTES.map((source) => ({ source, headers: previewSecurityHeaders })),
     ];
   },
 };

@@ -1,5 +1,4 @@
 import styles from "./styles.module.scss";
-import { getT } from "@/i18n/server";
 
 /** TOC entries at this level are indented as subsections (see extractToc). */
 const SUBSECTION_LEVEL = 3;
@@ -12,6 +11,8 @@ export interface TocItem {
 
 interface TableOfContentsProps {
   items: TocItem[];
+  /** Translated heading; passed in so this renders in server and client trees. */
+  title: string;
 }
 
 /**
@@ -20,15 +21,15 @@ interface TableOfContentsProps {
  */
 export default function TableOfContents({
   items,
+  title,
 }: Readonly<TableOfContentsProps>) {
-  const t = getT();
   if (!items || items.length === 0) {
     return null;
   }
 
   return (
-    <nav className={styles.toc} aria-label={t("toc.title")}>
-      <div className={styles.toc__title}>{t("toc.title")}</div>
+    <nav className={styles.toc} aria-label={title}>
+      <div className={styles.toc__title}>{title}</div>
       <ul className={styles.toc__list}>
         {items.map((item) => (
           <li

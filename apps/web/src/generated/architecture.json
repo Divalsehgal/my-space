@@ -25,7 +25,7 @@
       },
       "data": {
         "label": "Next.js 16.3.8",
-        "description": "App Router with Server Components and Server Actions. API routes: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/revalidate."
+        "description": "App Router with Server Components and Server Actions. API routes: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/preview, /api/preview/disable, /api/revalidate."
       }
     },
     {

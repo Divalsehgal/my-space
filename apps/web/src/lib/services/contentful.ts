@@ -3,6 +3,7 @@ import "server-only";
 import { GraphQLClient } from 'graphql-request';
 import type { ContentfulPost } from '@/types/contentful';
 import { mapContentfulPost, type ContentfulCollectionResponse, type ContentfulPostItem } from '@/lib/contentful/mappers';
+import { BLOG_POST_BY_SLUG_QUERY } from '@/lib/contentful/queries';
 
 export { mapContentfulPost, type ContentfulCollectionResponse, type ContentfulPostItem };
 
@@ -175,66 +176,23 @@ export async function getLatestContentfulPost(preview = false): Promise<Contentf
 }
 
 /**
- * Fetches a single blog post by slug from Contentful
+ * Fetches the raw GraphQL item for a single blog post. The preview page needs
+ * the unmapped shape (with `__typename`) to feed Contentful's live updates.
  */
-export async function getContentfulPostBySlug(slug: string, preview = false): Promise<ContentfulPost | null> {
-  const query = `query GetBlogPostBySlug($slug: String!, $preview: Boolean = false) {
-  blogPageCollection(where: {slug: $slug}, limit: 1, preview: $preview) {
-    items {
-      sys {
-        id
-        firstPublishedAt
-        publishedAt
-      }
-      title
-      slug
-      body {
-        json
-        links {
-          assets {
-            block {
-              sys {
-                id
-              }
-              url
-              title
-              width
-              height
-            }
-          }
-        }
-      }
-      quiz {
-        sys { id }
-        title
-        questionEntriesCollection(limit: 50) {
-          items {
-            sys { id }
-            questionText { json }
-            explanation { json }
-            correctAnswer { sys { id } }
-            optionsCollection(limit: 4) {
-              items { sys { id } text { json } }
-            }
-          }
-        }
-      }
-    }
-  }
-}`
-
-
+export async function getContentfulPostItemBySlug(slug: string, preview = false): Promise<ContentfulPostItem | null> {
   try {
-    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(query, { slug, preview }, preview);
-
-    if (!data?.blogPageCollection?.items) {
-      return null;
-    }
-
-    const item = data.blogPageCollection.items[0];
-    return item ? mapContentfulPost(item) : null;
+    const data = await fetchContentful<ContentfulCollectionResponse<ContentfulPostItem>>(BLOG_POST_BY_SLUG_QUERY, { slug, preview }, preview);
+    return data?.blogPageCollection?.items?.[0] ?? null;
   } catch (error) {
     console.error(`Error fetching Contentful post by slug ${slug}:`, error);
     return null;
   }
+}
+
+/**
+ * Fetches a single blog post by slug from Contentful
+ */
+export async function getContentfulPostBySlug(slug: string, preview = false): Promise<ContentfulPost | null> {
+  const item = await getContentfulPostItemBySlug(slug, preview);
+  return item ? mapContentfulPost(item) : null;
 }

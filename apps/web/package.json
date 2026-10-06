@@ -25,6 +25,7 @@
     "translations:push": "node scripts/contentful-translations.mjs push"
   },
   "dependencies": {
+    "@contentful/live-preview": "^4.10.26",
     "@contentful/rich-text-react-renderer": "^16.2.1",
     "@dival-sehgal/design-tokens": "*",
     "@dival-sehgal/next-config": "*",
