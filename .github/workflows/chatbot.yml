@@ -1,0 +1,59 @@
+name: Chatbot
+
+# Every push to main is deployed to production by Vercel. Once that deployment
+# succeeds, redeploy the chatbot Worker and re-seed its Vectorize index. The
+# seed reads the live /api/chat-context, so waiting for Vercel guarantees the
+# chatbot is built from the content that was just shipped (a push-triggered
+# job could race the Vercel build and seed stale data).
+on:
+  deployment_status:
+  workflow_dispatch:
+
+concurrency:
+  group: chatbot
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-seed:
+    name: Deploy Worker and re-seed
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # deployment_status runs on the default branch; build the commit
+          # Vercel actually deployed.
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      # --ignore-scripts: dependency lifecycle scripts never run in CI.
+      - run: yarn install --frozen-lockfile --ignore-scripts
+
+      # Optional: needs CLOUDFLARE_API_TOKEN (Workers Scripts: Edit) and
+      # CLOUDFLARE_ACCOUNT_ID repo secrets. Without them the Worker isn't
+      # redeployed here (deploy it with `yarn workspace web worker:deploy`),
+      # but the re-seed below still runs.
+      - name: Deploy Worker
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: yarn workspace web worker:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Skip Worker deploy
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::notice::CLOUDFLARE_API_TOKEN not set; skipping Worker deploy and only re-seeding."
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      # Requires CHATBOT_SEED_SECRET, matching the Worker's SEED_SECRET.
+      - run: yarn workspace web seed
+        env:
+          CHATBOT_SEED_SECRET: ${{ secrets.CHATBOT_SEED_SECRET }}

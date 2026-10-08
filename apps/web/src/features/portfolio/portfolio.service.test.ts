@@ -9,7 +9,6 @@ jest.mock("@dival-sehgal/utils/fetch-with-retry", () => ({
 describe("PortfolioService", () => {
   const mockConfig = {
     hero: { title: "Hero Title", subtitle: "Subtitle", description: "Desc" },
-    about: { title: "About", paragraphs: ["P1"], facts: [] },
   };
 
   beforeEach(() => {

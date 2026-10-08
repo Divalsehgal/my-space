@@ -39,12 +39,19 @@ export const json = (d: unknown, s = 200, h: Record<string, string> = {}, req?: 
     });
 };
 
+/** Translated intro copy served by /api/chat-context (from Contentful). */
+interface Profile {
+    name: string;
+    role: string;
+    summary: string;
+    about: string;
+    contactIntro: string;
+}
+
 interface Portfolio {
-    hero: { title: string; subtitle: string };
-    about: { facts: string[] };
-    experience: { company: string; role: string; period: string; description: { text: string }[]; techStack: string[] }[];
-    projects: { name: string; description: string; techStack: string[] }[];
-    contact: { email: string; subtitle: string };
+    experience: { company: string; role: string; period: string; description: { text: string }[]; techStack?: string[] }[];
+    projects: { name: string; description: string; techStack?: string[] }[];
+    contact?: { email: string };
 }
 
 interface Blog {
@@ -57,6 +64,7 @@ interface Blog {
 }
 
 const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
+const homeLocation = 'Bengaluru, India';
 const maxBlogChunks = 8;
 const maxSeededItems = 50;
 
@@ -105,6 +113,7 @@ function chunkBlogContent(blog: Blog): string[] {
 function getManagedVectorIds(): string[] {
     return [
         'info-general',
+        'info-about',
         'info-experience-summary',
         'info-contact',
         // Legacy ids from an earlier seeding scheme. They carry no `text`
@@ -172,15 +181,21 @@ export async function runSeed(env: Env): Promise<number> {
     if (!res.ok) {
         throw new Error(`Failed to fetch chat context from ${contextUrl}`);
     }
-    const data = await res.json() as { portfolio: Portfolio; blogs: Blog[] };
-    const { portfolio, blogs } = data;
+    const data = await res.json() as { profile: Profile; portfolio: Portfolio; blogs: Blog[] };
+    const { profile, portfolio, blogs } = data;
 
     const chunks: { id: string; content: string; metadata: Record<string, unknown> }[] = [];
 
     chunks.push({
         id: 'info-general',
-        content: `Dival Sehgal is a ${portfolio.hero.title}. ${portfolio.hero.subtitle} He is based in ${portfolio.about.facts?.[0] || 'Bengaluru, India'}.`,
+        content: `${profile.name} is a ${profile.role} based in ${homeLocation}. ${profile.summary}`,
         metadata: { type: 'general' }
+    });
+
+    chunks.push({
+        id: 'info-about',
+        content: `About ${profile.name}: ${profile.about}`,
+        metadata: { type: 'about' }
     });
 
     const companies = portfolio.experience.map((e) => e.company).join(', ');
@@ -193,7 +208,7 @@ export async function runSeed(env: Env): Promise<number> {
     portfolio.experience.slice(0, maxSeededItems).forEach((e, i) => {
         chunks.push({
             id: `exp-${i}`,
-            content: `At ${e.company}, Dival served as ${e.role} from ${e.period}. Highlights: ${e.description.map((d) => d.text).join(' ')} Tech Stack: ${e.techStack?.join(', ')}.`,
+            content: `At ${e.company}, Dival served as ${e.role} from ${e.period}. Highlights: ${e.description.map((d) => d.text).join(' ')} Tech Stack: ${e.techStack?.join(', ') ?? 'n/a'}.`,
             metadata: { type: 'experience', company: e.company }
         });
     });
@@ -201,7 +216,7 @@ export async function runSeed(env: Env): Promise<number> {
     portfolio.projects.slice(0, maxSeededItems).forEach((p, i) => {
         chunks.push({
             id: `proj-${i}`,
-            content: `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ')}.`,
+            content: `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ') ?? 'n/a'}.`,
             metadata: { type: 'project', name: p.name }
         });
     });
@@ -216,11 +231,13 @@ export async function runSeed(env: Env): Promise<number> {
         });
     });
 
-    chunks.push({
-        id: 'info-contact',
-        content: `Contact Dival Sehgal at ${portfolio.contact.email}. ${portfolio.contact.subtitle}`,
-        metadata: { type: 'contact' }
-    });
+    if (portfolio.contact?.email) {
+        chunks.push({
+            id: 'info-contact',
+            content: `Contact ${profile.name} at ${portfolio.contact.email}. ${profile.contactIntro}`,
+            metadata: { type: 'contact' }
+        });
+    }
 
     // Batch embedding generation to stay within the Worker per-invocation
     // subrequest limit. One AI.run call embeds up to `embedBatchSize` texts,

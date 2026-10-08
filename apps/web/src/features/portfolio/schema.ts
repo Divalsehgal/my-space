@@ -5,7 +5,6 @@ export const ExperienceConfigSchema = z.object({
   company: z.string(),
   role: z.string(),
   period: z.string(),
-  location: z.string().optional(),
   description: z.array(z.object({
     id: z.string().optional(),
     text: z.string(),
@@ -97,10 +96,6 @@ export const PortfolioConfigSchema = z.object({
     secondaryCtaHref: z.string().optional(),
     resumeUrl: z.string().optional(),
   }).optional().default({}),
-  about: z.object({
-    facts: z.array(z.string()).optional().default([]),
-    resumeUrl: z.string().optional(),
-  }).optional().default({ facts: [] }),
   experience: z.array(ExperienceConfigSchema).optional().default([]),
   skills: SkillsConfigSchema.optional().default({}),
   projects: z.array(ProjectConfigSchema).optional().default([]),
