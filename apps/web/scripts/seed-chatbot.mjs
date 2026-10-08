@@ -79,7 +79,8 @@ async function main() {
   loadEnvFile(".env.local");
   loadEnvFile(".env");
 
-  const secret = process.env.CHATBOT_SEED_SECRET;
+  // Trimmed: values pasted into CI secret UIs often pick up a stray newline.
+  const secret = process.env.CHATBOT_SEED_SECRET?.trim();
   const workerUrl = (process.env.NEXT_PUBLIC_CHATBOT_URL || DEFAULT_WORKER_URL).replace(/\/$/, "");
 
   if (!secret) {

@@ -42,7 +42,11 @@ jobs:
       # but the re-seed below still runs.
       - name: Deploy Worker
         if: env.CLOUDFLARE_API_TOKEN != ''
-        run: yarn workspace web worker:deploy
+        # A new Worker version takes a few seconds to reach every Cloudflare
+        # location; seeding immediately can still hit the previous version.
+        run: |
+          yarn workspace web worker:deploy
+          sleep 30
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
