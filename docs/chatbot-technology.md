@@ -103,6 +103,10 @@ curl -X POST https://ai-chatbot-widget.sehgaldival.workers.dev/api/seed \
 
 When Contentful revalidation runs for the `contentful` tag, the Next.js app calls the authenticated seed endpoint automatically.
 
+On every push to `main`, `.github/workflows/chatbot.yml` waits for Vercel's production deployment to succeed, then redeploys the Worker (`wrangler deploy`) and re-seeds it, so the chatbot always matches the shipped site. It can also be run by hand from the Actions tab. It needs these repo secrets: `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit), `CLOUDFLARE_ACCOUNT_ID` and `CHATBOT_SEED_SECRET`.
+
+The general, about and contact chunks use the `profile` copy that `/api/chat-context` builds from the Contentful translations; the portfolio JSON supplies only experience, projects and the contact email.
+
 ## Contact Flow
 
 For contact requests, the assistant collects:

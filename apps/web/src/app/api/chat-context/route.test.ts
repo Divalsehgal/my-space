@@ -14,6 +14,10 @@ jest.mock('@/lib/services/contentful-context', () => ({
 }));
 
 // Mock NextResponse
+jest.mock('@/i18n/server', () => ({
+    getT: () => (key: string) => `t:${key}`,
+}));
+
 jest.mock('next/server', () => ({
     NextResponse: {
         json: jest.fn((data, init) => ({
@@ -29,7 +33,7 @@ describe('Chat Context API Route', () => {
     });
 
     it('should aggregate portfolio and blog data correctly', async () => {
-        const mockConfig = { hero: { title: 'Lead Engineer' }, about: { facts: ['India'] }, experience: [], projects: [] };
+        const mockConfig = { experience: [{ role: 'Lead Engineer' }], projects: [] };
         const mockPosts = [
             { title: 'Post 1', content: 'Desc 1', slug: 'post-1' }
         ];
@@ -42,6 +46,13 @@ describe('Chat Context API Route', () => {
 
         expect(response.status).toBe(200);
         expect(data.portfolio).toEqual(mockConfig);
+        expect(data.profile).toEqual({
+            name: 't:common.siteName',
+            role: 'Lead Engineer',
+            summary: 't:hero.subtitle',
+            about: 't:about.body',
+            contactIntro: 't:contact.intro',
+        });
         expect(data.blogs).toHaveLength(1);
         expect(data.blogs[0].title).toBe('Post 1');
     });

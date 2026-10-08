@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { portfolioService } from '@/features/portfolio';
 import { getContentfulPostsForContext } from '@/lib/services/contentful-context';
+import { getT } from '@/i18n/server';
 
 /** Recent posts included in the chatbot's grounding context. */
 const CONTEXT_POST_COUNT = 10;
@@ -15,7 +16,19 @@ export async function GET() {
             getContentfulPostsForContext(CONTEXT_POST_COUNT)
         ]);
         
+        // The portfolio JSON holds data only; the intro copy the chatbot needs
+        // lives in the Contentful translations.
+        const t = getT();
+        const profile = {
+            name: t('common.siteName'),
+            role: config.experience[0]?.role ?? t('hero.deck.defaultRole'),
+            summary: t('hero.subtitle'),
+            about: t('about.body'),
+            contactIntro: t('contact.intro'),
+        };
+
         return NextResponse.json({
+            profile,
             portfolio: config,
             blogs: posts
         });

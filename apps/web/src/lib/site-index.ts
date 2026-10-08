@@ -38,7 +38,7 @@ export function buildSiteIndex(
     name: t("common.siteName"),
     role: config.experience[0]?.role ?? t("common.defaultRole"),
     email: config.contact?.email,
-    resumeUrl: config.hero?.resumeUrl ?? config.about?.resumeUrl,
+    resumeUrl: config.hero?.resumeUrl,
     about: splitParagraphs(t("about.body")),
     socials: config.socials.map(({ label, href }) => ({ label, href })),
     sections: SECTIONS.map(({ id, labelKey, href }) => ({ id, label: t(labelKey), href: href ?? `/#${id}` })),
