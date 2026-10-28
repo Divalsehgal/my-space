@@ -1,0 +1,7 @@
+@use "variables.scss" as *;
+
+.project-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $t-spacing-3;
+}
