@@ -12,7 +12,7 @@ import SectionSnap from "@/components/SectionSnap";
 import HomeTopBar from "@/components/HomeTopBar";
 import { getLatestContentfulPost } from "@/lib/services/contentful";
 import { getRelativeTimeLabel } from "@/utils/date";
-import { SITE_URL, AUTHOR } from "@/lib/config/site";
+import { SITE_URL, AUTHOR, PERSON_ID, WEBSITE_ID } from "@/lib/config/site";
 import type { Metadata } from "next";
 import { getT } from "@/i18n/server";
 import { splitParagraphs } from "@dival-sehgal/utils/string";
@@ -26,15 +26,42 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const { config } = await portfolioService.getConfig();
   const latestPost = await getLatestContentfulPost();
+  const currentJob = config.experience[0];
+  // One linked graph (WebSite -> ProfilePage -> Person) so answer engines can
+  // resolve "who is this" to a single entity; blog posts point at the same @id.
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: AUTHOR.name,
-    url: SITE_URL,
-    image: `${SITE_URL}${AUTHOR.image}`,
-    jobTitle: AUTHOR.jobTitle,
-    sameAs: config.socials.map((s) => s.href),
-    description: splitParagraphs(getT()("about.body")).join(" "),
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": WEBSITE_ID,
+        url: SITE_URL,
+        name: AUTHOR.name,
+        inLanguage: "en",
+        publisher: { "@id": PERSON_ID },
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": `${SITE_URL}/#profile`,
+        url: SITE_URL,
+        isPartOf: { "@id": WEBSITE_ID },
+        mainEntity: { "@id": PERSON_ID },
+      },
+      {
+        "@type": "Person",
+        "@id": PERSON_ID,
+        name: AUTHOR.name,
+        url: SITE_URL,
+        image: `${SITE_URL}${AUTHOR.image}`,
+        jobTitle: AUTHOR.jobTitle,
+        email: config.contact?.email ? `mailto:${config.contact.email}` : undefined,
+        // The config's company can carry a note ("EPAM Systems — Clients: …"); the org is the part before it.
+        worksFor: currentJob ? { "@type": "Organization", name: currentJob.company.split(" — ")[0] } : undefined,
+        knowsAbout: flattenSkillNames(config.skills),
+        sameAs: config.socials.map((s) => s.href),
+        description: splitParagraphs(getT()("about.body")).join(" "),
+      },
+    ],
   };
 
   return (

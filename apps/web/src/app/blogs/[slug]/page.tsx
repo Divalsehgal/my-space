@@ -7,7 +7,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogPostContainer from "@/containers/BlogPost";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { SITE_URL, AUTHOR } from "@/lib/config/site";
+import { SITE_URL, AUTHOR, PERSON_ID, BLOG_ID } from "@/lib/config/site";
+import { contentfulToPlainText } from "@/lib/services/contentful-context";
 import styles from "./styles.module.scss";
 import { getT } from "@/i18n/server";
 
@@ -90,6 +91,7 @@ export default async function BlogPostPage({ params }: Props) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `${postUrl}#article`,
     headline: post.title,
     description: post.description || undefined,
     image: post.cover || undefined,
@@ -101,14 +103,14 @@ export default async function BlogPostPage({ params }: Props) {
       "@id": postUrl,
     },
     inLanguage: "en",
-    publisher: {
-      "@type": "Person",
-      name: AUTHOR.name,
-      url: SITE_URL,
-    },
+    keywords: post.tags.length ? post.tags.join(", ") : undefined,
+    wordCount: contentfulToPlainText(post.content).split(" ").filter(Boolean).length || undefined,
+    isPartOf: { "@type": "Blog", "@id": BLOG_ID },
+    publisher: { "@id": PERSON_ID },
     author: [
       {
         "@type": "Person",
+        "@id": PERSON_ID,
         name: AUTHOR.name,
         url: SITE_URL,
         jobTitle: AUTHOR.jobTitle,

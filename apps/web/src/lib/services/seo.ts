@@ -41,14 +41,35 @@ export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
   return [...staticUrls, ...blogUrls];
 }
 
+// Draft previews 404 for the public anyway; keep crawlers off them too.
+const DISALLOW = ["/private/", "/preview/", "/api/preview"];
+
+/**
+ * Answer-engine and LLM crawlers. "*" already allows them; naming them makes
+ * the opt-in explicit and survives a future tightening of the "*" group. A
+ * bot that matches a named group ignores "*", so the disallow list repeats.
+ */
+export const AI_CRAWLERS = [
+  "GPTBot",
+  "OAI-SearchBot",
+  "ChatGPT-User",
+  "ClaudeBot",
+  "Claude-SearchBot",
+  "Claude-User",
+  "PerplexityBot",
+  "Perplexity-User",
+  "Google-Extended",
+  "Applebot-Extended",
+  "Bingbot",
+  "CCBot",
+];
+
 export function generateRobots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      // Draft previews 404 for the public anyway; keep crawlers off them too.
-      disallow: ["/private/", "/preview/", "/api/preview"],
-    },
+    rules: [
+      { userAgent: "*", allow: "/", disallow: DISALLOW },
+      { userAgent: AI_CRAWLERS, allow: "/", disallow: DISALLOW },
+    ],
     sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }
