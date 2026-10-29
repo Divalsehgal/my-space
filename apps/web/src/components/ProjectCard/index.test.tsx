@@ -1,7 +1,7 @@
 import React from "react";
 import { screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import ProjectCard from "./index";
+import ProjectCard, { screenshotUrl } from "./index";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { renderWithTracking } from "@/test-utils/render";
 
@@ -50,26 +50,37 @@ describe("ProjectCard Component", () => {
     expect(screen.getByTestId("description")).toHaveTextContent("An awesome application");
   });
 
-  it("renders action button with project link when provided", () => {
+  it("renders a live demo button for the project link", () => {
     renderWithTracking(<ProjectCard project={baseProject} />);
-    
-    const actionContainer = screen.getByTestId("action");
-    const linkButton = actionContainer.querySelector("a");
-    
-    expect(linkButton).toBeInTheDocument();
-    expect(linkButton).toHaveAttribute("href", "https://example.com/app");
-    expect(linkButton).toHaveTextContent("See how it works");
-    expect(linkButton).toHaveAttribute("aria-label", "See how Awesome App works");
+
+    const live = screen.getByRole("link", { name: "Open the Awesome App live demo" });
+    expect(live).toHaveAttribute("href", "https://example.com/app");
+    expect(live).toHaveTextContent("Live demo");
   });
 
-  it("renders action button with project repo when link is absent", () => {
+  it("renders both live and GitHub buttons when link and repo are provided", () => {
+    const both = { ...baseProject, repo: "https://github.com/me/awesome" };
+    renderWithTracking(<ProjectCard project={both} />);
+
+    expect(screen.getByRole("link", { name: "Open the Awesome App live demo" })).toHaveAttribute("href", "https://example.com/app");
+    expect(screen.getByRole("link", { name: "View the Awesome App source code on GitHub" })).toHaveAttribute("href", "https://github.com/me/awesome");
+  });
+
+  it("renders only the GitHub button when link is absent", () => {
     const repoProject = { ...baseProject, link: undefined, repo: "https://github.com/repo" };
     renderWithTracking(<ProjectCard project={repoProject} />);
-    
-    const actionContainer = screen.getByTestId("action");
-    const linkButton = actionContainer.querySelector("a");
-    
-    expect(linkButton).toHaveAttribute("href", "https://github.com/repo");
+
+    const links = screen.getByTestId("action").querySelectorAll("a");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", "https://github.com/repo");
+  });
+
+  it("treats a GitHub link as the source instead of a live demo", () => {
+    const githubLink = { ...baseProject, link: "https://github.com/me/awesome", repo: undefined };
+    renderWithTracking(<ProjectCard project={githubLink} />);
+
+    expect(screen.queryByRole("link", { name: /live demo/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View the Awesome App source code on GitHub" })).toHaveAttribute("href", "https://github.com/me/awesome");
   });
 
   it("does not render action button if neither link nor repo is provided", () => {
@@ -78,6 +89,21 @@ describe("ProjectCard Component", () => {
     
     const actionContainer = screen.getByTestId("action");
     expect(actionContainer).toBeEmptyDOMElement();
+  });
+
+  it("serves remote project images unoptimized so any host works", () => {
+    const remote = { ...baseProject, image: "https://front-end-grind.vercel.app/og-image.png" };
+    renderWithTracking(<ProjectCard project={remote} />);
+
+    const img = screen.getByTestId("visual").querySelector("img");
+    expect(img).toHaveAttribute("src", "https://front-end-grind.vercel.app/og-image.png");
+  });
+
+  it("builds a screenshot URL for the live preview", () => {
+    const url = new URL(screenshotUrl("https://example.com/app"));
+    expect(url.hostname).toBe("api.microlink.io");
+    expect(url.searchParams.get("url")).toBe("https://example.com/app");
+    expect(url.searchParams.get("embed")).toBe("screenshot.url");
   });
 
   it("calls trackEvent when the action button is clicked", () => {

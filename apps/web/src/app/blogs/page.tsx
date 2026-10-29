@@ -6,6 +6,8 @@ import { getViewCounts } from "@/lib/services/analytics";
 import { unstable_cache } from "next/cache";
 import styles from "./styles.module.scss";
 import { getT } from "@/i18n/server";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, AUTHOR, PERSON_ID, BLOG_ID } from "@/lib/config/site";
 
 export function generateMetadata(): Metadata {
   const t = getT();
@@ -29,7 +31,28 @@ async function BlogsContent() {
   const blogPosts = posts ?? [];
   const viewCounts = await getCachedViewCounts(blogPosts.map((post) => post.slug));
 
-  return <BlogPageContent posts={blogPosts} initialViewCounts={viewCounts} />;
+  const blogJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": BLOG_ID,
+    url: `${SITE_URL}/blogs`,
+    name: getT()("meta.blogTitle"),
+    author: { "@type": "Person", "@id": PERSON_ID, name: AUTHOR.name, url: SITE_URL },
+    blogPost: blogPosts.map((post) => ({
+      "@type": "BlogPosting",
+      "@id": `${SITE_URL}/blogs/${post.slug}#article`,
+      headline: post.title,
+      url: `${SITE_URL}/blogs/${post.slug}`,
+      datePublished: post.date || undefined,
+    })),
+  };
+
+  return (
+    <>
+      <JsonLd data={blogJsonLd} />
+      <BlogPageContent posts={blogPosts} initialViewCounts={viewCounts} />
+    </>
+  );
 }
 
 export default function Blogs() {

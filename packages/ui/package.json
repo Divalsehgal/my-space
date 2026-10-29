@@ -11,6 +11,7 @@
   "exports": {
     "./button": "./src/Button/index.tsx",
     "./icon-button": "./src/IconButton/index.tsx",
+    "./link-preview": "./src/LinkPreview/index.tsx",
     "./skeleton": "./src/Skeleton/index.tsx",
     "./spinner": "./src/Spinner/index.tsx",
     "./text-field": "./src/TextField/index.tsx",
