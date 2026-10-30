@@ -35,14 +35,14 @@
     cursor: pointer;
 
     padding: $t-spacing-2 $t-spacing-4;
-    border: 1px solid $t-colors-border-muted;
+    border: none;
     border-radius: $t-radius-full;
 
-    font-size: $t-font-size-xxs;
+    font-size: $t-font-size-xs;
     color: $t-colors-text-primary;
     white-space: nowrap;
 
-    background-color: $t-colors-surface-glass;
+    background-color: $t-colors-surface-neutral-muted;
 
     transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
 
@@ -76,7 +76,7 @@
   }
 
   &__counter {
-    font-size: $t-font-size-xxs;
+    font-size: $t-font-size-xs;
     font-variant-numeric: tabular-nums;
     color: $t-colors-text-secondary;
   }

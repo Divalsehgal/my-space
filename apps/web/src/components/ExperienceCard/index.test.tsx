@@ -13,10 +13,11 @@ interface Experience {
 }
 
 jest.mock("../GlassCard", () => {
-  return function MockGlassCard(props: { title: string; description: unknown; tags: string[] }) {
+  return function MockGlassCard(props: { title: string; subtitle?: string; description: unknown; tags: string[] }) {
     return (
       <div data-testid="mock-glass-card">
         <div data-testid="title">{props.title}</div>
+        <div data-testid="subtitle">{props.subtitle}</div>
         <div data-testid="description">
           {typeof props.description === "string" 
             ? props.description 
@@ -49,8 +50,9 @@ describe("ExperienceCard Component", () => {
     
     expect(screen.getByTestId("mock-glass-card")).toBeInTheDocument();
     
-    // Checks that title is formatted correctly
-    expect(screen.getByTestId("title")).toHaveTextContent("Senior Engineer @ Tech Corp");
+    // The role is the heading; the company sits under it
+    expect(screen.getByTestId("title")).toHaveTextContent("Senior Engineer");
+    expect(screen.getByTestId("subtitle")).toHaveTextContent("Tech Corp");
     
     // Checks tags
     expect(screen.getByTestId("tags")).toHaveTextContent('["React","Node.js"]');

@@ -2,8 +2,16 @@
 @use "mixins" as *;
 
 
+// The close of every page: one full field in the accent, its ink inverted.
+// Remapping the colour tokens here lets every child keep its own token names.
 .footer {
-  position: relative; // contains the decorative particle canvas
+  --t-colors-background-primary: var(--t-colors-button-primary-background);
+  --t-colors-text-primary: var(--t-colors-button-primary-text);
+  --t-colors-text-secondary: var(--t-colors-button-primary-text);
+  --t-colors-text-tertiary: var(--t-colors-button-primary-text);
+  --t-colors-primary-default: var(--t-colors-button-primary-text);
+
+  position: relative;
 
   overflow: hidden;
 
@@ -11,23 +19,31 @@
 
   // Bottom padding clears the fixed chat FAB (offset + 56px button + gap) so
   // the last row is never covered (components/Chatbot).
-  padding: $t-spacing-12 0 calc(#{$t-spacing-6} + #{$t-spacing-14} + #{$t-spacing-4} + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid $t-colors-border-muted;
+  padding: clamp(#{$t-spacing-16}, 10vw, 10rem) 0 calc(#{$t-spacing-6} + #{$t-spacing-14} + #{$t-spacing-4} + env(safe-area-inset-bottom, 0px));
 
   background-color: $t-colors-background-primary;
 
   // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
 
-  &__particles {
-    pointer-events: none;
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-  }
+  &__mail {
+    width: fit-content;
 
-  &__particles-canvas {
-    position: absolute;
-    inset: 0;
+    font-family: var(--font-display), var(--font-body);
+    font-size: clamp(2.5rem, 9.5vw, 9rem);
+    font-weight: $t-font-weight-black;
+    line-height: $line-height-display;
+    color: $t-colors-text-primary;
+    text-decoration: none;
+    letter-spacing: $t-font-letter-spacing-tight-2;
+    overflow-wrap: anywhere;
+
+    transition: opacity $t-motion-duration-base $t-motion-easing-standard;
+
+    @include focus-ring;
+
+    &:hover {
+      opacity: 0.75;
+    }
   }
 
   &__container {
@@ -100,8 +116,6 @@
     font-size: $t-font-size-sm;
     font-weight: $t-font-weight-bold;
     color: $t-colors-text-primary;
-    text-transform: uppercase;
-    letter-spacing: $t-font-letter-spacing-wide-3;
   }
 
   &__links-list {
@@ -128,7 +142,7 @@
     @include focus-ring;
 
     &:hover {
-      color: $t-colors-primary-default;
+      text-decoration: underline;
     }
   }
 
@@ -178,7 +192,7 @@
 
   &__copyright {
     margin: 0;
-    font-size: $t-font-size-xxs;
+    font-size: $t-font-size-xs;
     color: $t-colors-text-tertiary;
   }
 
@@ -188,7 +202,7 @@
   }
 
   &__bottom-link {
-    font-size: $t-font-size-xxs;
+    font-size: $t-font-size-xs;
     color: $t-colors-text-tertiary;
     text-decoration: none;
     transition: color $t-motion-duration-base $t-motion-easing-standard;
@@ -196,7 +210,7 @@
     @include focus-ring;
 
     &:hover {
-      color: $t-colors-primary-default;
+      text-decoration: underline;
     }
   }
 }

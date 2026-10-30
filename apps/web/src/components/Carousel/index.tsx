@@ -7,7 +7,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@dival-sehgal/ui/icons";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import { useT } from "@/i18n/client";
-import { padNumber } from "@dival-sehgal/utils/string";
 
 type CarouselProps = {
   /**
@@ -107,7 +106,7 @@ export default function Carousel({
           <div className={styles["carousel__progress"]}>
             <div className={styles["carousel__progress-header"]}>
               <span className={styles["carousel__progress-label"]}>
-                {progressLabelPrefix ?? t("carousel.item")} {padNumber(currentIndex + 1)} / {padNumber(items.length)}
+                {progressLabelPrefix ?? t("carousel.item")} {currentIndex + 1} / {items.length}
               </span>
             </div>
             <div className={styles["carousel__progress-track"]}>

@@ -41,17 +41,12 @@
     font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
     color: $t-colors-primary-default;
-    text-transform: uppercase;
-    letter-spacing: $t-font-letter-spacing-wide-3;
   }
 
   &__progress-track {
     overflow: hidden;
-
     width: 100%;
-    height: 2px;
-    border-radius: $t-radius-full;
-
+    height: 6px;
     background-color: $t-colors-surface-neutral-muted;
   }
 
@@ -155,9 +150,7 @@
       width: $t-spacing-4;
       height: $t-spacing-4;
       border-radius: 50%;
-
       background-color: $t-colors-primary-default;
-      box-shadow: 0 2px 6px $t-colors-shadow-default;
     }
 
     &:hover:not(&--active) {

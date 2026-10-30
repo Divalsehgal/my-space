@@ -221,8 +221,6 @@ html.lenis body {
 // preserved on both surfaces; see surface.section-alt in the design tokens).
 // ---------------------------------------------------------------------------
 .page-scroll > .section:nth-of-type(even) {
-  border-top: 1px solid $t-colors-border-subtle;
-  border-bottom: 1px solid $t-colors-border-subtle;
   background-color: $t-colors-surface-section-alt;
 }
 

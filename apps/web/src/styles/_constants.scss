@@ -11,6 +11,9 @@ $baseline-nudge: 3px; // optically aligns small labels with larger numerals
 
 // Line heights outside the tight/normal/relaxed tokens
 $line-height-display: 0.95; // oversized display headings
+$line-height-poster: 0.9; // the name and section titles set as posters
+$line-height-lead: 1.35; // the lead sentence under a display line
+$letter-spacing-poster: -0.045em; // tracking for black uppercase poster type
 $line-height-heading: 1.1;
 $line-height-snug: 1.15;
 $line-height-comfortable: 1.5; // chat bubbles

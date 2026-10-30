@@ -45,12 +45,9 @@
 
   &__eyebrow {
     display: block; // Ensure it behaves like a block element
-
     font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
     color: $t-colors-primary-default;
-    text-transform: uppercase;
-    letter-spacing: $t-font-letter-spacing-wide-3; // Extra wide tracking for premium feel
   }
 
   // Two-class selector so it beats MUI's Typography h2 sizing.
@@ -58,11 +55,12 @@
     margin: 0;
 
     font-family: var(--font-display), $t-font-family-heading;
-    font-size: clamp(2.25rem, 5.5vw, 4.5rem);
-    font-weight: $t-font-weight-bold;
-    line-height: $line-height-display;
+    font-size: clamp(3rem, 9vw, 8.5rem);
+    font-weight: $t-font-weight-black;
+    line-height: $line-height-poster;
     color: $t-colors-text-primary;
-    letter-spacing: $t-font-letter-spacing-tight-2;
+    text-transform: uppercase;
+    letter-spacing: $letter-spacing-poster;
   }
 
   &__subtitle {
@@ -73,8 +71,6 @@
     font-weight: $t-font-weight-medium;
     line-height: $t-font-line-height-relaxed;
     color: $t-colors-text-secondary;
-
-    opacity: 0.8;
 
     @media (width >= $t-breakpoint-tablet) {
       font-size: $t-font-size-base;

@@ -18,12 +18,8 @@
 
 .button {
   border: 2px solid $t-colors-border-strong;
-
   color: $t-colors-primary-default;
-
   background-color: $t-colors-surface-glass;
-  backdrop-filter: blur($t-blur-md);
-
   transition: color $t-motion-duration-base $t-motion-easing-standard, background-color $t-motion-duration-base $t-motion-easing-standard, border-color $t-motion-duration-base $t-motion-easing-standard, box-shadow $t-motion-duration-base $t-motion-easing-standard, transform $t-motion-duration-base $t-motion-easing-standard, opacity $t-motion-duration-base $t-motion-easing-standard;
 
   &:hover {

@@ -115,8 +115,14 @@
     gap: $t-spacing-3;
     margin: 0 0 $t-spacing-4;
 
+    // Figure first, its label under it (the label reads as a caption, not a kicker).
+    > div {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
     dt {
-      font-size: $t-font-size-xxs;
+      font-size: $t-font-size-xs;
       color: $t-colors-text-secondary;
     }
 

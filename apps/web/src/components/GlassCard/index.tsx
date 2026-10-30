@@ -7,6 +7,8 @@ import ExpandableList, { type DescriptionItem } from "./ExpandableList";
 type Props = {
     readonly visual?: ReactNode;
     readonly title: ReactNode;
+    /** A line under the title (e.g. the company), so the heading itself stays short. */
+    readonly subtitle?: ReactNode;
     readonly description: string | Array<DescriptionItem>;
     readonly tags?: readonly string[];
     readonly action?: ReactNode;
@@ -16,6 +18,7 @@ type Props = {
 export default function GlassCard({
     visual,
     title,
+    subtitle,
     description,
     tags,
     action,
@@ -35,6 +38,7 @@ export default function GlassCard({
             <div className={styles["glass-card__content"]}>
                 <div>
                     <h3 className={styles["glass-card__title"]}>{title}</h3>
+                    {subtitle && <p className={styles["glass-card__subtitle"]}>{subtitle}</p>}
                     {typeof description === "string" ? (
                         <div className={styles["glass-card__description"]}>
                             <p className={styles["glass-card__text"]}>{description}</p>

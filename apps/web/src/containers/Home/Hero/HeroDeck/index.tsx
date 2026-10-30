@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
-import { ArticleIcon as ArticleOutlinedIcon, BoltIcon, WorkIcon as WorkOutlineIcon } from "@dival-sehgal/ui/icons";
 import { animate } from "framer-motion";
 import { EASE_OUT_EXPO, motionAllowed } from "@/lib/motion";
 import styles from "./styles.module.scss";
@@ -18,7 +17,7 @@ export type HeroHighlights = {
   skills: string[];
 };
 
-type Card = { key: string; tone: "photo" | "brand" | "neutral" | "warm"; icon?: ReactNode; label?: string; body: ReactNode };
+type Card = { key: string; tone: "photo" | "brand" | "neutral" | "warm"; label?: string; body: ReactNode };
 
 // Resting slots: front card first. Fanned slots spread the deck on hover.
 // One slot per card (portrait, role, skills, blog).
@@ -88,7 +87,6 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
     {
       key: "role",
       tone: "neutral",
-      icon: <WorkOutlineIcon fontSize="small" />,
       label: t("hero.deck.currently"),
       body: (
         <>
@@ -100,7 +98,6 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
     {
       key: "skills",
       tone: "warm",
-      icon: <BoltIcon fontSize="small" />,
       label: t("hero.deck.topSkills"),
       body: (
         <ul className={styles["deck__chips"]}>
@@ -113,7 +110,6 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
     {
       key: "post",
       tone: "brand",
-      icon: <ArticleOutlinedIcon fontSize="small" />,
       label: t("hero.deck.latestBlog"),
       body: latestPost ? (
         <>
@@ -230,7 +226,6 @@ export default function HeroDeck({ latestPost, currentRole, skills }: Readonly<H
         >
           {card.label && (
             <span className={styles["deck__label"]}>
-              {card.icon}
               {card.label}
             </span>
           )}

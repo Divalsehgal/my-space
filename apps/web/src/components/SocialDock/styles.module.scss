@@ -17,21 +17,16 @@
 
   &__links {
     flex-direction: column;
-
     padding: $t-spacing-1;
-    border: 1px solid $t-colors-border-subtle;
     border-radius: $t-radius-full;
-
     background-color: color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent);
-    backdrop-filter: blur($t-blur-lg);
-    box-shadow: 0 18px 40px -20px $t-colors-shadow-default;
   }
 
   // A hairline trailing off below the pill.
   &__rule {
     width: 1px;
     height: $t-spacing-16;
-    background: linear-gradient(to bottom, $t-colors-border-default, transparent);
+    background-color: $t-colors-border-default;
   }
 
   @media (width >= $t-breakpoint-desktop) {

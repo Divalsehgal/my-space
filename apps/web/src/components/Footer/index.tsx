@@ -3,7 +3,6 @@ import Link from "next/link";
 import { GitHubIcon, InstagramIcon, LinkedInIcon, TerminalIcon, type IconComponent } from "@dival-sehgal/ui/icons";
 import styles from "./styles.module.scss";
 import FluidContainer from "../FluidContainer";
-import ParticlesBackground from "../ParticlesBackground";
 import { trackAttrs, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { getT } from "@/i18n/server";
 import { navLinks as footerLinks } from "../Navbar/constants";
@@ -17,12 +16,9 @@ type SocialItem = {
 type FooterProps = {
     readonly brand?: string;
     readonly socialItems?: SocialItem[];
+    /** Set as the footer's display line, so the close of every page is the way to get in touch. */
+    readonly email?: string;
 };
-
-// Density scaling thins this out on a short, wide strip (~1/5 survives at 1440px).
-const FOOTER_PARTICLE_COUNT = 600;
-// Brighter than the default field so the sparse strip reads on the dark footer.
-const FOOTER_PARTICLE_OPACITY = { min: 0.35, max: 0.9 };
 
 const ICON_MAP: Record<string, IconComponent> = {
     github: GitHubIcon,
@@ -30,22 +26,20 @@ const ICON_MAP: Record<string, IconComponent> = {
     instagram: InstagramIcon,
 };
 
-export default function Footer({ brand, socialItems = [] }: FooterProps) {
+export default function Footer({ brand, socialItems = [], email }: FooterProps) {
     const t = getT();
     const currentYear = new Date().getFullYear();
 
     return (
         <footer className={styles.footer}>
-            <div className={styles["footer__particles"]} aria-hidden="true">
-                <ParticlesBackground
-                    id="footer-particles"
-                    className={styles["footer__particles-canvas"]}
-                    fullScreen={false}
-                    count={FOOTER_PARTICLE_COUNT}
-                    opacity={FOOTER_PARTICLE_OPACITY}
-                />
-            </div>
             <FluidContainer className={styles["footer__container"]}>
+                {email && (
+                    <a href={`mailto:${email}`} className={styles["footer__mail"]}>
+                        {email.slice(0, email.indexOf("@"))}
+                        <wbr />
+                        {email.slice(email.indexOf("@"))}
+                    </a>
+                )}
                 <div className={styles["footer__top"]}>
                     {/* Brand */}
                     <div className={styles["footer__brand"]}>

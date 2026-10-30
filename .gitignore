@@ -73,3 +73,5 @@ contentful-mcp-server
 
 # MCP config holds a personal Contentful token — keep it local
 /.mcp.json
+
+.taste-skill

@@ -56,7 +56,7 @@ function SplitTitle({ text }: Readonly<{ text: string }>) {
   );
 }
 
-/** Copy on the left; on the right a deck led by the portrait, then highlights. */
+/** The name across the full width; under it the copy on the left and a deck led by the portrait on the right. */
 export default function Hero({ data, highlights, socials = [] }: Readonly<HeroProps>) {
   const t = getT();
   const title = t("common.siteName");
@@ -66,18 +66,17 @@ export default function Hero({ data, highlights, socials = [] }: Readonly<HeroPr
 
   return (
     <FluidContainer as="section" className={clsx("section", styles.hero)} id="home">
+      <h1 className={styles["hero__heading"]}>
+        <SplitTitle text={title} />
+      </h1>
       <div className={styles["hero__grid"]}>
         <HeroStage className={styles["hero__copy"]}>
-          <p className={clsx(styles["hero__greeting"], styles["hero__rise"])}>{t("hero.greeting")}</p>
-          <h1 className={styles["hero__heading"]}>
-            <SplitTitle text={title} />
-          </h1>
           <p className={clsx(styles["hero__subheading"], styles["hero__rise-soft"])}>{subtitle}</p>
           <div className={styles["hero__rise"]} style={{ "--delay": "0.7s" } as React.CSSProperties}>
-            <HeroAbout summary={t("about.title")} paragraphs={bio} />
+            <HeroActions data={data} className={styles["hero__actions"]} />
           </div>
           <div className={styles["hero__rise"]} style={{ "--delay": "0.8s" } as React.CSSProperties}>
-            <HeroActions data={data} className={styles["hero__actions"]} />
+            <HeroAbout summary={t("about.title")} paragraphs={bio} />
           </div>
           {/* From desktop up these live in the SocialDock on the left edge instead. */}
           <div className={clsx(styles["hero__rise"], styles["hero__socials-row"])} style={{ "--delay": "0.9s" } as React.CSSProperties}>

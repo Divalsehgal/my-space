@@ -12,11 +12,12 @@
 // Mixins file - tokens are injected via additionalData
 
 // Card Styles
+// A surface told apart by one tone step, not a line: a translucent tint so it
+// reads on the page ground and on the alternate section bands alike.
 @mixin card-glass {
   overflow: hidden;
-  border: 1px solid $t-colors-border-muted;
-  border-radius: $t-radius-lg;
-  background-color: color-mix(in srgb, #{$t-colors-background-primary} 86%, transparent);
+  border-radius: $t-radius-none;
+  background-color: $t-colors-surface-neutral-muted;
 }
 
 // Focus — the one keyboard focus indicator for custom interactive elements.
@@ -177,16 +178,16 @@
 // hover lift used by clickable cards. Needs the data-spotlight attribute.
 @mixin card($interactive: false) {
   @include card-glass;
-  @include spotlight-card;
+  @include spotlight-card($t-radius-none);
 
   @if $interactive {
     transition:
       transform $t-motion-duration-slow $t-motion-easing-emphasized,
-      border-color $t-motion-duration-slow $t-motion-easing-standard;
+      background-color $t-motion-duration-slow $t-motion-easing-standard;
 
     &:hover { // NOSONAR: mixin body — `&` resolves to the including rule
       transform: translateY(-3px);
-      border-color: $t-colors-border-default;
+      background-color: $t-colors-surface-brand-muted;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -291,8 +292,9 @@
 }
 
 // Visual Utilities
+// No text sits on these images, so they need no scrim; kept as a hook.
 @mixin image-overlay-gradient {
-  background: linear-gradient(to top, $t-colors-surface-page-fade, transparent);
+  background: none;
 }
 
 @mixin flex-center {

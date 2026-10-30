@@ -16,7 +16,6 @@
 
   height: $t-spacing-11;
   padding: 0 $t-spacing-4 0 $t-spacing-3;
-  border: 1px solid $t-colors-border-subtle;
   border-radius: $t-radius-full;
 
   font-family: inherit;
@@ -25,8 +24,6 @@
   color: $t-colors-text-primary;
 
   background-color: color-mix(in srgb, #{$t-colors-background-primary} 88%, transparent);
-  backdrop-filter: blur($t-blur-lg);
-  box-shadow: 0 12px 32px -16px $t-colors-shadow-default;
 
   transition: border-color $t-motion-duration-slow $t-motion-easing-standard;
 
@@ -61,7 +58,6 @@
   padding: $t-spacing-6;
 
   background-color: color-mix(in srgb, #{$t-colors-background-primary} 70%, transparent);
-  backdrop-filter: blur($t-blur-lg);
 
   @media (width <= $t-breakpoint-tablet) {
     align-items: end;
@@ -78,11 +74,9 @@
   width: min(560px, 100%);
   height: min(720px, calc(100dvh - #{$t-spacing-12}));
   padding: $t-spacing-6;
-  border: 1px solid $t-colors-border-subtle;
   border-radius: $t-radius-xl;
 
   background-color: $t-colors-background-primary;
-  box-shadow: 0 40px 100px -40px $t-colors-shadow-default;
 
   &__header {
     display: flex;
@@ -115,7 +109,6 @@
   }
 
   &__close {
-    border: 1px solid $t-colors-border-subtle;
     color: $t-colors-text-primary;
   }
 

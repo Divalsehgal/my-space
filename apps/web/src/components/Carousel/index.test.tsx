@@ -44,7 +44,7 @@ describe("Carousel Component", () => {
     expect(screen.getByTestId("carousel-item-1")).toBeInTheDocument();
     // Inactive slides stay mounted (keeping their state) but are hidden.
     expect(screen.getByTestId("carousel-item-2")).not.toBeVisible();
-    expect(screen.getByText("Slide 01 / 03")).toBeInTheDocument();
+    expect(screen.getByText("Slide 1 / 3")).toBeInTheDocument();
   });
 
   it("navigates to next and previous slides using navigation buttons", () => {
@@ -148,8 +148,8 @@ describe("Carousel Component", () => {
     const lotsOfItems = Array.from({ length: 11 }, (_, i) => ({ id: i, text: `Item ${i}` }));
     render(<Carousel slides={lotsOfItems.map((item) => <div key={item.id}>{item.text}</div>)} progressLabelPrefix="Slide" />);
     
-    // 1st item of 11 items -> "01 / 11"
-    expect(screen.getByText("Slide 01 / 11")).toBeInTheDocument();
+    // 1st item of 11 items -> "1 / 11"
+    expect(screen.getByText("Slide 1 / 11")).toBeInTheDocument();
     
     // Click next 9 times to get to index 9 (10th item)
     const nextButton = screen.getByLabelText("Next");

@@ -174,7 +174,7 @@ export default async function RootLayout({
             <main id="main-content">{children}</main>
           </ViewTransition>
           {modal}
-          <Footer brand={t("common.siteName")} socialItems={config?.socials || []} />
+          <Footer brand={t("common.siteName")} socialItems={config?.socials || []} email={config?.contact?.email} />
           <ScrollToTop />
           <GamePrompt items={flattenSkillNames(config?.skills ?? {})} />
           <CommandCenter />

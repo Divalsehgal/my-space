@@ -20,7 +20,6 @@ $home-top-bar-height: 48px;
   overflow: hidden; // contains the decorative particle canvas
 
   height: $home-top-bar-height;
-  border-bottom: 1px solid $t-colors-border-subtle;
 
   background-color: $t-colors-surface-brand-muted;
 
@@ -90,17 +89,9 @@ $home-top-bar-height: 48px;
 
   &__tag {
     flex-shrink: 0;
-
-    padding: $micro-space $t-spacing-2;
-    border-radius: $t-radius-full;
-
-    font-size: $t-font-size-xxs;
+    font-size: $t-font-size-xs;
     font-weight: $t-font-weight-bold;
-    color: $t-colors-button-primary-text;
-    text-transform: uppercase;
-    letter-spacing: $t-font-letter-spacing-wide-2;
-
-    background-color: $t-colors-primary-default;
+    color: $t-colors-text-accent;
   }
 
   &__title {

@@ -8,7 +8,8 @@ type Props = {
 export default function ExperienceCard({ experience }: Readonly<Props>) {
   return (
     <GlassCard
-      title={`${experience.role} @ ${experience.company}`}
+      title={experience.role}
+      subtitle={experience.company}
       description={experience.description}
       tags={experience.techStack}
     />
