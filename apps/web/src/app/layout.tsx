@@ -82,7 +82,8 @@ export function generateMetadata(): Metadata {
     metadataBase: new URL(BASE_URL),
     title: {
       default: title,
-      template: `%s | ${title}`,
+      // Name only: the job title pushed post titles past Google's ~60-char cut-off.
+      template: "%s | Dival Sehgal",
     },
     description,
     keywords,

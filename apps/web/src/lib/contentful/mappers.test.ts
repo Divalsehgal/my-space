@@ -48,6 +48,12 @@ describe("mapContentfulPost", () => {
     expect(description).not.toMatch(/,…$/);
   });
 
+  it("cuts long descriptions at a sentence boundary when one fits", () => {
+    const sentence = "Next.js caches fetches, routes and rendered output in separate layers.";
+    const description = mapContentfulPost({ ...base, body: rich([para(`${sentence} ${sentence} ${sentence}`)]) }).description;
+    expect(description).toBe(`${sentence} ${sentence}`);
+  });
+
   it("returns an empty description without a body", () => {
     expect(mapContentfulPost({ ...base, body: undefined as unknown as ContentfulRichText }).description).toBe("");
   });

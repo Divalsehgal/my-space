@@ -94,7 +94,7 @@ export default async function BlogPostPage({ params }: Props) {
     "@id": `${postUrl}#article`,
     headline: post.title,
     description: post.description || undefined,
-    image: post.cover || undefined,
+    image: post.cover || `${SITE_URL}/og-image.jpg`,
     datePublished: post.date || undefined,
     dateModified: post.publishedAt || post.date || undefined,
     url: postUrl,

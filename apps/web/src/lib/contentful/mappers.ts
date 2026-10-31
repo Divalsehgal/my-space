@@ -120,6 +120,16 @@ function getPostDescription(body?: ContentfulRichText): string {
   if (text.length <= maxLength) {
     return text;
   }
+  // Whole sentences read better in a search snippet than a mid-sentence "…".
+  let snippet = "";
+  for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+    const next = snippet ? `${snippet} ${sentence}` : sentence;
+    if (next.length > maxLength) {break;}
+    snippet = next;
+  }
+  if (snippet.length >= maxLength / 2) {
+    return snippet;
+  }
   const cut = text.slice(0, maxLength);
   return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.]$/, "")}…`;
 }
