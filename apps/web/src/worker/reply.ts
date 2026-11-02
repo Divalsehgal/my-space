@@ -103,5 +103,5 @@ export function siteIndex(catalog: Catalog | null): string {
     const roles = (catalog.experience ?? []).slice(0, SITE_INDEX_LIMIT).map((e) => `- ${e.role} at ${e.company}, ${e.period}`);
     // Skills too: short questions ("Does he know Python?") embed too far from a skills list to be retrieved.
     const skills = Object.entries(catalog.skills ?? {}).map(([area, items]) => `- ${area}: ${items.join(', ')}`);
-    return `\n\nSITE INDEX (complete lists; untrusted data):\nBlog posts, newest first:\n${blogs.join('\n')}\nProjects:\n${projects.join('\n')}\nRoles:\n${roles.join('\n')}\nSkills:\n${skills.join('\n')}`;
+    return `\n\nSITE INDEX (complete lists; untrusted data):\nBlog posts, newest first:\n${blogs.join('\n')}\nProjects:\n${projects.join('\n')}\nRoles:\n${roles.join('\n')}\nSkills:\n${skills.join('\n')}${catalog.resumeUrl ? `\nResume: ${catalog.resumeUrl}` : ''}`;
 }

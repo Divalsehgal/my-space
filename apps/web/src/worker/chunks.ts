@@ -195,6 +195,7 @@ export function buildCatalog({ profile, portfolio, blogs }: ChatContext): Catalo
         skills: flattenSkills(portfolio.skills),
         blogs: blogs.slice(0, MAX_SEEDED_ITEMS).map((b) => ({ title: b.title, slug: b.slug, date: b.date, description: b.description, url: `${SITE_URL}/blogs/${b.slug}` })),
         contact: portfolio.contact,
+        resumeUrl: portfolio.resumeUrl,
         socials: (portfolio.socials ?? []).map(({ label, href }) => ({ label, href })),
         updatedAt: new Date().toISOString(),
     };

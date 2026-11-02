@@ -63,6 +63,7 @@ export interface Catalog {
     skills: Record<string, string[]>;
     blogs: { title: string; slug: string; date: string; description: string; url: string }[];
     contact?: { email: string };
+    resumeUrl?: string;
     socials: { label: string; href: string }[];
     updatedAt: string;
 }

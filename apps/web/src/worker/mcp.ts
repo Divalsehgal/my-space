@@ -97,8 +97,8 @@ export async function callTool(env: Env, name: string | undefined, args: Record<
             if (!catalog) {
                 return text('Profile is not indexed yet.', true);
             }
-            const { profile, experience, skills, projects, contact, socials } = catalog;
-            return text({ ...profile, experience, skills, projects, contact, socials });
+            const { profile, experience, skills, projects, contact, socials, resumeUrl } = catalog;
+            return text({ ...profile, experience, skills, projects, contact, socials, resumeUrl });
         }
         case 'list_blog_posts': {
             const catalog = await readCatalog(env);
