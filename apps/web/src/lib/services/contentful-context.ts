@@ -1,10 +1,8 @@
 import "server-only";
 
 import { fetchContentful, type ContentfulCollectionResponse, type ContentfulPostItem } from "./contentful";
+import { getPostDescription } from "@/lib/contentful/mappers";
 import type { ContentfulRichText } from "@/types/contentful";
-
-/** Length of the plain-text description given to the chatbot per post. */
-const DESCRIPTION_CHARS = 180;
 
 /**
  * Simple helper to convert Contentful Rich Text JSON to plain text.
@@ -43,10 +41,10 @@ export function contentfulToPlainText(richText: ContentfulRichText): string {
 /**
  * Fetches latest blog posts with their full content for AI context purposes.
  */
-export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ title: string; content: string; slug: string; description: string; date: string; tags: string[] }>> {
+export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ title: string; content: string; slug: string; description: string; date: string }>> {
   const query = `
     query GetBlogPostsForContext($limit: Int) {
-      blogPageCollection(limit: $limit) {
+      blogPageCollection(limit: $limit, order: [sys_firstPublishedAt_DESC]) {
         items {
           sys { firstPublishedAt }
           title
@@ -69,9 +67,9 @@ export async function getContentfulPostsForContext(limit = 10): Promise<Array<{ 
     return data.blogPageCollection.items.map(item => ({
       title: item.title,
       slug: item.slug,
-      description: contentfulToPlainText(item.body).slice(0, DESCRIPTION_CHARS),
+      // Same sentence-cut description the site's cards and meta tags use.
+      description: getPostDescription(item.body),
       date: item.sys.firstPublishedAt,
-      tags: [], // Contentful schema might need tags added, leaving empty for now
       content: contentfulToPlainText(item.body)
     }));
   } catch (error) {

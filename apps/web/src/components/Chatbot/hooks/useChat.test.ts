@@ -231,7 +231,9 @@ describe('useChat', () => {
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(jsonResponse({ messages: [] }))
-      .mockImplementationOnce(() => new Promise((_resolve, reject) => (rejectChat = reject)));
+      .mockImplementationOnce(() => new Promise((_resolve, reject) => (rejectChat = reject)))
+      // DELETE /api/history from clearHistory
+      .mockResolvedValueOnce(jsonResponse({ success: true }));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const { result } = renderHook(() => useChat());
@@ -251,6 +253,7 @@ describe('useChat', () => {
     });
     expect(result.current.messages).toEqual([]);
     expect(result.current.isTyping).toBe(false);
+    expect(fetchMock).toHaveBeenLastCalledWith(expect.stringMatching(/\/api\/history$/), { method: 'DELETE', credentials: 'include' });
     expect(consoleError).not.toHaveBeenCalled();
   });
 });

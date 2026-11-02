@@ -17,9 +17,10 @@ Wider platform: [hld-architecture.md](./hld-architecture.md).
 A **scoped RAG assistant** that only answers questions about Dival's portfolio, experience,
 projects, skills, blog posts, and the contact flow. The UI is a client-only React widget in the
 Next.js app. All AI work runs in **one Cloudflare Worker** (~270 lines of TypeScript) that uses
-**Workers AI** for embeddings (`bge-base-en-v1.5`) and generation
-(`llama-3.3-70b-instruct-fp8-fast`), **Vectorize** as the vector store, and **KV** for
-sessions, rate limits, and daily counters. The knowledge base is rebuilt from a Next.js
+**Workers AI** for embeddings (`bge-base-en-v1.5`) and **token-streamed** generation
+(`llama-3.3-70b-instruct-fp8-fast`), **Vectorize** as the vector store, **KV** for sessions,
+the seed manifest and a structured catalog, and the **Rate Limiting binding** for atomic per-IP limits.
+The same index is also exposed read-only to external agents through an **MCP server** at `/mcp`. The knowledge base is rebuilt from a Next.js
 endpoint (`/api/chat-context`, fed by Contentful + portfolio JSON) on every deploy, every
 Contentful publish, and once a day by cron. The only "tool" the model can trigger is
 **sending a contact message**, and the Worker, not the model, decides whether it is actually
@@ -51,12 +52,16 @@ generic intro; no invented employers, projects, dates, skills, links, or blog cl
 |---|---|---|
 | Mount | [Providers/index.tsx](../apps/web/src/components/Providers/index.tsx) | `dynamic(..., { ssr: false })`, keeps the widget out of SSR and LCP |
 | UI | [Chatbot/index.tsx](../apps/web/src/components/Chatbot/index.tsx), `ChatPanel/*` | Toggle, header, messages, composer, empty state, typing indicator |
-| UI state | [useChat.ts](../apps/web/src/components/Chatbot/hooks/useChat.ts) | History load, send, SSE parse, abort, clear |
+| UI state | [useChat.ts](../apps/web/src/components/Chatbot/hooks/useChat.ts) | History load, send, SSE parse (`response` / `replace` / `sources`), abort, clear (also deletes the server session) |
 | Context API | [api/chat-context/route.ts](../apps/web/src/app/api/chat-context/route.ts) | Profile (Contentful) + portfolio JSON + recent blogs for seeding |
-| Worker entry | [worker/index.ts](../apps/web/src/worker/index.ts) | `/api/chat`, `/api/history`, `/api/health`, cron, prompt, completion |
+| Worker entry | [worker/index.ts](../apps/web/src/worker/index.ts) | `/api/chat`, `/api/history` (GET/DELETE), `/mcp`, `/api/health`, cron, sessions, rate limit |
+| Prompt + reply | [worker/reply.ts](../apps/web/src/worker/reply.ts) | System prompt, site index, model calls, contact tool post-processing |
+| Streaming | [worker/stream.ts](../apps/web/src/worker/stream.ts) | Upstream token parser, streaming output guard (marker hold-back, leak swap) |
+| MCP | [worker/mcp.ts](../apps/web/src/worker/mcp.ts) | Stateless JSON-RPC MCP server: `search_portfolio`, `get_profile`, `list_blog_posts` |
 | Guardrails | [worker/guards.ts](../apps/web/src/worker/guards.ts) | Scope gate, input/output patterns, contact token + validation |
 | Retrieval | [worker/retrieval.ts](../apps/web/src/worker/retrieval.ts) | Follow-up query rewrite, embed, Vectorize query, threshold |
-| Seeding | [worker/seed.ts](../apps/web/src/worker/seed.ts) | `/api/seed`, `runSeed`, chunking, CORS, purge + upsert |
+| Seeding | [worker/seed.ts](../apps/web/src/worker/seed.ts) | `/api/seed`, `runSeed`: hash-diff incremental embed, upsert then delete stale, catalog write, CORS |
+| Chunking | [worker/chunks.ts](../apps/web/src/worker/chunks.ts) | Pure context → chunks (stable ids) and context → catalog |
 | Chunk helper | [worker/sentences.ts](../apps/web/src/worker/sentences.ts) | Linear-time sentence splitter |
 | Types | [worker/types.ts](../apps/web/src/worker/types.ts) | `Env`, `ChatSession`, `ChatMessage` |
 | Seed CLI | [scripts/seed-chatbot.mjs](../apps/web/scripts/seed-chatbot.mjs) | Manual / CI authenticated reseed |
@@ -187,12 +192,15 @@ reporting the real outcome) are in code either way. If the toolset grows (see 7.
 to native `tools` / JSON-schema function calling is a contained change in `runCompletion` and
 `postProcessReply`.
 
-### 7.2 MCP: used at development time, not at runtime
+### 7.2 MCP: authoring, and a read-only server for external agents
 
 | Where | MCP? | What for |
 |---|---|---|
 | Authoring (Claude Code / VS Code) | **Yes**: `@contentful/mcp-server` via `.mcp.json` / `.vscode/mcp.json` (git-ignored, holds a management token) | Drafting and publishing blog entries in Contentful from the editor; the [blog writing prompt](./contentful/blog-writing-prompt.md) runs through it |
-| Chatbot Worker | **No** | — |
+| Chatbot Worker as MCP **server** | **Yes**: `POST /mcp` ([mcp.ts](../apps/web/src/worker/mcp.ts)) | External agents query the portfolio: `search_portfolio` (same Vectorize index), `get_profile`, `list_blog_posts` (KV catalog). Stateless Streamable HTTP, JSON responses, rate limited, **no side-effecting tools** |
+| Chat itself as MCP **client** | **No** | The chat's only tool is still `submit_contact` (see 7.1) |
+
+Connect from any MCP client with the URL `https://ai-chatbot-widget.sehgaldival.workers.dev/mcp`.
 
 Publishing through that MCP feeds the chatbot indirectly: a Contentful publish fires the
 revalidation webhook, which reseeds Vectorize, so a post written through MCP becomes
@@ -204,11 +212,11 @@ Worker is both the host and the only consumer, and it has one tool. Wrapping `su
 in an MCP server would add a network hop, a transport, and an auth surface without giving us
 any capability we lack.
 
-### 7.3 When we *would* add MCP
+### 7.3 Next MCP steps
 
-- **Expose the portfolio as an MCP server** (`search_portfolio`, `get_blog_post`,
-  `send_contact`) so external agents (a recruiter's Claude, an IDE) can query Dival's work
-  directly. This is the most compelling case: same Vectorize index, new consumers.
+- `get_blog_post(slug)` returning a full post (needs the post body in KV or R2, not just chunks).
+- A contact tool for external agents only with an approval step outside the agent (e.g. Turnstile
+  or an emailed confirmation link); until then contact stays in the chat's confirm-then-send flow.
 - **Consume MCP servers** if the assistant needs several third-party systems (calendar booking
   via a Calendly/Google MCP, GitHub repo stats), where reusing existing servers beats writing
   integrations.
@@ -281,12 +289,15 @@ eventually consistent and `get → +1 → put` isn't atomic, so the rate limit i
 The fix is Cloudflare Rate Limiting rules or a **Durable Object** per IP or session (see the
 §12).
 
-### 8.5 Delivery: SSE contract, single completion
+### 8.5 Delivery: true token streaming with output guardrails
 
-Every reply (model, refusal, rate-limit, or contact result) uses the same SSE shape, so the
-client has one code path. The model call itself is **non-streaming**, because the streaming
-variant returned empty bodies on the current runtime. The contract already supports true
-token streaming, so turning it back on is a server-only change.
+The model is called with `stream: true` and tokens are forwarded as they arrive (they come as
+OpenAI-style `choices[0].delta.content`; the legacy `response` field is read too). Output
+guardrails run *while* streaming ([stream.ts](../apps/web/src/worker/stream.ts)): anything from a
+possible `[SUBMIT_CONTACT` marker on is held back, and a leak pattern in the visible text swaps
+the whole reply. After the stream, post-processing (contact tool, fallback) may send one
+`replace` event. An empty stream falls back to one buffered completion. Refusals and rate
+limits are single static events in the same contract.
 
 ---
 
@@ -360,15 +371,18 @@ score distribution, contact success rate (Workers Analytics Engine, no raw messa
 | Route | Method | Auth | Request | Response |
 |---|---|---|---|---|
 | `/api/chat` | POST | session cookie (optional) | `{ message, pagePath? }` | SSE `text/event-stream` |
-| `/api/history` | GET | session cookie | — | `{ messages: ChatMessage[] }` |
-| `/api/seed` | POST | `Bearer SEED_SECRET` | — | `{ success, count }` |
+| `/api/history` | GET | session cookie | — | `{ messages: { role, content, sources? }[] }` |
+| `/api/history` | DELETE | session cookie | — | `{ success: true }`, expires the cookie |
+| `/mcp` | POST | none (rate limited) | JSON-RPC 2.0 (single or batch ≤10) | JSON-RPC result / 202 for notifications |
+| `/api/seed` | POST | `Bearer SEED_SECRET` | `?force=1` re-embeds everything | `{ success, count, upserted, deleted }` |
 | `/api/health` | GET | none | — | `{ status: "ok" }` |
 
 ### 11.2 SSE shape (every reply: model, refusal, rate limit, contact result)
 
 ```text
-data: {"response":"<text>"}
-
+data: {"response":"<delta>"}          # append (many per answer)
+data: {"replace":"<full text>"}       # guardrail swap / contact result / fallback
+data: {"sources":[{"title","url"}]}   # links behind the answer
 data: [DONE]
 ```
 
@@ -376,38 +390,38 @@ data: [DONE]
 
 | Key | Value | TTL |
 |---|---|---|
-| `sess_<uuid>` | `ChatSession` JSON | 7 days |
-| `rate:<ip>:<minute-bucket>` | counter | 120 s |
-| `stats:chat:<YYYY-MM-DD>` | daily counter | none |
+| `sess_<uuid>` | `ChatSession` JSON (last 40 turns, `contactsSent`) | 7 days |
+| `seed:manifest` | `{ vectorId: contentHash }` | none |
+| `catalog:v1` | `Catalog` JSON (profile, roles, projects, skills, posts) | none |
+| `rate:<scope>:<ip>:<minute-bucket>` | counter, **only if** the rate-limit binding is missing | 120 s |
+
+Per-turn stats are structured `chat_turn` log lines (Workers observability), not KV writes, so a
+chat turn costs one KV write instead of three.
 
 ---
 
 ## 12. Known gaps
 
-**High**
-1. **KV rate limiting isn't atomic.** `get → +1 → put` races under concurrency and KV is
-   eventually consistent, so bursts can exceed 20/min.
-2. **No edge WAF / bot protection.** `/api/chat` and `/api/seed` rely on app-level checks; a
-   determined caller can drive Workers AI cost.
-3. **Partial Worker test coverage, no evals.** Guardrails, retrieval, and chunking are tested;
-   the request handler, leak filter, seed auth, and stale-vector purge aren't (see §9).
+**Fixed in the 2026-11 pass**
+- Buffered replies → true token streaming with streaming-safe output guards.
+- Non-atomic KV rate limit → Cloudflare Rate Limiting binding (`CHAT_RATE_LIMITER`).
+- Substring scope gate / blocked words ("reactor", "cryptography", "show"→"how") → whole-word
+  matching plus a semantic fallback (top retrieval score ≥ 0.72) for rephrasings.
+- Model-decided contact sends → code requires a user confirmation and an email the user typed,
+  max 3 per session.
+- Forged session cookies could address any KV key → only `sess_<uuid>` ids reach KV.
+- Skills, project links, socials and resume were never indexed; long posts were cut to their
+  first ~10k chars; posts weren't ordered by date → all indexed, newest first, full text.
+- Positional vector ids + delete-all-then-upsert (empty index window, full re-embed daily) →
+  stable ids, content-hash diff, upsert before delete.
+- "New chat" only cleared the UI → also deletes the server session.
+- Local `wrangler dev` had no Vectorize → bindings marked `remote: true`.
 
-**Medium**
-4. **Not true streaming.** One buffered completion sent over SSE; time to first byte equals full
-   generation time.
-5. **Substring scope gate.** False positives ("reactor", "contactless") and misses for legitimate
-   rephrasings.
-6. **Naive blocked-word list.** Blocks "cryptography", and is bypassed with spacing or synonyms.
-7. **7-day PII retention.** Sessions may hold names and emails from the contact flow.
-8. **`pagePath` is attacker-controlled.** Only `/blogs/<slug>` is accepted, but the slug still
-   flows into the embedding query.
-
-**Low**
-9. The 0.65 similarity threshold is a magic number with no tuning telemetry.
-10. No quality metrics; inference errors only go to `console.error`.
-11. Message list isn't virtualized or persisted client-side.
-12. Worker and site URLs are hard-coded in several files.
-13. Rapid content replacement can be noisy for screen readers despite `aria-live`.
+**Still open**
+1. No edge WAF / Turnstile on `/api/chat` and `/mcp`.
+2. No evals (see §9); thresholds 0.65 / 0.72 are untuned.
+3. 7-day PII retention for sessions that used the contact flow.
+4. Worker and site URLs are hard-coded in several files.
 
 ---
 
@@ -420,7 +434,6 @@ data: [DONE]
 | Assistant needs multi-step actions (booking, follow-ups) | Native function calling → **LangGraph** for loops, waiting states, checkpoints |
 | External agents should query the portfolio | Publish an **MCP server** over the same Vectorize index |
 | Prompt/model changes become frequent | Add the eval suite from §9.3 as a CI gate |
-| Perceived latency matters | Re-enable token streaming (the SSE contract already supports it) |
 
 Smaller items: citations (show the source blog slug), a daily per-IP abuse budget,
 config-driven thresholds, `sessionStorage` for instant reopen, stop/retry controls, markdown
@@ -476,9 +489,9 @@ unauthenticated `/api/seed` (expect 401).
 | Change | Follow-up |
 |---|---|
 | Portfolio JSON / blog shape | Update `Portfolio` / `Blog` interfaces in `seed.ts`; reseed |
-| Vector ID scheme | Extend `getManagedVectorIds` so old IDs are purged |
-| Generation model | Update `runCompletion`; check the output shape (`response` vs `choices`); note the deprecation date |
-| Embedding model | **Re-seed the whole index** (dimensions must match) |
+| Vector ID scheme | Ids not in the new set are deleted via `seed:manifest`; run `/api/seed?force=1` if the index was edited by hand |
+| Generation model | Update `CHAT_MODEL` in `reply.ts`; check both stream (`choices[].delta`) and buffered output shapes; note the deprecation date |
+| Embedding model | Update `EMBEDDING_MODEL`; the hash includes the model, so the next seed re-embeds everything (dimensions must match the index) |
 | Prompt (`SYS`) | Re-run guardrail tests and the smoke test; watch for scope drift |
 | Allowed origins | Update `configuredOrigins` in `getCorsHeaders` |
 | Scope / blocked lists | Add tests for the new terms; watch for substring false positives |
@@ -560,4 +573,4 @@ evals, gated in CI, starting with the next model or prompt change.
 
 ---
 
-*Last reviewed: 2026-10-09.*
+*Last reviewed: 2026-11-02.*

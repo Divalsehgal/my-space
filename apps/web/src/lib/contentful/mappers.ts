@@ -84,7 +84,7 @@ export interface ContentfulCollectionResponse<T> {
   };
 }
 
-function getPostDescription(body?: ContentfulRichText): string {
+export function getPostDescription(body?: ContentfulRichText): string {
   if (!body?.json?.content) {
     return "";
   }

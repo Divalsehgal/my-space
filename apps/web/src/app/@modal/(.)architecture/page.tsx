@@ -1,5 +1,5 @@
 import Architecture from "@/containers/Architecture";
-import { getArchitecture } from "@/containers/Architecture/data";
+import { CHATBOT_LLD, CHATBOT_LLD_HREF, getArchitecture } from "@/containers/Architecture/data";
 import RouteModal from "@/components/RouteModal";
 import { getT } from "@/i18n/server";
 
@@ -11,7 +11,7 @@ export default async function ArchitectureModal() {
   const data = await getArchitecture();
   return (
     <RouteModal labelledBy={TITLE_ID} closeLabel={t("toast.close")}>
-      <Architecture data={data} titleId={TITLE_ID} />
+      <Architecture data={data} titleId={TITLE_ID} related={CHATBOT_LLD.nodes.length ? { href: CHATBOT_LLD_HREF, label: CHATBOT_LLD.title ?? "Chatbot LLD" } : undefined} />
     </RouteModal>
   );
 }

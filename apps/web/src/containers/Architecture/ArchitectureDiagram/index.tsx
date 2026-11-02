@@ -30,6 +30,11 @@ const nodeTypes = {
   default: ArchitectureNode,
 };
 
+/** Vertical node span (px) above which the canvas grows past its default height. */
+const TALL_SPAN = 500;
+const CANVAS_PADDING = 200;
+const MAX_CANVAS_HEIGHT = 1100;
+
 interface ArchitectureDiagramProps {
   nodes: ArchitectureNodeConfig[];
   edges: ArchitectureEdgeConfig[];
@@ -70,8 +75,15 @@ export default function ArchitectureDiagram({ nodes, edges }: Readonly<Architect
     [edges, edgeColor],
   );
 
+  // Tall diagrams (the chatbot LLD) get a taller canvas instead of shrinking to unreadable text.
+  const canvasStyle = useMemo(() => {
+    const ys = nodes.map((node) => node.position.y);
+    const span = ys.length ? Math.max(...ys) - Math.min(...ys) : 0;
+    return span > TALL_SPAN ? ({ "--canvas-height": `${Math.min(span + CANVAS_PADDING, MAX_CANVAS_HEIGHT)}px` } as React.CSSProperties) : undefined;
+  }, [nodes]);
+
   return (
-    <div className={styles.canvas}>
+    <div className={styles.canvas} style={canvasStyle}>
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}

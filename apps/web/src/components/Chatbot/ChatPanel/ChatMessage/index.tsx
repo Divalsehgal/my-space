@@ -37,6 +37,17 @@ export default function ChatMessage({ message, onRetry }: ChatMessageProps) {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
+        {!fromUser && message.sources && message.sources.length > 0 && (
+          <ul className={styles["chat-message__sources"]}>
+            {message.sources.map((source) => (
+              <li key={source.url}>
+                <a href={source.url} {...(source.url.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
+                  {source.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
         {message.isError && (
           <button type="button" onClick={onRetry} className={styles["chat-message__retry"]}>
             {t("chat.retry")}

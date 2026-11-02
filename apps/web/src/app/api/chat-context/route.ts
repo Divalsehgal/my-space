@@ -3,11 +3,8 @@ import { portfolioService } from '@/features/portfolio';
 import { getContentfulPostsForContext } from '@/lib/services/contentful-context';
 import { getT } from '@/i18n/server';
 
-/** Recent posts included in the chatbot's grounding context. */
-const CONTEXT_POST_COUNT = 10;
-
-// Set to 1 hour to cache context for faster AI responses (Fallback)
-// Updates automatically via 'contentful' tag when posts are published
+/** Newest posts indexed by the chatbot (matches the Worker's MAX_SEEDED_ITEMS). */
+const CONTEXT_POST_COUNT = 50;
 
 export async function GET() {
     try {
@@ -27,9 +24,12 @@ export async function GET() {
             contactIntro: t('contact.intro'),
         };
 
+        // Only what the Worker indexes: the architecture diagram and other
+        // display-only config would just inflate every seed fetch.
+        const { experience, projects, skills, socials, contact, hero } = config;
         return NextResponse.json({
             profile,
-            portfolio: config,
+            portfolio: { experience, projects, skills, socials, contact, resumeUrl: hero.resumeUrl },
             blogs: posts
         });
     } catch (error) {

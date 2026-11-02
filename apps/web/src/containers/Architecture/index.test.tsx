@@ -57,6 +57,12 @@ describe("Architecture Container", () => {
     expect(screen.getByText("Contentful")).toBeInTheDocument();
   });
 
+  it("links to a related diagram when given one", () => {
+    const data: ArchitectureConfig = { nodes: [{ id: "a", position: { x: 0, y: 0 }, data: { label: "A" } }], edges: [] };
+    renderWithTheme(<Architecture data={data} related={{ href: "/architecture/chatbot", label: "Chatbot LLD" }} />);
+    expect(screen.getByRole("link", { name: /Chatbot LLD/ })).toHaveAttribute("href", "/architecture/chatbot");
+  });
+
   it("shows a node's description when it is clicked", () => {
     const data: ArchitectureConfig = {
       nodes: [

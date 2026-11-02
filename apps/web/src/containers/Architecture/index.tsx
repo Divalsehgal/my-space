@@ -1,3 +1,4 @@
+import Link from "next/link";
 import LazyArchitectureDiagram from "./LazyArchitectureDiagram";
 import ArchitectureTiers from "./ArchitectureTiers";
 import { type ArchitectureConfig } from "@/features/portfolio";
@@ -10,10 +11,12 @@ interface ArchitectureProps {
   headingLevel?: "h1" | "h2";
   /** For the modal's aria-labelledby. */
   titleId?: string;
+  /** A related diagram (HLD ↔ chatbot LLD), shown as a button in the header. */
+  related?: { href: string; label: string };
 }
 
 /** The system map: stacked tiers on phones, the interactive diagram from tablet up. */
-export default function Architecture({ data, headingLevel: Heading = "h2", titleId }: Readonly<ArchitectureProps>) {
+export default function Architecture({ data, headingLevel: Heading = "h2", titleId, related }: Readonly<ArchitectureProps>) {
   const t = getT();
   if (!data?.nodes?.length) {
     return null;
@@ -26,6 +29,13 @@ export default function Architecture({ data, headingLevel: Heading = "h2", title
           {data.title ?? t("architecture.title")}
         </Heading>
         <p className={styles["architecture__subtitle"]}>{data.subtitle ?? t("architecture.subtitle")}</p>
+        {related && (
+          // scroll={false}: inside the modal this swaps the diagram in place.
+          <Link href={related.href} scroll={false} className={styles["architecture__related"]}>
+            {related.label}
+            <span aria-hidden="true">{" ↗"}</span>
+          </Link>
+        )}
       </header>
 
       <ArchitectureTiers nodes={data.nodes} edges={data.edges} />

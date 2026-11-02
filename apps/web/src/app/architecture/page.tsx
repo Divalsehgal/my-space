@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Architecture from "@/containers/Architecture";
-import { getArchitecture } from "@/containers/Architecture/data";
+import { CHATBOT_LLD, CHATBOT_LLD_HREF, getArchitecture } from "@/containers/Architecture/data";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import FluidContainer from "@/components/FluidContainer";
 import { getT } from "@/i18n/server";
@@ -23,7 +23,7 @@ export default async function ArchitecturePage() {
     <div className={`page-scroll ${styles.page}`}>
       <Breadcrumbs items={[{ label: t("nav.architecture"), href: "/architecture" }]} />
       <FluidContainer as="section" className={styles["page__body"]}>
-        <Architecture data={data} headingLevel="h1" />
+        <Architecture data={data} headingLevel="h1" related={CHATBOT_LLD.nodes.length ? { href: CHATBOT_LLD_HREF, label: CHATBOT_LLD.title ?? "Chatbot LLD" } : undefined} />
       </FluidContainer>
     </div>
   );

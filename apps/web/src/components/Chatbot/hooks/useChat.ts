@@ -4,10 +4,16 @@ import { useT } from '@/i18n/client';
 /** Server-sent events prefix each payload line with this. */
 const SSE_DATA_PREFIX = 'data: ';
 
+export interface MessageSource {
+  title: string;
+  url: string;
+}
+
 export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   isError?: boolean;
+  sources?: MessageSource[];
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL ||
@@ -32,10 +38,20 @@ function isDisplayableMessage(value: unknown): value is Message {
   );
 }
 
-function extractResponse(data: string): string | null {
+function isSource(value: unknown): value is MessageSource {
+  const candidate = value as Partial<MessageSource> | null;
+  return typeof candidate?.title === 'string' && typeof candidate.url === 'string';
+}
+
+/** One SSE payload: a text delta, a full replacement (guardrail / contact result), or source links. */
+function parseEvent(data: string): { response?: string; replace?: string; sources?: MessageSource[] } | null {
   try {
-    const parsed = JSON.parse(data) as { response?: unknown };
-    return typeof parsed.response === 'string' ? parsed.response : null;
+    const parsed = JSON.parse(data) as { response?: unknown; replace?: unknown; sources?: unknown };
+    return {
+      response: typeof parsed.response === 'string' ? parsed.response : undefined,
+      replace: typeof parsed.replace === 'string' ? parsed.replace : undefined,
+      sources: Array.isArray(parsed.sources) ? parsed.sources.filter(isSource) : undefined,
+    };
   } catch {
     return null;
   }
@@ -51,15 +67,16 @@ async function processStream(
   setMessages: (fn: (prev: Message[]) => Message[]) => void
 ): Promise<boolean> {
   const decoder = new TextDecoder();
-  let assistantContent = '';
+  let reply: Message = { role: 'assistant', content: '' };
   let buffer = '';
   let started = false;
 
-  const commit = (content: string) => {
+  const commit = (next: Message) => {
+    reply = next;
     if (started) {
       setMessages(prev => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: 'assistant', content };
+        updated[updated.length - 1] = next;
         return updated;
       });
     } else {
@@ -67,7 +84,7 @@ async function processStream(
       // synchronously so the deferred state updater never overwrites the
       // preceding user message.
       started = true;
-      setMessages(prev => [...prev, { role: 'assistant', content }]);
+      setMessages(prev => [...prev, next]);
     }
   };
 
@@ -79,10 +96,14 @@ async function processStream(
     if (data === '[DONE]') {
       return;
     }
-    const part = extractResponse(data);
-    if (part) {
-      assistantContent += part;
-      commit(assistantContent);
+    const event = parseEvent(data);
+    if (event?.replace !== undefined) {
+      commit({ ...reply, content: event.replace });
+    } else if (event?.response) {
+      commit({ ...reply, content: reply.content + event.response });
+    }
+    if (event?.sources?.length && started) {
+      commit({ ...reply, sources: event.sources });
     }
   };
 
@@ -127,7 +148,11 @@ export function useChat() {
         }
         const data = (await response.json()) as { messages?: unknown };
         if (Array.isArray(data.messages)) {
-          const valid = data.messages.filter(isDisplayableMessage);
+          const valid = data.messages.filter(isDisplayableMessage).map(({ role, content, sources }) => ({
+            role,
+            content,
+            ...(Array.isArray(sources) ? { sources: sources.filter(isSource) } : {}),
+          }));
           if (valid.length) {
             setMessages(valid);
           }
@@ -220,11 +245,13 @@ export function useChat() {
     await requestReply(lastUserMessage.content);
   }, [isTyping, messages, requestReply]);
 
+  // Also deletes the server-side session, so a reload doesn't bring the old chat back.
   const clearHistory = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
     setIsTyping(false);
     setMessages([]);
+    fetch(`${BASE_URL}/api/history`, { method: 'DELETE', credentials: 'include' }).catch(() => undefined);
   }, []);
 
   useEffect(() => () => abortRef.current?.abort(), []);

@@ -33,7 +33,7 @@ describe('Chat Context API Route', () => {
     });
 
     it('should aggregate portfolio and blog data correctly', async () => {
-        const mockConfig = { experience: [{ role: 'Lead Engineer' }], projects: [] };
+        const mockConfig = { experience: [{ role: 'Lead Engineer' }], projects: [], skills: {}, socials: [], hero: { resumeUrl: '/cv.pdf' }, architecture: { nodes: [{}] } };
         const mockPosts = [
             { title: 'Post 1', content: 'Desc 1', slug: 'post-1' }
         ];
@@ -45,7 +45,7 @@ describe('Chat Context API Route', () => {
         const data = await response.json();
 
         expect(response.status).toBe(200);
-        expect(data.portfolio).toEqual(mockConfig);
+        expect(data.portfolio).toEqual({ experience: mockConfig.experience, projects: [], skills: {}, socials: [], contact: undefined, resumeUrl: '/cv.pdf' });
         expect(data.profile).toEqual({
             name: 't:common.siteName',
             role: 'Lead Engineer',

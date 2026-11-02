@@ -76,6 +76,35 @@
   background-color: $t-colors-surface-neutral-subtle;
 }
 
+.chat-message__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $t-spacing-2;
+
+  margin: $t-spacing-2 0 0;
+  padding: 0;
+
+  font-size: $t-font-size-xxs;
+  white-space: normal;
+  list-style: none;
+
+  a {
+    display: inline-block;
+
+    padding: $t-spacing-1 $t-spacing-2;
+    border: 1px solid $t-colors-border-muted;
+    border-radius: $t-radius-sm;
+
+    color: $t-colors-primary-default;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $t-colors-primary-default;
+    }
+  }
+}
+
 .chat-message__retry {
   cursor: pointer;
 

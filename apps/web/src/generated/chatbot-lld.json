@@ -1,0 +1,353 @@
+{
+  "title": "Chatbot LLD",
+  "subtitle": "Follow steps 1–10 top to bottom for one chat message. Middle column: where data lives. Right: the MCP endpoint and re-indexing. Click any box for details. Generated from the Worker code.",
+  "nodes": [
+    {
+      "id": "chat-widget",
+      "type": "frontend",
+      "tier": "client",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "1. Chat widget",
+        "description": "You type a question. The useChat hook POSTs { message, pagePath } to the Worker and shows the answer as it streams back (events: response = append text, replace = swap text, sources = links)."
+      }
+    },
+    {
+      "id": "input-guard",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 100
+      },
+      "data": {
+        "label": "2. Input guardrails",
+        "description": "Rejects empty or > 500-char messages, off-limits topics (whole words only) and prompt-extraction attempts. Rejected → fixed reply, no AI call."
+      }
+    },
+    {
+      "id": "rate-limiter",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 200
+      },
+      "data": {
+        "label": "3. Rate limiter",
+        "description": "At most 20 messages per 60s per IP (Cloudflare Rate Limiting binding)."
+      }
+    },
+    {
+      "id": "session",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "data": {
+        "label": "4. Session",
+        "description": "Reads the chatbot_session cookie and loads the conversation from KV (last 40 turns, 7 days). Malformed ids are ignored."
+      }
+    },
+    {
+      "id": "retrieval",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 400
+      },
+      "data": {
+        "label": "5. Retrieval (RAG)",
+        "description": "Turns the question into an embedding and fetches the 5 most similar chunks from Vectorize (similarity ≥ 0.65)."
+      }
+    },
+    {
+      "id": "scope-gate",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 500
+      },
+      "data": {
+        "label": "6. Scope gate",
+        "description": "Is this about Dival? Yes if it uses portfolio words, is a greeting or follow-up, or matched the index strongly (≥ 0.72). No → polite refusal, no AI call."
+      }
+    },
+    {
+      "id": "prompt",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 600
+      },
+      "data": {
+        "label": "7. Prompt builder",
+        "description": "Rules + a site index (all post/project titles from the KV catalog) + the retrieved chunks + the last 10 turns."
+      }
+    },
+    {
+      "id": "llm-stream",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 700
+      },
+      "data": {
+        "label": "8. LLM (streaming)",
+        "description": "@cf/meta/llama-3.3-70b-instruct-fp8-fast generates the answer token by token."
+      }
+    },
+    {
+      "id": "output-guard",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 800
+      },
+      "data": {
+        "label": "9. Output guard",
+        "description": "Forwards each token to the browser as it arrives, hides the internal contact token, and swaps the reply if it starts leaking instructions."
+      }
+    },
+    {
+      "id": "contact-tool",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 900
+      },
+      "data": {
+        "label": "10. Contact tool",
+        "description": "Only when the user asked to message Dival and confirmed: validates name/email/message and sends it (max 3 per chat)."
+      }
+    },
+    {
+      "id": "contact-api",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 0,
+        "y": 1000
+      },
+      "data": {
+        "label": "/api/contact",
+        "description": "Next.js route shared with the site's contact form."
+      }
+    },
+    {
+      "id": "kv",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": 340,
+        "y": 450
+      },
+      "data": {
+        "label": "Workers KV",
+        "description": "Chat sessions, the seed manifest (chunk id → hash) and the catalog (titles/links of posts, projects, roles, skills)."
+      }
+    },
+    {
+      "id": "vectorize",
+      "type": "data",
+      "tier": "data",
+      "position": {
+        "x": 340,
+        "y": 550
+      },
+      "data": {
+        "label": "Vectorize",
+        "description": "Index \"faq-vectors\": one vector per chunk of profile, experience, project, skills and blog text."
+      }
+    },
+    {
+      "id": "workers-ai",
+      "type": "external",
+      "tier": "data",
+      "position": {
+        "x": 340,
+        "y": 850
+      },
+      "data": {
+        "label": "Workers AI",
+        "description": "@cf/meta/llama-3.3-70b-instruct-fp8-fast (answers) and @cf/baai/bge-base-en-v1.5 (embeddings)."
+      }
+    },
+    {
+      "id": "mcp-client",
+      "type": "external",
+      "tier": "client",
+      "position": {
+        "x": 680,
+        "y": 0
+      },
+      "data": {
+        "label": "MCP client",
+        "description": "An external AI agent (Claude Desktop, an IDE) connected to the Worker's /mcp URL."
+      }
+    },
+    {
+      "id": "mcp-server",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 680,
+        "y": 150
+      },
+      "data": {
+        "label": "MCP server (/mcp)",
+        "description": "Read-only tools: search_portfolio (same vector index), get_profile and list_blog_posts (KV catalog). Cannot send messages."
+      }
+    },
+    {
+      "id": "seeder",
+      "type": "backend",
+      "tier": "compute",
+      "position": {
+        "x": 1000,
+        "y": 0
+      },
+      "data": {
+        "label": "Re-indexer",
+        "description": "Runs on deploy, on Contentful publish and daily (0 3 * * *). Re-embeds only chunks whose content changed."
+      }
+    },
+    {
+      "id": "chat-context",
+      "type": "backend",
+      "tier": "data",
+      "position": {
+        "x": 1000,
+        "y": 150
+      },
+      "data": {
+        "label": "/api/chat-context",
+        "description": "Next.js route returning profile, experience, projects, skills and full blog text."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-chat-widget-input-guard",
+      "source": "chat-widget",
+      "target": "input-guard",
+      "label": "POST /api/chat",
+      "animated": true
+    },
+    {
+      "id": "e-input-guard-rate-limiter",
+      "source": "input-guard",
+      "target": "rate-limiter"
+    },
+    {
+      "id": "e-rate-limiter-session",
+      "source": "rate-limiter",
+      "target": "session"
+    },
+    {
+      "id": "e-session-retrieval",
+      "source": "session",
+      "target": "retrieval"
+    },
+    {
+      "id": "e-retrieval-scope-gate",
+      "source": "retrieval",
+      "target": "scope-gate"
+    },
+    {
+      "id": "e-scope-gate-prompt",
+      "source": "scope-gate",
+      "target": "prompt",
+      "label": "in scope"
+    },
+    {
+      "id": "e-prompt-llm-stream",
+      "source": "prompt",
+      "target": "llm-stream"
+    },
+    {
+      "id": "e-llm-stream-output-guard",
+      "source": "llm-stream",
+      "target": "output-guard",
+      "label": "tokens",
+      "animated": true
+    },
+    {
+      "id": "e-output-guard-contact-tool",
+      "source": "output-guard",
+      "target": "contact-tool",
+      "label": "if confirmed"
+    },
+    {
+      "id": "e-contact-tool-contact-api",
+      "source": "contact-tool",
+      "target": "contact-api"
+    },
+    {
+      "id": "e-session-kv",
+      "source": "session",
+      "target": "kv",
+      "label": "load / save"
+    },
+    {
+      "id": "e-retrieval-vectorize",
+      "source": "retrieval",
+      "target": "vectorize",
+      "label": "similar chunks"
+    },
+    {
+      "id": "e-llm-stream-workers-ai",
+      "source": "llm-stream",
+      "target": "workers-ai",
+      "label": "generate"
+    },
+    {
+      "id": "e-mcp-client-mcp-server",
+      "source": "mcp-client",
+      "target": "mcp-server",
+      "label": "JSON-RPC",
+      "animated": true
+    },
+    {
+      "id": "e-mcp-server-kv",
+      "source": "mcp-server",
+      "target": "kv",
+      "label": "catalog"
+    },
+    {
+      "id": "e-mcp-server-vectorize",
+      "source": "mcp-server",
+      "target": "vectorize",
+      "label": "search"
+    },
+    {
+      "id": "e-seeder-chat-context",
+      "source": "seeder",
+      "target": "chat-context",
+      "label": "fetch"
+    },
+    {
+      "id": "e-seeder-kv",
+      "source": "seeder",
+      "target": "kv",
+      "label": "catalog"
+    },
+    {
+      "id": "e-seeder-vectorize",
+      "source": "seeder",
+      "target": "vectorize",
+      "label": "upsert"
+    }
+  ]
+}

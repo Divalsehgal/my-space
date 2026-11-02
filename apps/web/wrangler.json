@@ -12,7 +12,8 @@
         ]
     },
     "ai": {
-        "binding": "AI"
+        "binding": "AI",
+        "remote": true
     },
     "vars": {
         "CHAT_CONTEXT_URL": "https://divalsehgal.vercel.app/api/chat-context",
@@ -21,13 +22,24 @@
     "vectorize": [
         {
             "binding": "VECTORIZE",
-            "index_name": "faq-vectors"
+            "index_name": "faq-vectors",
+            "remote": true
         }
     ],
     "kv_namespaces": [
         {
             "binding": "CHAT_SESSIONS",
             "id": "ffb5298350b14bf1824de6dc93a2e0c6"
+        }
+    ],
+    "ratelimits": [
+        {
+            "name": "CHAT_RATE_LIMITER",
+            "namespace_id": "1001",
+            "simple": {
+                "limit": 20,
+                "period": 60
+            }
         }
     ]
 }

@@ -1,12 +1,20 @@
 import { Env } from "./types";
 import { HTTP_STATUS } from "@dival-sehgal/utils/http";
-import { splitIntoSentences } from "./sentences";
+import { EMBEDDING_MODEL } from "./retrieval";
+import { buildCatalog, buildChunks, SITE_URL, type ChatContext, type Chunk } from "./chunks";
 
-// Character budgets for text stored alongside each embedding.
-const MAX_TITLE_CHARS = 180;
-const MAX_SUMMARY_CHARS = 320;
-const MAX_DATE_CHARS = 80;
-const MAX_CHUNK_CHARS = 1600;
+const EMBED_BATCH_SIZE = 50;
+const UPSERT_BATCH_SIZE = 500;
+// Vectorize caps deleteByIds at 100 ids per call.
+const DELETE_BATCH_SIZE = 100;
+/** Hex characters of the SHA-256 kept per chunk; collisions only cost a skipped re-embed. */
+const HASH_CHARS = 16;
+const HEX = 16;
+
+/** KV key of {id → content hash} for the vectors currently in the index. */
+export const MANIFEST_KEY = 'seed:manifest';
+/** KV key of the structured catalog (site index + MCP tools). */
+export const CATALOG_KEY = 'catalog:v1';
 
 export const getCorsHeaders = (req: Request) => {
     const origin = req.headers.get('Origin');
@@ -22,8 +30,9 @@ export const getCorsHeaders = (req: Request) => {
     return {
         'Access-Control-Allow-Origin': allowedOrigins,
         'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Mcp-Protocol-Version, Mcp-Session-Id',
+        'Vary': 'Origin',
     };
 };
 
@@ -39,35 +48,6 @@ export const json = (d: unknown, s = 200, h: Record<string, string> = {}, req?: 
     });
 };
 
-/** Translated intro copy served by /api/chat-context (from Contentful). */
-interface Profile {
-    name: string;
-    role: string;
-    summary: string;
-    about: string;
-    contactIntro: string;
-}
-
-interface Portfolio {
-    experience: { company: string; role: string; period: string; description: { text: string }[]; techStack?: string[] }[];
-    projects: { name: string; description: string; techStack?: string[] }[];
-    contact?: { email: string };
-}
-
-interface Blog {
-    title: string;
-    description: string;
-    content: string;
-    slug: string;
-    date: string;
-    tags: string[];
-}
-
-const fallbackSiteUrl = 'https://divalsehgal.vercel.app';
-const homeLocation = 'Bengaluru, India';
-const maxBlogChunks = 8;
-const maxSeededItems = 50;
-
 function isAuthorizedSeedRequest(req: Request, env: Env): boolean {
     if (!env.SEED_SECRET) {
         return false;
@@ -76,67 +56,21 @@ function isAuthorizedSeedRequest(req: Request, env: Env): boolean {
     return req.headers.get('Authorization') === `Bearer ${env.SEED_SECRET}`;
 }
 
-function sanitizeContent(value: string | undefined, maxLength = 1400): string {
-    return (value || '').replace(/\s+/g, ' ').trim().slice(0, maxLength);
+async function hashChunk(chunk: Chunk): Promise<string> {
+    // Model is part of the hash: switching embedding models re-embeds everything.
+    const data = new TextEncoder().encode(`${EMBEDDING_MODEL}\n${chunk.content}\n${JSON.stringify(chunk.metadata)}`);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return [...new Uint8Array(digest)].map((b) => b.toString(HEX).padStart(2, '0')).join('').slice(0, HASH_CHARS);
 }
 
-const maxChunkLength = 1400;
-
-// Packs sentences greedily up to maxChunkLength instead of slicing at fixed
-// character offsets, so a chunk (and its embedding) never starts or ends
-// mid-sentence.
-function chunkBlogContent(blog: Blog): string[] {
-    const content = sanitizeContent(blog.content, maxBlogChunks * maxChunkLength);
-    if (!content) {
-        return [sanitizeContent(blog.description)];
-    }
-
-    const sentences = splitIntoSentences(content);
-    const chunks: string[] = [];
-    let current = '';
-    for (const sentence of sentences) {
-        const candidate = current ? `${current} ${sentence}` : sentence;
-        if (candidate.length > maxChunkLength && current) {
-            chunks.push(current.trim());
-            current = sentence;
-        } else {
-            current = candidate;
-        }
-    }
-    if (current) {
-        chunks.push(current.trim());
-    }
-
-    return chunks.length ? chunks.slice(0, maxBlogChunks) : [sanitizeContent(blog.description)];
-}
-
-function getManagedVectorIds(): string[] {
+/** Ids written by the old positional scheme (`blog-3-1`, `proj-2`…); purged once on migration. */
+export function getLegacyVectorIds(): string[] {
+    const legacyCount = 50;
+    const legacyBlogChunks = 8;
     return [
-        'info-general',
-        'info-about',
-        'info-experience-summary',
-        'info-contact',
-        // Legacy ids from an earlier seeding scheme. They carry no `text`
-        // metadata but still match queries, starving the model of context.
-        // Include them so every re-seed purges the stale vectors.
-        ...Array.from({ length: maxSeededItems }, (_, i) => `faq-${i}`),
-        ...Array.from({ length: maxSeededItems }, (_, i) => `exp-${i}`),
-        ...Array.from({ length: maxSeededItems }, (_, i) => `proj-${i}`),
-        ...Array.from({ length: maxSeededItems }, (_, i) => `blog-${i}`),
-        ...Array.from(
-            { length: maxSeededItems * maxBlogChunks },
-            (_, i) => `blog-${Math.floor(i / maxBlogChunks)}-${i % maxBlogChunks}`
-        )
+        ...['faq', 'exp', 'proj', 'blog'].flatMap((prefix) => Array.from({ length: legacyCount }, (_, i) => `${prefix}-${i}`)),
+        ...Array.from({ length: legacyCount * legacyBlogChunks }, (_, i) => `blog-${Math.floor(i / legacyBlogChunks)}-${i % legacyBlogChunks}`),
     ];
-}
-
-// Vectorize caps deleteByIds at 100 ids per call, so delete in batches.
-async function deleteManagedVectors(env: Env): Promise<void> {
-    const ids = getManagedVectorIds();
-    const deleteBatchSize = 100;
-    for (let i = 0; i < ids.length; i += deleteBatchSize) {
-        await env.VECTORIZE.deleteByIds(ids.slice(i, i + deleteBatchSize)); // NOSONAR: batches sent one at a time to stay within Vectorize limits
-    }
 }
 
 function describeError(err: unknown): string {
@@ -156,8 +90,9 @@ export async function seed(req: Request, env: Env): Promise<Response> {
     }
 
     try {
-        const count = await runSeed(env);
-        return json({ success: true, count }, HTTP_STATUS.OK, {}, req);
+        const force = new URL(req.url).searchParams.get('force') === '1';
+        const result = await runSeed(env, { force });
+        return json({ success: true, ...result }, HTTP_STATUS.OK, {}, req);
     } catch (err: unknown) {
         const message = describeError(err);
         console.error('Seed error:', message);
@@ -165,98 +100,68 @@ export async function seed(req: Request, env: Env): Promise<Response> {
     }
 }
 
+export interface SeedResult {
+    /** Chunks in the index after this run. */
+    count: number;
+    /** Chunks embedded and written (new or changed). */
+    upserted: number;
+    /** Vectors removed because their source content is gone. */
+    deleted: number;
+}
+
 /**
- * Core seeding routine. Fetches the portfolio + blog context, converts it into
- * text chunks, embeds them, purges stale vectors, and upserts the fresh set
- * into Vectorize. Shared by the authenticated HTTP handler and the scheduled
- * (cron) trigger, so both paths stay perfectly in sync.
- *
- * Reads everything from the Worker `env` bindings and vars (AI, VECTORIZE,
- * CHAT_CONTEXT_URL) — no secrets or manual input required.
+ * Core seeding routine, shared by the authenticated HTTP handler and the cron
+ * trigger. Incremental: only chunks whose content hash changed since the last
+ * run are re-embedded (the daily cron usually embeds nothing), new vectors are
+ * upserted *before* stale ones are deleted (no window with an empty index),
+ * and the structured catalog is refreshed for the site index and MCP tools.
+ * `force` re-embeds everything (e.g. after wiping the index by hand).
  */
-export async function runSeed(env: Env): Promise<number> {
-    const contextUrl = env.CHAT_CONTEXT_URL || `${fallbackSiteUrl}/api/chat-context`;
+export async function runSeed(env: Env, { force = false } = {}): Promise<SeedResult> {
+    const contextUrl = env.CHAT_CONTEXT_URL || `${SITE_URL}/api/chat-context`;
 
     const res = await fetch(contextUrl);
     if (!res.ok) {
         throw new Error(`Failed to fetch chat context from ${contextUrl}`);
     }
-    const data = await res.json() as { profile: Profile; portfolio: Portfolio; blogs: Blog[] };
-    const { profile, portfolio, blogs } = data;
+    const data = await res.json() as ChatContext;
+    const chunks = buildChunks(data);
+    const hashes = Object.fromEntries(await Promise.all(chunks.map(async (c) => [c.id, await hashChunk(c)] as const)));
 
-    const chunks: { id: string; content: string; metadata: Record<string, unknown> }[] = [];
+    const previous = await env.CHAT_SESSIONS.get(MANIFEST_KEY, { type: 'json' }) as Record<string, string> | null;
+    const changed = force || !previous ? chunks : chunks.filter((c) => previous[c.id] !== hashes[c.id]);
+    const upserted = await embedAndUpsert(env, changed);
 
-    chunks.push({
-        id: 'info-general',
-        content: `${profile.name} is a ${profile.role} based in ${homeLocation}. ${profile.summary}`,
-        metadata: { type: 'general' }
-    });
+    const current = new Set(chunks.map((c) => c.id));
+    const stale = (previous ? Object.keys(previous) : getLegacyVectorIds()).filter((id) => !current.has(id));
+    await deleteVectors(env, stale);
 
-    chunks.push({
-        id: 'info-about',
-        content: `About ${profile.name}: ${profile.about}`,
-        metadata: { type: 'about' }
-    });
+    await env.CHAT_SESSIONS.put(MANIFEST_KEY, JSON.stringify(hashes));
+    await env.CHAT_SESSIONS.put(CATALOG_KEY, JSON.stringify(buildCatalog(data)));
 
-    const companies = portfolio.experience.map((e) => e.company).join(', ');
-    chunks.push({
-        id: 'info-experience-summary',
-        content: `Dival Sehgal has worked at ${portfolio.experience.length} companies: ${companies}.`,
-        metadata: { type: 'experience_summary' }
-    });
+    return { count: chunks.length, upserted, deleted: previous ? stale.length : 0 };
+}
 
-    portfolio.experience.slice(0, maxSeededItems).forEach((e, i) => {
-        chunks.push({
-            id: `exp-${i}`,
-            content: `At ${e.company}, Dival served as ${e.role} from ${e.period}. Highlights: ${e.description.map((d) => d.text).join(' ')} Tech Stack: ${e.techStack?.join(', ') ?? 'n/a'}.`,
-            metadata: { type: 'experience', company: e.company }
-        });
-    });
-
-    portfolio.projects.slice(0, maxSeededItems).forEach((p, i) => {
-        chunks.push({
-            id: `proj-${i}`,
-            content: `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ') ?? 'n/a'}.`,
-            metadata: { type: 'project', name: p.name }
-        });
-    });
-
-    blogs.slice(0, maxSeededItems).forEach((b, i) => {
-        chunkBlogContent(b).forEach((content, chunkIndex) => {
-            chunks.push({
-                id: `blog-${i}-${chunkIndex}`,
-                content: `Blog Post: ${sanitizeContent(b.title, MAX_TITLE_CHARS)}. Summary: ${sanitizeContent(b.description, MAX_SUMMARY_CHARS)}. Content excerpt: ${content}. Published on: ${sanitizeContent(b.date, MAX_DATE_CHARS)}. URL: /blogs/${sanitizeContent(b.slug, MAX_TITLE_CHARS)}`,
-                metadata: { type: 'blog', title: b.title, slug: b.slug, chunk: chunkIndex }
-            });
-        });
-    });
-
-    if (portfolio.contact?.email) {
-        chunks.push({
-            id: 'info-contact',
-            content: `Contact ${profile.name} at ${portfolio.contact.email}. ${profile.contactIntro}`,
-            metadata: { type: 'contact' }
-        });
-    }
-
-    // Batch embedding generation to stay within the Worker per-invocation
-    // subrequest limit. One AI.run call embeds up to `embedBatchSize` texts,
-    // instead of one subrequest per chunk (which overflowed the limit).
-    const prepared = chunks.map((c) => ({ ...c, content: sanitizeContent(c.content, MAX_CHUNK_CHARS) }));
-    const embedBatchSize = 50;
+async function embedAndUpsert(env: Env, chunks: Chunk[]): Promise<number> {
     const vecs: { id: string; values: number[]; metadata: Record<string, unknown> }[] = [];
-    for (let i = 0; i < prepared.length; i += embedBatchSize) {
-        const batch = prepared.slice(i, i + embedBatchSize);
+    for (let i = 0; i < chunks.length; i += EMBED_BATCH_SIZE) {
+        const batch = chunks.slice(i, i + EMBED_BATCH_SIZE);
         // Sequential on purpose: one Workers AI request at a time to stay within its rate limit.
-        const e = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text: batch.map((b) => b.content) }) as { data?: number[][] }; // NOSONAR
-        const embeddings = e.data || [];
-        batch.forEach((c, idx) => {
-            vecs.push({ id: c.id, values: embeddings[idx] || [], metadata: { ...c.metadata, text: c.content } });
-        });
+        const e = await env.AI.run(EMBEDDING_MODEL, { text: batch.map((b) => b.content) }) as { data?: number[][] }; // NOSONAR
+        const embeddings = e.data ?? [];
+        if (embeddings.length !== batch.length) {
+            throw new Error(`Embedding batch returned ${embeddings.length} vectors for ${batch.length} chunks`);
+        }
+        batch.forEach((c, idx) => vecs.push({ id: c.id, values: embeddings[idx], metadata: { ...c.metadata, text: c.content } }));
     }
+    for (let i = 0; i < vecs.length; i += UPSERT_BATCH_SIZE) {
+        await env.VECTORIZE.upsert(vecs.slice(i, i + UPSERT_BATCH_SIZE)); // NOSONAR: sequential to stay within Vectorize limits
+    }
+    return vecs.length;
+}
 
-    await deleteManagedVectors(env);
-    await env.VECTORIZE.upsert(vecs);
-
-    return chunks.length;
+async function deleteVectors(env: Env, ids: string[]): Promise<void> {
+    for (let i = 0; i < ids.length; i += DELETE_BATCH_SIZE) {
+        await env.VECTORIZE.deleteByIds(ids.slice(i, i + DELETE_BATCH_SIZE)); // NOSONAR: batches sent one at a time to stay within Vectorize limits
+    }
 }

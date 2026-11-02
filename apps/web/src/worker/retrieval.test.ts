@@ -1,4 +1,4 @@
-import { faq } from "./retrieval";
+import { faq, search } from "./retrieval";
 import type { ChatMessage, Env } from "./types";
 
 function makeEnv(embedding: unknown, matches: unknown[] = []) {
@@ -21,7 +21,9 @@ describe("faq", () => {
       { metadata: { text: "B" } },
       { score: 0.8, metadata: {} },
     ]);
-    await expect(faq(env, "What does Dival work on these days?", [])).resolves.toBe("A\n\nB");
+    const result = await faq(env, "What does Dival work on these days?", []);
+    expect(result.context).toBe("A\n\nB");
+    expect(result.topScore).toBe(0.9);
     expect(query).toHaveBeenCalledWith([0.1, 0.2], { topK: 5, returnMetadata: "all" });
   });
 
@@ -40,9 +42,20 @@ describe("faq", () => {
     expect(run.mock.calls[0][1]).toEqual({ text: [q] });
   });
 
-  it("returns empty string without embedding data or on errors", async () => {
-    await expect(faq(makeEnv({}).env, "hello there", [])).resolves.toBe("");
+  it("returns an empty result without embedding data or on errors", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => undefined);
+    await expect(faq(makeEnv({}).env, "hello there", [])).resolves.toMatchObject({ context: "", topScore: 0 });
     const env = { AI: { run: jest.fn().mockRejectedValue(new Error("boom")) } } as unknown as Env;
-    await expect(faq(env, "hello there", [])).resolves.toBe("");
+    await expect(faq(env, "hello there", [])).resolves.toMatchObject({ context: "", topScore: 0, sources: [] });
+  });
+
+  it("collects unique source links from match metadata", async () => {
+    const { env } = makeEnv({ data: [[1]] }, [
+      { score: 0.9, metadata: { text: "a", title: "Post", url: "/blogs/post" } },
+      { score: 0.8, metadata: { text: "b", title: "Post", url: "/blogs/post" } },
+      { score: 0.7, metadata: { text: "c" } },
+    ]);
+    const result = await search(env, "anything");
+    expect(result.sources).toEqual([{ title: "Post", url: "/blogs/post" }]);
   });
 });

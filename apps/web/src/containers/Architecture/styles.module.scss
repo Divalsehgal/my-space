@@ -26,4 +26,22 @@
     font-size: $t-font-size-sm;
     color: $t-colors-text-secondary;
   }
+
+  &__related {
+    align-self: flex-start;
+
+    padding: $t-spacing-2 $t-spacing-3;
+    border: 1px solid $t-colors-border-muted;
+    border-radius: $t-radius-sm;
+
+    font-size: $t-font-size-xs;
+    font-weight: $t-font-weight-bold;
+    color: $t-colors-primary-default;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $t-colors-primary-default;
+    }
+  }
 }
