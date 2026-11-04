@@ -3,11 +3,22 @@ import { recordView, getViews } from '@/lib/services/analytics';
 import { redis, isRedisConfigured } from '@/lib/redis';
 import crypto from 'node:crypto';
 import { OWNER_SESSION_COOKIE, isOwnerSession } from '@/lib/owner';
-import { SECONDS_PER_MINUTE, SECONDS_PER_YEAR } from "@dival-sehgal/utils/time";
+import { SECONDS_PER_HOUR, SECONDS_PER_MINUTE, SECONDS_PER_YEAR } from "@dival-sehgal/utils/time";
+import { unstable_cache } from 'next/cache';
+import { getContentfulPostTitles } from '@/lib/services/contentful';
 
 // At most RATE_LIMIT_MAX_REQUESTS view pings per IP per window.
 const RATE_LIMIT_WINDOW_SECONDS = SECONDS_PER_MINUTE;
 const RATE_LIMIT_MAX_REQUESTS = 10;
+// High enough to cover every post; Contentful allows up to 1000 per query.
+const MAX_KNOWN_POSTS = 1000;
+
+// Cleared by the Contentful publish webhook (tag "contentful"), so new posts count at once.
+const getKnownSlugs = unstable_cache(
+  async () => (await getContentfulPostTitles(MAX_KNOWN_POSTS)).map((post) => post.slug),
+  ['blog-view-known-slugs'],
+  { tags: ['contentful'], revalidate: SECONDS_PER_HOUR },
+);
 
 // View recording depends on request cookies/headers and must never be cached
 // or statically optimized.
@@ -59,6 +70,7 @@ export async function GET(
 /**
  * POST /api/blogs/[slug]/view
  * Records a unique view for a blog post.
+ * - Returns 404 for slugs that are not published posts.
  * - Skips recording for a signed-in owner (httpOnly owner session from /owner).
  * - Rate limited to 10 requests/minute per IP.
  * - Deduplicates using a visitor_id cookie + IP + User-Agent hash (24h window).
@@ -75,6 +87,13 @@ export async function POST(
     const { slug } = await params;
     if (!slug) {
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+    }
+
+    // Only real posts get counters; otherwise any URL would create Redis keys.
+    // An empty list means Contentful failed, so count rather than drop every view.
+    const knownSlugs = await getKnownSlugs();
+    if (knownSlugs.length > 0 && !knownSlugs.includes(slug)) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
     // Fail fast with a clear signal when analytics storage isn't configured,
