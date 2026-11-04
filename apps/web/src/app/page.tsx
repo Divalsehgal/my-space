@@ -19,8 +19,6 @@ import type { Metadata } from "next";
 import { getT } from "@/i18n/server";
 import { splitParagraphs } from "@dival-sehgal/utils/string";
 
-const RECENT_POST_COUNT = 3;
-
 export const metadata: Metadata = {
   alternates: {
     canonical: "/",
@@ -29,8 +27,8 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const { config } = await portfolioService.getConfig();
-  // Newest first; linking several posts here passes homepage authority to the blog.
-  const recentPosts = await getContentfulPosts(RECENT_POST_COUNT);
+  // Newest first; linking every post here passes homepage authority to all of them.
+  const recentPosts = await getContentfulPosts();
   const latestPost = recentPosts[0];
   const currentJob = config.experience[0];
   // One linked graph (WebSite -> ProfilePage -> Person) so answer engines can

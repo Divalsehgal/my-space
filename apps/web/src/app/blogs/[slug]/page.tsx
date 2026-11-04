@@ -140,6 +140,9 @@ export default async function BlogPostPage({ params }: Props) {
 
 async function BlogPostContent({ post }: Readonly<{ post: ContentfulPost }>) {
   const posts = await getContentfulPosts();
-  const relatedPosts = posts.filter((p) => p.slug !== post.slug).slice(0, RELATED_POST_COUNT);
+  // The posts after this one, wrapping around, so every post gets linked from others
+  // (always taking the newest few left the older posts with no internal links).
+  const index = posts.findIndex((p) => p.slug === post.slug);
+  const relatedPosts = [...posts.slice(index + 1), ...posts.slice(0, Math.max(index, 0))].slice(0, RELATED_POST_COUNT);
   return <BlogPostContainer post={post} relatedPosts={relatedPosts} />;
 }

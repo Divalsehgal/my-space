@@ -12,6 +12,8 @@ export function generateMetadata(): Metadata {
     title: t("architecture.title"),
     description: t("architecture.subtitle"),
     alternates: { canonical: "/architecture" },
+    // Thin auto-generated page; keep it out of the index so it doesn't drag down site quality.
+    robots: { index: false, follow: true },
   };
 }
 
