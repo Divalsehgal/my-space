@@ -17,7 +17,7 @@
 **/playwright-report
 
 # Secrets — never bake env files, keys or certificates into an image.
-# Pass build-time values with `docker build --secret` (see Dockerfile).
+# Pass build-time values with `docker build --secret` instead.
 **/.env*
 !**/.env.example
 **/*.pem
@@ -44,4 +44,3 @@
 
 # Docker files themselves
 **/Dockerfile
-docker-compose.yml

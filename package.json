@@ -21,10 +21,6 @@
     "test:coverage": "turbo test:coverage",
     "prepare": "husky"
   },
-  "dependencies": {
-    "@dival-sehgal/design-tokens": "*",
-    "@dival-sehgal/next-config": "*"
-  },
   "devDependencies": {
     "@dival-sehgal/stylelint-config": "*",
     "@types/node": "^20",

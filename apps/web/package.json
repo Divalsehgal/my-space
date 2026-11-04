@@ -59,7 +59,6 @@
     "@playwright/test": "^1.63.0",
     "@types/three": "^0.183.1",
     "babel-plugin-react-compiler": "1.0.0",
-    "dotenv": "^17.4.2",
     "postcss": "^8.4.29",
     "sass": "^1.77.8",
     "stylelint": "^17.0.0",

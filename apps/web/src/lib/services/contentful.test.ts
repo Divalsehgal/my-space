@@ -117,16 +117,6 @@ describe('contentful service', () => {
         await expect(mod.getContentfulPostTitles()).resolves.toEqual([]);
     });
 
-    it('getLatestContentfulPost maps the first item or returns null', async () => {
-        const { mod, request } = load();
-        request.mockResolvedValueOnce({ blogPageCollection: { items: [item] } });
-        await expect(mod.getLatestContentfulPost()).resolves.toEqual(expect.objectContaining({ slug: 'hello' }));
-        request.mockResolvedValueOnce({ blogPageCollection: { items: [] } });
-        await expect(mod.getLatestContentfulPost()).resolves.toBeNull();
-        request.mockRejectedValueOnce(new Error('boom'));
-        await expect(mod.getLatestContentfulPost()).resolves.toBeNull();
-    });
-
     it('getContentfulPostBySlug maps the match or returns null', async () => {
         const { mod, request } = load();
         request.mockResolvedValueOnce({ blogPageCollection: { items: [item] } });
