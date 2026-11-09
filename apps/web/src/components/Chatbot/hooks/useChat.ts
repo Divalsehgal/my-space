@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from '@/i18n/client';
+import { isContactIntent } from '../ChatPanel/ChatContactForm/contactFlow';
 
 /** Server-sent events prefix each payload line with this. */
 const SSE_DATA_PREFIX = 'data: ';
@@ -14,13 +15,13 @@ export interface Message {
   content: string;
   isError?: boolean;
   sources?: MessageSource[];
+  form?: 'contact'; // inline contact form; client-only, not in server history
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_CHATBOT_URL ||
   (process.env.NODE_ENV === 'development'
     ? 'http://localhost:8787'
     : 'https://ai-chatbot-widget.sehgaldival.workers.dev');
-
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
@@ -219,10 +220,12 @@ export function useChat() {
         return;
       }
 
-      setMessages(prev => [...prev, { role: 'user', content: text }]);
-      await requestReply(text);
+      // Contact requests get the inline form instead of a model reply.
+      const formReply: Message[] = isContactIntent(text) ? [{ role: 'assistant', content: t('chat.contact.intro'), form: 'contact' }] : [];
+      setMessages(prev => [...prev, { role: 'user', content: text }, ...formReply]);
+      return formReply.length ? undefined : requestReply(text);
     },
-    [isTyping, requestReply]
+    [isTyping, requestReply, t]
   );
 
   // Re-sends the last user message after a failed reply, without duplicating

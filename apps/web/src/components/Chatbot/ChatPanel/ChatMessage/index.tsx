@@ -4,6 +4,7 @@ import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import { useT } from "@/i18n/client";
 import type { Message } from "../../hooks/useChat";
+import ChatContactForm from "../ChatContactForm";
 import styles from "./styles.module.scss";
 
 type ChatMessageProps = {
@@ -37,6 +38,7 @@ export default function ChatMessage({ message, onRetry }: ChatMessageProps) {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
+        {message.form === "contact" && <ChatContactForm />}
         {!fromUser && message.sources && message.sources.length > 0 && (
           <ul className={styles["chat-message__sources"]}>
             {message.sources.map((source) => (

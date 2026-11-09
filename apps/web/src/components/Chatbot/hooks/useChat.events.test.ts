@@ -61,4 +61,22 @@ describe('useChat SSE events', () => {
       sources: [{ title: 'Post', url: '/blogs/post' }],
     });
   });
+
+  it('answers a contact request with the inline form instead of calling the model', async () => {
+    const fetchMock = jest.fn().mockResolvedValueOnce(jsonResponse({ messages: [] }));
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    await act(async () => {
+      await result.current.sendMessage('I want to get in touch');
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.messages).toEqual([
+      { role: 'user', content: 'I want to get in touch' },
+      { role: 'assistant', content: expect.any(String), form: 'contact' },
+    ]);
+  });
 });
