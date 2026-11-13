@@ -36,7 +36,9 @@ import { SITE_URL as BASE_URL } from "@/lib/config/site";
 const META_DESCRIPTION_MAX = 158;
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const ADS_ID = process.env.NEXT_PUBLIC_ADS_ID;
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+// Container IDs are public; default it in production so GTM loads even without the Vercel env var.
+const GTM_ID =
+  process.env.NEXT_PUBLIC_GTM_ID || (process.env.VERCEL_ENV === "production" ? "GTM-PX35PGC5" : undefined);
 const THEME_BOOTSTRAP_SCRIPT = `
 (function () {
   try {

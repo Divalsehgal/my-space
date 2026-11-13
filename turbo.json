@@ -30,6 +30,7 @@
             "CONTENTFUL_ACCESS_TOKEN",
         "CONTENTFUL_PREVIEW_ACCESS_TOKEN",
         "NEXT_PUBLIC_*",
+        "VERCEL_ENV",
         "VITE_*",
         "ANALYZE"
       ],

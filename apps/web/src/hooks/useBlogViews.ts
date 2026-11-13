@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { isOwnerMode } from '@/utils/ownerMode';
+import { ANALYTICS_EVENTS, trackInteraction } from '@/utils/analytics';
 
 interface UseBlogViewsOptions {
   /** Minimum milliseconds the article must be visible before recording a view */
@@ -99,6 +100,7 @@ export function useBlogViews(
           }
           sessionStorage.setItem(sessionKey, '1');
           setIsTracked(true);
+          trackInteraction(ANALYTICS_EVENTS.BLOG_VIEW, { title: document.title, slug });
         }
       } catch {
         // Silently fail
