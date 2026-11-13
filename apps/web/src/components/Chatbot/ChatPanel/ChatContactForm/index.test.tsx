@@ -48,3 +48,64 @@ describe("ChatContactForm", () => {
     await waitFor(() => expect(submitContact).toHaveBeenCalledTimes(2));
   });
 });
+
+describe("ChatContactForm flows", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  const reachReview = () => {
+    render(<ChatContactForm />);
+    answer(/your name/i, "Ada");
+    answer(/which email/i, "ada@example.com");
+    answer(/like to say/i, "Hi");
+  };
+
+  it("cancels from a question", () => {
+    render(<ChatContactForm />);
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(screen.getByRole("status")).not.toHaveTextContent("Thanks");
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  });
+
+  it("cancels from the review", () => {
+    reachReview();
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(screen.queryByRole("button", { name: "Send message" })).not.toBeInTheDocument();
+  });
+
+  it("moves on with Ctrl/Cmd+Enter, not plain Enter", () => {
+    const requestSubmit = jest.fn();
+    HTMLFormElement.prototype.requestSubmit = requestSubmit;
+    render(<ChatContactForm />);
+    const form = screen.getByLabelText(/your name/i).closest("form")!;
+    fireEvent.keyDown(form, { key: "Enter" });
+    expect(requestSubmit).not.toHaveBeenCalled();
+    fireEvent.keyDown(form, { key: "Enter", metaKey: true });
+    fireEvent.keyDown(form, { key: "Enter", ctrlKey: true });
+    expect(requestSubmit).toHaveBeenCalledTimes(2);
+  });
+
+  it("edits one answer from the review", () => {
+    reachReview();
+    fireEvent.click(screen.getByRole("button", { name: /edit name/i }));
+    expect(screen.getByLabelText(/your name/i)).toHaveValue("Ada");
+  });
+
+  it("returns a rejected field with the server's message", async () => {
+    jest.mocked(submitContact).mockResolvedValue({ status: "error", message: "Nope", errors: { email: ["Email bounced"] } });
+    reachReview();
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+    // Sent back to the rejected question, with the answer kept for fixing.
+    expect(await screen.findByLabelText(/which email/i)).toHaveValue("ada@example.com");
+  });
+
+  it("falls back to a generic error when the action throws or says nothing", async () => {
+    jest.mocked(submitContact).mockRejectedValueOnce(new Error("net")).mockResolvedValueOnce({ status: "error" } as never);
+    reachReview();
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+    const first = (await screen.findByRole("alert")).textContent;
+    expect(first).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(submitContact).toHaveBeenCalledTimes(2));
+    expect((await screen.findByRole("alert")).textContent).toBe(first);
+  });
+});

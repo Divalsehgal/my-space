@@ -57,3 +57,22 @@ describe("createQuizQuestions", () => {
     await expect(createQuizQuestions("quiz-1", payload, false)).rejects.toThrow("Bad gateway");
   });
 });
+
+describe("createQuizQuestions error shapes", () => {
+  it("uses the first validation detail, then the default message", async () => {
+    mockFetch(() => respond(400, { details: ["Option text is required."] }));
+    await expect(createQuizQuestions("q", payload, false)).rejects.toThrow("Option text is required.");
+    mockFetch(() => respond(400, {}));
+    await expect(createQuizQuestions("q", payload, false)).rejects.toThrow("Failed to create quiz questions.");
+  });
+
+  it("reports the status when the error body is unreadable", async () => {
+    mockFetch(() => respond(500, "not json"));
+    await expect(createQuizQuestions("q", payload, false)).rejects.toThrow("Server error: 500");
+  });
+
+  it("rejects an unparseable success body", async () => {
+    mockFetch(() => respond(200, "not json"));
+    await expect(createQuizQuestions("q", payload, false)).rejects.toThrow("Invalid response from server");
+  });
+});

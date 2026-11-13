@@ -182,6 +182,15 @@ describe('Analytics Utility', () => {
     );
   });
 
+  it.each([
+    [ANALYTICS_EVENTS.CONTACT_TEMPLATE_SELECT, { template: 'job' }, 'job'],
+    [ANALYTICS_EVENTS.BLOG_VIEW, { title: 'Post' }, 'Post'],
+    [ANALYTICS_EVENTS.RESUME_VIEW, {}, 'Hero Resume Button'],
+  ])('labels %s from its payload', (event, payload, label) => {
+    trackInteraction(event as AnalyticsEventName, payload as never);
+    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event, event_label: label }));
+  });
+
   it('should handle unknown event types in trackInteraction', () => {
     trackInteraction('unknown_event' as unknown as AnalyticsEventName, { some: 'data' } as unknown as AnalyticsEventPayloads[AnalyticsEventName]);
     expect(window.dataLayer).toContainEqual(

@@ -49,3 +49,32 @@ describe("mcp", () => {
     expect((await rpc(undefined, "GET")).status).toBe(405);
   });
 });
+
+describe("mcp edge cases", () => {
+  const call = (name: string, args?: unknown) => rpc({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name, arguments: args } }).then((r) => r.json());
+  const get = env.CHAT_SESSIONS.get as jest.Mock;
+  afterEach(() => get.mockImplementation(async () => catalog));
+
+  it("returns the profile, pings and falls back to the default protocol version", async () => {
+    expect(JSON.parse((await call("get_profile")).result.content[0].text)).toMatchObject({ name: "Dival Sehgal" });
+    expect((await (await rpc({ jsonrpc: "2.0", id: 1, method: "ping" })).json()).result).toEqual({});
+    const init = await (await rpc({ jsonrpc: "2.0", id: 1, method: "initialize" })).json();
+    expect(init.result.protocolVersion).toBeTruthy();
+  });
+
+  it("reports an empty search, a missing catalog and an unknown tool", async () => {
+    (env.VECTORIZE.query as jest.Mock).mockResolvedValueOnce({ matches: [] });
+    expect((await call("search_portfolio", { query: "zzz", limit: 2 })).result.content[0].text).toContain("No relevant");
+    get.mockRejectedValue(new Error("kv"));
+    expect((await call("get_profile")).result.isError).toBe(true);
+    expect((await call("list_blog_posts")).result.isError).toBe(true);
+    expect((await call("nope")).error.message).toContain("Unknown tool");
+  });
+
+  it("answers batches and rejects malformed requests", async () => {
+    const res = await (await rpc([{ jsonrpc: "2.0", id: 1, method: "ping" }, { jsonrpc: "1.0", id: 2, method: "ping" }, null])).json();
+    expect(res).toHaveLength(3);
+    expect(res[1].error.code).toBe(-32600);
+    expect(res[2]).toMatchObject({ id: null, error: { code: -32600 } });
+  });
+});

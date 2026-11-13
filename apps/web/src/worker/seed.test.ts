@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { buildCatalog, buildChunks, type ChatContext } from "./chunks";
-import { CATALOG_KEY, MANIFEST_KEY, runSeed } from "./seed";
+import { CATALOG_KEY, MANIFEST_KEY, json, runSeed, seed } from "./seed";
 import type { Env } from "./types";
 
 const context: ChatContext = {
@@ -86,5 +86,61 @@ describe("runSeed", () => {
     expect(result).toMatchObject({ upserted: 1, deleted: 1 });
     expect(env.VECTORIZE.upsert).toHaveBeenCalledWith([expect.objectContaining({ id: "info-about" })]);
     expect(env.VECTORIZE.deleteByIds).toHaveBeenCalledWith(["blog-old-post-0"]);
+  });
+});
+
+describe("seed handler", () => {
+  const env = (secret?: string) =>
+    ({
+      SEED_SECRET: secret,
+      AI: { run: jest.fn(async (_m: string, { text }: { text: string[] }) => ({ data: text.map(() => [0.1]) })) },
+      VECTORIZE: { upsert: jest.fn(), deleteByIds: jest.fn() },
+      CHAT_SESSIONS: { get: jest.fn(async () => null), put: jest.fn() },
+    }) as unknown as Env;
+  const post = (e: Env, path = "/api/seed", auth = "Bearer s") =>
+    seed(new Request(`https://w.dev${path}`, { method: "POST", headers: { Authorization: auth, Origin: "http://localhost:3000" } }), e);
+
+  beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => undefined);
+    globalThis.fetch = jest.fn(async () => new Response(JSON.stringify(context))) as unknown as typeof fetch;
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  it("rejects GET, a missing secret and a wrong token", async () => {
+    expect((await seed(new Request("https://w.dev/api/seed"), env("s"))).status).toBe(405);
+    expect((await post(env())).status).toBe(401);
+    expect((await post(env("s"), "/api/seed", "Bearer nope")).status).toBe(401);
+  });
+
+  it("seeds (forced) and echoes an allowed origin", async () => {
+    const res = await post(env("s"), "/api/seed?force=1");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3000");
+    expect(await res.json()).toMatchObject({ success: true });
+  });
+
+  it.each([
+    [new Error("boom"), "boom"],
+    ["plain", "plain"],
+    [{ code: 1 }, '{"code":1}'],
+    [undefined, "Unknown error"],
+  ])("reports seed failures (%p)", async (thrown, details) => {
+    globalThis.fetch = jest.fn(async () => Promise.reject(thrown)) as unknown as typeof fetch;
+    const res = await post(env("s"));
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "Seed failed", details });
+  });
+
+  it("fails on a bad context response or a short embedding batch", async () => {
+    globalThis.fetch = jest.fn(async () => new Response("", { status: 500 })) as unknown as typeof fetch;
+    expect((await (await post(env("s"))).json()).details).toContain("Failed to fetch chat context");
+    globalThis.fetch = jest.fn(async () => new Response(JSON.stringify(context))) as unknown as typeof fetch;
+    const short = env("s");
+    (short.AI.run as jest.Mock).mockResolvedValue({});
+    expect((await (await post(short)).json()).details).toContain("Embedding batch returned 0");
+  });
+
+  it("json() without a request allows any origin", () => {
+    expect(json({}).headers.get("Access-Control-Allow-Origin")).toBe("*");
   });
 });

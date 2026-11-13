@@ -1,4 +1,5 @@
-import { slugify } from "./string";
+import { padNumber, slugify, splitParagraphs } from "./string";
+import { HTTP_STATUS } from "./http";
 import { fibonacciSphere, shortestAngle } from "./math";
 import { fuzzyScore } from "./fuzzy";
 import { isEditableTarget, isInViewport, matchesMedia } from "./dom";
@@ -46,4 +47,23 @@ describe("dom", () => {
     expect(isInViewport(el)).toBe(false);
     expect(typeof matchesMedia("(min-width: 1px)")).toBe("boolean");
   });
+});
+
+describe("string helpers", () => {
+  it("splits paragraphs on blank lines and drops empties", () => {
+    expect(splitParagraphs(" One.\n\n  \n\nTwo. \n")).toEqual(["One.", "Two."]);
+  });
+
+  it("zero-pads counters", () => {
+    expect(padNumber(3)).toBe("03");
+    expect(padNumber(7, 3)).toBe("007");
+  });
+
+  it("trims edge hyphens", () => {
+    expect(slugify("-edge-")).toBe("edge");
+  });
+});
+
+it("exposes the HTTP status codes", () => {
+  expect(HTTP_STATUS).toMatchObject({ OK: 200, NOT_FOUND: 404, SERVICE_UNAVAILABLE: 503 });
 });

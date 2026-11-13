@@ -1,4 +1,4 @@
-import { POST } from './route';
+import { GET, POST } from './route';
 import { recordView, getViews } from '@/lib/services/analytics';
 import { getContentfulPostTitles } from '@/lib/services/contentful';
 
@@ -42,5 +42,77 @@ describe('POST /api/blogs/[slug]/view', () => {
     (getContentfulPostTitles as jest.Mock).mockResolvedValue([]);
     await post('real-post');
     expect(recordView).toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/blogs/[slug]/view edge cases', () => {
+  const redisMock = jest.requireMock('@/lib/redis');
+  const ownerMock = jest.requireMock('@/lib/owner');
+  const request = (headers: Record<string, string> = {}, visitor?: string) =>
+    ({ headers: new Headers(headers), cookies: { get: () => (visitor ? { value: visitor } : undefined) } }) as never;
+  const postWith = (req: never, slug = 'real-post') => POST(req, { params: Promise.resolve({ slug }) });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    (getContentfulPostTitles as jest.Mock).mockResolvedValue([{ title: 'Real', slug: 'real-post' }]);
+    (getViews as jest.Mock).mockResolvedValue(5);
+    (recordView as jest.Mock).mockResolvedValue(true);
+    redisMock.redis.incr.mockResolvedValue(1);
+  });
+  afterEach(() => {
+    redisMock.isRedisConfigured = true;
+    ownerMock.isOwnerSession = () => false;
+  });
+
+  it('rejects an empty slug', async () => {
+    expect((await postWith(request(), '')).status).toBe(400);
+  });
+
+  it('reports when analytics storage is not configured', async () => {
+    redisMock.isRedisConfigured = false;
+    expect(await (await postWith(request())).json()).toMatchObject({ recorded: false, reason: 'analytics-not-configured' });
+  });
+
+  it('returns the count without recording for the owner', async () => {
+    ownerMock.isOwnerSession = () => true;
+    expect(await (await postWith(request())).json()).toEqual({ success: true, views: 5, owner: true });
+    expect(recordView).not.toHaveBeenCalled();
+  });
+
+  it('rate limits by IP and sets the window only on the first hit', async () => {
+    redisMock.redis.incr.mockResolvedValue(11);
+    expect((await postWith(request({ 'x-real-ip': '9.9.9.9' }))).status).toBe(429);
+    expect(redisMock.redis.expire).not.toHaveBeenCalled();
+  });
+
+  it('fails open when the rate limiter errors, and skips it with no IP', async () => {
+    redisMock.redis.incr.mockRejectedValue(new Error('down'));
+    expect((await postWith(request({ 'x-forwarded-for': '1.1.1.1' }, 'v'))).status).toBe(200);
+    await postWith(request({ referer: 'https://g.co', 'x-vercel-ip-country': 'IN', 'user-agent': 'UA' }, 'v'));
+    expect(recordView).toHaveBeenLastCalledWith(expect.objectContaining({ ip: null, referrer: 'https://g.co', country: 'IN' }));
+  });
+
+  it('issues a visitor cookie to a new visitor', async () => {
+    const res = (await postWith(request())) as unknown as { cookies: { set: jest.Mock } };
+    expect(res.cookies.set).toHaveBeenCalledWith(expect.objectContaining({ name: 'visitor_id', httpOnly: true }));
+  });
+
+  it('returns 500 when recording throws', async () => {
+    (recordView as jest.Mock).mockRejectedValue(new Error('boom'));
+    expect((await postWith(request({}, 'v'))).status).toBe(500);
+  });
+});
+
+describe('GET /api/blogs/[slug]/view', () => {
+  const get = (slug: string) => GET({} as never, { params: Promise.resolve({ slug }) });
+
+  it('returns the view count, 400 for no slug and 500 on error', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    (getViews as jest.Mock).mockResolvedValue(3);
+    expect(await (await get('a')).json()).toEqual({ views: 3 });
+    expect((await get('')).status).toBe(400);
+    (getViews as jest.Mock).mockRejectedValue(new Error('x'));
+    expect((await get('a')).status).toBe(500);
   });
 });
