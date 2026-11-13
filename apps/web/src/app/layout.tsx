@@ -37,8 +37,10 @@ const META_DESCRIPTION_MAX = 158;
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const ADS_ID = process.env.NEXT_PUBLIC_ADS_ID;
 // Container IDs are public; default it in production so GTM loads even without the Vercel env var.
-const GTM_ID =
-  process.env.NEXT_PUBLIC_GTM_ID || (process.env.VERCEL_ENV === "production" ? "GTM-PX35PGC5" : undefined);
+// Only a real "GTM-" id counts: a malformed env value must not disable GA while loading no container.
+const GTM_ID = [process.env.NEXT_PUBLIC_GTM_ID, process.env.VERCEL_ENV === "production" ? "GTM-PX35PGC5" : undefined].find(
+  (id) => id?.startsWith("GTM-"),
+);
 const THEME_BOOTSTRAP_SCRIPT = `
 (function () {
   try {
