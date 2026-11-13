@@ -130,6 +130,9 @@ const nextConfig: NextConfig = {
         headers: [
           ...securityHeaders,
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          // Google crawls preloaded fonts and lists them as "Crawled - not indexed".
+          // noindex (not robots.txt Disallow) keeps them fetchable for rendering.
+          { key: 'X-Robots-Tag', value: 'noindex' },
         ],
       },
       {
