@@ -112,5 +112,6 @@ export async function pipeGuarded(
 /** A complete reply that needs no model (refusals, rate limits, errors), same contract. */
 export function staticStream(text: string, sources: ChatSource[] = []): string {
     const events = [{ response: text }, ...(sources.length ? [{ sources }] : [])];
-    return `${events.map((e) => `data: ${JSON.stringify(e)}\n\n`).join('')}data: [DONE]\n\n`;
+    const lines = events.map((e) => `data: ${JSON.stringify(e)}\n\n`).join('');
+    return `${lines}data: [DONE]\n\n`;
 }

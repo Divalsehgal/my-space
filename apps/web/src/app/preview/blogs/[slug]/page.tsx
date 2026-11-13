@@ -44,7 +44,7 @@ export default async function BlogPostPreviewPage({ params }: Props) {
 
   return (
     <div className={`page-scroll ${styles["preview-page"]}`}>
-      <div className={styles["preview-page__banner"]} role="status">
+      <div className={styles["preview-page__banner"]}>
         <span>{BANNER_TEXT}</span>
         <a href={`/api/preview/disable?slug=${encodeURIComponent(slug)}`} className={styles["preview-page__exit"]}>
           {EXIT_TEXT}

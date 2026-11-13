@@ -57,29 +57,6 @@ html {
   color-scheme: $document-color-scheme-dark;
 }
 
-@layer utilities {
-  .snap-proximity {
-    scroll-snap-type: y proximity !important;
-  }
-
-  // Use this class on the <html> or <body> tag for premium landing pages
-  .snap-mandatory,
-  [data-snap="mandatory"] {
-    scroll-behavior: auto; // Recommended for mandatory snapping to avoid floaty feel
-    scroll-snap-type: y mandatory !important;
-
-    @media (width <= $t-breakpoint-tablet) {
-      scroll-snap-type: none !important;
-    }
-  }
-
-  @media (width <= $t-breakpoint-tablet) {
-    .snap-proximity {
-      scroll-snap-type: none !important;
-    }
-  }
-}
-
 // ---------------------------------------------------------------------------
 // BASE LAYER — global resets, section layout, scroll utilities.
 // CSS Modules (.fluid-container, etc.) are unlayered and will always
@@ -208,7 +185,7 @@ html.lenis body {
 }
 
 .lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+  scroll-behavior: auto;
 }
 
 .lenis.lenis-stopped {
@@ -295,6 +272,6 @@ html.lenis body {
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {
-    animation: none !important;
+    animation: none;
   }
 }

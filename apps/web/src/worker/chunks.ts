@@ -127,8 +127,10 @@ export function buildChunks({ profile, portfolio, blogs }: ChatContext): Chunk[]
     const used = new Set<string>();
     const add = (id: string, content: string, metadata: Chunk['metadata']) => {
         let unique = id;
-        for (let n = 2; used.has(unique); n++) {
+        let n = 2;
+        while (used.has(unique)) {
             unique = `${id}-${n}`;
+            n++;
         }
         used.add(unique);
         chunks.push({ id: unique, content: sanitizeContent(content, MAX_CHUNK_CHARS), metadata });
@@ -138,11 +140,13 @@ export function buildChunks({ profile, portfolio, blogs }: ChatContext): Chunk[]
     add('info-about', `About ${profile.name}: ${profile.about}`, { type: 'about' });
 
     const experience = portfolio.experience.slice(0, MAX_SEEDED_ITEMS);
+    const roles = experience.map((e) => `${e.company} (${e.role}, ${e.period})`).join('; ');
     add('info-experience-summary',
-        `Dival Sehgal has worked at ${experience.length} companies: ${experience.map((e) => `${e.company} (${e.role}, ${e.period})`).join('; ')}.`,
+        `Dival Sehgal has worked at ${experience.length} companies: ${roles}.`,
         { type: 'experience_summary' });
     experience.forEach((e) => {
-        add(`exp-${idPart(`${e.company}-${e.role}`)}`,
+        const key = `${e.company}-${e.role}`;
+        add(`exp-${idPart(key)}`,
             `At ${e.company}, Dival served as ${e.role} from ${e.period}. Highlights: ${e.description.map((d) => d.text).join(' ')} Tech Stack: ${e.techStack?.join(', ') ?? 'n/a'}.`,
             { type: 'experience', company: e.company });
     });
@@ -150,8 +154,9 @@ export function buildChunks({ profile, portfolio, blogs }: ChatContext): Chunk[]
     portfolio.projects.slice(0, MAX_SEEDED_ITEMS).forEach((p) => {
         const links = [p.link && `Live: ${p.link}`, p.repo && `Source: ${p.repo}`].filter(Boolean).join('. ');
         const url = p.link ?? p.repo;
+        const linkText = links ? ` ${links}.` : '';
         add(`proj-${idPart(p.name)}`,
-            `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ') ?? 'n/a'}.${links ? ` ${links}.` : ''}`,
+            `Project ${p.name}: ${p.description}. Technologies used: ${p.techStack?.join(', ') ?? 'n/a'}.${linkText}`,
             { type: 'project', title: p.name, ...(url ? { url } : {}) });
     });
 
@@ -175,9 +180,10 @@ export function buildChunks({ profile, portfolio, blogs }: ChatContext): Chunk[]
         });
     });
 
+    const profiles = portfolio.socials?.map((s) => `${s.label} (${s.href})`).join(', ');
     const contactBits = [
         portfolio.contact?.email && `Email ${profile.name} at ${portfolio.contact.email}.`,
-        portfolio.socials?.length && `Profiles: ${portfolio.socials.map((s) => `${s.label} (${s.href})`).join(', ')}.`,
+        portfolio.socials?.length && `Profiles: ${profiles}.`,
         portfolio.resumeUrl && `Resume: ${portfolio.resumeUrl}.`,
         profile.contactIntro,
         'Visitors can also ask this assistant to forward a message to Dival.',

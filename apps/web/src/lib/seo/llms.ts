@@ -24,7 +24,8 @@ const day = (date?: string) => date?.slice(0, ISO_DAY_LENGTH);
 export function buildLlmsTxt(site: SiteIndex, posts: LlmsPost[]): string {
   const [summary, ...about] = site.about;
   // The about copy opens by naming the role, so it alone is the summary.
-  const lines = [`# ${site.name}`, "", `> ${summary ?? `${site.role}.`}`, ""];
+  const lead = summary ?? `${site.role}.`;
+  const lines = [`# ${site.name}`, "", `> ${lead}`, ""];
   if (about.length) {
     lines.push(...about.flatMap((paragraph) => [paragraph, ""]));
   }
@@ -56,14 +57,23 @@ export function buildLlmsTxt(site: SiteIndex, posts: LlmsPost[]): string {
       "",
       ...posts.map((post) => {
         const notes = [day(post.date), post.description].filter(Boolean).join(" - ");
-        return `- [${post.title}](${SITE_URL}/blogs/${post.slug})${notes ? `: ${notes}` : ""}`;
+        const suffix = notes ? `: ${notes}` : "";
+        return `- [${post.title}](${SITE_URL}/blogs/${post.slug})${suffix}`;
       }),
       "",
     );
   }
 
-  lines.push("## Pages", "", ...site.sections.map((section) => `- [${section.label}](${absolute(section.href)})`), "");
-  lines.push("## Optional", "", `- [Full text of every blog post](${SITE_URL}/llms-full.txt)`, "");
+  lines.push(
+    "## Pages",
+    "",
+    ...site.sections.map((section) => `- [${section.label}](${absolute(section.href)})`),
+    "",
+    "## Optional",
+    "",
+    `- [Full text of every blog post](${SITE_URL}/llms-full.txt)`,
+    "",
+  );
   return lines.join("\n");
 }
 

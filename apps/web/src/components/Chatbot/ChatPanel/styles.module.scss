@@ -28,8 +28,6 @@
 }
 
 .chat-panel__messages {
-  scroll-behavior: smooth;
-
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
@@ -40,4 +38,8 @@
   padding: $t-spacing-6 $t-spacing-5;
 
   background-color: $t-colors-surface-glass;
+
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
 }

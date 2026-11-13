@@ -38,7 +38,7 @@ export default function QuizResults({
       <div className={styles.resultsHeroRow}>
         {/* Circular Animated SVG Mastery Gauge */}
         <div className={styles.radialGaugeWrapper}>
-          <svg className={styles.radialGaugeSvg} viewBox="0 0 120 120">
+          <svg className={styles.radialGaugeSvg} viewBox="0 0 120 120" aria-hidden="true">
             <circle
               className={styles.radialGaugeTrack}
               cx="60"

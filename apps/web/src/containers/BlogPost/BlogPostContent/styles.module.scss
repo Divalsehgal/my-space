@@ -158,7 +158,7 @@
       padding: $t-spacing-4 $t-spacing-6;
       border-bottom: 1px solid $t-colors-border-subtle;
       text-align: left;
-      vertical-align: top !important;
+      vertical-align: top;
 
       p,
       :global(p) {

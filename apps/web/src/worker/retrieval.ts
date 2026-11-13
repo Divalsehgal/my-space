@@ -10,7 +10,7 @@ const DEFAULT_TOP_K = 5;
 // Ambiguous, short, or pronoun-heavy messages ("tell me more", "why?") retrieve
 // poorly on their own, so their query is enriched with the prior user turn.
 export const followUpTerms = ['it', 'that', 'this', 'more', 'explain', 'summarize', 'summary', 'why', 'how'];
-const followUpPattern = new RegExp(`\\b(?:${followUpTerms.join('|')})\\b`, 'i');
+const followUpPattern = new RegExp(String.raw`\b(?:${followUpTerms.join('|')})\b`, 'i');
 
 export const isFollowUp = (q: string) => followUpPattern.test(q);
 

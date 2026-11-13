@@ -25,12 +25,15 @@ export type ContactFlowAction =
   | { type: "cancel" };
 
 // Whole words only, so "contactless", "hired" or "collaborated on" don't open the form.
-const CONTACT_INTENT =
-  /\b(contact|get in touch|reach out|hire|collaborat(e|ion)|work (together|with (you|him|dival))|email (him|dival)|send (him |dival )?(a )?(message|note|email))\b/i;
+const CONTACT_INTENT = [
+  /\b(contact|get in touch|reach out|hire|collaborat(e|ion))\b/i,
+  /\b(work (together|with (you|him|dival))|email (him|dival))\b/i,
+  /\bsend (him |dival )?(a )?(message|note|email)\b/i,
+];
 
 /** True when the visitor wants to get in touch, hire or collaborate. */
 export function isContactIntent(text: string): boolean {
-  return CONTACT_INTENT.test(text);
+  return CONTACT_INTENT.some((pattern) => pattern.test(text));
 }
 
 /** The schema's message for one field, or undefined when the value is valid. */

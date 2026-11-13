@@ -112,7 +112,7 @@ export async function callTool(env: Env, name: string | undefined, args: Record<
 const rpcResult = (id: JsonRpcRequest['id'], result: unknown) => ({ jsonrpc: '2.0', id: id ?? null, result });
 const rpcError = (id: JsonRpcRequest['id'], code: number, message: string) => ({ jsonrpc: '2.0', id: id ?? null, error: { code, message } });
 
-const METHODS: Record<string, (env: Env, msg: JsonRpcRequest) => Promise<unknown> | unknown> = {
+const METHODS: Record<string, (env: Env, msg: JsonRpcRequest) => unknown> = {
     initialize: (_env, msg) => {
         const requested = msg.params?.protocolVersion;
         return rpcResult(msg.id, {
@@ -130,7 +130,7 @@ const METHODS: Record<string, (env: Env, msg: JsonRpcRequest) => Promise<unknown
     },
 };
 
-function handleOne(env: Env, msg: JsonRpcRequest): Promise<unknown> | unknown {
+function handleOne(env: Env, msg: JsonRpcRequest): unknown {
     if (msg?.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
         return rpcError(msg?.id, INVALID_REQUEST, 'Invalid Request');
     }

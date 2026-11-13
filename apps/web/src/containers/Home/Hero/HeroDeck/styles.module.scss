@@ -159,15 +159,15 @@
 
   .deck__card {
     position: relative;
-    z-index: auto !important;
-    transform: none !important;
+    z-index: auto !important; // NOSONAR: overrides the inline styles motion leaves after resizing from the desktop deck
+    transform: none !important; // NOSONAR: overrides the inline styles motion leaves after resizing from the desktop deck
 
     width: auto;
     height: auto;
     min-height: 180px;
     padding: $t-spacing-4;
 
-    opacity: 1 !important;
+    opacity: 1 !important; // NOSONAR: overrides the inline styles motion leaves after resizing from the desktop deck
 
     &--photo {
       grid-column: 1 / -1;

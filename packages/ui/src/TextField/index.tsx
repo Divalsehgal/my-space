@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ChangeEvent, type ReactNode } from "react";
+import { useId, type ChangeEvent, type KeyboardEvent, type ReactNode } from "react";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 
@@ -21,6 +21,7 @@ type TextFieldProps = {
   /** Omit both for an uncontrolled field (e.g. a plain form posting to a Server Action). */
   value?: string;
   onChange?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   type?: "text" | "email" | "password";
   required?: boolean;
   disabled?: boolean;
@@ -36,7 +37,7 @@ type TextFieldProps = {
 
 type ControlProps = Pick<
   TextFieldProps,
-  "name" | "value" | "onChange" | "required" | "disabled" | "maxLength" | "placeholder" | "multiline" | "minRows" | "type" | "autoComplete" | "spellCheck"
+  "name" | "value" | "onChange" | "onKeyDown" | "required" | "disabled" | "maxLength" | "placeholder" | "multiline" | "minRows" | "type" | "autoComplete" | "spellCheck"
 > & { id: string; describedBy?: string; invalid: boolean };
 
 /** The <input> or <textarea> itself. */

@@ -16,10 +16,6 @@
     ),
     $t-colors-background-primary;
 
-  &__container {
-    max-width: 1400px !important; // Wider for doc-style
-  }
-
   &__layout {
     display: grid;
     grid-template-columns: 280px 1fr;

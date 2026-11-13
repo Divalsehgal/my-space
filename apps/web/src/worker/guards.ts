@@ -46,7 +46,8 @@ export const privateDataPatterns = [
     // Injection verbs aimed at the assistant's rules.
     /(?:ignore|override|bypass|forget|disregard).{0,40}(?:instruction|prompt|rule|guardrail)/i,
     // Extraction verbs aimed at hidden material ("show your context", not "show the design tokens post").
-    /(?:reveal|show|print|repeat|leak|dump|output|tell me).{0,20}(?:your|the|system|hidden|internal|initial|original|previous|above)\s+(?:instruction|prompt|rule|guardrail|context|secret|session|metadata)/i,
+    /(?:reveal|show|print|repeat|leak|dump|output|tell me).{0,20}(?:your|the|system|hidden)\s+(?:instruction|prompt|rule|guardrail|context|secret|session|metadata)/i,
+    /(?:reveal|show|print|repeat|leak|dump|output|tell me).{0,20}(?:internal|initial|original|previous|above)\s+(?:instruction|prompt|rule|guardrail|context|secret|session|metadata)/i,
     /(?:your|you|this\s+(?:chat|bot|assistant)).{0,40}(?:retrieved|stored|hidden|internal).{0,30}(?:context|data|text|fact|prompt|message|token|secret)/i,
     /\bsubmit_contact\b/i,
     /jailbreak|prompt\s*injection/i
@@ -68,6 +69,15 @@ export function normalizeMessage(message: string | undefined): string {
     return (message ?? '').normalize('NFKC').replace(/[​-‍⁠﻿]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+// A loop, not /[!?.,]+$/, which backtracks quadratically on long punctuation runs.
+function stripTrailingPunctuation(text: string): string {
+    let end = text.length;
+    while (end > 0 && '!?.,'.includes(text[end - 1])) {
+        end--;
+    }
+    return text.slice(0, end);
+}
+
 export function hasPortfolioTerm(message: string): boolean {
     return portfolioPattern.test(message);
 }
@@ -81,7 +91,7 @@ export function isInPortfolioScope(message: string | undefined, hasRecentPortfol
         return true;
     }
     return hasPortfolioTerm(msg)
-        || greetingTerms.has(msg.replace(/[!?.,]+$/, ''))
+        || greetingTerms.has(stripTrailingPunctuation(msg))
         || (hasRecentPortfolioConversation && isFollowUp(msg))
         || topScore >= SEMANTIC_SCOPE_SCORE;
 }
@@ -96,7 +106,9 @@ export function stripContactToken(text: string): { cleaned: string; contact?: { 
     // Everything from the marker on is the token; JSON may contain "}" or newlines.
     const token = text.slice(start);
     const cleaned = text.slice(0, start).trim();
-    const json = /\{[\s\S]*\}/.exec(token)?.[0];
+    const open = token.indexOf('{');
+    const close = token.lastIndexOf('}');
+    const json = open !== -1 && close > open ? token.slice(open, close + 1) : undefined;
     try {
         const contact = json ? JSON.parse(json) as { name: string; email: string; message: string } : undefined;
         return contact && typeof contact === 'object' ? { cleaned, contact } : { cleaned };

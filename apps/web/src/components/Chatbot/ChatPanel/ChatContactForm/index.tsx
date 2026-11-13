@@ -60,9 +60,9 @@ export default function ChatContactForm() {
   if (step === "sent" || step === "cancelled") {
     return (
       <div ref={rootRef} className={styles["chat-contact"]}>
-        <p role="status" tabIndex={-1} data-autofocus className={step === "sent" ? styles["chat-contact__success"] : styles["chat-contact__muted"]}>
+        <output tabIndex={-1} data-autofocus className={step === "sent" ? styles["chat-contact__success"] : styles["chat-contact__muted"]}>
           {step === "sent" ? t("contact.result.success") : t("chat.contact.cancelled")}
-        </p>
+        </output>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function ChatContactForm() {
   return (
     <div ref={rootRef} className={styles["chat-contact"]}>
       <div className={styles["chat-contact__progress"]}>
-        <span role="status">{t("chat.contact.step", { current, total: CONTACT_FIELDS.length })}</span>
+        <output>{t("chat.contact.step", { current, total: CONTACT_FIELDS.length })}</output>
         <progress max={CONTACT_FIELDS.length} value={field ? answered : CONTACT_FIELDS.length} aria-hidden="true" className={styles["chat-contact__bar"]} />
       </div>
 
@@ -108,20 +108,21 @@ function ContactStep({ field, initial, error, schema, dispatch }: ContactStepPro
   };
 
   // Enter adds a newline in the message box; Ctrl/Cmd+Enter moves on.
-  const submitOnModEnter = (event: KeyboardEvent<HTMLFormElement>) => {
+  const submitOnModEnter = (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
-      event.currentTarget.requestSubmit();
+      event.currentTarget.form?.requestSubmit();
     }
   };
 
   return (
-    <form onSubmit={answer} onKeyDown={submitOnModEnter} noValidate className={styles["chat-contact__step"]}>
+    <form onSubmit={answer} noValidate className={styles["chat-contact__step"]}>
       <TextField
         label={t(`chat.contact.ask.${field}`)}
         name={field}
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={submitOnModEnter}
         error={Boolean(liveError)}
         helperText={liveError ?? (field === "message" ? `${draft.length} / ${MESSAGE_MAX_CHARS}` : undefined)}
         multiline={field === "message"}
@@ -130,7 +131,7 @@ function ContactStep({ field, initial, error, schema, dispatch }: ContactStepPro
         {...FIELD_INPUT[field]}
       />
       {field === "message" && (
-        <div className={styles["chat-contact__chips"]} role="group" aria-label={t("contact.suggestionsLabel")}>
+        <fieldset className={styles["chat-contact__chips"]} aria-label={t("contact.suggestionsLabel")}>
           {MESSAGE_TEMPLATES.map((template) => (
             <button
               key={template.id}
@@ -144,7 +145,7 @@ function ContactStep({ field, initial, error, schema, dispatch }: ContactStepPro
               {t(template.labelKey)}
             </button>
           ))}
-        </div>
+        </fieldset>
       )}
       <div className={styles["chat-contact__actions"]}>
         <Button type="button" variant="text" size="small" onClick={() => dispatch({ type: "cancel" })}>
@@ -173,23 +174,26 @@ function ContactReview({ state: { step, values, error }, dispatch, onSend }: Con
     <div className={styles["chat-contact__step"]}>
       <p className={styles["chat-contact__muted"]}>{t("chat.contact.review")}</p>
       <dl className={styles["chat-contact__summary"]}>
-        {CONTACT_FIELDS.map((key) => (
+        {CONTACT_FIELDS.map((key) => {
+          const label = t(`contact.${key}`);
+          return (
           <div key={key} className={styles["chat-contact__row"]}>
-            <dt>{t(`contact.${key}`)}</dt>
+            <dt>{label}</dt>
             <dd>
               <span>{values[key]}</span>
               <button
                 type="button"
                 className={styles["chat-contact__chip"]}
                 disabled={step === "sending"}
-                aria-label={`${t("chat.contact.edit")} ${t(`contact.${key}`)}`}
+                aria-label={`${t("chat.contact.edit")} ${label}`}
                 onClick={() => dispatch({ type: "edit", field: key })}
               >
                 {t("chat.contact.edit")}
               </button>
             </dd>
           </div>
-        ))}
+          );
+        })}
       </dl>
       {step === "failed" && error && (
         <p role="alert" className={styles["chat-contact__error"]}>

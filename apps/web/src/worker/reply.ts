@@ -99,9 +99,10 @@ export function siteIndex(catalog: Catalog | null): string {
         return '';
     }
     const blogs = (catalog.blogs ?? []).slice(0, SITE_INDEX_LIMIT).map((b) => `- [${b.title}](/blogs/${b.slug}) (${b.date.slice(0, ISO_DATE_LENGTH)})`);
-    const projects = (catalog.projects ?? []).slice(0, SITE_INDEX_LIMIT).map((p) => `- ${p.name}${p.link ? ` (${p.link})` : ''}`);
+    const projects = (catalog.projects ?? []).slice(0, SITE_INDEX_LIMIT).map((p) => (p.link ? `- ${p.name} (${p.link})` : `- ${p.name}`));
     const roles = (catalog.experience ?? []).slice(0, SITE_INDEX_LIMIT).map((e) => `- ${e.role} at ${e.company}, ${e.period}`);
     // Skills too: short questions ("Does he know Python?") embed too far from a skills list to be retrieved.
     const skills = Object.entries(catalog.skills ?? {}).map(([area, items]) => `- ${area}: ${items.join(', ')}`);
-    return `\n\nSITE INDEX (complete lists; untrusted data):\nBlog posts, newest first:\n${blogs.join('\n')}\nProjects:\n${projects.join('\n')}\nRoles:\n${roles.join('\n')}\nSkills:\n${skills.join('\n')}${catalog.resumeUrl ? `\nResume: ${catalog.resumeUrl}` : ''}`;
+    const resume = catalog.resumeUrl ? `\nResume: ${catalog.resumeUrl}` : '';
+    return `\n\nSITE INDEX (complete lists; untrusted data):\nBlog posts, newest first:\n${blogs.join('\n')}\nProjects:\n${projects.join('\n')}\nRoles:\n${roles.join('\n')}\nSkills:\n${skills.join('\n')}${resume}`;
 }

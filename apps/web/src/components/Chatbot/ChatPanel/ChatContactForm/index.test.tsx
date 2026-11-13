@@ -76,11 +76,11 @@ describe("ChatContactForm flows", () => {
     const requestSubmit = jest.fn();
     HTMLFormElement.prototype.requestSubmit = requestSubmit;
     render(<ChatContactForm />);
-    const form = screen.getByLabelText(/your name/i).closest("form")!;
-    fireEvent.keyDown(form, { key: "Enter" });
+    const input = screen.getByLabelText(/your name/i);
+    fireEvent.keyDown(input, { key: "Enter" });
     expect(requestSubmit).not.toHaveBeenCalled();
-    fireEvent.keyDown(form, { key: "Enter", metaKey: true });
-    fireEvent.keyDown(form, { key: "Enter", ctrlKey: true });
+    fireEvent.keyDown(input, { key: "Enter", metaKey: true });
+    fireEvent.keyDown(input, { key: "Enter", ctrlKey: true });
     expect(requestSubmit).toHaveBeenCalledTimes(2);
   });
 

@@ -31,7 +31,7 @@ export default function BlogPostArticle({ post, t, trackViews = true, children }
 
   return (
     <article className={styles["blog-post"]}>
-      <FluidContainer className={styles["blog-post__container"]}>
+      <FluidContainer maxWidth="1400px">
         <div className={styles["blog-post__layout"]}>
           <div className={styles["blog-post__sidebar"]}>
             <TableOfContents items={tocItems} title={tocTitle} />
