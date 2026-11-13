@@ -168,7 +168,6 @@ export function trackEvent(
     event_label: label,
     ...payload,
   };
-  const eventPayload = { event: action, ...params };
 
   // Development logging
   if (process.env.NODE_ENV === "development") {
@@ -180,7 +179,9 @@ export function trackEvent(
   if (!win.dataLayer) {
     win.dataLayer = [];
   }
-  win.dataLayer.push(eventPayload);
+  // GTM merges dataLayer state across pushes; clear the previous event's params first (same pattern as `ecommerce: null`).
+  win.dataLayer.push({ event_params: null });
+  win.dataLayer.push({ event: action, event_params: params });
 
   // Also send directly to GA4 via gtag if present
   if (typeof win.gtag === "function") {

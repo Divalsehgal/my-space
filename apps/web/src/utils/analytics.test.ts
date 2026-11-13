@@ -7,7 +7,16 @@ declare global {
   }
 }
 
+// Flatten each GTM push back to { event, ...params } so assertions read naturally.
+const events = () =>
+  window.dataLayer.filter((e) => e.event).map((e) => ({ event: e.event, ...(e.event_params as object) }));
+
 describe('Analytics Utility', () => {
+  it('clears the previous event params before each push', () => {
+    trackEvent('a', 'C');
+    expect(window.dataLayer.slice(-2)[0]).toEqual({ event_params: null });
+  });
+
   beforeEach(() => {
     // Reset window objects
     window.dataLayer = [];
@@ -24,7 +33,7 @@ describe('Analytics Utility', () => {
   it('should push standard event to dataLayer', () => {
     trackEvent('test_action', 'TestCategory', { label: 'TestLabel', value: 42 });
 
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'test_action',
         event_category: 'TestCategory',
@@ -37,7 +46,7 @@ describe('Analytics Utility', () => {
   it('should push additional parameters to dataLayer', () => {
     trackEvent('test_action', 'TestCategory', { additionalParams: { custom_prop: 'hello' } });
 
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'test_action',
         custom_prop: 'hello',
@@ -57,7 +66,7 @@ describe('Analytics Utility', () => {
   it('should correctly format nav_click interaction', () => {
     trackInteraction('nav_click', { label: 'Home', href: '/home', location: 'navbar' });
     
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'nav_click',
         event_category: 'Navigation',
@@ -71,7 +80,7 @@ describe('Analytics Utility', () => {
   it('should correctly format social_click interaction', () => {
     trackInteraction('social_click', { platform: 'github', href: 'https://github.com' });
     
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'social_click',
         event_category: 'Social',
@@ -84,7 +93,7 @@ describe('Analytics Utility', () => {
   it('should correctly format resume_download interaction', () => {
     trackInteraction('resume_download', { label: 'Hero Resume Button' });
     
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'resume_download',
         event_category: 'Resume',
@@ -95,7 +104,7 @@ describe('Analytics Utility', () => {
 
   it('should correctly format project_click interaction', () => {
     trackInteraction('project_click', { projectName: 'MyApp', linkType: 'live' });
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'project_click',
         event_category: 'Projects',
@@ -106,7 +115,7 @@ describe('Analytics Utility', () => {
 
   it('should correctly format project_view interaction', () => {
     trackInteraction('project_view', { projectName: 'MyApp' });
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'project_view',
         event_category: 'Projects',
@@ -117,7 +126,7 @@ describe('Analytics Utility', () => {
 
   it('should correctly format page_end_reached interaction', () => {
     trackInteraction('page_end_reached', { label: 'Reached Footer' });
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'page_end_reached',
         event_category: 'Engagement',
@@ -156,16 +165,16 @@ describe('Analytics Utility', () => {
     trackInteraction(ANALYTICS_EVENTS.RESUME_DOWNLOAD, {} as unknown as AnalyticsEventPayloads[typeof ANALYTICS_EVENTS.RESUME_DOWNLOAD]);
     trackInteraction(ANALYTICS_EVENTS.CONTACT_SUBMIT, { status: 'success' });
     
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event: 'nav_click', event_category: 'Navigation' }));
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event: 'social_click', event_category: 'Social' }));
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event: 'resume_view', event_label: 'Hero Resume Button' }));
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event: 'resume_download', event_label: 'Hero Resume Button' }));
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event: 'contact_submit', event_category: 'Contact' }));
+    expect(events()).toContainEqual(expect.objectContaining({ event: 'nav_click', event_category: 'Navigation' }));
+    expect(events()).toContainEqual(expect.objectContaining({ event: 'social_click', event_category: 'Social' }));
+    expect(events()).toContainEqual(expect.objectContaining({ event: 'resume_view', event_label: 'Hero Resume Button' }));
+    expect(events()).toContainEqual(expect.objectContaining({ event: 'resume_download', event_label: 'Hero Resume Button' }));
+    expect(events()).toContainEqual(expect.objectContaining({ event: 'contact_submit', event_category: 'Contact' }));
   });
 
   it('should use default label for page_end_reached if missing', () => {
     trackInteraction(ANALYTICS_EVENTS.PAGE_END_REACHED, {} as unknown as AnalyticsEventPayloads[typeof ANALYTICS_EVENTS.PAGE_END_REACHED]);
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'page_end_reached',
         event_label: 'Reached Footer'
@@ -175,7 +184,7 @@ describe('Analytics Utility', () => {
 
   it('should use provided label for page_end_reached', () => {
     trackInteraction('page_end_reached', { label: 'Custom Footer' });
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'page_end_reached',
         event_label: 'Custom Footer'
@@ -189,12 +198,12 @@ describe('Analytics Utility', () => {
     [ANALYTICS_EVENTS.RESUME_VIEW, {}, 'Hero Resume Button'],
   ])('labels %s from its payload', (event, payload, label) => {
     trackInteraction(event as AnalyticsEventName, payload as never);
-    expect(window.dataLayer).toContainEqual(expect.objectContaining({ event, event_label: label }));
+    expect(events()).toContainEqual(expect.objectContaining({ event, event_label: label }));
   });
 
   it('should handle unknown event types in trackInteraction', () => {
     trackInteraction('unknown_event' as unknown as AnalyticsEventName, { some: 'data' } as unknown as AnalyticsEventPayloads[AnalyticsEventName]);
-    expect(window.dataLayer).toContainEqual(
+    expect(events()).toContainEqual(
       expect.objectContaining({
         event: 'unknown_event',
         event_category: 'General'
