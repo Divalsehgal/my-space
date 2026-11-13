@@ -163,12 +163,12 @@ export function trackEvent(
     gtag: (command: string, action: string, params: Record<string, unknown>) => void 
   };
 
-  const eventPayload = {
-    event: action,
+  const params = {
     event_category: category,
     event_label: label,
     ...payload,
   };
+  const eventPayload = { event: action, ...params };
 
   // Development logging
   if (process.env.NODE_ENV === "development") {
@@ -184,7 +184,8 @@ export function trackEvent(
 
   // Also send directly to GA4 via gtag if present
   if (typeof win.gtag === "function") {
-    win.gtag("event", action, eventPayload);
+    // Separate object: GTM mutates the pushed one (gtm.uniqueEventId), and `event` must not leak into GA4 params.
+    win.gtag("event", action, params);
   }
 }
 

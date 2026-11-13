@@ -51,6 +51,7 @@ describe('Analytics Utility', () => {
     expect(window.gtag).toHaveBeenCalledWith('event', 'test_action', expect.objectContaining({
       event_category: 'TestCategory',
     }));
+    expect(window.gtag.mock.calls[0][2]).not.toHaveProperty('event');
   });
 
   it('should correctly format nav_click interaction', () => {

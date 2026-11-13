@@ -159,7 +159,8 @@ export default async function RootLayout({
     <html lang={DEFAULT_LOCALE} data-theme="light" suppressHydrationWarning={true}>
       <head>
         <Script id="theme-bootstrap" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
-        <GoogleTracking gaId={GA_ID} adsId={ADS_ID} gtmId={GTM_ID} />
+        {/* GTM's GA4 tags own GA4 when a container is set; loading gtag GA too would double-count events. */}
+        <GoogleTracking gaId={GTM_ID ? undefined : GA_ID} adsId={ADS_ID} gtmId={GTM_ID} />
       </head>
       <body className={`${StackHans.variable} ${displayFont.variable}`} suppressHydrationWarning={true}>
         <GTMNoScript gtmId={GTM_ID} />
