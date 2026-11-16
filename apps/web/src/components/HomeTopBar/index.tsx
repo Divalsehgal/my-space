@@ -31,6 +31,7 @@ export default function HomeTopBar({ latestPost }: HomeTopBarProps) {
           fullScreen={false}
           count={1000}
         />
+        <div className={styles["home-top-bar__fade"]} />
       </div>
       <FluidContainer className={styles["home-top-bar__container"]}>
         {/* Only the post title (and its arrow) is the link, not the whole strip. */}

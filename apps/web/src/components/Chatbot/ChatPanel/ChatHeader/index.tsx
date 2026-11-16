@@ -24,19 +24,21 @@ export default function ChatHeader({ canClear, onClear }: ChatHeaderProps) {
           </div>
         </div>
       </div>
-      {canClear && (
-        <IconButton
-          size="small"
-          onClick={onClear}
-          className={styles["chat-header__clear"]}
-          aria-label={t("chat.newChatLabel")}
-          title={t("chat.newChat")}
-        >
-          <svg className={styles["chat-header__clear-icon"]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-1 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z" />
-          </svg>
-        </IconButton>
-      )}
+      <div className={styles["chat-header__actions"]}>
+        {canClear && (
+          <IconButton
+            size="small"
+            onClick={onClear}
+            className={styles["chat-header__clear"]}
+            aria-label={t("chat.newChatLabel")}
+            title={t("chat.newChat")}
+          >
+            <svg className={styles["chat-header__clear-icon"]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-1 0v14a2 2 0 01-2 2H8a2 2 0 01-2-2V6h12z" />
+            </svg>
+          </IconButton>
+        )}
+      </div>
     </div>
   );
 }

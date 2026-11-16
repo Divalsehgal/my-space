@@ -30,6 +30,18 @@ describe("extractToc", () => {
     ]);
   });
 
+  it("keeps TOC ids aligned when preceding headings use other levels", () => {
+    const content = doc([
+      block(BLOCKS.HEADING_1, [text("Intro")]),
+      block(BLOCKS.HEADING_2, [text("Intro")]),
+    ]);
+
+    expect(extractToc(content)).toEqual([{ id: "intro-1", text: "Intro", level: 1 }]);
+
+    const { container } = render(<>{renderContentfulRichText(content)}</>);
+    expect(container.querySelector("h3#intro-1")).toHaveTextContent("Intro");
+  });
+
   it("returns [] without content", () => {
     expect(extractToc(undefined as never)).toEqual([]);
   });
@@ -87,5 +99,35 @@ describe("renderContentfulRichText", () => {
   it("renders without asset links or heading nodes", () => {
     const { container } = render(<>{renderContentfulRichText(doc([block(BLOCKS.PARAGRAPH, [text("only")])]))}</>);
     expect(container.querySelector("p")).toHaveTextContent("only");
+  });
+
+  it("handles empty paragraphs as paragraph--empty spacers", () => {
+    const { container } = render(<>{renderContentfulRichText(doc([block(BLOCKS.PARAGRAPH, [text("")])]))}</>);
+    expect(container.querySelector("p.paragraph--empty")).toBeEmptyDOMElement();
+  });
+
+  it("keeps spacer paragraphs between code blocks outside the code containers", () => {
+    const content = doc([
+      block(BLOCKS.PARAGRAPH, [text("const first = true;\n", ["code"])]),
+      block(BLOCKS.PARAGRAPH, [text("")]),
+      block(BLOCKS.PARAGRAPH, [text("const second = false;\n", ["code"])]),
+    ]);
+    const { container } = render(<>{renderContentfulRichText(content)}</>);
+    const wrappers = container.querySelectorAll(".code-block-wrapper");
+    const spacer = wrappers[0]?.nextElementSibling;
+
+    expect(wrappers).toHaveLength(2);
+    expect(spacer).toHaveClass("paragraph--empty");
+    expect(spacer).toBeEmptyDOMElement();
+    expect(spacer?.nextElementSibling).toBe(wrappers[1]);
+  });
+
+  it("preserves code block whitespace and wraps in code-block-wrapper", () => {
+    const code = "const x = 10;\nconst y = 20;\n\n   ";
+    const { container } = render(
+      <>{renderContentfulRichText(doc([block(BLOCKS.PARAGRAPH, [text(code, ["code"])])]))}</>,
+    );
+    expect(container.querySelector(".code-block-wrapper")).toBeInTheDocument();
+    expect(container.querySelector("code")?.textContent).toBe(code);
   });
 });

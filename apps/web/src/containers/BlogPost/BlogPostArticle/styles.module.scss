@@ -63,7 +63,9 @@
   }
 
   &__main {
+    width: 100%;
     min-width: 0; // prevent blowout
+    max-width: 100%;
   }
 
   &__header {
@@ -133,5 +135,28 @@
 
     color: $t-colors-primary-default;
     background: $t-colors-surface-brand-muted;
+  }
+
+  &__read-time {
+    font-size: $t-font-size-sm;
+    color: $t-colors-text-secondary;
+  }
+
+  &[data-reading-mode="true"] {
+    .blog-post__layout {
+      grid-template-columns: 1fr;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .blog-post__sidebar,
+    .blog-post__mobile-toc {
+      display: none;
+    }
+
+    .blog-post__main,
+    .blog-post__header {
+      max-width: 100%;
+    }
   }
 }

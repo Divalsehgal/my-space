@@ -76,6 +76,38 @@
   background-color: $t-colors-surface-neutral-subtle;
 }
 
+.chat-message__options {
+  display: flex;
+  flex-direction: column;
+  gap: $t-spacing-2;
+  margin-top: $t-spacing-3;
+}
+
+.chat-message__option-btn {
+  cursor: pointer;
+
+  padding: $t-spacing-2 $t-spacing-3;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: $t-radius-md;
+
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-primary;
+  text-align: left;
+
+  background-color: $t-colors-surface-brand-muted;
+
+  transition: all $t-motion-duration-base $t-motion-easing-standard;
+
+  &:hover {
+    border-color: $t-colors-primary-default;
+    color: $t-colors-button-primary-text;
+    background-color: $t-colors-primary-default;
+  }
+
+  @include focus-ring;
+}
+
 .chat-message__sources {
   display: flex;
   flex-wrap: wrap;

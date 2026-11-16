@@ -36,27 +36,25 @@ export function extractToc(content: ContentfulRichText) {
   const seenIds = new Map<string, number>();
 
   content.json.content.forEach((node) => {
-    if (
-      node.nodeType === BLOCKS.HEADING_2 ||
-      node.nodeType === BLOCKS.HEADING_3
-    ) {
-      const text = node.content
-        .filter((c): c is Text => c.nodeType === "text")
-        .map((c) => c.value)
-        .join("");
+    if (!(node.nodeType in HEADING_LEVEL)) {
+      return;
+    }
 
-      if (text) {
-        const baseId = slugify(text);
-        const count = seenIds.get(baseId) || 0;
-        seenIds.set(baseId, count + 1);
-        const id = count === 0 ? baseId : `${baseId}-${count}`;
+    const text = node.content
+      .filter((c): c is Text => c.nodeType === "text")
+      .map((c) => c.value)
+      .join("");
+    const baseId = slugify(text);
+    const count = seenIds.get(baseId) || 0;
+    seenIds.set(baseId, count + 1);
+    const id = count === 0 ? baseId : `${baseId}-${count}`;
 
-        headers.push({
-          id,
-          text,
-          level: node.nodeType === BLOCKS.HEADING_2 ? TOC_LEVEL.section : TOC_LEVEL.subsection,
-        });
-      }
+    if (text && (node.nodeType === BLOCKS.HEADING_2 || node.nodeType === BLOCKS.HEADING_3)) {
+      headers.push({
+        id,
+        text,
+        level: node.nodeType === BLOCKS.HEADING_2 ? TOC_LEVEL.section : TOC_LEVEL.subsection,
+      });
     }
   });
 
@@ -119,10 +117,10 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       [MARKS.BOLD]: (text: ReactNode) => <strong>{text}</strong>,
       [MARKS.ITALIC]: (text: ReactNode) => <em>{text}</em>,
       [MARKS.CODE]: (text: ReactNode) => {
-        const contentStr = typeof text === "string" || typeof text === "number" ? String(text) : "";
+        const rawContent = typeof text === "string" || typeof text === "number" ? String(text) : "";
         // If it's multiline, wrap in our CodeBlock component
-        if (contentStr?.includes("\n")) {
-          return <CodeBlock content={contentStr}>{contentStr}</CodeBlock>;
+        if (rawContent?.includes("\n")) {
+          return <CodeBlock content={rawContent}>{rawContent}</CodeBlock>;
         }
         return <code>{text}</code>;
       },
@@ -139,7 +137,21 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         );
 
         if (hasCodeBlock) {
-          return <div>{children}</div>;
+          return <div className="code-block-wrapper">{children}</div>;
+        }
+
+        // Handle empty paragraphs created in Contentful (e.g. author pressed enter
+        // to add spacing after code block or between blocks). Standard empty <p></p>
+        // collapses to 0 height; providing an empty spacer paragraph preserves intentional spacing.
+        const isEmpty =
+          !node.content ||
+          node.content.length === 0 ||
+          node.content.every(
+            (c) => c.nodeType === "text" && (!c.value || c.value.trim().length === 0),
+          );
+
+        if (isEmpty) {
+          return <p className="paragraph--empty" aria-hidden="true" />;
         }
 
         return <p>{children}</p>;

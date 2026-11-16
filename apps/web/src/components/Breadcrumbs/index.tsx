@@ -34,7 +34,9 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
           id="breadcrumbs-particles"
           className={styles["breadcrumbs__particles-canvas"]}
           fullScreen={false}
+          count={1000}
         />
+        <div className={styles["breadcrumbs__fade"]} />
       </div>
       <JsonLd data={breadcrumbJsonLd} />
       <FluidContainer className={styles["breadcrumbs__content"]}>

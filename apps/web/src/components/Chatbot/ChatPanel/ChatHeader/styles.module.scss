@@ -19,6 +19,12 @@
   min-width: 0;
 }
 
+.chat-header__actions {
+  display: flex;
+  gap: $t-spacing-1;
+  align-items: center;
+}
+
 .chat-header__clear {
   color: $t-colors-text-secondary;
 

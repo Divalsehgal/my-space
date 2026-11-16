@@ -1,0 +1,22 @@
+@use "variables.scss" as *;
+
+.barContainer {
+  pointer-events: none;
+
+  position: fixed;
+
+  // z-index: $t-layer-header + 10;
+  top: 0;
+  right: 0;
+  left: 0;
+
+  height: 3px;
+
+  background: transparent;
+}
+
+.barFill {
+  height: 100%;
+  background: $t-colors-primary-default;
+  transition: width $t-motion-duration-fast $t-motion-easing-standard;
+}

@@ -59,6 +59,7 @@ describe('useChat SSE events', () => {
       role: 'assistant',
       content: 'Final answer',
       sources: [{ title: 'Post', url: '/blogs/post' }],
+      form: 'options',
     });
   });
 

@@ -6,6 +6,10 @@
 
   overflow-x: auto;
 
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: $t-spacing-6 0;
   padding: $t-spacing-6;
   border: 1px solid $t-colors-border-muted;
@@ -13,18 +17,31 @@
 
   background: $t-colors-background-secondary;
 
+  & + .pre {
+    margin-top: $t-spacing-3;
+  }
 
   code {
     display: block;
 
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
     padding: $t-spacing-0;
     border: none;
 
+    font-family: $code-font-family;
     font-size: $t-font-size-sm;
     line-height: $t-font-line-height-normal;
-    color: $t-colors-text-secondary;
+    color: $t-colors-text-primary-muted;
 
     background: none;
+  }
+
+  @media (width <= $t-breakpoint-tablet) {
+    margin: $t-spacing-4 0;
+    padding: $t-spacing-4;
+    border-radius: $t-radius-md;
   }
 }
 

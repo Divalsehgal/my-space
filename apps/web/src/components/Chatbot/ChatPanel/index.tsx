@@ -54,13 +54,21 @@ export default function ChatPanel({ open, pendingMessage, onPendingSent }: Reado
     <AnimatePresence>
       {open && (
         <motion.div key="chatbot-window" {...WINDOW_MOTION} className={styles["chat-panel"]}>
-          <ChatHeader canClear={messages.length > 0} onClear={clearHistory} />
+          <ChatHeader
+            canClear={messages.length > 0}
+            onClear={clearHistory}
+          />
 
           <div ref={scrollRef} className={styles["chat-panel__messages"]} role="log" aria-live="polite" aria-relevant="additions text">
             {messages.length === 0 && !isTyping && <ChatEmptyState onSuggest={sendMessage} />}
             {messages.map((message, index) =>
               message.role === "system" || message.content.length === 0 ? null : (
-                <ChatMessage key={`${message.role}-${index}`} message={message} onRetry={retryLastMessage} />
+                <ChatMessage
+                  key={`${message.role}-${index}`}
+                  message={message}
+                  onRetry={retryLastMessage}
+                  onSuggest={sendMessage}
+                />
               ),
             )}
             {waitingForFirstToken && <TypingIndicator />}

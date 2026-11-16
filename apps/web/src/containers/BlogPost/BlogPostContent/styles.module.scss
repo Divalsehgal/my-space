@@ -3,15 +3,60 @@
 
 // Typography for the rendered rich text (headings, lists, code, tables).
 .content {
+  width: 100%;
+  min-width: 0;
   max-width: 800px;
+
+  font-size: calc(var(--reading-font-scale, 1) * #{$t-font-size-base});
   line-height: $t-font-line-height-relaxed;
   color: $t-colors-text-primary-muted;
+  overflow-wrap: break-word;
 
   p {
+    margin-top: $t-spacing-0;
     margin-bottom: $t-spacing-4;
 
     &:last-child {
       margin-bottom: $t-spacing-0;
+    }
+  }
+
+  .paragraph--empty,
+  :global(.paragraph--empty) {
+    min-height: $t-spacing-6;
+    margin-bottom: $t-spacing-4;
+  }
+
+  .code-block-wrapper,
+  :global(.code-block-wrapper) {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin-top: $t-spacing-6;
+
+    > pre,
+    > :global(pre) {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      margin: 0;
+    }
+
+    & + .code-block-wrapper,
+    & + :global(.code-block-wrapper) {
+      margin-top: $t-spacing-3;
+    }
+
+    & + p,
+    & + :global(p) {
+      margin-top: $t-spacing-4;
+    }
+
+    & + .paragraph--empty,
+    & + :global(.paragraph--empty) {
+      margin-top: $t-spacing-0;
     }
   }
 
@@ -128,10 +173,11 @@
     border: 1px solid $t-colors-surface-brand-strong;
     border-radius: $t-radius-xs;
 
-    font-family: ui-monospace, monospace;
+    font-family: $code-font-family;
     // stylelint-disable-next-line scale-unlimited/declaration-strict-value -- relative to surrounding text size (h2/p/li all differ), not a fixed scale pick
     font-size: 0.9em;
     color: $t-colors-primary-default;
+    overflow-wrap: anywhere;
 
     background: $t-colors-surface-brand-muted;
   }

@@ -8,6 +8,9 @@ import { formatDate } from "@/utils/date";
 import BlogViewTracker from "@/components/BlogViewTracker";
 import BlogQuiz from "@/components/BlogQuiz";
 import ViewTransition from "@/components/ViewTransition";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
+import ReadingModeControls from "@/components/ReadingModeControls";
+import { contentfulToPlainText } from "@/lib/services/contentful-context";
 import BlogPostContent from "../BlogPostContent";
 import styles from "./styles.module.scss";
 
@@ -21,6 +24,9 @@ type BlogPostArticleProps = {
   children?: ReactNode;
 };
 
+/** Average adult reading speed in words per minute. */
+const WORDS_PER_MINUTE = 200;
+
 /** The post article layout, shared by the public page and the live preview. */
 export default function BlogPostArticle({ post, t, trackViews = true, children }: Readonly<BlogPostArticleProps>) {
   const content = renderContentfulRichText(post.content);
@@ -28,9 +34,13 @@ export default function BlogPostArticle({ post, t, trackViews = true, children }
   const tocTitle = t("toc.title");
 
   const formattedDate = formatDate(post.publishedAt || post.date);
+  const plainText = contentfulToPlainText(post.content);
+  const wordCount = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0;
+  const readTimeMinutes = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
 
   return (
-    <article className={styles["blog-post"]}>
+    <article id="blog-article" className={styles["blog-post"]}>
+      <ReadingProgressBar targetId="blog-article" />
       <FluidContainer maxWidth="1400px">
         <div className={styles["blog-post__layout"]}>
           <div className={styles["blog-post__sidebar"]}>
@@ -46,7 +56,12 @@ export default function BlogPostArticle({ post, t, trackViews = true, children }
                 {formattedDate && (
                   <p className={styles["blog-post__date"]}>{t("post.lastUpdated", { date: formattedDate })}</p>
                 )}
+                <span className={styles["blog-post__read-time"]}>
+                  <span aria-hidden="true">{"\u2022"}</span>{" "}
+                  {t("post.readingTime", { minutes: readTimeMinutes })}
+                </span>
                 {trackViews && <BlogViewTracker slug={post.slug} />}
+                <ReadingModeControls />
               </div>
             </header>
             <div className={styles["blog-post__mobile-toc"]}>

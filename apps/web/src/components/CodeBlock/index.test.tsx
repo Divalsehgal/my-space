@@ -30,4 +30,13 @@ describe("CodeBlock", () => {
     await act(async () => fireEvent.click(screen.getByRole("button")));
     expect(error).toHaveBeenCalledWith("Failed to copy text: ", expect.any(Error));
   });
+
+  it("preserves trailing whitespace and newlines in displayed and copied code", async () => {
+    writeText.mockResolvedValue(undefined);
+    const content = "const a = 1;\n\n   ";
+    const { container } = render(<CodeBlock content={content}>{content}</CodeBlock>);
+    expect(container.querySelector("code")?.textContent).toBe(content);
+    await act(async () => fireEvent.click(screen.getByRole("button")));
+    expect(writeText).toHaveBeenCalledWith(content);
+  });
 });

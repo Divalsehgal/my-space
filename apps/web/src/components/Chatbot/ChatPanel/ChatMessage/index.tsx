@@ -10,12 +10,19 @@ import styles from "./styles.module.scss";
 type ChatMessageProps = {
   readonly message: Message;
   readonly onRetry: () => void;
+  readonly onSuggest?: (text: string) => void;
 };
 
 /** One chat bubble: the visitor's text, or the assistant's markdown reply. */
-export default function ChatMessage({ message, onRetry }: ChatMessageProps) {
+export default function ChatMessage({ message, onRetry, onSuggest }: ChatMessageProps) {
   const t = useT();
   const fromUser = message.role === "user";
+  const suggestions = [
+    t("chat.suggestion.about"),
+    t("chat.suggestion.projects"),
+    t("chat.suggestion.contact"),
+    t("chat.suggestion.message"),
+  ];
   return (
     <div className={clsx(styles["chat-message"], fromUser ? styles["chat-message--user"] : styles["chat-message--assistant"])}>
       <div
@@ -49,6 +56,20 @@ export default function ChatMessage({ message, onRetry }: ChatMessageProps) {
               </li>
             ))}
           </ul>
+        )}
+        {message.form === "options" && (
+          <div className={styles["chat-message__options"]}>
+            {suggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => onSuggest?.(suggestion)}
+                className={styles["chat-message__option-btn"]}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
         )}
         {message.isError && (
           <button type="button" onClick={onRetry} className={styles["chat-message__retry"]}>
