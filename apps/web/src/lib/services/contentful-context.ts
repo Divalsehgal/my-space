@@ -2,41 +2,8 @@ import "server-only";
 
 import { fetchContentful, type ContentfulCollectionResponse, type ContentfulPostItem } from "./contentful";
 import { getPostDescription } from "@/lib/contentful/mappers";
-import type { ContentfulRichText } from "@/types/contentful";
-
-/**
- * Simple helper to convert Contentful Rich Text JSON to plain text.
- * Useful for providing context to AI/Chatbots.
- */
-export function contentfulToPlainText(richText: ContentfulRichText): string {
-  if (!richText?.json?.content) {
-    return "";
-  }
-
-  interface RichTextNode {
-    nodeType: string;
-    value?: string;
-    content?: RichTextNode[];
-  }
-
-  const extractText = (nodes: RichTextNode[]): string => {
-    return nodes
-      .map((node) => {
-        if (node.nodeType === "text") {
-          return node.value || "";
-        }
-        if (node.content) {
-          return extractText(node.content);
-        }
-        return "";
-      })
-      .join(" ");
-  };
-
-  return extractText(richText.json.content as unknown as RichTextNode[])
-    .replace(/\s+/g, " ")
-    .trim();
-}
+import { contentfulToPlainText } from "@/lib/contentful/plain-text";
+export { contentfulToPlainText } from "@/lib/contentful/plain-text";
 
 /**
  * Fetches latest blog posts with their full content for AI context purposes.

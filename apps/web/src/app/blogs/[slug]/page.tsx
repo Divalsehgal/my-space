@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import BlogPostContainer from "@/containers/BlogPost";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { SITE_URL, AUTHOR, PERSON_ID, BLOG_ID } from "@/lib/config/site";
-import { contentfulToPlainText } from "@/lib/services/contentful-context";
+import { contentfulToPlainText } from "@/lib/contentful/plain-text";
 import styles from "./styles.module.scss";
 import { getT } from "@/i18n/server";
 

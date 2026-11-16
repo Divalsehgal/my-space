@@ -10,7 +10,7 @@ import BlogQuiz from "@/components/BlogQuiz";
 import ViewTransition from "@/components/ViewTransition";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
 import ReadingModeControls from "@/components/ReadingModeControls";
-import { contentfulToPlainText } from "@/lib/services/contentful-context";
+import { contentfulToPlainText } from "@/lib/contentful/plain-text";
 import BlogPostContent from "../BlogPostContent";
 import styles from "./styles.module.scss";
 
