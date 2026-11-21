@@ -320,7 +320,7 @@
       },
       "data": {
         "label": "Workspace packages",
-        "description": "packages/ shared across apps: @dival-sehgal/design-tokens, @dival-sehgal/fonts, @dival-sehgal/ui, @dival-sehgal/utils."
+        "description": "packages/ shared across apps: @dival-sehgal/design-tokens, @dival-sehgal/fonts, @dival-sehgal/quiz, @dival-sehgal/ui, @dival-sehgal/utils."
       }
     },
     {
@@ -346,7 +346,7 @@
       },
       "data": {
         "label": "API routes",
-        "description": "Next.js route handlers: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/preview, /api/preview/disable, /api/revalidate."
+        "description": "Next.js route handlers: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/contentful/create-quiz-questions, /api/preview, /api/preview/disable, /api/revalidate."
       }
     },
     {

@@ -26,9 +26,11 @@
   },
   "dependencies": {
     "@contentful/live-preview": "^4.10.26",
+    "@contentful/node-apps-toolkit": "4.1.0",
     "@contentful/rich-text-react-renderer": "^16.2.1",
     "@dival-sehgal/design-tokens": "*",
     "@dival-sehgal/next-config": "*",
+    "@dival-sehgal/quiz": "*",
     "@dival-sehgal/ui": "*",
     "@dival-sehgal/utils": "*",
     "@radix-ui/react-toast": "^1.2.23",

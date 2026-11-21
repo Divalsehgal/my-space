@@ -4,27 +4,22 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
-    "dev:web": "vite --host 0.0.0.0 --port 3001",
-    "dev:server": "node server/index.js",
-    "start": "NODE_ENV=production node server/index.js",
-    "sync:content-model": "node scripts/sync-content-model.mjs",
-    "migrate:quiz-content": "node scripts/migrate-quiz-content.mjs",
+    "dev": "vite --host 0.0.0.0 --port 3001",
     "build": "tsc --noEmit && vite build",
-    "build:server": "esbuild server/index.js --bundle --platform=node --target=node22 --format=esm --outfile=server-dist/index.js --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
+    "upload": "npx @contentful/app-scripts@4.1.16 upload --bundle-dir ./dist",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src server scripts",
+    "lint": "eslint src scripts",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "sync:content-model": "node scripts/sync-content-model.mjs",
+    "migrate:quiz-content": "node scripts/migrate-quiz-content.mjs"
   },
   "dependencies": {
     "@contentful/app-sdk": "^4.25.0",
     "@contentful/f36-components": "^4.0.0",
     "@contentful/react-apps-toolkit": "^1.0.0",
-    "concurrently": "^9.2.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "@dival-sehgal/quiz": "*"
@@ -38,7 +33,6 @@
     "vite": "^6.0.0",
     "@dival-sehgal/eslint-config": "*",
     "@dival-sehgal/jest-config": "*",
-    "@dival-sehgal/tsconfig": "*",
-    "esbuild": "0.27.3"
+    "@dival-sehgal/tsconfig": "*"
   }
 }

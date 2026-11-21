@@ -60,7 +60,7 @@ describe("App", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("checkbox"));
     await act(async () => fireEvent.click(importButton()));
-    expect(createQuizQuestions).toHaveBeenCalledWith("quiz-1", expect.objectContaining({ questions: expect.any(Array) }), false);
+    expect(createQuizQuestions).toHaveBeenCalledWith("quiz-1", expect.objectContaining({ questions: expect.any(Array) }), false, expect.any(Function));
     expect(screen.getByText("Done!")).toBeInTheDocument();
   });
 

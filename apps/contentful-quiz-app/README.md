@@ -1,40 +1,46 @@
 # Contentful Quiz Custom App
 
-This is a single deployable service: it serves the Contentful app UI and the quiz-import API from the same HTTPS URL.
+An entry-sidebar app for **Component - Quiz** entries: paste quiz JSON and it creates the questions and options in Contentful and attaches them to the quiz.
 
-## Deploy
+- **UI** (this folder): a Vite + React bundle hosted by Contentful (app hosting), so it loads instantly with no server to wake up.
+- **API**: the Vercel function `apps/web/src/app/api/contentful/create-quiz-questions/route.ts`. It only accepts requests signed by this app (Contentful signed requests), because it creates and publishes content with a management token.
 
-Deploy to any Node host that supports Docker (for example, Railway, Render, Fly.io, or Cloud Run) using `apps/contentful-quiz-app/Dockerfile`.
+## One-time setup
 
-The image depends on the root `yarn.lock` and the shared workspace packages, so the Docker build context must be the **repository root**, not this directory:
+1. **Signing secret.** In Contentful go to *Apps → Manage app definitions → this app → Security*, enable request verification and copy the 64-character signing secret.
+2. **Vercel environment variables** (production) for the web app:
 
-```bash
-docker build -f apps/contentful-quiz-app/Dockerfile .
-```
+   ```text
+   CONTENTFUL_MANAGEMENT_TOKEN=...
+   CONTENTFUL_APP_SIGNING_SECRET=...   # from step 1
+   CONTENTFUL_LOCALE=en-US             # optional
+   ```
 
-On a hosting dashboard, leave the root/source directory empty (repo root) and set the Dockerfile path to `apps/contentful-quiz-app/Dockerfile`. Pointing the root directory at `apps/contentful-quiz-app` fails with `"/yarn.lock": not found`.
+   `CONTENTFUL_SPACE_ID` is the one the site already uses; `CONTENTFUL_ENVIRONMENT_ID` defaults to `master`.
+3. **Build and upload the UI** to Contentful app hosting:
 
-Set these production variables on the host:
+   ```bash
+   VITE_BACKEND_URL=https://divalsehgal.vercel.app/api yarn workspace contentful-quiz-app build
+   yarn workspace contentful-quiz-app upload
+   ```
 
-```text
-CONTENTFUL_SPACE_ID=...
-CONTENTFUL_MANAGEMENT_TOKEN=...
-CONTENTFUL_ENVIRONMENT_ID=master
-CONTENTFUL_LOCALE=en-US
-PORT=3003
-```
+   The upload asks for your organization, the app definition and a management token, then makes the new bundle live. Re-run both commands whenever the UI changes.
 
-Do not set `VITE_BACKEND_URL` in the production build: the UI uses `/api`, so calls remain on the same secure origin.
-
-After deployment, open the returned HTTPS URL plus `/health`; it must return `{"status":"ok"}`. In Contentful, update the app's frontend location to that base URL and install it as an entry-sidebar app only for **Component - Quiz**.
+Install the app as an entry-sidebar app only for **Component - Quiz**.
 
 ## Local development
 
+Run the web app (`yarn workspace web dev`, port 3000) with the variables above in `apps/web/.env.local`, then:
+
 ```bash
-npm run dev
+yarn workspace contentful-quiz-app dev
 ```
 
-Open the Vite URL through your existing HTTPS tunnel when configuring Contentful locally. The Vite proxy forwards `/api` to the local backend.
+Point the app definition's frontend at the Vite URL through your HTTPS tunnel. Vite proxies `/api` to the Next dev server on port 3000.
+
+## Content-model scripts
+
+`sync:content-model` and `migrate:quiz-content` read `CONTENTFUL_SPACE_ID`, `CONTENTFUL_MANAGEMENT_TOKEN` and `CONTENTFUL_ENVIRONMENT_ID` from this folder's `.env`.
 
 ## Publishing workflow
 

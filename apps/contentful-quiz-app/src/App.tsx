@@ -3,7 +3,7 @@ import { Button, Heading, Paragraph, Textarea } from '@contentful/f36-components
 import { useSDK } from '@contentful/react-apps-toolkit';
 import type { SidebarAppSDK } from '@contentful/app-sdk';
 import { optionLetter, parseQuizPayload, type QuizQuestion } from '@dival-sehgal/quiz/validate';
-import { createQuizQuestions } from './api/createQuizQuestions';
+import { createQuizQuestions, type Signer } from './api/createQuizQuestions';
 
 const defaultJson = `{
   "questions": [
@@ -61,7 +61,9 @@ function App() {
       setIsSaving(true);
 
       const payload = parseQuizPayload(jsonInput);
-      const message = await createQuizQuestions(entryId, payload, publishAfterImport);
+      const sign: Signer = async (request) =>
+        (await sdk.cma.appSignedRequest.create({ appDefinitionId: sdk.ids.app ?? '' }, request)).additionalHeaders;
+      const message = await createQuizQuestions(entryId, payload, publishAfterImport, sign);
 
       setSuccess(message || `Created ${payload.questions.length} question(s) successfully. Publish the quiz and its new entries when ready.`);
     } catch (err) {
