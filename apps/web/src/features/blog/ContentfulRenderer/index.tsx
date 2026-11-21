@@ -12,8 +12,9 @@ import {
 } from "@contentful/rich-text-types";
 import { ReactNode } from "react";
 import { AnimatedImageBlock } from "../AnimatedImageBlock";
-import { CodeBlock } from "@/components/CodeBlock";
-import type { ContentfulRichText, ContentfulAsset } from "@/types";
+import { BlogSteps } from "../BlogSteps";
+import { renderCodeMark } from "./renderCodeMark";
+import type { ContentfulRichText, ContentfulAsset, ContentfulStepsBlock } from "@/types";
 import { slugify } from "@dival-sehgal/utils/string";
 
 /** TOC nesting: sections (H2) and subsections (H3+); see TableOfContents. */
@@ -116,14 +117,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
     renderMark: {
       [MARKS.BOLD]: (text: ReactNode) => <strong>{text}</strong>,
       [MARKS.ITALIC]: (text: ReactNode) => <em>{text}</em>,
-      [MARKS.CODE]: (text: ReactNode) => {
-        const rawContent = typeof text === "string" || typeof text === "number" ? String(text) : "";
-        // If it's multiline, wrap in our CodeBlock component
-        if (rawContent?.includes("\n")) {
-          return <CodeBlock content={rawContent}>{rawContent}</CodeBlock>;
-        }
-        return <code>{text}</code>;
-      },
+      [MARKS.CODE]: renderCodeMark,
     },
     renderNode: {
       [BLOCKS.PARAGRAPH]: (node: Block | Inline, children: ReactNode) => {
@@ -205,7 +199,7 @@ export function renderContentfulRichText(content: ContentfulRichText) {
       ),
       [BLOCKS.HR]: () => <hr />,
       [BLOCKS.TABLE]: (_node: Block | Inline, children: ReactNode) => (
-        <div style={{ overflowX: "auto", maxWidth: "100%", WebkitOverflowScrolling: "touch" }}>
+        <div style={{ overflowX: "auto", overscrollBehaviorX: "contain", maxWidth: "100%", WebkitOverflowScrolling: "touch" }}>
           <table>
             <tbody>{children}</tbody>
           </table>
@@ -230,6 +224,18 @@ export function renderContentfulRichText(content: ContentfulRichText) {
         }
 
         return <AnimatedImageBlock asset={asset} />;
+      },
+      [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
+        const id = (node.data.target as { sys: { id: string } }).sys.id;
+        const entry = content.links?.entries?.block?.find((candidate) => candidate?.sys.id === id);
+        if (entry?.__typename !== "BlogSteps") {
+          return null;
+        }
+        const { title, stepsCollection } = entry as ContentfulStepsBlock;
+        const steps = (stepsCollection?.items ?? [])
+          .filter((step) => step !== null)
+          .map((step) => ({ id: step.sys.id, title: step.title, content: step.body && renderContentfulRichText(step.body) }));
+        return <BlogSteps title={title} steps={steps} />;
       },
       [INLINES.HYPERLINK]: (node: Block | Inline, children: ReactNode) => (
         <a

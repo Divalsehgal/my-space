@@ -26,4 +26,21 @@ describe("ArchitectureTiers", () => {
     expect(screen.getByText("(requests)")).toBeInTheDocument();
     expect(screen.getAllByText("Contentful").length).toBeGreaterThan(1); // card + connection
   });
+
+  it("uses named layers in order when the diagram provides them", () => {
+    const layered = [
+      { ...nodes[0], tier: "shell" as const },
+      { ...nodes[1], tier: "pages" as const },
+      { ...nodes[2], tier: "services" as const },
+    ];
+    const layers = [
+      { id: "shell" as const, label: "App shell" },
+      { id: "pages" as const, label: "Pages & routes" },
+      { id: "features" as const, label: "Feature modules" },
+      { id: "services" as const, label: "Services & APIs" },
+    ];
+    render(<ArchitectureTiers nodes={layered} edges={edges} layers={layers} />);
+    // Empty layers are skipped.
+    expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual(["App shell", "Pages & routes", "Services & APIs"]);
+  });
 });

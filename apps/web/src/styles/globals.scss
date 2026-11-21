@@ -9,7 +9,7 @@ $document-color-scheme-dark: dark;
 // ---------------------------------------------------------------------------
 // CSS LAYER ORDER (MUST be declared first):
 // 1. base       — Resets, element defaults, global layout rules
-// 2. utilities  — Single-purpose utility classes (scroll snapping, etc.)
+// 2. utilities  — Single-purpose utility classes (etc.)
 // 3. components — Global component baseline styles (only if needed)
 // UNLAYERED STYLES (CSS Modules) always win over ANY layered style.
 // This ensures component .module.scss files maintain full control over styling.
@@ -34,20 +34,14 @@ $document-color-scheme-dark: dark;
 $home-top-bar-height: 48px;
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: $t-spacing-16; // Clears the fixed navbar
   color-scheme: $document-color-scheme-light;
 
 }
 
-// The HomeTopBar scrolls away with the page (it is NOT fixed), so it must not
-// widen the global scroll-padding-top — doing so offset EVERY snap point by the
-// bar's height and left a strip of the previous section (e.g. Hero particles)
-// visible under the navbar. Only the first section needs to account for it:
-// extending Hero's snap area upward keeps the bar in view at scroll 0, and
-// shrinking Hero by the same amount keeps navbar + bar + Hero at exactly one
-// viewport (otherwise the oversized snap area adds a stray resting point).
-// Resolved server-side via data-has-top-bar, so it's correct on first paint.
+// The HomeTopBar scrolls away with the page (it is NOT fixed), so only Hero
+// accounts for it: jumping to #home keeps the bar in view, and navbar + bar +
+// Hero fill exactly one viewport. Resolved server-side via data-has-top-bar.
 .page-scroll[data-has-top-bar="true"] > #home {
   scroll-margin-top: $home-top-bar-height;
   min-height: calc(100vh - #{$t-spacing-16} - #{$home-top-bar-height});
@@ -96,9 +90,6 @@ html {
 
   /* --- reusable section class for ALL sections --- */
   .section {
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
-
     position: relative;
 
     overflow: visible;
@@ -175,21 +166,6 @@ a {
 
   // Add some padding bottom to ensure last section doesn't overlap footer
   // or that there is enough space to scroll to footer if needed
-}
-
-// Lenis (components/SmoothScroll) drives scrolling itself; native smooth
-// scrolling would fight it.
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
 }
 
 // ---------------------------------------------------------------------------

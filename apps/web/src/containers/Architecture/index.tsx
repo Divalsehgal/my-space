@@ -38,8 +38,8 @@ export default function Architecture({ data, headingLevel: Heading = "h2", title
         )}
       </header>
 
-      <ArchitectureTiers nodes={data.nodes} edges={data.edges} />
-      <LazyArchitectureDiagram nodes={data.nodes} edges={data.edges} />
+      <ArchitectureTiers nodes={data.nodes} edges={data.edges} layers={data.layers} />
+      <LazyArchitectureDiagram nodes={data.nodes} edges={data.edges} layers={data.layers} />
     </div>
   );
 }

@@ -15,35 +15,6 @@
 
   background-color: $t-colors-surface-brand-muted;
 
-  &__particles {
-    pointer-events: none;
-
-    position: absolute;
-    z-index: 0;
-    inset: 0;
-
-    mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
-  }
-
-  &__particles-canvas {
-    position: absolute;
-    inset: 0;
-    opacity: 0.75;
-  }
-
-  &__fade {
-    pointer-events: none;
-
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-
-    height: $t-spacing-3;
-
-    background: linear-gradient(to bottom, transparent, $t-colors-surface-page-fade);
-  }
-
   &__content {
     position: relative;
     z-index: 1;

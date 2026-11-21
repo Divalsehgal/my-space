@@ -47,7 +47,6 @@ export default function RouteModal({ children, labelledBy, closeLabel }: Readonl
       onClick={(event) => {
         if (event.target === event.currentTarget) {close();}
       }}
-      data-lenis-prevent
     >
       <div className={styles["modal__panel"]}>
         <IconButton className={styles["modal__close"]} onClick={close} aria-label={closeLabel}>

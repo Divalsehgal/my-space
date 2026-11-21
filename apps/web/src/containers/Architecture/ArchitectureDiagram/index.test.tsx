@@ -48,4 +48,20 @@ describe("ArchitectureDiagram Component", () => {
     expect(screen.getByText("Headless CMS for content.")).toBeInTheDocument();
   });
 
+  it("draws a heading for each named layer that has nodes", () => {
+    const layered = [
+      { ...nodes[0], tier: "shell" as const },
+      { ...nodes[1], tier: "services" as const },
+    ];
+    const layers = [
+      { id: "shell" as const, label: "App shell" },
+      { id: "pages" as const, label: "Pages & routes" },
+      { id: "services" as const, label: "Services & APIs" },
+    ];
+    renderWithTheme(<ArchitectureDiagram nodes={layered} edges={edges} layers={layers} />);
+
+    expect(screen.getByText("App shell")).toBeInTheDocument();
+    expect(screen.getByText("Services & APIs")).toBeInTheDocument();
+    expect(screen.queryByText("Pages & routes")).not.toBeInTheDocument();
+  });
 });

@@ -7,9 +7,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * an HMAC of a fixed label — never the secret itself — which API routes check.
  * Nothing about the secret is ever sent to client code.
  */
-export const OWNER_SESSION_COOKIE = "owner_session";
-/** Non-sensitive, JS-readable hint so client code can skip analytics for the owner. */
-export const OWNER_FLAG_COOKIE = "owner_mode";
+export { OWNER_FLAG_COOKIE, OWNER_SESSION_COOKIE } from "./constants";
 export { SECONDS_PER_YEAR as OWNER_COOKIE_MAX_AGE } from "@dival-sehgal/utils/time";
 
 const secret = () => process.env.ADMIN_VIEW_SECRET || "";

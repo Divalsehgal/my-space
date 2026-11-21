@@ -1,0 +1,43 @@
+@use "variables.scss" as *;
+
+// Sits in the prose column; the inner rich text inherits the post typography.
+.steps {
+  margin: $t-spacing-12 0;
+  padding: $t-spacing-6;
+  border: 1px solid $t-colors-border-subtle;
+  border-radius: $t-radius-sm;
+
+  background: $t-colors-surface-glass;
+}
+
+.step {
+  min-height: $t-spacing-24;
+
+  &__title {
+    display: flex;
+    gap: $t-spacing-3;
+    align-items: baseline;
+
+    margin: 0 0 $t-spacing-4;
+
+    font-size: $t-font-size-md;
+    font-weight: $t-font-weight-bold;
+    line-height: $t-font-line-height-tight;
+    color: $t-colors-text-primary;
+  }
+
+  &__number {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+
+    width: $t-spacing-8;
+    height: $t-spacing-8;
+    border-radius: 50%;
+
+    font-size: $t-font-size-sm;
+    color: $t-colors-primary-default;
+
+    background: $t-colors-surface-brand-muted;
+  }
+}

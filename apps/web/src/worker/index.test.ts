@@ -117,8 +117,9 @@ describe("worker /api/history", () => {
   });
 });
 
+const JSON_HEADERS = { "Content-Type": "application/json" };
 const call = (env: Env, path: string, init: RequestInit = {}, base = "https://w.dev") =>
-  worker.fetch(new Request(`${base}${path}`, init), env, { waitUntil: () => undefined });
+  worker.fetch(new Request(`${base}${path}`, init.body === undefined ? init : { headers: JSON_HEADERS, ...init }), env, { waitUntil: () => undefined });
 
 describe("worker /api/chat edge cases", () => {
   beforeEach(() => {
@@ -133,6 +134,13 @@ describe("worker /api/chat edge cases", () => {
     expect((await call(env, "/api/chat", { method: "POST", body: "{" })).status).toBe(400);
     expect((await call(env, "/api/chat", { method: "POST", body: "null" })).status).toBe(400);
     expect((await call(env, "/api/chat", { method: "POST", body: JSON.stringify({ message: 5 }) })).status).toBe(400);
+  });
+
+  it("rejects a non-JSON content type, which a cross-site form could send without a preflight", async () => {
+    const { env } = makeEnv([]);
+    const res = await call(env, "/api/chat", { method: "POST", body: JSON.stringify({ message: "hi" }), headers: { "Content-Type": "text/plain" } });
+    expect(res.status).toBe(415);
+    expect(env.CHAT_SESSIONS.put).not.toHaveBeenCalled();
   });
 
   it("streams a refusal for a blocked message", async () => {

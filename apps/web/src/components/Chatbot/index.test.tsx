@@ -18,6 +18,7 @@ describe('Chatbot Component', () => {
   const mockSendMessage = jest.fn();
   const mockClearHistory = jest.fn();
   const mockRetryLastMessage = jest.fn();
+  const mockShowOptions = jest.fn();
 
   const mockUseChat = (overrides = {}) => {
     (useChat as jest.Mock).mockReturnValue({
@@ -26,6 +27,7 @@ describe('Chatbot Component', () => {
       sendMessage: mockSendMessage,
       retryLastMessage: mockRetryLastMessage,
       clearHistory: mockClearHistory,
+      showOptions: mockShowOptions,
       ...overrides,
     });
   };
@@ -115,6 +117,28 @@ describe('Chatbot Component', () => {
     fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
     fireEvent.click(screen.getByLabelText(/start a new chat/i));
     expect(mockClearHistory).toHaveBeenCalledTimes(1);
+  });
+
+  it('goes back to the options menu from the header', () => {
+    mockUseChat({
+      messages: [{ role: 'user', content: 'Hi' }],
+    });
+    render(<Chatbot />);
+    fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to options' }));
+    expect(mockShowOptions).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides the back to options button while the conversation is empty', () => {
+    render(<Chatbot />);
+    fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
+    expect(screen.queryByRole('button', { name: 'Back to options' })).not.toBeInTheDocument();
+  });
+
+  it('opts the panel out of page smooth-scroll so wheel/touch stay inside', () => {
+    render(<Chatbot />);
+    fireEvent.click(screen.getByLabelText(/toggle chatbot/i));
+    expect(screen.getByRole('log').closest('[data-lenis-prevent]')).toBeInTheDocument();
   });
 
   it('shows the typing indicator only while waiting for the first token', () => {

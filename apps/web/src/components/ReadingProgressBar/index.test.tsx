@@ -3,24 +3,30 @@ import "@testing-library/jest-dom";
 import ReadingProgressBar from "./index";
 
 describe("ReadingProgressBar", () => {
-  it("renders a progressbar and updates on scroll", () => {
+  it("scales the fill to the share of the article read", () => {
     const article = document.createElement("article");
     article.id = "blog-article";
-    Object.defineProperty(article, "getBoundingClientRect", {
-      value: () => ({ top: -200, height: 1000 }),
-    });
+    let top = 0;
+    Object.defineProperty(article, "getBoundingClientRect", { value: () => ({ top, height: 1000 + window.innerHeight }) });
     document.body.appendChild(article);
+    const raf = jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+      cb(0);
+      return 1;
+    });
 
     render(<ReadingProgressBar targetId="blog-article" />);
-
     const bar = screen.getByRole("progressbar");
-    expect(bar).toBeInTheDocument();
+    const fill = bar.firstElementChild as HTMLElement;
+    expect(fill.style.transform).toBe("scaleX(0)");
 
+    top = -250;
     act(() => {
       fireEvent.scroll(window);
     });
 
-    expect(bar).toHaveAttribute("aria-valuenow");
-    document.body.removeChild(article);
+    expect(fill.style.transform).toBe("scaleX(0.25)");
+    expect(bar).toHaveAttribute("aria-valuenow", "25");
+    raf.mockRestore();
+    article.remove();
   });
 });

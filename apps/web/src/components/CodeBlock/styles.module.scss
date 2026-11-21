@@ -1,10 +1,14 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 .pre {
   position: relative;
 
   overflow-x: auto;
+
+  // Swiping to the end of a long line must not pan or back-swipe the page.
+  overscroll-behavior-x: contain;
 
   box-sizing: border-box;
   width: 100%;

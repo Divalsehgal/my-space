@@ -40,7 +40,6 @@
   @include focus-ring;
 
   &:hover {
-    transform: scale(1.1);
     background-color: $t-colors-primary-active;
   }
 

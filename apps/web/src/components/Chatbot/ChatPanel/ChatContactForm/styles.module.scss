@@ -66,11 +66,11 @@
     cursor: pointer;
 
     padding: $t-spacing-1 $t-spacing-3;
-    border: 1px solid $t-colors-border-muted;
-    border-radius: $t-radius-full;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-sm;
 
     font-size: $t-font-size-xxs;
-    color: $t-colors-text-primary;
+    color: $t-colors-text-secondary;
 
     background-color: $t-colors-surface-neutral-subtle;
 
@@ -79,8 +79,8 @@
     @include focus-ring;
 
     &:hover:not(:disabled) {
-      border-color: $t-colors-primary-default;
-      color: $t-colors-primary-default;
+      border-color: $t-colors-border-muted;
+      color: $t-colors-text-primary;
     }
 
     &:disabled {
@@ -104,14 +104,12 @@
 
   &__row {
     padding: $t-spacing-2;
-    border: 1px solid $t-colors-border-muted;
-    border-radius: $t-radius-md;
+    border: 1px solid $t-colors-border-subtle;
+    border-radius: $t-radius-sm;
 
     dt {
       font-size: $t-font-size-xxs;
-      font-weight: $t-font-weight-bold;
-      color: $t-colors-text-secondary-muted;
-      text-transform: uppercase;
+      color: $t-colors-text-tertiary;
     }
 
     dd {

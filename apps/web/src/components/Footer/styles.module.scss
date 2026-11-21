@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 
 // The close of every page: one full field in the accent, its ink inverted.
@@ -23,7 +24,6 @@
 
   background-color: $t-colors-background-primary;
 
-  // Removed global scroll-snap-align to prevent "scroll trap" on non-landing pages
 
   &__mail {
     width: fit-content;
@@ -169,11 +169,6 @@
         font-size: $t-spacing-5;
       }
     }
-  }
-
-  // For mandatory snap regions (like landing pages), restore snapping
-  :global(.snap-mandatory) & {
-    scroll-snap-align: start;
   }
 
   &__bottom {

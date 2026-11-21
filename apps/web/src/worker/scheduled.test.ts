@@ -1,9 +1,9 @@
 /** @jest-environment node */
 import worker from "./index";
-import { runSeed } from "./seed";
+import { runSeed } from "./services/seeder";
 import type { Env } from "./types";
 
-jest.mock("./seed", () => ({ ...jest.requireActual("./seed"), runSeed: jest.fn() }));
+jest.mock("./services/seeder", () => ({ ...jest.requireActual("./services/seeder"), runSeed: jest.fn() }));
 
 describe("worker.scheduled", () => {
   it("logs reseed success and failure", async () => {

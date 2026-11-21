@@ -32,6 +32,17 @@ export const BLOG_POST_BY_SLUG_QUERY = `query GetBlogPostBySlug($slug: String!, 
               height
             }
           }
+          entries {
+            block {
+              __typename
+              sys {
+                id
+              }
+              # shortcut: GraphQL rejects fragments on unknown types, so this stays commented until the
+              # blogSteps/blogStep content types exist in Contentful (see features/blog/BlogSteps); then uncomment.
+              # ... on BlogSteps { title stepsCollection(limit: 20) { items { __typename sys { id } title body { json } } } }
+            }
+          }
         }
       }
       quiz {

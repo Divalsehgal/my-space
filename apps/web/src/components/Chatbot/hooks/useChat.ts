@@ -186,6 +186,18 @@ export function useChat() {
     await requestReply(lastUserMessage.content);
   }, [isTyping, messages, requestReply]);
 
+  // Back to the main menu from anywhere: stops a streaming reply, no user bubble.
+  const showOptions = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsTyping(false);
+    setMessages(prev =>
+      prev.at(-1)?.form === 'options'
+        ? prev
+        : [...clearPreviousSuggestions(prev), { role: 'assistant', content: t('chat.emptyTitle'), form: 'options' }]
+    );
+  }, [t]);
+
   const clearHistory = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
@@ -196,5 +208,5 @@ export function useChat() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  return { messages, isTyping, sendMessage, retryLastMessage, clearHistory };
+  return { messages, isTyping, sendMessage, retryLastMessage, clearHistory, showOptions };
 }

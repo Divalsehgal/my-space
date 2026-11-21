@@ -41,7 +41,11 @@ In SCSS, use `$t-…`. In TS, import from `@dival-sehgal/design-tokens/light` or
   emits `rgba(var(--x), .1)`, which is invalid CSS that the browser drops.
   Stylelint blocks `rgb()` and `rgba()` for this reason.
 
-## Shared mixins (`styles/mixins.scss`, `styles/_motion.scss`)
+## Shared mixins (`packages/ui/src/styles/_mixins.scss`, `_motion.scss`)
+
+They ship with the UI package, which is on the app's Sass load path: `@use "mixins" as *;`
+gives the mixins plus the shared metrics. App-only one-off values live in
+`apps/web/src/styles/_constants.scss`: add `@use "constants" as *;` when you need one.
 
 | Mixin | Purpose |
 |---|---|

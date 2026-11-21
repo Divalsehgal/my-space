@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 .about {
   scroll-margin-top: calc(#{$t-spacing-16} + #{$t-spacing-6}); // clears the fixed navbar

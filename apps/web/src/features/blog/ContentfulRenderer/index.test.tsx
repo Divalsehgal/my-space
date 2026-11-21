@@ -122,12 +122,22 @@ describe("renderContentfulRichText", () => {
     expect(spacer?.nextElementSibling).toBe(wrappers[1]);
   });
 
-  it("preserves code block whitespace and wraps in code-block-wrapper", () => {
-    const code = "const x = 10;\nconst y = 20;\n\n   ";
+  it("moves trailing blank lines out of the code block as spacers", () => {
+    const code = "  const x = 10;\nconst y = 20;\n\n   ";
     const { container } = render(
       <>{renderContentfulRichText(doc([block(BLOCKS.PARAGRAPH, [text(code, ["code"])])]))}</>,
     );
-    expect(container.querySelector(".code-block-wrapper")).toBeInTheDocument();
-    expect(container.querySelector("code")?.textContent).toBe(code);
+    const wrapper = container.querySelector(".code-block-wrapper");
+    expect(wrapper).toBeInTheDocument();
+    expect(container.querySelector("code")?.textContent).toBe("  const x = 10;\nconst y = 20;");
+    expect(wrapper?.querySelectorAll(".paragraph--empty")).toHaveLength(1);
+  });
+
+  it("keeps spaces around inline code outside the code element", () => {
+    const { container } = render(
+      <>{renderContentfulRichText(doc([block(BLOCKS.PARAGRAPH, [text("a"), text(" location ", ["code"]), text(", b")])]))}</>,
+    );
+    expect(container.querySelector("code")?.textContent).toBe("location");
+    expect(container.querySelector("p")?.textContent).toBe("a location , b");
   });
 });

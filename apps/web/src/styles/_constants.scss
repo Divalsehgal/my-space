@@ -2,10 +2,9 @@
 // token or variable for spacing, position, weight and line-height, so a
 // one-off value gets a name that says why it exists. Prefer a token
 // ($t-spacing-*, $t-font-*) whenever one fits.
-@forward "metrics"; // shared with the UI package ($hairline-offset)
+@forward "metrics"; // shared with the UI package ($hairline, $hairline-offset, $line-height-heading)
 
 // Spacing below the 4px token step
-$hairline: 1px; // inner padding that keeps a 1px gradient border visible
 $micro-space: 2px; // tightest gap: meter bars, ranked lists, chip/kbd padding
 $baseline-nudge: 3px; // optically aligns small labels with larger numerals
 
@@ -14,7 +13,6 @@ $line-height-display: 0.95; // oversized display headings
 $line-height-poster: 0.9; // the name and section titles set as posters
 $line-height-lead: 1.35; // the lead sentence under a display line
 $letter-spacing-poster: -0.045em; // tracking for black uppercase poster type
-$line-height-heading: 1.1;
 $line-height-snug: 1.15;
 $line-height-comfortable: 1.5; // chat bubbles
 $line-height-reading: 1.75; // lead paragraph

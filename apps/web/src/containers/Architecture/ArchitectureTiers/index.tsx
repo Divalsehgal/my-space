@@ -1,4 +1,4 @@
-import type { ArchitectureEdgeConfig, ArchitectureNodeConfig } from "@/features/portfolio";
+import type { ArchitectureConfig, ArchitectureEdgeConfig, ArchitectureNodeConfig } from "@/features/portfolio";
 import { CloudIcon, DnsIcon, LanguageIcon, StorageIcon, WidgetsIcon } from "@dival-sehgal/ui/icons";
 import styles from "./styles.module.scss";
 import { getT } from "@/i18n/server";
@@ -12,7 +12,7 @@ const TIER_LABEL = {
 type Tier = keyof typeof TIER_LABEL;
 
 /** Tier from the node, or inferred from its row in the canvas layout. */
-function tierOf(node: ArchitectureNodeConfig, rows: number[]): Tier {
+function tierOf(node: ArchitectureNodeConfig, rows: number[]): string {
   if (node.tier) {return node.tier;}
   const row = rows.indexOf(node.position.y);
   if (row <= 0) {return "client";}
@@ -22,6 +22,8 @@ function tierOf(node: ArchitectureNodeConfig, rows: number[]): Tier {
 interface ArchitectureTiersProps {
   nodes: ArchitectureNodeConfig[];
   edges: ArchitectureEdgeConfig[];
+  /** Named layers (generated diagrams); otherwise the client/compute/data tiers. */
+  layers?: ArchitectureConfig["layers"];
 }
 
 /**
@@ -29,19 +31,22 @@ interface ArchitectureTiersProps {
  * tier, each component a card whose details expand on tap and which lists
  * what it talks to. Server-rendered HTML (indexable, no JS, no canvas).
  */
-export default function ArchitectureTiers({ nodes, edges }: Readonly<ArchitectureTiersProps>) {
+export default function ArchitectureTiers({ nodes, edges, layers }: Readonly<ArchitectureTiersProps>) {
   const t = getT();
   const rows = [...new Set(nodes.map((node) => node.position.y))].sort((a, b) => a - b);
   const byId = new Map(nodes.map((node) => [node.id, node]));
-  const tiers = (Object.keys(TIER_LABEL) as Tier[])
-    .map((tier) => ({ tier, members: nodes.filter((node) => tierOf(node, rows) === tier) }))
+  const tierList = layers?.length
+    ? layers.map(({ id, label }) => ({ id, label }))
+    : (Object.keys(TIER_LABEL) as Tier[]).map((id) => ({ id, label: t(TIER_LABEL[id]) }));
+  const tiers = tierList
+    .map(({ id, label }) => ({ tier: id, label, members: nodes.filter((node) => tierOf(node, rows) === id) }))
     .filter(({ members }) => members.length > 0);
 
   return (
     <ol className={styles.tiers} aria-label={t("architecture.tiersLabel")}>
-      {tiers.map(({ tier, members }) => (
+      {tiers.map(({ tier, label, members }) => (
         <li key={tier} className={styles["tiers__layer"]}>
-          <h3 className={styles["tiers__label"]}>{t(TIER_LABEL[tier])}</h3>
+          <h3 className={styles["tiers__label"]}>{label}</h3>
           <ul className={styles["tiers__nodes"]}>
             {members.map((node) => {
               const Icon = (node.type && ICONS[node.type]) || WidgetsIcon;

@@ -14,7 +14,7 @@ import IconButton from "@dival-sehgal/ui/icon-button";
 import { CloseIcon } from "@dival-sehgal/ui/icons";
 import ArchitectureNode, { type ArchitectureFlowNode } from "../ArchitectureNode";
 import styles from "./styles.module.scss";
-import { type ArchitectureNodeConfig, type ArchitectureEdgeConfig } from "@/features/portfolio";
+import { type ArchitectureConfig, type ArchitectureNodeConfig, type ArchitectureEdgeConfig } from "@/features/portfolio";
 import { useThemeContext } from "@/context/ThemeContext";
 import { TColorsTextSecondaryMuted as EDGE_COLOR_LIGHT } from "@dival-sehgal/design-tokens/light";
 import { TColorsTextSecondaryMuted as EDGE_COLOR_DARK } from "@dival-sehgal/design-tokens/dark";
@@ -28,19 +28,30 @@ const nodeTypes = {
   external: ArchitectureNode,
   data: ArchitectureNode,
   default: ArchitectureNode,
+  layer: LayerLabel,
 };
+
+/** Row heading drawn on the canvas, left of each layer's nodes. */
+function LayerLabel({ data }: { data: { label: string } }) {
+  return <span className={styles.layer}>{data.label}</span>;
+}
+const LAYER_LABEL_OFFSET = 320;
 
 /** Vertical node span (px) above which the canvas grows past its default height. */
 const TALL_SPAN = 500;
 const CANVAS_PADDING = 200;
 const MAX_CANVAS_HEIGHT = 1100;
+/** Height-to-width ratio above which a diagram counts as tall. */
+const TALL_RATIO = 0.6;
 
 interface ArchitectureDiagramProps {
   nodes: ArchitectureNodeConfig[];
   edges: ArchitectureEdgeConfig[];
+  /** Named layers, each drawn as a heading left of its row. */
+  layers?: ArchitectureConfig["layers"];
 }
 
-export default function ArchitectureDiagram({ nodes, edges }: Readonly<ArchitectureDiagramProps>) {
+export default function ArchitectureDiagram({ nodes, edges, layers }: Readonly<ArchitectureDiagramProps>) {
   const t = useT();
   const [selectedNode, setSelectedNode] = useState<ArchitectureNodeConfig | null>(null);
   const { mode } = useThemeContext();
@@ -50,16 +61,22 @@ export default function ArchitectureDiagram({ nodes, edges }: Readonly<Architect
   // color set in styles.module.scss.
   const edgeColor = mode === "dark" ? EDGE_COLOR_DARK : EDGE_COLOR_LIGHT;
 
-  const flowNodes: ArchitectureFlowNode[] = useMemo(
-    () =>
-      nodes.map((node) => ({
-        id: node.id,
-        position: node.position,
-        type: node.type ?? "default",
-        data: node.data,
-      })),
-    [nodes],
-  );
+  const flowNodes = useMemo(() => {
+    const minX = Math.min(...nodes.map((node) => node.position.x));
+    const layerNodes = (layers ?? []).flatMap(({ id, label }) => {
+      const row = nodes.find((node) => node.tier === id);
+      return row
+        ? [{ id: `layer:${id}`, type: "layer", position: { x: minX - LAYER_LABEL_OFFSET, y: row.position.y }, data: { label }, selectable: false, focusable: false }]
+        : [];
+    });
+    const componentNodes: ArchitectureFlowNode[] = nodes.map((node) => ({
+      id: node.id,
+      position: node.position,
+      type: node.type ?? "default",
+      data: node.data,
+    }));
+    return [...layerNodes, ...componentNodes];
+  }, [nodes, layers]);
 
   const flowEdges: Edge[] = useMemo(
     () =>
@@ -76,10 +93,12 @@ export default function ArchitectureDiagram({ nodes, edges }: Readonly<Architect
   );
 
   // Tall diagrams (the chatbot LLD) get a taller canvas instead of shrinking to unreadable text.
+  // Wide ones (the layered overview) are width-bound, so extra height would only add empty space.
   const canvasStyle = useMemo(() => {
-    const ys = nodes.map((node) => node.position.y);
-    const span = ys.length ? Math.max(...ys) - Math.min(...ys) : 0;
-    return span > TALL_SPAN ? ({ "--canvas-height": `${Math.min(span + CANVAS_PADDING, MAX_CANVAS_HEIGHT)}px` } as React.CSSProperties) : undefined;
+    const spanOf = (values: number[]) => (values.length ? Math.max(...values) - Math.min(...values) : 0);
+    const span = spanOf(nodes.map((node) => node.position.y));
+    const isTall = span > TALL_SPAN && span > spanOf(nodes.map((node) => node.position.x)) * TALL_RATIO;
+    return isTall ? ({ "--canvas-height": `${Math.min(span + CANVAS_PADDING, MAX_CANVAS_HEIGHT)}px` } as React.CSSProperties) : undefined;
   }, [nodes]);
 
   return (

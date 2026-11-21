@@ -45,14 +45,16 @@ export const ProjectConfigSchema = z.object({
 /**
  * Shape deliberately mirrors React Flow's own Node/Edge types (id, position,
  * data, type) so mapping config -> <ReactFlow> props is a near pass-through
- * rather than a transform. See containers/Home/Architecture.
+ * rather than a transform. See containers/Architecture.
  */
+export const ArchitectureTierSchema = z.enum(["client", "compute", "data", "shell", "pages", "features", "shared", "services"]);
+
 export const ArchitectureNodeConfigSchema = z.object({
   id: z.string(),
   position: z.object({ x: z.number(), y: z.number() }),
   type: z.enum(["frontend", "backend", "external", "data"]).optional(),
-  /** Layer used by the stacked mobile layout (generated diagrams set it). */
-  tier: z.enum(["client", "compute", "data"]).optional(),
+  /** Layer the node belongs to: a row on the canvas, a section in the stacked mobile layout. */
+  tier: ArchitectureTierSchema.optional(),
   data: z.object({
     label: z.string(),
     description: z.string().optional(),
@@ -74,6 +76,8 @@ export const ArchitectureEdgeConfigSchema = z.object({
 export const ArchitectureConfigSchema = z.object({
   title: z.string().optional(),
   subtitle: z.string().optional(),
+  /** Named layers, top to bottom. Without them the client/compute/data tiers are used. */
+  layers: z.array(z.object({ id: ArchitectureTierSchema, label: z.string() })).optional(),
   nodes: z.array(ArchitectureNodeConfigSchema).optional().default([]),
   edges: z.array(ArchitectureEdgeConfigSchema).optional().default([]),
 });

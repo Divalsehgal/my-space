@@ -160,6 +160,51 @@ describe('useChat', () => {
     expect(result.current.messages).toHaveLength(0);
   });
 
+  it('shows the options menu once, moving it to the end of the conversation', async () => {
+    globalThis.fetch = jest.fn(async () =>
+      jsonResponse({ messages: [{ role: 'user', content: 'Hi' }, { role: 'assistant', content: 'Hello' }] }),
+    ) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    await waitFor(() => expect(result.current.messages).toHaveLength(2));
+
+    // Already showing options: no duplicate menu.
+    act(() => result.current.showOptions());
+    expect(result.current.messages).toHaveLength(2);
+
+    // Mid contact flow: the menu comes back at the end, old one cleared, no user bubble.
+    await act(async () => {
+      await result.current.sendMessage('Send a message to Dival');
+    });
+    act(() => result.current.showOptions());
+    const { messages } = result.current;
+    expect(messages.filter(m => m.form === 'options')).toHaveLength(1);
+    expect(messages.at(-1)).toEqual({ role: 'assistant', content: 'How can I help?', form: 'options' });
+    expect(messages.at(-2)?.form).toBe('contact');
+  });
+
+  it('stops a pending reply when going back to options', async () => {
+    let signal: AbortSignal | undefined;
+    globalThis.fetch = jest.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/api/history')) {
+        return jsonResponse({ messages: [] });
+      }
+      signal = init?.signal ?? undefined;
+      return new Promise<Response>(() => undefined);
+    }) as unknown as typeof fetch;
+
+    const { result } = renderHook(() => useChat());
+    act(() => {
+      void result.current.sendMessage('What stack?');
+    });
+    await waitFor(() => expect(result.current.isTyping).toBe(true));
+
+    act(() => result.current.showOptions());
+    expect(signal?.aborted).toBe(true);
+    expect(result.current.isTyping).toBe(false);
+    expect(result.current.messages.at(-1)?.form).toBe('options');
+  });
+
   it('ignores failed, malformed or empty history responses', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     const empty = [null, 'text', { role: 'assistant', content: '   ' }];

@@ -1,66 +1,374 @@
 {
   "title": "Architecture",
-  "subtitle": "Generated from this site's own code on every build.",
+  "subtitle": "App shell → pages → feature modules → shared code → services, read from this site's imports on every build.",
+  "layers": [
+    {
+      "id": "shell",
+      "label": "App shell"
+    },
+    {
+      "id": "pages",
+      "label": "Pages & routes"
+    },
+    {
+      "id": "features",
+      "label": "Feature modules"
+    },
+    {
+      "id": "shared",
+      "label": "Shared code & UI"
+    },
+    {
+      "id": "services",
+      "label": "Services & APIs"
+    }
+  ],
   "nodes": [
     {
-      "id": "browser",
+      "id": "root-layout",
       "type": "frontend",
-      "tier": "client",
+      "tier": "shell",
+      "position": {
+        "x": -500,
+        "y": 0
+      },
+      "data": {
+        "label": "Root layout",
+        "description": "app/layout.tsx (Next.js 16.3.8, React 19.2.0): <html>, metadata, theme bootstrap and analytics tags. Renders every page as {children} inside <main>, plus the {modal} slot."
+      }
+    },
+    {
+      "id": "shell-providers",
+      "type": "frontend",
+      "tier": "shell",
+      "position": {
+        "x": -250,
+        "y": 0
+      },
+      "data": {
+        "label": "Providers",
+        "description": "Context every page shares: Providers, ThemeContext, ToastContext."
+      }
+    },
+    {
+      "id": "shell-chrome",
+      "type": "frontend",
+      "tier": "shell",
       "position": {
         "x": 0,
         "y": 0
       },
       "data": {
-        "label": "Browser (Client)",
-        "description": "React 19.2.0 client components: navigation, contact form, games and the chat widget, which calls the chatbot worker directly."
+        "label": "Navbar & footer",
+        "description": "Site chrome around each page: Footer, Navbar."
       }
     },
     {
-      "id": "nextjs-server",
-      "type": "backend",
-      "tier": "compute",
+      "id": "shell-widgets",
+      "type": "frontend",
+      "tier": "shell",
       "position": {
-        "x": -260,
-        "y": 200
+        "x": 250,
+        "y": 0
       },
       "data": {
-        "label": "Next.js 16.3.8",
-        "description": "App Router with Server Components and Server Actions. API routes: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/preview, /api/preview/disable, /api/revalidate."
+        "label": "Global widgets",
+        "description": "Mounted once for the whole site: Chatbot, ClickTracker, CommandCenter, GTMNoScript, GamePrompt, GoogleTracking, ScrollToTop, Spotlight."
+      }
+    },
+    {
+      "id": "modal-slot",
+      "type": "frontend",
+      "tier": "shell",
+      "position": {
+        "x": 500,
+        "y": 0
+      },
+      "data": {
+        "label": "Modal slot",
+        "description": "app/@modal shows /architecture, /architecture/chatbot over the current page on in-app navigation."
+      }
+    },
+    {
+      "id": "page:/architecture/chatbot",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": -875,
+        "y": 190
+      },
+      "data": {
+        "label": "/architecture/chatbot",
+        "description": "app/architecture/chatbot/page.tsx"
+      }
+    },
+    {
+      "id": "page:/architecture",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": -625,
+        "y": 190
+      },
+      "data": {
+        "label": "/architecture",
+        "description": "app/architecture/page.tsx"
+      }
+    },
+    {
+      "id": "page:/blogs/[slug]",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": -375,
+        "y": 190
+      },
+      "data": {
+        "label": "/blogs/[slug]",
+        "description": "app/blogs/[slug]/page.tsx"
+      }
+    },
+    {
+      "id": "page:/blogs",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": -125,
+        "y": 190
+      },
+      "data": {
+        "label": "/blogs",
+        "description": "app/blogs/page.tsx"
+      }
+    },
+    {
+      "id": "page:/bundle",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": 125,
+        "y": 190
+      },
+      "data": {
+        "label": "/bundle",
+        "description": "app/bundle/page.tsx"
+      }
+    },
+    {
+      "id": "page:/owner",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": 375,
+        "y": 190
+      },
+      "data": {
+        "label": "/owner",
+        "description": "app/owner/page.tsx"
+      }
+    },
+    {
+      "id": "page:/",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": 625,
+        "y": 190
+      },
+      "data": {
+        "label": "/",
+        "description": "app/page.tsx"
+      }
+    },
+    {
+      "id": "page:/preview/blogs/[slug]",
+      "type": "frontend",
+      "tier": "pages",
+      "position": {
+        "x": 875,
+        "y": 190
+      },
+      "data": {
+        "label": "/preview/blogs/[slug]",
+        "description": "app/preview/blogs/[slug]/page.tsx"
+      }
+    },
+    {
+      "id": "containers/Architecture",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": -750,
+        "y": 380
+      },
+      "data": {
+        "label": "containers/Architecture",
+        "description": "Page body, used by /architecture/chatbot, /architecture."
+      }
+    },
+    {
+      "id": "containers/BlogListings",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": -500,
+        "y": 380
+      },
+      "data": {
+        "label": "containers/BlogListings",
+        "description": "Page body, used by /blogs."
+      }
+    },
+    {
+      "id": "containers/BlogPost",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": -250,
+        "y": 380
+      },
+      "data": {
+        "label": "containers/BlogPost",
+        "description": "Page body, used by /blogs/[slug]."
+      }
+    },
+    {
+      "id": "containers/BlogPostPreview",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": 0,
+        "y": 380
+      },
+      "data": {
+        "label": "containers/BlogPostPreview",
+        "description": "Page body, used by /preview/blogs/[slug]."
+      }
+    },
+    {
+      "id": "containers/Home",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": 250,
+        "y": 380
+      },
+      "data": {
+        "label": "containers/Home",
+        "description": "Page body, used by /."
+      }
+    },
+    {
+      "id": "features/blog",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": 500,
+        "y": 380
+      },
+      "data": {
+        "label": "features/blog",
+        "description": "Domain module (data, schema, renderers)."
+      }
+    },
+    {
+      "id": "features/portfolio",
+      "type": "backend",
+      "tier": "features",
+      "position": {
+        "x": 750,
+        "y": 380
+      },
+      "data": {
+        "label": "features/portfolio",
+        "description": "Domain module (data, schema, renderers), used by /."
+      }
+    },
+    {
+      "id": "shared-components",
+      "type": "frontend",
+      "tier": "shared",
+      "position": {
+        "x": -375,
+        "y": 570
+      },
+      "data": {
+        "label": "Shared components",
+        "description": "components/ used by more than one module (11): AuthorBio, Breadcrumbs, Carousel, FluidContainer, JsonLd, RelatedPosts, ScrollReveals, SiteIndex, SocialLinks, StatusPage, ViewTransition."
+      }
+    },
+    {
+      "id": "single-use-components",
+      "type": "frontend",
+      "tier": "shared",
+      "position": {
+        "x": -125,
+        "y": 570
+      },
+      "data": {
+        "label": "Single-use components",
+        "description": "components/ with one consumer each (23), candidates to move next to it: ArchitectureWidget → page:/, BlogQuiz → containers/BlogPost, BlogViewTracker → containers/BlogPost, CodeBlock → features/blog, CommandPalette → shell-widgets, ExperienceCard → containers/Home, HomeTopBar → page:/, LivePreviewProvider → page:/preview/blogs/[slug], NotFound → page:/, ParticleStrip → components/HomeTopBar, ParticlesBackground → components/ParticleStrip, ProjectCard → containers/Home, ReadingModeControls → containers/BlogPost, ReadingProgressBar → containers/BlogPost, RouteModal → modal-slot, ScrollToTopOnMount → containers/BlogListings, SectionHeader → containers/Home, SkillSphere → containers/Home, SocialDock → page:/, StackGame → shell-widgets, TableOfContents → containers/BlogPost, Terminal → shell-widgets, Toaster → shell-providers."
+      }
+    },
+    {
+      "id": "ui-packages",
+      "type": "frontend",
+      "tier": "shared",
+      "position": {
+        "x": 125,
+        "y": 570
+      },
+      "data": {
+        "label": "Workspace packages",
+        "description": "packages/ shared across apps: @dival-sehgal/design-tokens, @dival-sehgal/fonts, @dival-sehgal/ui, @dival-sehgal/utils."
+      }
+    },
+    {
+      "id": "helpers",
+      "type": "backend",
+      "tier": "shared",
+      "position": {
+        "x": 375,
+        "y": 570
+      },
+      "data": {
+        "label": "Hooks, utils & lib",
+        "description": "hooks/, utils/, lib/, i18n/, actions/: framework-free helpers, config, SEO and i18n."
+      }
+    },
+    {
+      "id": "api-routes",
+      "type": "backend",
+      "tier": "services",
+      "position": {
+        "x": -750,
+        "y": 760
+      },
+      "data": {
+        "label": "API routes",
+        "description": "Next.js route handlers: /api/blogs/[slug]/analytics, /api/blogs/[slug]/view, /api/blogs/popular, /api/chat-context, /api/contact, /api/preview, /api/preview/disable, /api/revalidate."
       }
     },
     {
       "id": "chatbot-worker",
       "type": "backend",
-      "tier": "compute",
+      "tier": "services",
       "position": {
-        "x": 0,
-        "y": 200
+        "x": -500,
+        "y": 760
       },
       "data": {
         "label": "AI Chatbot Worker",
-        "description": "Cloudflare Worker \"ai-chatbot-widget\": retrieval-augmented chat, re-indexed on a schedule (0 3 * * *)."
-      }
-    },
-    {
-      "id": "google-analytics",
-      "type": "external",
-      "tier": "compute",
-      "position": {
-        "x": 260,
-        "y": 200
-      },
-      "data": {
-        "label": "Google Analytics / GTM",
-        "description": "GA4 via gtag/GTM, client-side only; skipped in owner mode."
+        "description": "Cloudflare Worker \"ai-chatbot-widget\": retrieval-augmented chat, re-indexed on a schedule (0 3 * * *). Uses Workers AI, Vectorize, KV and @cf/meta/llama-3.3-70b-instruct-fp8-fast."
       }
     },
     {
       "id": "contentful",
       "type": "external",
-      "tier": "data",
+      "tier": "services",
       "position": {
-        "x": -780,
-        "y": 400
+        "x": -250,
+        "y": 760
       },
       "data": {
         "label": "Contentful CMS",
@@ -70,10 +378,10 @@
     {
       "id": "portfolio-config",
       "type": "data",
-      "tier": "data",
+      "tier": "services",
       "position": {
-        "x": -520,
-        "y": 400
+        "x": 0,
+        "y": 760
       },
       "data": {
         "label": "Portfolio Config",
@@ -83,10 +391,10 @@
     {
       "id": "notion",
       "type": "data",
-      "tier": "data",
+      "tier": "services",
       "position": {
-        "x": -260,
-        "y": 400
+        "x": 250,
+        "y": 760
       },
       "data": {
         "label": "Notion",
@@ -96,10 +404,10 @@
     {
       "id": "redis",
       "type": "data",
-      "tier": "data",
+      "tier": "services",
       "position": {
-        "x": 0,
-        "y": 400
+        "x": 500,
+        "y": 760
       },
       "data": {
         "label": "Upstash Redis",
@@ -107,118 +415,167 @@
       }
     },
     {
-      "id": "workers-ai",
+      "id": "google-analytics",
       "type": "external",
-      "tier": "data",
+      "tier": "services",
       "position": {
-        "x": 260,
-        "y": 400
+        "x": 750,
+        "y": 760
       },
       "data": {
-        "label": "Workers AI",
-        "description": "Hosted models: @cf/meta/llama-3.3-70b-instruct-fp8-fast (chat), @cf/baai/bge-base-en-v1.5 (embeddings)."
-      }
-    },
-    {
-      "id": "vectorize",
-      "type": "data",
-      "tier": "data",
-      "position": {
-        "x": 520,
-        "y": 400
-      },
-      "data": {
-        "label": "Vectorize Index",
-        "description": "Embeddings index \"faq-vectors\" used for retrieval."
-      }
-    },
-    {
-      "id": "chat-sessions-kv",
-      "type": "data",
-      "tier": "data",
-      "position": {
-        "x": 780,
-        "y": 400
-      },
-      "data": {
-        "label": "Workers KV",
-        "description": "Namespaces: CHAT_SESSIONS (chat sessions, rate limits)."
+        "label": "Google Analytics / GTM",
+        "description": "GA4 via gtag/GTM, client-side only; skipped in owner mode."
       }
     }
   ],
   "edges": [
     {
-      "id": "e-browser-nextjs-server",
-      "source": "browser",
-      "target": "nextjs-server",
-      "label": "contact + view requests"
+      "id": "e-root-layout-page:/architecture/chatbot",
+      "source": "root-layout",
+      "target": "page:/architecture/chatbot"
     },
     {
-      "id": "e-browser-chatbot-worker",
-      "source": "browser",
+      "id": "e-root-layout-page:/architecture",
+      "source": "root-layout",
+      "target": "page:/architecture"
+    },
+    {
+      "id": "e-root-layout-page:/blogs/[slug]",
+      "source": "root-layout",
+      "target": "page:/blogs/[slug]"
+    },
+    {
+      "id": "e-root-layout-page:/blogs",
+      "source": "root-layout",
+      "target": "page:/blogs"
+    },
+    {
+      "id": "e-root-layout-page:/bundle",
+      "source": "root-layout",
+      "target": "page:/bundle"
+    },
+    {
+      "id": "e-root-layout-page:/owner",
+      "source": "root-layout",
+      "target": "page:/owner"
+    },
+    {
+      "id": "e-root-layout-page:/",
+      "source": "root-layout",
+      "target": "page:/"
+    },
+    {
+      "id": "e-root-layout-page:/preview/blogs/[slug]",
+      "source": "root-layout",
+      "target": "page:/preview/blogs/[slug]"
+    },
+    {
+      "id": "e-root-layout-features/portfolio",
+      "source": "root-layout",
+      "target": "features/portfolio"
+    },
+    {
+      "id": "e-root-layout-contentful",
+      "source": "root-layout",
+      "target": "contentful"
+    },
+    {
+      "id": "e-modal-slot-containers/Architecture",
+      "source": "modal-slot",
+      "target": "containers/Architecture"
+    },
+    {
+      "id": "e-page:/architecture/chatbot-containers/Architecture",
+      "source": "page:/architecture/chatbot",
+      "target": "containers/Architecture"
+    },
+    {
+      "id": "e-page:/architecture-containers/Architecture",
+      "source": "page:/architecture",
+      "target": "containers/Architecture"
+    },
+    {
+      "id": "e-page:/blogs/[slug]-containers/BlogPost",
+      "source": "page:/blogs/[slug]",
+      "target": "containers/BlogPost"
+    },
+    {
+      "id": "e-page:/blogs/[slug]-contentful",
+      "source": "page:/blogs/[slug]",
+      "target": "contentful"
+    },
+    {
+      "id": "e-page:/blogs-containers/BlogListings",
+      "source": "page:/blogs",
+      "target": "containers/BlogListings"
+    },
+    {
+      "id": "e-page:/blogs-contentful",
+      "source": "page:/blogs",
+      "target": "contentful"
+    },
+    {
+      "id": "e-page:/-containers/Home",
+      "source": "page:/",
+      "target": "containers/Home"
+    },
+    {
+      "id": "e-page:/-features/portfolio",
+      "source": "page:/",
+      "target": "features/portfolio"
+    },
+    {
+      "id": "e-page:/-contentful",
+      "source": "page:/",
+      "target": "contentful"
+    },
+    {
+      "id": "e-page:/preview/blogs/[slug]-containers/BlogPostPreview",
+      "source": "page:/preview/blogs/[slug]",
+      "target": "containers/BlogPostPreview"
+    },
+    {
+      "id": "e-page:/preview/blogs/[slug]-contentful",
+      "source": "page:/preview/blogs/[slug]",
+      "target": "contentful"
+    },
+    {
+      "id": "e-page:/preview/blogs/[slug]-api-routes",
+      "source": "page:/preview/blogs/[slug]",
+      "target": "api-routes",
+      "label": "fetch /api"
+    },
+    {
+      "id": "e-shell-widgets-chatbot-worker",
+      "source": "shell-widgets",
       "target": "chatbot-worker",
-      "label": "chat queries",
+      "label": "chat",
       "animated": true
     },
     {
-      "id": "e-browser-google-analytics",
-      "source": "browser",
+      "id": "e-shell-widgets-google-analytics",
+      "source": "shell-widgets",
       "target": "google-analytics",
       "label": "page views"
     },
     {
-      "id": "e-nextjs-server-contentful",
-      "source": "nextjs-server",
-      "target": "contentful",
-      "label": "GraphQL query"
-    },
-    {
-      "id": "e-nextjs-server-portfolio-config",
-      "source": "nextjs-server",
+      "id": "e-features/portfolio-portfolio-config",
+      "source": "features/portfolio",
       "target": "portfolio-config",
       "label": "fetches JSON"
     },
     {
-      "id": "e-nextjs-server-notion",
-      "source": "nextjs-server",
-      "target": "notion",
-      "label": "creates entry"
-    },
-    {
-      "id": "e-nextjs-server-redis",
-      "source": "nextjs-server",
-      "target": "redis",
-      "label": "views + rate limit"
-    },
-    {
-      "id": "e-chatbot-worker-workers-ai",
+      "id": "e-chatbot-worker-api-routes",
       "source": "chatbot-worker",
-      "target": "workers-ai",
-      "label": "LLM + embeddings"
-    },
-    {
-      "id": "e-chatbot-worker-vectorize",
-      "source": "chatbot-worker",
-      "target": "vectorize",
-      "label": "RAG lookup"
-    },
-    {
-      "id": "e-chatbot-worker-chat-sessions-kv",
-      "source": "chatbot-worker",
-      "target": "chat-sessions-kv",
-      "label": "sessions"
-    },
-    {
-      "id": "e-chatbot-worker-nextjs-server",
-      "source": "chatbot-worker",
-      "target": "nextjs-server",
+      "target": "api-routes",
       "label": "submits contact",
       "curvature": 0.5
     },
     {
-      "id": "e-nextjs-server-chatbot-worker",
-      "source": "nextjs-server",
+      "id": "e-api-routes-chatbot-worker",
+      "source": "api-routes",
       "target": "chatbot-worker",
+      "label": "re-seed",
       "animated": true,
       "curvature": -0.5
     }

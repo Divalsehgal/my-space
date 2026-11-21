@@ -19,7 +19,6 @@ import { DEFAULT_LOCALE } from "@/i18n/config";
 import { getContentfulPostTitles } from "@/lib/services/contentful";
 import { StackHans } from "@dival-sehgal/fonts/next";
 import { displayFont } from "@/lib/fonts";
-import SmoothScroll from "@/components/SmoothScroll";
 import GamePrompt from "@/components/GamePrompt";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -174,7 +173,6 @@ export default async function RootLayout({
         <I18nProvider locale={DEFAULT_LOCALE}>
         <SiteIndexProvider index={siteIndex}>
         <Providers>
-          <SmoothScroll />
           <Navbar brand={t("common.siteName")} />
           <ViewTransition>
             <main id="main-content">{children}</main>

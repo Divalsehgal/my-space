@@ -16,7 +16,6 @@ jest.mock("@/components/ArchitectureWidget", () => jest.requireActual("@/test-ut
 jest.mock("@/components/SocialDock", () => jest.requireActual("@/test-utils/server").stub("SocialDock"));
 jest.mock("@/components/JsonLd", () => jest.requireActual("@/test-utils/server").stub("JsonLd"));
 jest.mock("@/components/ScrollReveals", () => jest.requireActual("@/test-utils/server").stub("ScrollReveals"));
-jest.mock("@/components/SectionSnap", () => jest.requireActual("@/test-utils/server").stub("SectionSnap"));
 jest.mock("@/components/HomeTopBar", () => jest.requireActual("@/test-utils/server").stub("HomeTopBar"));
 jest.mock("@/components/RelatedPosts", () => jest.requireActual("@/test-utils/server").stub("RelatedPosts"));
 

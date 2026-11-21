@@ -34,7 +34,6 @@ export default function ChatMessage({ message, onRetry, onSuggest }: ChatMessage
       >
         {!fromUser && (
           <div className={styles["chat-message__meta"]}>
-            <div className={styles["chat-message__avatar"]}>{t("common.siteName").charAt(0)}</div>
             <span className={styles["chat-message__author"]}>{t("chat.assistantName")}</span>
           </div>
         )}

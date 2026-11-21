@@ -1,5 +1,6 @@
 import {
   getContentfulPosts,
+  getContentfulPostTitles,
   getContentfulPostBySlug,
 } from "@/lib/services/contentful";
 import type { ContentfulPost } from "@/types";
@@ -22,10 +23,9 @@ type Props = {
  * SSG: Generate static paths for all published blog posts
  */
 export async function generateStaticParams() {
-  const posts = await getContentfulPosts();
-  return posts.map((post: ContentfulPost) => ({
-    slug: post.slug,
-  }));
+  // Slugs only: the full list query also pulls every post's rich-text body.
+  const posts = await getContentfulPostTitles();
+  return posts.map(({ slug }) => ({ slug }));
 }
 
 // Ensure dynamic segments are handled even if they don't exist at build time

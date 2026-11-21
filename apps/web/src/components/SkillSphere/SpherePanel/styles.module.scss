@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 // What the info panel shows: a skill's depth, a category's ranked skills, or stack totals.
 .panel {

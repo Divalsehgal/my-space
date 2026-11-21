@@ -197,40 +197,21 @@ describe("Navbar Component", () => {
     fireEvent.keyDown(globalThis as any, { key: "A" });
   });
 
-  it("updates progress bar scale on window scroll", () => {
-    jest.useFakeTimers();
-    const originalRAF = globalThis.requestAnimationFrame;
-    globalThis.requestAnimationFrame = jest.fn((cb) => {
+  it("hides the navbar when scrolling down past the hero", () => {
+    const raf = jest.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
       cb(0);
       return 0;
     });
-
     renderWithTheme(<Navbar />);
+    const nav = screen.getByRole("navigation");
+    const before = nav.className;
 
-    // Trigger scroll
+    Object.defineProperty(globalThis, "scrollY", { value: 500, configurable: true });
     fireEvent.scroll(globalThis as any);
 
-    expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
-
-    globalThis.requestAnimationFrame = originalRAF;
-    jest.useRealTimers();
-  });
-
-  it("handles progress bar when page is not scrollable (height = 0)", () => {
-    Object.defineProperty(document.documentElement, "scrollHeight", {
-      value: 1000,
-      configurable: true,
-    });
-    Object.defineProperty(document.documentElement, "clientHeight", {
-      value: 1000,
-      configurable: true,
-    });
-
-    renderWithTheme(<Navbar />);
-
-    fireEvent.scroll(globalThis as any);
-
-    expect(screen.getByRole("navigation")).toBeInTheDocument();
+    expect(nav.className).not.toBe(before);
+    Object.defineProperty(globalThis, "scrollY", { value: 0, configurable: true });
+    raf.mockRestore();
   });
 
   it("does not trap focus if no focusable elements are found", () => {

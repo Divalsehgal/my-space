@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { createTranslator, type Translate } from "@/i18n/core";
+import { MESSAGE_MAX_CHARS } from "@/lib/config/contact";
 
-export const MESSAGE_MAX_CHARS = 1000;
+export { MESSAGE_MAX_CHARS };
 
 // ---------------------------------------------------------------------------
 // Zod schema for runtime validation

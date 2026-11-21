@@ -4,3 +4,9 @@
 
 // Pull an element over its parent's 1px border.
 $hairline-offset: -1px;
+
+// Inner padding that keeps a 1px gradient border visible (spotlight cards).
+$hairline: 1px;
+
+// Display headings (heading-xl).
+$line-height-heading: 1.1;

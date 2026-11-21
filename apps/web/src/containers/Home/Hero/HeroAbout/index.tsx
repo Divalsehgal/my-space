@@ -27,7 +27,7 @@ export default function HeroAbout({ summary, paragraphs, className }: Readonly<H
     const openIfTargeted = () => {
       if (window.location.hash === `#${ABOUT_ID}`) {open();}
     };
-    // Lenis and next/link move to anchors without a hashchange, so catch the click too.
+    // next/link moves to anchors without a hashchange, so catch the click too.
     const onClick = (event: MouseEvent) => {
       if ((event.target as Element | null)?.closest?.(`a[href$="#${ABOUT_ID}"]`)) {open();}
     };

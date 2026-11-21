@@ -8,7 +8,6 @@ import SocialDock from "@/components/SocialDock";
 import Contact from "@/containers/Home/Contact";
 import JsonLd from "@/components/JsonLd";
 import ScrollReveals from "@/components/ScrollReveals";
-import SectionSnap from "@/components/SectionSnap";
 import HomeTopBar from "@/components/HomeTopBar";
 import { getContentfulPosts } from "@/lib/services/contentful";
 import FluidContainer from "@/components/FluidContainer";
@@ -68,11 +67,14 @@ export default async function HomePage() {
     ],
   };
 
+  const currentRole = config.experience[0]
+    ? { role: config.experience[0].role, company: config.experience[0].company }
+    : undefined
+
   return (
     <div className="page-scroll" data-has-top-bar={latestPost ? "true" : undefined}>
       <JsonLd data={jsonLd} />
       <ScrollReveals />
-      <SectionSnap />
       {latestPost && (
         <HomeTopBar
           latestPost={{
@@ -87,9 +89,7 @@ export default async function HomePage() {
         highlights={{
           // The top bar already announces the latest post whenever there is one,
           // so the deck shows its "browse the blog" card instead of repeating it.
-          currentRole: config.experience[0]
-            ? { role: config.experience[0].role, company: config.experience[0].company }
-            : undefined,
+          currentRole: currentRole,
           skills: flattenSkillNames(config.skills),
         }}
         socials={config.socials}

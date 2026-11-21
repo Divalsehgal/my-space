@@ -1,0 +1,156 @@
+import { HTTP_STATUS } from "@dival-sehgal/utils/http";
+import {
+    MCP_DEFAULT_POSTS,
+    MCP_DEFAULT_RESULTS,
+    MCP_MAX_BATCH,
+    MCP_MAX_POSTS,
+    MCP_MAX_QUERY_CHARS,
+    MCP_MAX_RESULTS,
+    MCP_SUPPORTED_VERSIONS,
+} from "../constants/limits";
+import type { Env, JsonRpcRequest } from "../types";
+import { search } from "../services/rag";
+import { isRateLimited, readCatalog } from "../services/storage";
+import { getCorsHeaders, json } from "../utils/http";
+
+/**
+ * Read-only MCP server (Streamable HTTP, stateless JSON responses) at `/mcp`,
+ * so external agents (a recruiter's Claude, an IDE) can query the portfolio
+ * over the same Vectorize index and catalog the chat uses.
+ *
+ * Deliberately no side-effecting tool: contacting Dival stays behind the chat's
+ * confirm-then-send flow and the site's form.
+ */
+
+const SERVER_INFO = { name: 'dival-portfolio', version: '1.0.0' };
+// JSON-RPC 2.0 error codes.
+const PARSE_ERROR = -32700;
+const INVALID_REQUEST = -32600;
+const METHOD_NOT_FOUND = -32601;
+const INVALID_PARAMS = -32602;
+const RATE_LIMITED = -32000;
+
+const TOOLS = [
+    {
+        name: 'search_portfolio',
+        description: "Semantic search over Dival Sehgal's experience, projects, skills, contact info and blog posts. Returns the most relevant passages with their source.",
+        inputSchema: {
+            type: 'object',
+            properties: {
+                query: { type: 'string', description: 'Natural-language question or keywords', maxLength: MCP_MAX_QUERY_CHARS },
+                limit: { type: 'integer', minimum: 1, maximum: MCP_MAX_RESULTS, default: MCP_DEFAULT_RESULTS },
+            },
+            required: ['query'],
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    {
+        name: 'get_profile',
+        description: "Dival Sehgal's profile: role, summary, location, work history, skills by area, projects, contact email and social links.",
+        inputSchema: { type: 'object', properties: {} },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    {
+        name: 'list_blog_posts',
+        description: "Dival Sehgal's published blog posts, newest first, with title, date, description and URL.",
+        inputSchema: {
+            type: 'object',
+            properties: { limit: { type: 'integer', minimum: 1, maximum: MCP_MAX_POSTS, default: MCP_DEFAULT_POSTS } },
+        },
+        annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+] as const;
+
+const clampInt = (value: unknown, fallback: number, max: number) =>
+    Math.min(max, Math.max(1, Number.isInteger(value) ? value as number : fallback));
+
+const text = (value: unknown, isError = false) => ({
+    content: [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value, null, 2) }],
+    ...(isError ? { isError: true } : {}),
+});
+
+export async function callTool(env: Env, name: string | undefined, args: Record<string, unknown> = {}) {
+    switch (name) {
+        case 'search_portfolio': {
+            const query = typeof args.query === 'string' ? args.query.trim().slice(0, MCP_MAX_QUERY_CHARS) : '';
+            if (!query) {
+                return text('`query` is required.', true);
+            }
+            const { matches } = await search(env, query, clampInt(args.limit, MCP_DEFAULT_RESULTS, MCP_MAX_RESULTS));
+            return text(matches.length
+                ? matches.map((m) => ({ score: m.score, type: m.metadata?.type, source: m.metadata?.url, text: m.metadata?.text }))
+                : 'No relevant portfolio content found.');
+        }
+        case 'get_profile': {
+            const catalog = await readCatalog(env);
+            if (!catalog) {
+                return text('Profile is not indexed yet.', true);
+            }
+            const { profile, experience, skills, projects, contact, socials, resumeUrl } = catalog;
+            return text({ ...profile, experience, skills, projects, contact, socials, resumeUrl });
+        }
+        case 'list_blog_posts': {
+            const catalog = await readCatalog(env);
+            return catalog ? text(catalog.blogs.slice(0, clampInt(args.limit, MCP_DEFAULT_POSTS, MCP_MAX_POSTS))) : text('Blog index is not available yet.', true);
+        }
+        default:
+            return undefined;
+    }
+}
+
+const rpcResult = (id: JsonRpcRequest['id'], result: unknown) => ({ jsonrpc: '2.0', id: id ?? null, result });
+const rpcError = (id: JsonRpcRequest['id'], code: number, message: string) => ({ jsonrpc: '2.0', id: id ?? null, error: { code, message } });
+
+const METHODS: Record<string, (env: Env, msg: JsonRpcRequest) => unknown> = {
+    initialize: (_env, msg) => {
+        const requested = msg.params?.protocolVersion;
+        return rpcResult(msg.id, {
+            protocolVersion: requested && MCP_SUPPORTED_VERSIONS.includes(requested) ? requested : MCP_SUPPORTED_VERSIONS[0],
+            capabilities: { tools: { listChanged: false } },
+            serverInfo: SERVER_INFO,
+            instructions: "Read-only access to Dival Sehgal's public portfolio and blog. Use search_portfolio for questions, get_profile for a structured overview, list_blog_posts for writing.",
+        });
+    },
+    ping: (_env, msg) => rpcResult(msg.id, {}),
+    'tools/list': (_env, msg) => rpcResult(msg.id, { tools: TOOLS }),
+    'tools/call': async (env, msg) => {
+        const result = await callTool(env, msg.params?.name, msg.params?.arguments);
+        return result ? rpcResult(msg.id, result) : rpcError(msg.id, INVALID_PARAMS, `Unknown tool: ${msg.params?.name}`);
+    },
+};
+
+function handleOne(env: Env, msg: JsonRpcRequest): unknown {
+    if (msg?.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
+        return rpcError(msg?.id, INVALID_REQUEST, 'Invalid Request');
+    }
+    // Notifications (no id) get no response body.
+    if (msg.id === undefined) {
+        return undefined;
+    }
+    const method = Object.hasOwn(METHODS, msg.method) ? METHODS[msg.method] : undefined;
+    return method ? method(env, msg) : rpcError(msg.id, METHOD_NOT_FOUND, `Method not found: ${msg.method}`);
+}
+
+/** POST /mcp: one JSON-RPC message or a batch (capped), rate-limited per IP. */
+export async function mcp(req: Request, env: Env): Promise<Response> {
+    if (await isRateLimited(req, env, 'mcp')) {
+        return json(rpcError(null, RATE_LIMITED, 'Rate limited'), HTTP_STATUS.TOO_MANY_REQUESTS, {}, req);
+    }
+    const headers = { 'Content-Type': 'application/json', ...getCorsHeaders(req) };
+    // Stateless server: no server-initiated stream (GET) and no sessions to end (DELETE).
+    if (req.method !== 'POST') {
+        return new Response(null, { status: HTTP_STATUS.METHOD_NOT_ALLOWED, headers: { ...headers, Allow: 'POST' } });
+    }
+    let body: JsonRpcRequest | JsonRpcRequest[];
+    try {
+        body = await req.json() as JsonRpcRequest | JsonRpcRequest[];
+    } catch {
+        return new Response(JSON.stringify(rpcError(null, PARSE_ERROR, 'Parse error')), { status: HTTP_STATUS.BAD_REQUEST, headers });
+    }
+    const batch = Array.isArray(body) ? body.slice(0, MCP_MAX_BATCH) : [body];
+    const responses = (await Promise.all(batch.map((m) => handleOne(env, m)))).filter((r) => r !== undefined);
+    if (!responses.length) {
+        return new Response(null, { status: HTTP_STATUS.ACCEPTED, headers });
+    }
+    return new Response(JSON.stringify(Array.isArray(body) ? responses : responses[0]), { headers });
+}

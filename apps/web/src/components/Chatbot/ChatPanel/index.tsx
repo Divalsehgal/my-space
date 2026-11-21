@@ -31,7 +31,7 @@ interface ChatPanelProps {
 }
 
 export default function ChatPanel({ open, pendingMessage, onPendingSent }: Readonly<ChatPanelProps>) {
-  const { messages, isTyping, sendMessage, retryLastMessage, clearHistory } = useChat();
+  const { messages, isTyping, sendMessage, retryLastMessage, clearHistory, showOptions } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,10 +53,12 @@ export default function ChatPanel({ open, pendingMessage, onPendingSent }: Reado
   return (
     <AnimatePresence>
       {open && (
-        <motion.div key="chatbot-window" {...WINDOW_MOTION} className={styles["chat-panel"]}>
+        // data-lenis-prevent: site smooth-scroll would otherwise scroll the page from wheel/touch here.
+        <motion.div key="chatbot-window" {...WINDOW_MOTION} className={styles["chat-panel"]} data-lenis-prevent>
           <ChatHeader
             canClear={messages.length > 0}
             onClear={clearHistory}
+            onShowOptions={showOptions}
           />
 
           <div ref={scrollRef} className={styles["chat-panel__messages"]} role="log" aria-live="polite" aria-relevant="additions text">

@@ -225,6 +225,23 @@
   }
 }
 
+// Layer heading at the left of each row; not a component, so it ignores clicks.
+.layer {
+  pointer-events: none;
+
+  display: block;
+
+  width: 260px;
+  padding-block: $t-spacing-2;
+  border-bottom: 2px solid $t-colors-primary-default;
+
+  font-size: $t-font-size-sm;
+  font-weight: $t-font-weight-semibold;
+  color: $t-colors-primary-default;
+  text-align: right;
+  text-transform: uppercase;
+}
+
 .detail {
   position: absolute;
   z-index: $t-layer-raised;

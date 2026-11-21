@@ -1,26 +1,26 @@
 import Link from "next/link";
 import { getT } from "@/i18n/server";
 import { trackAttrs, ANALYTICS_EVENTS } from "@/utils/analytics";
+import architecture from "@/generated/architecture.json";
 import styles from "./styles.module.scss";
 
-// A tiny client → servers → data map; pulses travel down the edges.
-const NODES = {
-  client: { x: 32, y: 8, r: 5 },
-  web: { x: 14, y: 30, r: 4 },
-  worker: { x: 50, y: 30, r: 4 },
-  cms: { x: 8, y: 52, r: 4 },
-  cache: { x: 32, y: 52, r: 4 },
-  ai: { x: 56, y: 52, r: 4 },
-};
-type NodeId = keyof typeof NODES;
-const EDGES: [NodeId, NodeId][] = [
-  ["client", "web"],
-  ["client", "worker"],
-  ["web", "cms"],
-  ["web", "cache"],
-  ["worker", "cache"],
-  ["worker", "ai"],
-];
+// Thumbnail of the generated diagram: one row of dots per layer (shell at the top,
+// services at the bottom), so it changes when the architecture does.
+const MAX_DOTS = 5;
+const ROW_GAP = 12;
+const DOT_GAP = 12;
+const layerIds = architecture.layers.map((layer) => layer.id);
+const CENTER_X = 32;
+const TOP_Y = 6;
+const ROWS = layerIds.map((id, row) => {
+  const count = Math.min(architecture.nodes.filter((node) => node.tier === id).length, MAX_DOTS);
+  return Array.from({ length: count }, (_, index) => ({ x: CENTER_X + (index - (count - 1) / 2) * DOT_GAP, y: TOP_Y + row * ROW_GAP }));
+});
+// Each dot links to the dot at the same relative position in the row below.
+const EDGES = ROWS.slice(1).flatMap((row, i) => {
+  const above = ROWS[i];
+  return above.length ? row.map((to, index) => [above[Math.round((index * (above.length - 1)) / Math.max(row.length - 1, 1))], to] as const) : [];
+});
 
 /**
  * Top-right card on the home page: a live-looking thumbnail of the system map.
@@ -35,9 +35,9 @@ export default function ArchitectureWidget() {
       className={styles.widget}
       {...trackAttrs(ANALYTICS_EVENTS.NAV_CLICK, { label: "Architecture", href: "/architecture", location: "architecture-widget" })}
     >
-      <svg className={styles["widget__map"]} viewBox="0 0 64 60" aria-hidden="true">
+      <svg className={styles["widget__map"]} viewBox="0 0 64 60" aria-hidden="true" data-layers={layerIds.length}>
         {EDGES.map(([from, to], index) => {
-          const d = `M${NODES[from].x} ${NODES[from].y} L${NODES[to].x} ${NODES[to].y}`;
+          const d = `M${from.x} ${from.y} L${to.x} ${to.y}`;
           return (
             <g key={d}>
               <path d={d} className={styles["widget__edge"]} />
@@ -45,9 +45,7 @@ export default function ArchitectureWidget() {
             </g>
           );
         })}
-        {Object.entries(NODES).map(([id, { x, y, r }]) => (
-          <circle key={id} cx={x} cy={y} r={r} className={styles["widget__node"]} />
-        ))}
+        {ROWS.flatMap((row) => row.map(({ x, y }) => <circle key={`${x}-${y}`} cx={x} cy={y} r={3} className={styles["widget__node"]} />))}
       </svg>
       <span className={styles["widget__copy"]}>
         <span className={styles["widget__eyebrow"]}>{t("architecture.title")}</span>

@@ -2,9 +2,8 @@
 @use "mixins" as *;
 
 .chat-composer {
-  padding: $t-spacing-4;
+  padding: $t-spacing-3 $t-spacing-4 $t-spacing-4;
   border-top: 1px solid $t-colors-border-subtle;
-  background-color: $t-colors-background-primary;
 }
 
 .chat-composer__send {

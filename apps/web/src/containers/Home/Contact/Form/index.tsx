@@ -10,9 +10,9 @@ import { ToastContext } from "@/context/ToastContext";
 import { trackInteraction, ANALYTICS_EVENTS } from "@/utils/analytics";
 import { getRememberedContact, saveRememberedContact } from "@/utils/contactRemember";
 import styles from "./styles.module.scss";
-import { MESSAGE_TEMPLATES } from "./constants";
+import { MESSAGE_MAX_CHARS, MESSAGE_TEMPLATES } from "@/lib/config/contact";
 import { useT } from "@/i18n/client";
-import { MESSAGE_MAX_CHARS } from "@/types/contact";
+// Not from @/types/contact: that module builds a zod schema at load, pulling zod into the home page.
 
 const MESSAGE_MAX_LENGTH = MESSAGE_MAX_CHARS;
 

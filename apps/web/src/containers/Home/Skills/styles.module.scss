@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 .skills {
   // Masonry (CSS columns): each card is as tall as its content, so there are

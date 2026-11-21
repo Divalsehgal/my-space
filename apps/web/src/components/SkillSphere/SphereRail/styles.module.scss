@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 // Category filter: a scrolling chip row, or a vertical list beside the sphere on wide screens.
 .rail {

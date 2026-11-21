@@ -1,15 +1,14 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: $t-spacing-4 $t-spacing-5;
+  padding: $t-spacing-3 $t-spacing-4 $t-spacing-3 $t-spacing-5;
   border-bottom: 1px solid $t-colors-border-subtle;
-
-  background-color: $t-colors-surface-page-fade;
 }
 
 .chat-header__info {
@@ -26,59 +25,59 @@
 }
 
 .chat-header__clear {
-  color: $t-colors-text-secondary;
+  color: $t-colors-text-tertiary;
 
   &:hover:not(:disabled) {
-    color: $t-colors-primary-default;
-    background-color: $t-colors-surface-brand-muted;
+    color: $t-colors-text-secondary;
+    background-color: $t-colors-surface-neutral-subtle;
   }
 }
 
-.chat-header__avatar {
+// The site's `>_` prompt, standing in for an avatar.
+.chat-header__mark {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: $t-spacing-10;
-  height: $t-spacing-10;
-  border-radius: 50%;
+  width: $t-spacing-8;
+  height: $t-spacing-8;
+  border: 1px solid $t-colors-border-muted;
+  border-radius: $t-radius-sm;
 
-  font-size: $t-spacing-5;
-  font-weight: $t-font-weight-bold;
-  color: $t-colors-button-primary-text;
+  font-family: $code-font-family;
+  font-size: $t-font-size-xs;
+  color: $t-colors-primary-default;
 
-  background-color: $t-colors-primary-default;
+  background-color: $t-colors-background-secondary;
 }
 
 .chat-header__title {
   margin: 0;
-  font-size: $t-spacing-4;
-  font-weight: $t-font-weight-semibold;
-  color: $t-colors-text-primary;
+  font-size: $t-font-size-xs;
+  font-weight: $t-font-weight-medium;
+  color: $t-colors-text-secondary;
 }
 
 .chat-header__status {
   display: flex;
-  gap: $t-spacing-1;
+  gap: $t-spacing-2;
   align-items: center;
 }
 
 .chat-header__status-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: $t-colors-primary-default;
 }
 
 .chat-header__status-text {
   font-size: $t-font-size-xxs;
-  font-weight: $t-font-weight-medium;
-  color: $t-colors-text-secondary;
-  text-transform: uppercase;
-  letter-spacing: $t-font-letter-spacing-wide-2;
+  color: $t-colors-text-tertiary;
 }
 
 .chat-header__clear-icon {
   width: 18px;
   height: 18px;
+  stroke-width: 1.5;
 }

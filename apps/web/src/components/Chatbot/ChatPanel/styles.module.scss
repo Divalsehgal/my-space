@@ -7,6 +7,7 @@
   bottom: $t-spacing-20;
 
   overflow: hidden;
+  overscroll-behavior: contain; // header/composer wheel must not chain to the page
   display: flex;
   flex-direction: column;
 
@@ -14,11 +15,10 @@
   height: min(520px, calc(100vh - 120px));
   min-height: 380px;
   border: 1px solid $t-colors-border-muted;
-  border-radius: $t-radius-sm;
+  border-radius: $t-radius-lg;
 
   background-color: $t-colors-background-primary;
-  backdrop-filter: blur($t-blur-lg);
-  box-shadow: 0 20px 50px $t-colors-surface-brand-strong;
+  box-shadow: $t-shadow-lg;
 
   @media (width <= $t-breakpoint-mobile-lg) {
     width: calc(100vw - #{$t-spacing-8});
@@ -35,9 +35,7 @@
   flex-direction: column;
   gap: $t-spacing-3;
 
-  padding: $t-spacing-6 $t-spacing-5;
-
-  background-color: $t-colors-surface-glass;
+  padding: $t-spacing-5;
 
   @media (prefers-reduced-motion: no-preference) {
     scroll-behavior: smooth;

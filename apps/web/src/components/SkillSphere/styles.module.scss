@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 // Desktop: categories | sphere | info. Below desktop: chips row, sphere, info.
 .sphere {

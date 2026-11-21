@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import IconButton from "@dival-sehgal/ui/icon-button";
 
 import { KeyboardArrowUpIcon } from "@dival-sehgal/ui/icons";
@@ -9,52 +9,20 @@ import { useT } from "@/i18n/client";
 
 /** The button appears once the page is scrolled this far. */
 const SHOW_AFTER_PX = 300;
-/** Roughly how long the smooth scroll to the top takes; snapping resumes after it. */
-const SMOOTH_SCROLL_MS = 800;
 
 export default function ScrollToTop() {
   const t = useT();
   const [isVisible, setIsVisible] = useState(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.scrollY > SHOW_AFTER_PX) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
+    // React skips the re-render when the boolean is unchanged.
+    const toggleVisibility = () => setIsVisible(window.scrollY > SHOW_AFTER_PX);
 
-    window.addEventListener("scroll", toggleVisibility);
-
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
+    window.addEventListener("scroll", toggleVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
-  const scrollToTop = () => {
-    const html = document.documentElement;
-    // Disable scroll snap for smooth jumping to top
-    html.style.scrollSnapType = "none";
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-
-    // Re-enable scroll snap after a delay (approximate time for smooth scroll)
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = setTimeout(() => {
-      html.style.scrollSnapType = "y mandatory";
-      scrollTimeoutRef.current = null;
-    }, SMOOTH_SCROLL_MS);
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   if (!isVisible) {return null;}
 

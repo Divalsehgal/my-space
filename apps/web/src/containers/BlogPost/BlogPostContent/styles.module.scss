@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 // Typography for the rendered rich text (headings, lists, code, tables).
 .content {
@@ -11,6 +12,12 @@
   line-height: $t-font-line-height-relaxed;
   color: $t-colors-text-primary-muted;
   overflow-wrap: break-word;
+
+  // Avoid one-word last lines in prose and lopsided wrapped headings.
+  p,
+  li {
+    text-wrap: pretty;
+  }
 
   p {
     margin-top: $t-spacing-0;
@@ -44,6 +51,12 @@
       margin: 0;
     }
 
+    // Two code blocks in one Contentful paragraph: match the gap between separate ones.
+    > pre + pre,
+    > :global(pre) + :global(pre) {
+      margin-top: $t-spacing-3;
+    }
+
     & + .code-block-wrapper,
     & + :global(.code-block-wrapper) {
       margin-top: $t-spacing-3;
@@ -72,6 +85,7 @@
     font-weight: $t-font-weight-bold;
     line-height: $t-font-line-height-tight;
     color: $t-colors-text-primary;
+    text-wrap: balance;
 
     &:first-child {
       margin-top: $t-spacing-0;
@@ -120,17 +134,15 @@
     }
   }
 
-  ul {
-    margin: $t-spacing-0;
-    padding-left: $t-spacing-8;
-    list-style-position: outside;
-    list-style-type: disc;
-  }
-
+  // ul keeps the browser's default disc markers.
+  ul,
   ol {
     margin: $t-spacing-0;
     padding-left: $t-spacing-8;
     list-style-position: outside;
+  }
+
+  ol {
     list-style-type: decimal;
   }
 
@@ -208,8 +220,7 @@
 
       p,
       :global(p) {
-        margin: 0;
-        margin-bottom: $t-spacing-2;
+        margin: 0 0 $t-spacing-2;
 
         &:last-child {
           margin-bottom: 0;
@@ -232,6 +243,29 @@
     tr:hover td,
     tr:hover :global(td) {
       background: $t-colors-surface-brand-subtle;
+    }
+  }
+
+  // Reading mode (set on the article by ReadingModeControls): larger, airier
+  // text in a neutral colour. The default prose colour is the brand accent in
+  // dark mode, which tires the eye over a long read.
+  :global([data-reading-mode="true"]) & {
+    max-width: none;
+    font-size: calc(var(--reading-font-scale, 1) * #{$t-font-size-base} * 1.125);
+    // stylelint-disable-next-line scale-unlimited/declaration-strict-value -- unitless so it scales with the A-/A+ font size; looser than the 1.6 token for long reads
+    line-height: 1.75;
+    color: $t-colors-text-secondary;
+
+    li {
+      color: inherit;
+    }
+
+    p {
+      margin-bottom: $t-spacing-6;
+
+      &:last-child {
+        margin-bottom: $t-spacing-0;
+      }
     }
   }
 

@@ -16,7 +16,12 @@
 }
 
 .barFill {
+  will-change: transform;
+
+  transform-origin: left center;
+  transform: scaleX(0);
+
   height: 100%;
+
   background: $t-colors-primary-default;
-  transition: width $t-motion-duration-fast $t-motion-easing-standard;
 }

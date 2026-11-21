@@ -4,7 +4,7 @@ import { useEffect, useMemo, useReducer, useRef, useState, type KeyboardEvent, t
 import Button from "@dival-sehgal/ui/button";
 import TextField from "@dival-sehgal/ui/text-field";
 import { submitContact } from "@/actions/submit-contact";
-import { MESSAGE_TEMPLATES } from "@/containers/Home/Contact/Form/constants";
+import { MESSAGE_TEMPLATES } from "@/lib/config/contact";
 import { useT } from "@/i18n/client";
 import type { TranslationKey } from "@/i18n/core";
 import { createContactSchema, MESSAGE_MAX_CHARS } from "@/types/contact";

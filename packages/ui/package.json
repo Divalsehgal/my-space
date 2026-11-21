@@ -17,7 +17,9 @@
     "./text-field": "./src/TextField/index.tsx",
     "./tooltip": "./src/Tooltip/index.tsx",
     "./icons": "./src/icons.tsx",
-    "./styles/motion": "./src/styles/_motion.scss"
+    "./styles/motion": "./src/styles/_motion.scss",
+    "./styles/metrics": "./src/styles/_metrics.scss",
+    "./styles/mixins": "./src/styles/_mixins.scss"
   },
   "scripts": {
     "test": "jest",

@@ -18,7 +18,6 @@ jest.mock("@/components/Providers", () => jest.requireActual("@/test-utils/serve
 jest.mock("@/components/CommandCenter", () => jest.requireActual("@/test-utils/server").stub("CommandCenter"));
 jest.mock("@/components/ClickTracker", () => jest.requireActual("@/test-utils/server").stub("ClickTracker"));
 jest.mock("@/components/Spotlight", () => jest.requireActual("@/test-utils/server").stub("Spotlight"));
-jest.mock("@/components/SmoothScroll", () => jest.requireActual("@/test-utils/server").stub("SmoothScroll"));
 jest.mock("@/components/GamePrompt", () => jest.requireActual("@/test-utils/server").stub("GamePrompt"));
 jest.mock("@/components/Footer", () => jest.requireActual("@/test-utils/server").stub("Footer"));
 jest.mock("@/components/ScrollToTop", () => jest.requireActual("@/test-utils/server").stub("ScrollToTop"));

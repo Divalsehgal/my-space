@@ -4,7 +4,7 @@ import { HomeIcon, KeyboardArrowRightIcon } from "@dival-sehgal/ui/icons";
 import FluidContainer from "../FluidContainer";
 import styles from "./styles.module.scss";
 import type { BreadcrumbItem } from "@/types";
-import ParticlesBackground from "../ParticlesBackground";
+import ParticleStrip from "../ParticleStrip";
 import JsonLd from "../JsonLd";
 import { SITE_URL } from "@/lib/config/site";
 import { getT } from "@/i18n/server";
@@ -29,15 +29,7 @@ export default function Breadcrumbs({ items, className }: Readonly<BreadcrumbsPr
 
   return (
     <nav className={clsx(styles.breadcrumbs, className)} aria-label={t("breadcrumbs.label")}>
-      <div className={styles["breadcrumbs__particles"]} aria-hidden="true">
-        <ParticlesBackground
-          id="breadcrumbs-particles"
-          className={styles["breadcrumbs__particles-canvas"]}
-          fullScreen={false}
-          count={1000}
-        />
-        <div className={styles["breadcrumbs__fade"]} />
-      </div>
+      <ParticleStrip id="breadcrumbs-particles" />
       <JsonLd data={breadcrumbJsonLd} />
       <FluidContainer className={styles["breadcrumbs__content"]}>
         <ol className={styles["breadcrumbs__list"]}>

@@ -7,15 +7,16 @@ import styles from "./styles.module.scss";
 type ChatHeaderProps = {
   readonly canClear: boolean;
   readonly onClear: () => void;
+  readonly onShowOptions: () => void;
 };
 
-/** Assistant name, online status and the "new chat" button. */
-export default function ChatHeader({ canClear, onClear }: ChatHeaderProps) {
+/** Assistant name, online status, "back to options" and "new chat" buttons. */
+export default function ChatHeader({ canClear, onClear, onShowOptions }: ChatHeaderProps) {
   const t = useT();
   return (
     <div className={styles["chat-header"]}>
       <div className={styles["chat-header__info"]}>
-        <div className={styles["chat-header__avatar"]}>{t("common.siteName").charAt(0)}</div>
+        <div className={styles["chat-header__mark"]} aria-hidden="true">{">_"}</div>
         <div>
           <h3 className={styles["chat-header__title"]}>{t("chat.assistantName")}</h3>
           <div className={styles["chat-header__status"]}>
@@ -25,6 +26,19 @@ export default function ChatHeader({ canClear, onClear }: ChatHeaderProps) {
         </div>
       </div>
       <div className={styles["chat-header__actions"]}>
+        {canClear && (
+          <IconButton
+            size="small"
+            onClick={onShowOptions}
+            className={styles["chat-header__clear"]}
+            aria-label={t("chat.backToOptions")}
+            title={t("chat.backToOptions")}
+          >
+            <svg className={styles["chat-header__clear-icon"]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </IconButton>
+        )}
         {canClear && (
           <IconButton
             size="small"

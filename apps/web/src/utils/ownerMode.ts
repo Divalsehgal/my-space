@@ -7,7 +7,8 @@
  * analytics and view counting for the owner. Faking the flag just opts a
  * visitor out of being counted; it grants nothing.
  */
-const OWNER_FLAG_COOKIE = "owner_mode";
+import { OWNER_FLAG_COOKIE } from "@/lib/owner/constants";
+
 const LEGACY_FLAG = "owner_mode"; // localStorage flag from before /owner existed
 
 /** True in a browser where the owner has signed in at /owner. */

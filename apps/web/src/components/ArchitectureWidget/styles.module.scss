@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins" as *;
+@use "constants.scss" as *;
 
 // Keep in sync with $home-top-bar-height in HomeTopBar.
 $home-top-bar-height: 48px;

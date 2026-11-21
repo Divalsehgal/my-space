@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import BlogPostPage, { generateMetadata, generateStaticParams } from "./page";
-import { getContentfulPostBySlug, getContentfulPosts } from "@/lib/services/contentful";
+import { getContentfulPostBySlug, getContentfulPostTitles, getContentfulPosts } from "@/lib/services/contentful";
 import { notFound } from "next/navigation";
 import { resolveServer, stubProps } from "@/test-utils/server";
 
 jest.mock("next/navigation", () => ({ notFound: jest.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
-jest.mock("@/lib/services/contentful", () => ({ getContentfulPosts: jest.fn(), getContentfulPostBySlug: jest.fn() }));
+jest.mock("@/lib/services/contentful", () => ({ getContentfulPosts: jest.fn(), getContentfulPostTitles: jest.fn(), getContentfulPostBySlug: jest.fn() }));
 jest.mock("@/containers/BlogPost", () => jest.requireActual("@/test-utils/server").stub("BlogPost"));
 jest.mock("@/components/Breadcrumbs", () => jest.requireActual("@/test-utils/server").stub("Breadcrumbs"));
 
@@ -19,8 +19,10 @@ const params = (slug = "b") => ({ params: Promise.resolve({ slug }) });
 describe("blog post route", () => {
   beforeEach(() => (getContentfulPosts as jest.Mock).mockResolvedValue(posts));
 
-  it("generates a path per post", async () => {
+  it("generates a path per post from the slug-only query", async () => {
+    (getContentfulPostTitles as jest.Mock).mockResolvedValue(posts.map(({ slug }) => ({ title: slug, slug })));
     expect(await generateStaticParams()).toEqual(posts.map(({ slug }) => ({ slug })));
+    expect(getContentfulPosts).not.toHaveBeenCalled();
   });
 
   it("builds full metadata for a post", async () => {

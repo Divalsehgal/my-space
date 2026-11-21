@@ -15,6 +15,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildLayers, LAYER_LIST } from "./architecture-layers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "src/generated/architecture.json");
@@ -40,7 +41,9 @@ const apiRoutes = walk(join(ROOT, "src/app/api"))
   .sort();
 
 const wrangler = has("wrangler.json") ? JSON.parse(read("wrangler.json")) : null;
-const workerSource = walk(join(ROOT, "src/worker"))
+// The Worker's folder comes from wrangler.json's entry point, so moving its files keeps the diagrams working.
+const workerDir = join(ROOT, wrangler?.main ? dirname(wrangler.main) : "src/worker");
+const workerSource = walk(workerDir)
   .filter((file) => /\.(ts|js)$/.test(file) && !/\.test\./.test(file))
   .map((file) => readFileSync(file, "utf8"))
   .join("\n");
@@ -67,98 +70,17 @@ const integrations = {
   serverSeedsWorker: /SEED_SECRET/.test(revalidateRoute),
 };
 
-// ---- Nodes ------------------------------------------------------------------
-const tiers = { client: [], compute: [], data: [] };
-const add = (tier, node) => tiers[tier].push(node);
+// ---- Layered overview (scripts/architecture-layers.mjs) -----------------------
+const { nodes, edges } = buildLayers({ root: ROOT, walk, apiRoutes, integrations, wrangler, crons, chatModel, configRevalidate, revalidateRoute, versions: { next: version("next"), react: version("react") } });
 
-add("client", {
-  id: "browser",
-  type: "frontend",
-  label: "Browser (Client)",
-  description: `React ${version("react")} client components: navigation, contact form, games and the chat widget${integrations.worker ? ", which calls the chatbot worker directly" : ""}.`,
-});
-add("compute", {
-  id: "nextjs-server",
-  type: "backend",
-  label: `Next.js ${version("next")}`,
-  description: `App Router with Server Components and Server Actions. API routes: ${apiRoutes.join(", ") || "none"}.`,
-});
-if (integrations.worker) {
-  const cronNote = crons.length ? `, re-indexed on a schedule (${crons.join(", ")})` : "";
-  add("compute", {
-    id: "chatbot-worker",
-    type: "backend",
-    label: "AI Chatbot Worker",
-    description: `Cloudflare Worker "${wrangler.name}": retrieval-augmented chat${cronNote}.`,
-  });
-}
-if (integrations.analytics) {
-  add("compute", { id: "google-analytics", type: "external", label: "Google Analytics / GTM", description: "GA4 via gtag/GTM, client-side only; skipped in owner mode." });
-}
-if (integrations.contentful) {
-  add("data", { id: "contentful", type: "external", label: "Contentful CMS", description: `Blog content over GraphQL${/revalidateTag/.test(revalidateRoute) ? "; a publish webhook busts the cache by tag" : ""}.` });
-}
-if (integrations.portfolioConfig) {
-  const refreshNote = configRevalidate ? `, refreshed every ${configRevalidate}s` : "";
-  add("data", { id: "portfolio-config", type: "data", label: "Portfolio Config", description: `JSON in a GitHub repo, validated with Zod${refreshNote}.` });
-}
-if (integrations.notion) {
-  add("data", { id: "notion", type: "data", label: "Notion", description: "Contact submissions are stored as database rows." });
-}
-if (integrations.redis) {
-  add("data", { id: "redis", type: "data", label: "Upstash Redis", description: "Blog view counts, visitor stats and rate limiting." });
-}
-if (integrations.workersAi) {
-  add("data", { id: "workers-ai", type: "external", label: "Workers AI", description: `Hosted models: ${[chatModel, embedModel].filter(Boolean).join(" (chat), ").replace(/$/, embedModel ? " (embeddings)" : "")}.` });
-}
-if (integrations.vectorize) {
-  add("data", { id: "vectorize", type: "data", label: "Vectorize Index", description: `Embeddings index "${wrangler.vectorize[0].index_name}" used for retrieval.` });
-}
-if (integrations.kv) {
-  add("data", { id: "chat-sessions-kv", type: "data", label: "Workers KV", description: `Namespaces: ${wrangler.kv_namespaces.map((kv) => kv.binding).join(", ")} (chat sessions, rate limits).` });
-}
-
-// ---- Edges ------------------------------------------------------------------
-const ids = new Set(Object.values(tiers).flat().map((node) => node.id));
-/** @type {Array<[source: string, target: string, label: string, extra?: Record<string, unknown>]>} */
-const edgeList = [
-  ["browser", "nextjs-server", "contact + view requests"],
-  ["browser", "chatbot-worker", "chat queries", { animated: true }],
-  ["browser", "google-analytics", "page views"],
-  ["nextjs-server", "contentful", "GraphQL query"],
-  ["nextjs-server", "portfolio-config", "fetches JSON"],
-  ["nextjs-server", "notion", "creates entry"],
-  ["nextjs-server", "redis", "views + rate limit"],
-  ["chatbot-worker", "workers-ai", "LLM + embeddings"],
-  ["chatbot-worker", "vectorize", "RAG lookup"],
-  ["chatbot-worker", "chat-sessions-kv", "sessions"],
-  ...(integrations.workerSubmitsContact ? [["chatbot-worker", "nextjs-server", "submits contact", { curvature: 0.5 }]] : []),
-  ...(integrations.serverSeedsWorker ? [["nextjs-server", "chatbot-worker", "", { animated: true, curvature: -0.5 }]] : []),
-];
-const edges = edgeList
-  .filter(([source, target]) => ids.has(source) && ids.has(target))
-  .map(([source, target, label, extra = {}]) => ({ id: `e-${source}-${target}`, source, target, ...(label ? { label } : {}), ...extra }));
-
-// ---- Layout: three tiers, centred rows ---------------------------------------
-const GAP_X = 260;
-const TIER_Y = { client: 0, compute: 200, data: 400 };
-const nodes = Object.entries(tiers).flatMap(([tier, list]) =>
-  list.map((node, index) => ({
-    id: node.id,
-    type: node.type,
-    tier,
-    position: { x: Math.round((index - (list.length - 1) / 2) * GAP_X), y: TIER_Y[tier] },
-    data: { label: node.label, description: node.description },
-  })),
-);
-
-const output = JSON.stringify({ title: "Architecture", subtitle: "Generated from this site's own code on every build.", nodes, edges }, null, 2) + "\n";
+const output =
+  JSON.stringify({ title: "Architecture", subtitle: "App shell → pages → feature modules → shared code → services, read from this site's imports on every build.", layers: LAYER_LIST, nodes, edges }, null, 2) + "\n";
 
 // ---- Chatbot LLD ------------------------------------------------------------
 /** Value of `const NAME = <literal>` in the Worker source, or the fallback. */
 const constant = (name, fallback = "?") => workerSource.match(new RegExp(`const ${name} = ([^;]+);`))?.[1]?.trim() ?? fallback;
 const rateLimit = wrangler?.ratelimits?.[0]?.simple;
-const lldEnabled = integrations.worker && has("src/worker/stream.ts");
+const lldEnabled = integrations.worker && workerSource.length > 0;
 
 // Layout: React Flow edges leave a node's bottom and enter the next one's top,
 // so every edge here points *down*. The chat request is one numbered column
@@ -171,7 +93,7 @@ const lldNode = (tier, [id, type, label, description], [x, row]) =>
   lldNodes.push({ id, type, tier, position: { x, y: row * STEP_Y }, data: { label, description } });
 
 if (lldEnabled) {
-  const hasMcp = has("src/worker/mcp.ts");
+  const hasMcp = /jsonrpc/.test(workerSource);
   const steps = [
     ["chat-widget", "frontend", "Chat widget", "You type a question. The useChat hook POSTs { message, pagePath } to the Worker and shows the answer as it streams back (events: response = append text, replace = swap text, sources = links)."],
     ["input-guard", "backend", "Input guardrails", `Rejects empty or > ${constant("MAX_CHAT_MESSAGE_LENGTH")}-char messages, off-limits topics (whole words only) and prompt-extraction attempts. Rejected → fixed reply, no AI call.`],

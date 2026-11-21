@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { ArchitectureEdgeConfig, ArchitectureNodeConfig } from "@/features/portfolio";
+import type { ArchitectureConfig, ArchitectureEdgeConfig, ArchitectureNodeConfig } from "@/features/portfolio";
 import styles from "./styles.module.scss";
 
 // React Flow (@xyflow/react) is heavy and the diagram sits far down the page,
@@ -15,6 +15,7 @@ const ArchitectureDiagram = dynamic(() => import("../ArchitectureDiagram"), {
 interface LazyArchitectureDiagramProps {
   nodes: ArchitectureNodeConfig[];
   edges: ArchitectureEdgeConfig[];
+  layers?: ArchitectureConfig["layers"];
 }
 
 export default function LazyArchitectureDiagram(props: Readonly<LazyArchitectureDiagramProps>) {

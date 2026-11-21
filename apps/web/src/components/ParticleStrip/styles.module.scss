@@ -1,0 +1,30 @@
+@use "variables.scss" as *;
+
+@keyframes particle-strip-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.particle-strip {
+  pointer-events: none;
+
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+
+  // Fade out toward the bottom edge and both sides so the strip blends into the page.
+  mask-image:
+    linear-gradient(to bottom, black 0%, black 40%, transparent 100%),
+    linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-composite: intersect;
+
+  &__canvas {
+    position: absolute;
+    inset: 0;
+    opacity: 0.75;
+
+    // The canvas mounts once the engine loads; fade it in instead of popping.
+    animation: particle-strip-fade-in 800ms $t-motion-easing-standard both;
+  }
+}

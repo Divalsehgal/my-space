@@ -7,12 +7,7 @@ describe("ScrollToTop Component", () => {
   const originalScrollY = window.scrollY;
   const originalScrollTo = window.scrollTo;
 
-  beforeAll(() => {
-    jest.useFakeTimers();
-  });
-
   afterAll(() => {
-    jest.useRealTimers();
     Object.defineProperty(window, 'scrollY', { value: originalScrollY, writable: true });
     window.scrollTo = originalScrollTo;
   });
@@ -43,31 +38,17 @@ describe("ScrollToTop Component", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("calls window.scrollTo and manages scrollSnapType on click", () => {
+  it("scrolls smoothly to the top on click", () => {
     render(<ScrollToTop />);
-    
+
     act(() => {
       window.scrollY = 400;
       fireEvent.scroll(window);
     });
 
-    const button = screen.getByLabelText("Scroll to top");
-    fireEvent.click(button);
+    fireEvent.click(screen.getByLabelText("Scroll to top"));
 
-    expect(window.scrollTo).toHaveBeenCalledWith({
-      top: 0,
-      behavior: "smooth",
-    });
-    
-    // Check scrollSnap is disabled
-    expect(document.documentElement.style.scrollSnapType).toBe("none");
-
-    // Advance timer to test re-enabling scrollSnap
-    act(() => {
-      jest.advanceTimersByTime(800);
-    });
-
-    expect(document.documentElement.style.scrollSnapType).toBe("y mandatory");
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
   });
 
   it("hides when scrolled back to top", () => {
@@ -88,59 +69,10 @@ describe("ScrollToTop Component", () => {
     expect(screen.queryByLabelText("scroll to top")).not.toBeInTheDocument();
   });
 
-  it("clears timeouts and event listeners on unmount", () => {
+  it("removes its scroll listener on unmount", () => {
     const removeEventListenerSpy = jest.spyOn(window, "removeEventListener");
-    
     const { unmount } = render(<ScrollToTop />);
-    
-    act(() => {
-      window.scrollY = 400;
-      fireEvent.scroll(window);
-    });
-
-    const button = screen.getByLabelText("Scroll to top");
-    fireEvent.click(button); // Starts a timeout
-
     unmount();
-    
-    // Check listener removal
     expect(removeEventListenerSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
-    
-    // Since we unmounted, the timeout should be cleared and NOT fire the scroll snap reset
-    act(() => {
-      jest.advanceTimersByTime(800);
-    });
-    // the scrollSnapType is 'none' right before unmount, it should remain 'none' since the timeout was cleared
-    expect(document.documentElement.style.scrollSnapType).toBe("none");
-  });
-
-  it("clears existing timeout when clicked rapidly", () => {
-    render(<ScrollToTop />);
-    act(() => {
-      window.scrollY = 400;
-      fireEvent.scroll(window);
-    });
-
-    const button = screen.getByLabelText("Scroll to top");
-    
-    fireEvent.click(button);
-    act(() => {
-      jest.advanceTimersByTime(400);
-    });
-    
-    // Click again before first timeout finishes
-    fireEvent.click(button);
-    
-    act(() => {
-      jest.advanceTimersByTime(500);
-    });
-    // First timeout was cleared, so scrollSnap is still 'none' because only 500ms passed for the second timeout
-    expect(document.documentElement.style.scrollSnapType).toBe("none");
-
-    act(() => {
-      jest.advanceTimersByTime(300);
-    });
-    // Now second timeout finishes
-    expect(document.documentElement.style.scrollSnapType).toBe("y mandatory");
   });
 });
