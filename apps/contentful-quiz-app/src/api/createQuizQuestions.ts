@@ -3,18 +3,21 @@ import { signedPost, type Signer } from './signedPost';
 
 export type { SignableRequest, Signer } from './signedPost';
 
-/** Where the questions go: a quiz entry, or a blog post (its linked quiz, or a new one). */
-export type ImportTarget = { quizId: string } | { blogId: string };
+/** The quiz the questions go into, and the blog to link it to. */
+export interface ImportTarget {
+  quizId: string;
+  blogId?: string;
+}
 
 export interface ImportResult {
   message?: string;
-  /** The quiz the questions were added to; new when the blog had none. */
-  quizId?: string;
+  /** The blog's quiz field was just pointed at this quiz (as a draft). */
+  linkedBlog?: boolean;
 }
 
 /**
- * Sends validated questions to the quiz API, which creates them in Contentful
- * and attaches them to the target's quiz.
+ * Sends validated questions to the quiz API, which creates them in Contentful,
+ * attaches them to the quiz and links the blog to it.
  */
 export function createQuizQuestions(target: ImportTarget, payload: QuizPayload, publish: boolean, sign: Signer): Promise<ImportResult> {
   return signedPost<ImportResult>(

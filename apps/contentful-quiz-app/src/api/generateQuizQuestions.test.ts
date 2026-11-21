@@ -18,15 +18,15 @@ describe("generateQuizQuestions", () => {
     const result = { questions: [], dropped: 1, existingCount: 0 };
     const fetchMock = jest.fn(() => respond(200, result));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
-    await expect(generateQuizQuestions("blog-1", 6, sign)).resolves.toEqual(result);
+    await expect(generateQuizQuestions("blog-1", "quiz-1", 6, sign)).resolves.toEqual(result);
     const [url, init] = fetchMock.mock.calls[0] as unknown as [URL, RequestInit];
     expect(String(url)).toMatch(/\/api\/contentful\/generate-quiz$/);
-    expect(JSON.parse(String(init.body))).toEqual({ blogId: "blog-1", count: 6 });
+    expect(JSON.parse(String(init.body))).toEqual({ blogId: "blog-1", quizId: "quiz-1", count: 6 });
     expect(sign).toHaveBeenCalledWith(expect.objectContaining({ path: "/api/contentful/generate-quiz" }));
   });
 
   it("uses its own fallback error message", async () => {
     globalThis.fetch = jest.fn(() => respond(502, {})) as unknown as typeof fetch;
-    await expect(generateQuizQuestions("blog-1", 6, sign)).rejects.toThrow("Failed to generate questions.");
+    await expect(generateQuizQuestions("blog-1", "quiz-1", 6, sign)).rejects.toThrow("Failed to generate questions.");
   });
 });

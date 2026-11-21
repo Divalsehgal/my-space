@@ -63,13 +63,12 @@ describe("createQuizQuestions", () => {
   });
 });
 
-describe("createQuizQuestions for a blog", () => {
-  it("sends blogId instead of quizId and returns the quiz it used", async () => {
-    const fetchMock = mockFetch(() => respond(200, { message: "ok", quizId: "new-quiz" }));
-    await expect(createQuizQuestions({ blogId: "blog-1" }, payload, false, sign)).resolves.toEqual({ message: "ok", quizId: "new-quiz" });
+describe("createQuizQuestions with a blog", () => {
+  it("sends the blog to link and reports whether it was linked", async () => {
+    const fetchMock = mockFetch(() => respond(200, { message: "ok", linkedBlog: true }));
+    await expect(createQuizQuestions({ quizId: "quiz-1", blogId: "blog-1" }, payload, false, sign)).resolves.toEqual({ message: "ok", linkedBlog: true });
     const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
-    expect(body).toMatchObject({ blogId: "blog-1" });
-    expect(body).not.toHaveProperty("quizId");
+    expect(body).toMatchObject({ quizId: "quiz-1", blogId: "blog-1" });
   });
 });
 

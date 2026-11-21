@@ -1,14 +1,13 @@
 /** @jest-environment node */
 import { signRequest } from "@contentful/node-apps-toolkit";
 import { OPTIONS, POST } from "./route";
-import { contentfulRequest, createEntry, importQuestions } from "@/lib/contentful/quiz-import";
+import { contentfulRequest, importQuestions } from "@/lib/contentful/quiz-import";
 
 jest.mock("@/lib/contentful/quiz-import", () => ({
   ...jest.requireActual("@/lib/contentful/quiz-import"),
   getManagementConfig: () => ({ spaceId: "s", accessToken: "t", environmentId: "master" }),
   contentfulRequest: jest.fn(),
   importQuestions: jest.fn(),
-  createEntry: jest.fn(),
 }));
 
 const SECRET = "a".repeat(64);
@@ -70,30 +69,39 @@ describe("POST /api/contentful/create-quiz-questions", () => {
     const missingId = await POST(signedRequest(JSON.stringify({ questions: [question] })));
     const badQuestions = await POST(signedRequest(JSON.stringify({ quizId: "quiz-1", questions: [{}] })));
     expect([missingId.status, badQuestions.status]).toEqual([400, 400]);
-    expect(await missingId.json()).toEqual({ error: "quizId or blogId is required." });
+    expect(await missingId.json()).toEqual({ error: "quizId is required." });
     (contentfulRequest as jest.Mock).mockResolvedValue({ sys: { id: "x", version: 1, contentType: { sys: { id: "blogPage" } } } });
     expect((await POST(signedRequest(JSON.stringify({ quizId: "x", questions: [question] })))).status).toBe(400);
   });
 
-  it("imports into a blog's linked quiz, or creates one named after the blog", async () => {
+  it("links the chosen blog to the quiz, once, and refuses a blog that has another quiz", async () => {
     const quiz = { sys: { id: "quiz-1", version: 1, contentType: { sys: { id: "quizComponent" } } }, fields: { title: { "en-US": "Quiz" } } };
-    const blogPost = (quizLink?: unknown) => ({
-      sys: { id: "blog-1", version: 1, contentType: { sys: { id: "blogPage" } } },
-      fields: { title: { "en-US": "Caching" }, ...(quizLink ? { quiz: { "en-US": quizLink } } : {}) },
+    const blogPost = (quizId?: string) => ({
+      sys: { id: "blog-1", version: 3, contentType: { sys: { id: "blogPage" } } },
+      fields: { title: { "en-US": "Caching" }, ...(quizId ? { quiz: { "en-US": { sys: { id: quizId } } } } : {}) },
     });
     (importQuestions as jest.Mock).mockResolvedValue({ createdQuestionIds: ["q1"], failure: null, quizPublishError: null });
-    const body = JSON.stringify({ blogId: "blog-1", questions: [question] });
+    const body = JSON.stringify({ quizId: "quiz-1", blogId: "blog-1", questions: [question] });
 
-    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost({ sys: { id: "quiz-1" } })).mockResolvedValueOnce(quiz);
-    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ success: true, quizId: "quiz-1" });
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost()).mockResolvedValueOnce(quiz).mockResolvedValueOnce({});
+    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ success: true, linkedBlog: true });
+    expect(contentfulRequest).toHaveBeenLastCalledWith(expect.anything(), "/entries/blog-1", expect.objectContaining({
+      method: "PUT",
+      headers: { "X-Contentful-Version": "3" },
+      body: JSON.stringify({ fields: { title: { "en-US": "Caching" }, quiz: { "en-US": { sys: { type: "Link", linkType: "Entry", id: "quiz-1" } } } } }),
+    }));
 
-    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost());
-    (createEntry as jest.Mock).mockResolvedValueOnce({ ...quiz, sys: { ...quiz.sys, id: "quiz-new" } });
-    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ quizId: "quiz-new" });
-    expect(createEntry).toHaveBeenCalledWith(expect.anything(), "quizComponent", { title: { "en-US": "Caching — Quiz" } });
+    jest.clearAllMocks();
+    (importQuestions as jest.Mock).mockResolvedValue({ createdQuestionIds: ["q2"], failure: null, quizPublishError: null });
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost("quiz-1")).mockResolvedValueOnce(quiz);
+    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ linkedBlog: false });
+    expect(contentfulRequest).toHaveBeenCalledTimes(2);
 
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost("other-quiz"));
+    expect((await POST(signedRequest(body))).status).toBe(409);
     (contentfulRequest as jest.Mock).mockResolvedValueOnce(quiz);
     expect((await POST(signedRequest(body))).status).toBe(400);
+    expect(importQuestions).toHaveBeenCalledTimes(1);
   });
 
   it("answers the CORS preflight", () => {

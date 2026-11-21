@@ -15,6 +15,6 @@ export interface GenerateResult {
   existingCount: number;
 }
 
-/** Asks the quiz API to draft questions from the blog's current text with Gemini. Nothing is saved. */
-export const generateQuizQuestions = (blogId: string, count: number, sign: Signer): Promise<GenerateResult> =>
-  signedPost<GenerateResult>('/contentful/generate-quiz', { blogId, count }, sign, 'Failed to generate questions.');
+/** Asks the quiz API to draft questions from the blog's current text with Gemini, skipping the quiz's existing ones. Nothing is saved. */
+export const generateQuizQuestions = (blogId: string, quizId: string, count: number, sign: Signer): Promise<GenerateResult> =>
+  signedPost<GenerateResult>('/contentful/generate-quiz', { blogId, quizId, count }, sign, 'Failed to generate questions.');

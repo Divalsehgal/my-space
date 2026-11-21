@@ -8,13 +8,13 @@ const DEFAULT_COUNT = '6';
 
 interface Props {
   blogId: string;
-  hasQuiz: boolean;
+  quizId: string;
   sign: Signer;
   onGenerated: (result: GenerateResult) => void;
 }
 
-/** Blog Page mode: what will happen to the quiz, and the "draft questions from this post" control. */
-export function GenerateControls({ blogId, hasQuiz, sign, onGenerated }: Props) {
+/** "Draft questions from the blog" with Gemini; available once a blog is chosen. */
+export function GenerateControls({ blogId, quizId, sign, onGenerated }: Props) {
   const [count, setCount] = useState(DEFAULT_COUNT);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function GenerateControls({ blogId, hasQuiz, sign, onGenerated }: Props) 
     setSummary(null);
     setIsGenerating(true);
     try {
-      const result = await generateQuizQuestions(blogId, Number(count), sign);
+      const result = await generateQuizQuestions(blogId, quizId, Number(count), sign);
       onGenerated(result);
       const dropped = result.dropped ? `, ${result.dropped} dropped by the checks` : '';
       setSummary(`Drafted ${result.questions.length} question(s)${dropped}. Review, edit or remove them below, then import.`);
@@ -38,12 +38,8 @@ export function GenerateControls({ blogId, hasQuiz, sign, onGenerated }: Props) 
 
   return (
     <Stack flexDirection="column" alignItems="stretch" spacing="spacingS">
-      <Note variant="neutral">
-        {hasQuiz
-          ? 'This post has a quiz. Imported questions are added to it, and drafts skip questions it already has.'
-          : 'This post has no quiz yet. Importing creates one and links it to this post.'}
-      </Note>
-      <Stack spacing="spacingS">
+      {/* Stacked: the sidebar is under 300px wide, too narrow for both side by side. */}
+      <Stack flexDirection="column" alignItems="stretch" spacing="spacingXs">
         <Select
           aria-label="Number of questions"
           value={count}
@@ -54,14 +50,14 @@ export function GenerateControls({ blogId, hasQuiz, sign, onGenerated }: Props) 
             <Select.Option key={value} value={value}>{value} questions</Select.Option>
           ))}
         </Select>
-        <Button variant="secondary" onClick={generate} isDisabled={isGenerating}>
-          {isGenerating ? 'Drafting…' : 'Draft from this post'}
+        <Button variant="secondary" isFullWidth onClick={generate} isDisabled={isGenerating || !blogId}>
+          {isGenerating ? 'Drafting…' : 'Draft from the blog'}
         </Button>
       </Stack>
       {isGenerating && (
         <Stack spacing="spacingXs">
           <Spinner size="small" />
-          <Text fontColor="gray600">Gemini is reading the post. This usually takes 10–60 seconds.</Text>
+          <Text fontColor="gray600">Gemini is reading the blog. This usually takes 10–60 seconds.</Text>
         </Stack>
       )}
       {summary && <Note variant="positive">{summary}</Note>}

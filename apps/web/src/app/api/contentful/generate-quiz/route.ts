@@ -11,8 +11,9 @@ import {
 } from "@/lib/contentful/quiz-import";
 
 /**
- * Called by the Contentful quiz app from a Blog Page sidebar: generates quiz
- * questions from the blog's current (draft) text for the editor to review.
+ * Called by the Contentful quiz app from a quiz entry: generates questions
+ * from the chosen blog's current (draft) text for the editor to review,
+ * skipping questions the quiz already has.
  * Nothing is written to Contentful here; the editor imports the reviewed
  * questions through /api/contentful/create-quiz-questions. Signed requests only.
  */
@@ -29,7 +30,7 @@ export const OPTIONS = appPreflight;
 
 type Link = { sys?: { id?: string } };
 type TextNode = { value?: string; content?: TextNode[] };
-type Blog = { title: string; sections: Section[]; quizLink?: Link; locale: string };
+type Blog = { title: string; sections: Section[]; locale: string };
 
 const field = (entry: ManagedEntry, name: string, locale: string): unknown => entry.fields?.[name]?.[locale];
 
@@ -37,9 +38,9 @@ const field = (entry: ManagedEntry, name: string, locale: string): unknown => en
 const plain = (node: TextNode | undefined): string =>
   node ? (node.value ?? (node.content ?? []).map(plain).join(" ")).replace(/\s+/g, " ").trim() : "";
 
-/** `{ blogId, count }` from the body, or the error reply to send instead. */
-function parseBody(raw: string): { blogId: string; count: number } | Response {
-  let body: { blogId?: unknown; count?: unknown };
+/** `{ blogId, quizId, count }` from the body, or the error reply to send instead. */
+function parseBody(raw: string): { blogId: string; quizId?: string; count: number } | Response {
+  let body: { blogId?: unknown; quizId?: unknown; count?: unknown };
   try {
     body = JSON.parse(raw) ?? {};
   } catch {
@@ -49,10 +50,10 @@ function parseBody(raw: string): { blogId: string; count: number } | Response {
     return appReply({ error: "blogId is required." }, HTTP_STATUS.BAD_REQUEST);
   }
   const count = Math.min(Math.max(Math.trunc(Number(body.count)) || DEFAULT_COUNT, 1), MAX_COUNT);
-  return { blogId: body.blogId, count };
+  return { blogId: body.blogId, quizId: typeof body.quizId === "string" && body.quizId ? body.quizId : undefined, count };
 }
 
-/** The blog's title, Markdown sections and quiz link, or the error reply to send instead. */
+/** The blog's title and Markdown sections, or the error reply to send instead. */
 async function loadBlog(config: ManagementConfig, blogId: string): Promise<Blog | Response> {
   const blog = await contentfulRequest(config, `/entries/${encodeURIComponent(blogId)}`);
   if (blog.sys.contentType?.sys.id !== BLOG_CONTENT_TYPE) {
@@ -64,13 +65,13 @@ async function loadBlog(config: ManagementConfig, blogId: string): Promise<Blog 
   if (!sections.length) {
     return appReply({ error: "This blog has no body text to generate questions from." }, HTTP_STATUS.BAD_REQUEST);
   }
-  return { title, sections, quizLink: field(blog, "quiz", locale) as Link | undefined, locale };
+  return { title, sections, locale };
 }
 
-/** Question texts already in the blog's quiz, if it has one. */
-async function existingQuestions(config: ManagementConfig, { quizLink, locale }: Blog): Promise<string[]> {
-  if (!quizLink?.sys?.id) { return []; }
-  const quiz = await contentfulRequest(config, `/entries/${encodeURIComponent(quizLink.sys.id)}`);
+/** Question texts already in the quiz. */
+async function existingQuestions(config: ManagementConfig, quizId: string | undefined, locale: string): Promise<string[]> {
+  if (!quizId) { return []; }
+  const quiz = await contentfulRequest(config, `/entries/${encodeURIComponent(quizId)}`);
   const links = (field(quiz, "questionEntries", locale) as Link[] | undefined) ?? [];
   const ids = links.map((link) => link.sys?.id).filter((id): id is string => Boolean(id));
   if (!ids.length) { return []; }
@@ -91,7 +92,7 @@ export async function POST(req: Request) {
     const config = getManagementConfig();
     const blog = await loadBlog(config, request.blogId);
     if (blog instanceof Response) { return blog; }
-    const existing = await existingQuestions(config, blog);
+    const existing = await existingQuestions(config, request.quizId, blog.locale);
     const { questions, dropped } = await generateQuestions({ title: blog.title, sections: blog.sections, existing, count: request.count });
     if (!questions.length) {
       return appReply({ error: "No question passed the checks. Try generating again.", dropped }, APP_STATUS.BAD_GATEWAY);

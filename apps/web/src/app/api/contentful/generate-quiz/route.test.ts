@@ -39,15 +39,16 @@ describe("POST /api/contentful/generate-quiz", () => {
     expect(generateQuestions).not.toHaveBeenCalled();
   });
 
-  it("drafts questions from the blog, skipping ones its quiz already has", async () => {
+  it("drafts questions from the blog, skipping ones the quiz already has", async () => {
     (contentfulRequest as jest.Mock)
-      .mockResolvedValueOnce(blog({ body: { "en-US": richText("Caching keeps copies.") }, quiz: { "en-US": { sys: { id: "quiz-1" } } } }))
+      .mockResolvedValueOnce(blog({ body: { "en-US": richText("Caching keeps copies.") } }))
       .mockResolvedValueOnce({ sys: { id: "quiz-1" }, fields: { questionEntries: { "en-US": [{ sys: { id: "q1" } }] } } })
       .mockResolvedValueOnce({ items: [{ sys: { id: "q1" }, fields: { questionText: { "en-US": richText("Old question?") } } }] });
     (generateQuestions as jest.Mock).mockResolvedValue({ questions: [{ questionText: "New?" }], dropped: 1 });
-    const res = await POST(signedRequest(JSON.stringify({ blogId: "blog-1", count: 99 })));
+    const res = await POST(signedRequest(JSON.stringify({ blogId: "blog-1", quizId: "quiz-1", count: 99 })));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ questions: [{ questionText: "New?" }], dropped: 1, existingCount: 1 });
+    expect(contentfulRequest).toHaveBeenNthCalledWith(2, expect.anything(), "/entries/quiz-1");
     expect(generateQuestions).toHaveBeenCalledWith({
       title: "Caching",
       sections: [{ heading: "Caching", text: "Caching keeps copies." }],

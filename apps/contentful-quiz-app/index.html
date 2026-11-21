@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quiz Question Generator</title>
+    <style>
+      /* Contentful's auto-resizer sizes the iframe to the content. A scrollbar that
+         appears mid-resize narrows the page, re-wraps the text and changes the height
+         again, so the sidebar resizes in a loop. No scrollbars, and no wide content. */
+      html, body { margin: 0; overflow: hidden; }
+      #root { overflow-wrap: anywhere; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

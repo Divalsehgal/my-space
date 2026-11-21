@@ -1,33 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Note, Stack, Textarea } from '@contentful/f36-components';
+import { Button, Checkbox, Note, Stack, Textarea } from '@contentful/f36-components';
 import { useSDK } from '@contentful/react-apps-toolkit';
-import type { SidebarAppSDK } from '@contentful/app-sdk';
+import type { EditorAppSDK, SidebarAppSDK } from '@contentful/app-sdk';
 import type { Signer } from './api/createQuizQuestions';
 import type { GeneratedQuestion } from './api/generateQuizQuestions';
+import { BlogPicker, useBlogOptions } from './components/BlogPicker';
 import { GenerateControls } from './components/GenerateControls';
 import { Intro } from './components/Intro';
 import { PreviewList } from './components/PreviewList';
-import { importQuiz, linkedQuizId, type QuizField } from './importQuiz';
+import { importQuiz } from './importQuiz';
 
-const sampleJson = `{
-  "questions": [
-    {
-      "questionText": "What is the capital of France?",
-      "options": [
-        { "text": "Berlin", "isCorrect": false },
-        { "text": "Paris", "isCorrect": true },
-        { "text": "Rome", "isCorrect": false },
-        { "text": "Madrid", "isCorrect": false }
-      ],
-      "explanation": "Paris is the capital city of France.",
-      "difficulty": "easy"
-    }
-  ]
-}`;
+/** Runs as the quiz entry's "Questions" field editor (which has a resizable window); typed loosely so any entry location works. */
+type AppSDK = EditorAppSDK & Partial<Pick<SidebarAppSDK, 'window'>>;
 
-/** The JSON box is shorter on a blog, where questions are usually drafted rather than pasted. */
-const BLOG_JSON_ROWS = 8;
-const QUIZ_JSON_ROWS = 18;
+const JSON_ROWS = 10;
+const JSON_PLACEHOLDER = `Draft from the blog, or paste:
+{ "questions": [ { "questionText": "…", "options": [ { "text": "…", "isCorrect": true }, … ], "explanation": "…" } ] }`;
 
 const toJson = (questions: GeneratedQuestion[]) => JSON.stringify({ questions }, null, 2);
 
@@ -43,45 +31,44 @@ function readQuestions(json: string): GeneratedQuestion[] {
 
 const importLabel = (count: number) => (count ? `Import ${count} question${count === 1 ? '' : 's'}` : 'Import questions');
 
-/** Which entry the sidebar is open on. */
-function useEntry() {
-  const sdk = useSDK<SidebarAppSDK>();
-  const isBlog = sdk.ids.contentType === 'blogPage';
-  const quizField: QuizField | undefined = isBlog ? sdk.entry?.fields?.quiz : undefined;
+/** The quiz entry the app is open on, and how to sign requests as this app. */
+function useQuizEntry() {
+  const sdk = useSDK<AppSDK>();
   const sign: Signer = async (request) =>
     (await sdk.cma.appSignedRequest.create({ appDefinitionId: sdk.ids.app ?? '' }, request)).additionalHeaders;
-  return { sdk, entryId: sdk.ids.entry || null, isBlog, isQuiz: sdk.ids.contentType === 'quizComponent', quizField, sign };
+  return { sdk, quizId: sdk.ids.entry, isQuiz: sdk.ids.contentType === 'quizComponent', sign };
 }
 
 function App() {
-  const { sdk, entryId, isBlog, isQuiz, quizField, sign } = useEntry();
-
-  const [jsonInput, setJsonInput] = useState(isBlog ? '' : sampleJson);
+  const { sdk, quizId, isQuiz, sign } = useQuizEntry();
+  const { blogs, error: blogError } = useBlogOptions(sdk, quizId);
+  const [blogId, setBlogId] = useState('');
+  const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [publishAfterImport, setPublishAfterImport] = useState(true);
-  const [hasQuiz, setHasQuiz] = useState(() => Boolean(linkedQuizId(quizField)));
 
   useEffect(() => {
-    sdk.window.startAutoResizer();
+    sdk.window?.startAutoResizer();
   }, [sdk]);
+
+  // A quiz already linked to a blog stays with it.
+  useEffect(() => {
+    const linked = blogs?.find((blog) => blog.isLinked);
+    if (linked) { setBlogId(linked.id); }
+  }, [blogs]);
 
   const preview = useMemo(() => readQuestions(jsonInput), [jsonInput]);
   const removeQuestion = (index: number) => setJsonInput(toJson(preview.filter((_, at) => at !== index)));
 
   const handleImport = async () => {
-    if (!entryId) {
-      setError('No Contentful entry selected.');
-      return;
-    }
     setError(null);
     setSuccess(null);
     setIsSaving(true);
     try {
-      setSuccess(await importQuiz({ entryId, quizField, json: jsonInput, publish: publishAfterImport, sign }));
-      setHasQuiz(Boolean(linkedQuizId(quizField)));
-      if (isBlog) { setJsonInput(''); }
+      setSuccess(await importQuiz({ quizId, blogId }, jsonInput, publishAfterImport, sign));
+      setJsonInput('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error creating questions.');
     } finally {
@@ -89,30 +76,27 @@ function App() {
     }
   };
 
-  const canImport = Boolean(entryId) && (isBlog || isQuiz) && !isSaving && preview.length > 0;
+  if (!isQuiz) { return <Intro isQuiz={false} />; }
 
   return (
-    <Stack flexDirection="column" alignItems="stretch" spacing="spacingM" padding="spacingM">
-      <Intro isBlog={isBlog} isQuiz={isQuiz} />
-
-      {isBlog && entryId && (
-        <GenerateControls blogId={entryId} hasQuiz={hasQuiz} sign={sign} onGenerated={(result) => setJsonInput(toJson(result.questions))} />
-      )}
+    <Stack flexDirection="column" alignItems="stretch" spacing="spacingM" padding="spacingM" style={{ maxWidth: '760px', margin: '0 auto' }}>
+      <Intro isQuiz />
+      <BlogPicker blogs={blogs} error={blogError} value={blogId} onChange={setBlogId} isDisabled={isSaving} />
+      <GenerateControls blogId={blogId} quizId={quizId} sign={sign} onGenerated={(result) => setJsonInput(toJson(result.questions))} />
 
       <Textarea
         value={jsonInput}
         onChange={(event) => setJsonInput(event.target.value)}
-        rows={isBlog ? BLOG_JSON_ROWS : QUIZ_JSON_ROWS}
-        placeholder='Paste { "questions": [...] } here'
+        rows={JSON_ROWS}
+        placeholder={JSON_PLACEHOLDER}
         aria-label="Quiz JSON input"
       />
 
-      <label style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        <input type="checkbox" checked={publishAfterImport} onChange={(event) => setPublishAfterImport(event.target.checked)} />
-        <span>Publish the options, questions and quiz after import</span>
-      </label>
+      <Checkbox isChecked={publishAfterImport} onChange={(event) => setPublishAfterImport(event.target.checked)}>
+        Publish the options, questions and quiz after import
+      </Checkbox>
 
-      <Button variant="primary" isFullWidth isDisabled={!canImport} onClick={handleImport}>
+      <Button variant="primary" isFullWidth isDisabled={!blogId || isSaving || !preview.length} onClick={handleImport}>
         {isSaving ? 'Importing…' : importLabel(preview.length)}
       </Button>
 
