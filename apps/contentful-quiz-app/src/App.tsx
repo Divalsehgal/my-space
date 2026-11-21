@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Heading, Paragraph, Textarea } from '@contentful/f36-components';
+import { Button, Note, Stack, Textarea } from '@contentful/f36-components';
 import { useSDK } from '@contentful/react-apps-toolkit';
 import type { SidebarAppSDK } from '@contentful/app-sdk';
-import { optionLetter, parseQuizPayload, type QuizQuestion } from '@dival-sehgal/quiz/validate';
-import { createQuizQuestions, type Signer } from './api/createQuizQuestions';
+import type { Signer } from './api/createQuizQuestions';
+import type { GeneratedQuestion } from './api/generateQuizQuestions';
+import { GenerateControls } from './components/GenerateControls';
+import { Intro } from './components/Intro';
+import { PreviewList } from './components/PreviewList';
+import { importQuiz, linkedQuizId, type QuizField } from './importQuiz';
 
-const defaultJson = `{
+const sampleJson = `{
   "questions": [
     {
       "questionText": "What is the capital of France?",
@@ -21,51 +25,63 @@ const defaultJson = `{
   ]
 }`;
 
-function App() {
+/** The JSON box is shorter on a blog, where questions are usually drafted rather than pasted. */
+const BLOG_JSON_ROWS = 8;
+const QUIZ_JSON_ROWS = 18;
+
+const toJson = (questions: GeneratedQuestion[]) => JSON.stringify({ questions }, null, 2);
+
+/** Questions in the JSON box, or none while it isn't valid quiz JSON. */
+function readQuestions(json: string): GeneratedQuestion[] {
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed?.questions) ? parsed.questions : [];
+  } catch {
+    return [];
+  }
+}
+
+const importLabel = (count: number) => (count ? `Import ${count} question${count === 1 ? '' : 's'}` : 'Import questions');
+
+/** Which entry the sidebar is open on. */
+function useEntry() {
   const sdk = useSDK<SidebarAppSDK>();
-  const [jsonInput, setJsonInput] = useState(defaultJson);
+  const isBlog = sdk.ids.contentType === 'blogPage';
+  const quizField: QuizField | undefined = isBlog ? sdk.entry?.fields?.quiz : undefined;
+  const sign: Signer = async (request) =>
+    (await sdk.cma.appSignedRequest.create({ appDefinitionId: sdk.ids.app ?? '' }, request)).additionalHeaders;
+  return { sdk, entryId: sdk.ids.entry || null, isBlog, isQuiz: sdk.ids.contentType === 'quizComponent', quizField, sign };
+}
+
+function App() {
+  const { sdk, entryId, isBlog, isQuiz, quizField, sign } = useEntry();
+
+  const [jsonInput, setJsonInput] = useState(isBlog ? '' : sampleJson);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [entryId, setEntryId] = useState<string | null>(null);
-  const [isQuizEntry, setIsQuizEntry] = useState(false);
   const [publishAfterImport, setPublishAfterImport] = useState(true);
+  const [hasQuiz, setHasQuiz] = useState(() => Boolean(linkedQuizId(quizField)));
 
   useEffect(() => {
-    setEntryId(sdk.ids.entry || null);
-    setIsQuizEntry(sdk.ids.contentType === 'quizComponent');
     sdk.window.startAutoResizer();
   }, [sdk]);
 
-  const parsedPreview = useMemo(() => {
-    try {
-      const parsed = JSON.parse(jsonInput);
-      if (!parsed || !Array.isArray(parsed.questions)) {
-        return [] as QuizQuestion[];
-      }
-      return parsed.questions as QuizQuestion[];
-    } catch {
-      return [] as QuizQuestion[];
-    }
-  }, [jsonInput]);
+  const preview = useMemo(() => readQuestions(jsonInput), [jsonInput]);
+  const removeQuestion = (index: number) => setJsonInput(toJson(preview.filter((_, at) => at !== index)));
 
-  const handleCreateQuestions = async () => {
+  const handleImport = async () => {
     if (!entryId) {
       setError('No Contentful entry selected.');
       return;
     }
-
+    setError(null);
+    setSuccess(null);
+    setIsSaving(true);
     try {
-      setError(null);
-      setSuccess(null);
-      setIsSaving(true);
-
-      const payload = parseQuizPayload(jsonInput);
-      const sign: Signer = async (request) =>
-        (await sdk.cma.appSignedRequest.create({ appDefinitionId: sdk.ids.app ?? '' }, request)).additionalHeaders;
-      const message = await createQuizQuestions(entryId, payload, publishAfterImport, sign);
-
-      setSuccess(message || `Created ${payload.questions.length} question(s) successfully. Publish the quiz and its new entries when ready.`);
+      setSuccess(await importQuiz({ entryId, quizField, json: jsonInput, publish: publishAfterImport, sign }));
+      setHasQuiz(Boolean(linkedQuizId(quizField)));
+      if (isBlog) { setJsonInput(''); }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error creating questions.');
     } finally {
@@ -73,68 +89,38 @@ function App() {
     }
   };
 
-  return (
-    <div style={{ padding: '16px', display: 'grid', gap: '16px',height:"100%" }}>
-      <Heading>Quiz builder</Heading>
-      <Paragraph>Paste your questions below. Each question needs four unique options, one correct answer, and an explanation.</Paragraph>
+  const canImport = Boolean(entryId) && (isBlog || isQuiz) && !isSaving && preview.length > 0;
 
-      {!isQuizEntry && (
-        <div style={{ color: '#8a6100', background: '#fff8e1', padding: '12px', borderRadius: '8px' }}>
-          Open this app from a <strong>Component - Quiz</strong> entry to import questions.
-        </div>
+  return (
+    <Stack flexDirection="column" alignItems="stretch" spacing="spacingM" padding="spacingM">
+      <Intro isBlog={isBlog} isQuiz={isQuiz} />
+
+      {isBlog && entryId && (
+        <GenerateControls blogId={entryId} hasQuiz={hasQuiz} sign={sign} onGenerated={(result) => setJsonInput(toJson(result.questions))} />
       )}
 
       <Textarea
         value={jsonInput}
         onChange={(event) => setJsonInput(event.target.value)}
-        rows={18}
+        rows={isBlog ? BLOG_JSON_ROWS : QUIZ_JSON_ROWS}
+        placeholder='Paste { "questions": [...] } here'
         aria-label="Quiz JSON input"
       />
 
       <label style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        <input
-          type="checkbox"
-          checked={publishAfterImport}
-          onChange={(event) => setPublishAfterImport(event.target.checked)}
-        />
-        <span>Publish the options, questions, and this quiz after import</span>
+        <input type="checkbox" checked={publishAfterImport} onChange={(event) => setPublishAfterImport(event.target.checked)} />
+        <span>Publish the options, questions and quiz after import</span>
       </label>
 
-      <Button variant="primary" isDisabled={!entryId || !isQuizEntry || isSaving} onClick={handleCreateQuestions}>
-        {isSaving ? 'Importing...' : 'Import questions'}
+      <Button variant="primary" isFullWidth isDisabled={!canImport} onClick={handleImport}>
+        {isSaving ? 'Importing…' : importLabel(preview.length)}
       </Button>
 
-      {error && (
-        <div style={{ color: '#d32f2f', background: '#fdecea', padding: '12px', borderRadius: '8px' }}>
-          {error}
-        </div>
-      )}
+      {error && <Note variant="negative">{error}</Note>}
+      {success && <Note variant="positive">{success}</Note>}
 
-      {success && (
-        <div style={{ color: '#1b5e20', background: '#e8f5e9', padding: '12px', borderRadius: '8px' }}>
-          {success}
-        </div>
-      )}
-
-      {parsedPreview.length > 0 && (
-        <div>
-          <Heading>Import preview ({parsedPreview.length} question{parsedPreview.length === 1 ? '' : 's'})</Heading>
-          {parsedPreview.map((question, index) => (
-            <div key={`${question.questionText}-${index}`} style={{ marginTop: '12px', padding: '12px', border: '1px solid #dfe3e8', borderRadius: '8px' }}>
-              <strong>{index + 1}. {question.questionText}</strong>
-              <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                {question.options.map((option, optionIndex) => (
-                  <li key={`${option.text}-${optionIndex}`}>
-                    {optionLetter(optionIndex)}. {option.text} {option.isCorrect ? '(correct)' : ''}
-                  </li>
-                ))}
-              </ul>
-              <p style={{ marginBottom: 0 }}><strong>Explanation:</strong> {question.explanation || 'Missing explanation'}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <PreviewList questions={preview} onRemove={removeQuestion} />
+    </Stack>
   );
 }
 

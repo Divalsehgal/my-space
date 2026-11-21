@@ -75,3 +75,6 @@ contentful-mcp-server
 /.mcp.json
 
 .taste-skill
+
+# graphify knowledge-graph output (local only)
+graphify-out/

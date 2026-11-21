@@ -22,6 +22,7 @@ const TOO_MANY_REQUESTS = 429;
 const SERVER_ERROR = 500;
 
 export const QUIZ_CONTENT_TYPE = "quizComponent";
+export const BLOG_CONTENT_TYPE = "blogPage";
 
 export interface ManagementConfig {
   spaceId: string;
@@ -128,7 +129,7 @@ export function contentfulRequest<T = ManagedEntry>(config: ManagementConfig, ur
   });
 }
 
-const createEntry = (config: ManagementConfig, contentTypeId: string, fields: Record<string, unknown>) =>
+export const createEntry = (config: ManagementConfig, contentTypeId: string, fields: Record<string, unknown>) =>
   contentfulRequest(config, "/entries", {
     method: "POST",
     headers: { "X-Contentful-Content-Type": contentTypeId },

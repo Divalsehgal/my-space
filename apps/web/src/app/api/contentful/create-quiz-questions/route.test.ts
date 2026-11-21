@@ -1,13 +1,14 @@
 /** @jest-environment node */
 import { signRequest } from "@contentful/node-apps-toolkit";
 import { OPTIONS, POST } from "./route";
-import { contentfulRequest, importQuestions } from "@/lib/contentful/quiz-import";
+import { contentfulRequest, createEntry, importQuestions } from "@/lib/contentful/quiz-import";
 
 jest.mock("@/lib/contentful/quiz-import", () => ({
   ...jest.requireActual("@/lib/contentful/quiz-import"),
   getManagementConfig: () => ({ spaceId: "s", accessToken: "t", environmentId: "master" }),
   contentfulRequest: jest.fn(),
   importQuestions: jest.fn(),
+  createEntry: jest.fn(),
 }));
 
 const SECRET = "a".repeat(64);
@@ -69,8 +70,30 @@ describe("POST /api/contentful/create-quiz-questions", () => {
     const missingId = await POST(signedRequest(JSON.stringify({ questions: [question] })));
     const badQuestions = await POST(signedRequest(JSON.stringify({ quizId: "quiz-1", questions: [{}] })));
     expect([missingId.status, badQuestions.status]).toEqual([400, 400]);
+    expect(await missingId.json()).toEqual({ error: "quizId or blogId is required." });
     (contentfulRequest as jest.Mock).mockResolvedValue({ sys: { id: "x", version: 1, contentType: { sys: { id: "blogPage" } } } });
     expect((await POST(signedRequest(JSON.stringify({ quizId: "x", questions: [question] })))).status).toBe(400);
+  });
+
+  it("imports into a blog's linked quiz, or creates one named after the blog", async () => {
+    const quiz = { sys: { id: "quiz-1", version: 1, contentType: { sys: { id: "quizComponent" } } }, fields: { title: { "en-US": "Quiz" } } };
+    const blogPost = (quizLink?: unknown) => ({
+      sys: { id: "blog-1", version: 1, contentType: { sys: { id: "blogPage" } } },
+      fields: { title: { "en-US": "Caching" }, ...(quizLink ? { quiz: { "en-US": quizLink } } : {}) },
+    });
+    (importQuestions as jest.Mock).mockResolvedValue({ createdQuestionIds: ["q1"], failure: null, quizPublishError: null });
+    const body = JSON.stringify({ blogId: "blog-1", questions: [question] });
+
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost({ sys: { id: "quiz-1" } })).mockResolvedValueOnce(quiz);
+    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ success: true, quizId: "quiz-1" });
+
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(blogPost());
+    (createEntry as jest.Mock).mockResolvedValueOnce({ ...quiz, sys: { ...quiz.sys, id: "quiz-new" } });
+    expect(await (await POST(signedRequest(body))).json()).toMatchObject({ quizId: "quiz-new" });
+    expect(createEntry).toHaveBeenCalledWith(expect.anything(), "quizComponent", { title: { "en-US": "Caching — Quiz" } });
+
+    (contentfulRequest as jest.Mock).mockResolvedValueOnce(quiz);
+    expect((await POST(signedRequest(body))).status).toBe(400);
   });
 
   it("answers the CORS preflight", () => {

@@ -43,7 +43,7 @@ describe("createQuizQuestions", () => {
 
   it("posts the questions and returns the server message", async () => {
     const fetchMock = mockFetch(() => respond(201, { message: "Created 1 question(s)." }));
-    await expect(createQuizQuestions("quiz-1", payload, true, sign)).resolves.toBe("Created 1 question(s).");
+    await expect(createQuizQuestions({ quizId: "quiz-1" }, payload, true, sign)).resolves.toEqual({ message: "Created 1 question(s)." });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(String(url)).toMatch(/\/contentful\/create-quiz-questions$/);
     expect(JSON.parse(String(init?.body))).toMatchObject({ quizId: "quiz-1", publish: true, questions: [{ questionText: "Q?" }] });
@@ -54,30 +54,47 @@ describe("createQuizQuestions", () => {
 
   it("surfaces the server's error message", async () => {
     mockFetch(() => respond(400, { error: "Quiz JSON is invalid." }));
-    await expect(createQuizQuestions("quiz-1", payload, false, sign)).rejects.toThrow("Quiz JSON is invalid.");
+    await expect(createQuizQuestions({ quizId: "quiz-1" }, payload, false, sign)).rejects.toThrow("Quiz JSON is invalid.");
   });
 
   it("falls back to the response text for non-JSON errors", async () => {
     mockFetch(() => respond(502, "Bad gateway", "text/plain"));
-    await expect(createQuizQuestions("quiz-1", payload, false, sign)).rejects.toThrow("Bad gateway");
+    await expect(createQuizQuestions({ quizId: "quiz-1" }, payload, false, sign)).rejects.toThrow("Bad gateway");
+  });
+});
+
+describe("createQuizQuestions for a blog", () => {
+  it("sends blogId instead of quizId and returns the quiz it used", async () => {
+    const fetchMock = mockFetch(() => respond(200, { message: "ok", quizId: "new-quiz" }));
+    await expect(createQuizQuestions({ blogId: "blog-1" }, payload, false, sign)).resolves.toEqual({ message: "ok", quizId: "new-quiz" });
+    const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body).toMatchObject({ blogId: "blog-1" });
+    expect(body).not.toHaveProperty("quizId");
   });
 });
 
 describe("createQuizQuestions error shapes", () => {
   it("uses the first validation detail, then the default message", async () => {
     mockFetch(() => respond(400, { details: ["Option text is required."] }));
-    await expect(createQuizQuestions("q", payload, false, sign)).rejects.toThrow("Option text is required.");
+    await expect(createQuizQuestions({ quizId: "q" }, payload, false, sign)).rejects.toThrow("Option text is required.");
     mockFetch(() => respond(400, {}));
-    await expect(createQuizQuestions("q", payload, false, sign)).rejects.toThrow("Failed to create quiz questions.");
+    await expect(createQuizQuestions({ quizId: "q" }, payload, false, sign)).rejects.toThrow("Failed to create quiz questions.");
   });
 
   it("reports the status when the error body is unreadable", async () => {
     mockFetch(() => respond(500, "not json"));
-    await expect(createQuizQuestions("q", payload, false, sign)).rejects.toThrow("Server error: 500");
+    await expect(createQuizQuestions({ quizId: "q" }, payload, false, sign)).rejects.toThrow("Server error: 500");
   });
 
   it("rejects an unparseable success body", async () => {
     mockFetch(() => respond(200, "not json"));
-    await expect(createQuizQuestions("q", payload, false, sign)).rejects.toThrow("Invalid response from server");
+    await expect(createQuizQuestions({ quizId: "q" }, payload, false, sign)).rejects.toThrow("Invalid response from server");
+  });
+
+  it("explains a signing failure", async () => {
+    const fetchMock = mockFetch(() => respond(200, {}));
+    const failingSign = jest.fn(() => Promise.reject({ message: "No signing secret" }));
+    await expect(createQuizQuestions({ quizId: "q" }, payload, false, failingSign)).rejects.toThrow("Contentful could not sign the request (is request verification enabled for this app?): No signing secret");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
